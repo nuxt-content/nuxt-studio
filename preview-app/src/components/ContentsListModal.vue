@@ -2,12 +2,12 @@
 import { ref, computed, watch, toRaw } from 'vue'
 import { usePreview } from '../composables/usePreview'
 import { MDCEditorAST } from '@farnabaz/mdc-editor'
-import { withoutReservedKeys } from '../utils/collections';
+import { withoutReservedKeys } from '../utils/collections'
 
 const modelValue = defineModel<boolean>()
 
 const emit = defineEmits<{
-  (e: 'select', id: string): void,
+  (e: 'select', id: string): void
   (e: 'update:content', content: any): void
 }>()
 
@@ -22,7 +22,7 @@ const selectedContent = ref<any>()
 async function loadContents() {
   loading.value = true
   try {
-    contents.value = await preview.draftFile.list()
+    contents.value = await preview.dbFiles.list()
   }
   finally {
     loading.value = false
@@ -38,7 +38,7 @@ watch(modelValue, (open) => {
 })
 
 watch(content, async (value) => {
-  preview.draftFile.upsert(selectedContent.value.id, {
+  preview.draftFiles.upsert(selectedContent.value.id, {
     ...toRaw(value),
     id: selectedContent.value.id,
     extension: selectedContent.value.extension,
@@ -89,7 +89,10 @@ const items = computed(() => filtered.value.map(item => ({
     <template #body>
       <div class="h-full overflow-hidden flex flex-col">
         <div class="flex-1 overflow-y-auto">
-          <div v-if="loading" class="p-4 text-sm text-neutral-500">
+          <div
+            v-if="loading"
+            class="p-4 text-sm text-neutral-500"
+          >
             Loading...
           </div>
           <div v-else>
@@ -101,15 +104,19 @@ const items = computed(() => filtered.value.map(item => ({
               >
                 <template #item-label="{ item }">
                   <div class="text-left">
-                      {{ item.label}}
+                    {{ item.label }}
                   </div>
                   <div class="text-xs text-left">
-                      {{ item.subtitle }}
+                    {{ item.subtitle }}
                   </div>
                 </template>
               </UNavigationMenu>
               <div>
-                <MDCEditorAST v-if="content" :key="content?.id" v-model="content" />
+                <MDCEditorAST
+                  v-if="content"
+                  :key="content?.id"
+                  v-model="content"
+                />
               </div>
             </div>
           </div>
@@ -118,5 +125,3 @@ const items = computed(() => filtered.value.map(item => ({
     </template>
   </UModal>
 </template>
-
-

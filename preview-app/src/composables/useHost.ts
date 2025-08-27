@@ -4,7 +4,7 @@ import type { DatabaseItem } from '../types'
 import type { ContentDatabaseAdapter, ContentProvide } from '../types/content'
 
 import type { NuxtApp } from 'nuxt/app'
-import { explainDraft } from '../utils/collections'
+import { getCollectionInfo } from '../utils/collections'
 import { kebabCase } from 'lodash'
 
 const hostStyles = {
@@ -26,7 +26,7 @@ const hostStyles = {
     }
     }
     @keyframes mr0 {
-    0% {  
+    0% {
         margin-right: 440px;
     }
     100% {
@@ -41,7 +41,9 @@ export function useHost() {
   onBeforeMount(async () => {
     host.ui.updateStyles()
     // Trigger dummy query to make sure content database is loaded on the client
-    await host.content?.queryCollection('content').first().catch((e) => { console.error(e) })
+    await host.content?.queryCollection('content').first().catch((e) => {
+      console.error(e)
+    })
     ensure(() => host.databaseAdapter !== undefined).then(() => {
       isMounted.value = true
     })
@@ -68,7 +70,7 @@ export function useHost() {
           return $content.queryCollection(id.split('/')[0]).where('id', '=', id).first() as unknown as Promise<DatabaseItem>
         },
         getDocumentPathById(id: string) {
-          return explainDraft(id, $content.collections).path
+          return getCollectionInfo(id, $content.collections).path
         },
       }
     },
@@ -78,8 +80,10 @@ export function useHost() {
     get nuxtApp(): NuxtApp {
       return window.useNuxtApp!()
     },
-    onbeforeunload: (fn: (event: BeforeUnloadEvent) => void) => {
-      ensure(() => isMounted.value).then(() => { window.addEventListener('beforeunload', fn) })
+    onBeforeUnload: (fn: (event: BeforeUnloadEvent) => void) => {
+      ensure(() => isMounted.value).then(() => {
+        window.addEventListener('beforeunload', fn)
+      })
     },
     onMounted: (fn: () => void) => ensure(() => isMounted.value).then(fn),
     detectRenderedContents,

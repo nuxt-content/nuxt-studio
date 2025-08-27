@@ -57,3 +57,6 @@ Temporary Items
 
 auto-imports.d.ts
 components.d.ts
+
+# VSC plugins
+.history

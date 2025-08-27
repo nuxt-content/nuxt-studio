@@ -1,7 +1,6 @@
 import type { CollectionInfo, CollectionSource, Draft07, ParsedContentFile } from '@nuxt/content'
 import { hash } from 'ohash'
 import { pathMetaTransform } from './path-meta'
-// import { collections } from '#content/preview'
 import type { DatabaseItem } from '../types'
 import { minimatch } from 'minimatch'
 import { join } from 'pathe'
@@ -49,7 +48,7 @@ export function getContentPath(id: string, collection: CollectionInfo['source'][
   return join('content', fixed, path)
 }
 
-export function explainDraft(id: string, collections: Record<string, CollectionInfo>) {
+export function getCollectionInfo(id: string, collections: Record<string, CollectionInfo>) {
   const collection = getCollection(id.split(/[/:]/)[0]!, collections)
   const source = getCollectionSource(id, collection)
   const path = getContentPath(id, source!)
@@ -157,7 +156,7 @@ function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: 
   return values
 }
 
-export function generateCollectionInsert(collection: CollectionInfo, data: Record<string, unknown>) {
+export function generateRecordInsert(collection: CollectionInfo, data: Record<string, unknown>) {
   const values = computeValuesBasedOnCollectionSchema(collection, data)
 
   let index = 0
@@ -170,7 +169,7 @@ export function generateRecordUpdate(collection: CollectionInfo, id: string, dat
   id = id.replace(/:/g, '/')
   const deleteQuery = generateRecordDeletion(collection, id)
 
-  const insertQuery = generateCollectionInsert(collection, data)
+  const insertQuery = generateRecordInsert(collection, data)
 
   return [deleteQuery, insertQuery]
 }

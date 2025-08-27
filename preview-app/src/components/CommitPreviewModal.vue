@@ -7,11 +7,11 @@ import type { DraftFileItem } from '../types'
 
 const modelValue = defineModel<any>()
 
-const props = defineProps({
-  content: {
-    type: Object,
-  },
-})
+// const props = defineProps({
+//   content: {
+//     type: Object,
+//   },
+// })
 
 const preview = usePreview()
 // const toast = useToast()
@@ -21,8 +21,8 @@ const filesToReview = ref<DraftFileItem[]>([])
 
 async function prepareReview() {
   loading.value = true
-  filesToReview.value = await Promise.all(preview.draftFiles.value.map(async ({ id }) => {
-    const draft = await preview.draftFile.get(id, { generateContent: true })
+  filesToReview.value = await Promise.all(preview.draftFiles.list.value.map(async ({ id }) => {
+    const draft = await preview.draftFiles.get(id, { generateContent: true })
     return {
       ...draft,
       markdown: draft.content!,
@@ -32,7 +32,7 @@ async function prepareReview() {
   loading.value = false
 }
 
-const emit = defineEmits(['commit'])
+// const emit = defineEmits(['commit'])
 
 const commitMessage = ref('')
 const commiting = ref(false)
@@ -51,15 +51,17 @@ async function commitChanges() {
     //   color: 'green',
     // })
 
-    await preview.draftFile.revertAll()
+    await preview.draftFiles.revertAll()
     modelValue.value = false
-  } catch (e) {
+  }
+  catch (e) {
     // toast.add({
     //   title: 'Error',
     //   description: 'Error committing changes',
     //   color: 'red',
     // })
-  } finally {
+  }
+  finally {
     commiting.value = false
   }
 }

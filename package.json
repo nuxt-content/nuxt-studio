@@ -72,5 +72,6 @@
   },
   "resolutions": {
     "@nuxt/content": "https://pkg.pr.new/@nuxt/content@8488733"
-  }
+  },
+  "packageManager": "pnpm@10.15.0"
 }

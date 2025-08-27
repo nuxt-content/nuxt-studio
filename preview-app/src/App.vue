@@ -6,7 +6,7 @@ import { usePreview } from './composables/usePreview'
 import PreviewToolbar from './components/PreviewToolbar.vue'
 // import CommitPreviewModal from './components/CommitPreviewModal.vue'
 
-const { host, draftFile, draftFiles } = usePreview()
+const { host, draftFiles } = usePreview()
 
 const activeContents = ref<{ id: string, label: string, value: string }[]>([])
 
@@ -60,7 +60,6 @@ const isLeftSidebarOpen = computed(() => {
   return ui.editorVisibility
 })
 
-
 watch(isLeftSidebarOpen, (value) => {
   if (value) {
     host.ui.pushBodyToLeft()
@@ -76,10 +75,10 @@ async function onContentSelect(id: string) {
   ui.editorVisibility = true
 }
 function onEditorUpdate(content: any) {
-  draftFile.upsert(selectedContentId.value!, content)
+  draftFiles.upsert(selectedContentId.value!, content)
 }
 function onRevert() {
-  draftFile.revert(selectedContentId.value!)
+  draftFiles.revert(selectedContentId.value!)
 }
 
 function detectRenderedContents() {
@@ -104,7 +103,6 @@ host.onMounted(() => {
     }, 100)
   })
 })
-
 </script>
 
 <template>
@@ -135,7 +133,7 @@ host.onMounted(() => {
                 label="Save Changes"
                 color="primary"
                 variant="solid"
-                :disabled="!draftFiles.length"
+                :disabled="!draftFiles.list.value.length"
                 @click="ui.commitPreviewVisibility = true"
               />
             </template>
