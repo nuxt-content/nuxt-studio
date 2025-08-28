@@ -165,7 +165,7 @@ export function generateRecordInsert(collection: CollectionInfo, data: Record<st
     .replace(/\?/g, () => values[index++] as string)
 }
 
-export function generateRecordUpdate(collection: CollectionInfo, id: string, data: Record<string, unknown>) {
+export function generateRecordUpsert(collection: CollectionInfo, id: string, data: Record<string, unknown>) {
   id = id.replace(/:/g, '/')
   const deleteQuery = generateRecordDeletion(collection, id)
 

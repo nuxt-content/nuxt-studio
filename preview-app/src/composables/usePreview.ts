@@ -1,7 +1,7 @@
 import { createStorage } from 'unstorage'
 import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { getCollectionInfo, generateRecordDeletion } from '../utils/collections'
-import { applyDraftToDatabase } from '../utils/database'
+import { upsertItemInDatabase } from '../utils/database'
 import { useHost } from './useHost'
 import { useGit } from './useGit'
 import { useDraftFiles } from './useDraftFiles'
@@ -35,7 +35,7 @@ export function usePreview() {
         await host.databaseAdapter(collection.name).exec(generateRecordDeletion(collection, draft.id))
       }
       else {
-        await applyDraftToDatabase(host, draft.id, draft.document!)
+        await upsertItemInDatabase(host, draft.id, draft.document!)
       }
     }))
     host.nuxtApp.hooks.callHookParallel('app:data:refresh')

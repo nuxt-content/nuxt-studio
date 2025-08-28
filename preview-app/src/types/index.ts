@@ -1,4 +1,3 @@
-import type { MDCRoot } from '@nuxtjs/mdc'
 import type { CollectionItemBase, PageCollectionItemBase, DataCollectionItemBase } from '@nuxt/content'
 
 // export interface DBFile extends CollectionItemBase {
@@ -14,7 +13,6 @@ import type { CollectionItemBase, PageCollectionItemBase, DataCollectionItemBase
 //   deleted?: boolean
 // }
 
-
 // export interface ReviewFile extends ContentDraft {
 //   path: string
 //   markdown: string
@@ -22,15 +20,15 @@ import type { CollectionItemBase, PageCollectionItemBase, DataCollectionItemBase
 // }
 
 export interface DatabaseItem extends CollectionItemBase {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface DatabasePageItem extends PageCollectionItemBase {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface DatabaseDataItem extends DataCollectionItemBase {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface GithubFile {
@@ -53,44 +51,29 @@ export interface GithubFile {
 }
 
 export interface DraftFileItem {
-  id: string
-  /**
-   * file path in content directory
-   */
-  path: string
-  /**
-   * we might not needed becasue of originalDatabaseItem
-   */
-  oldPath?: string
-  originalDatabaseItem?: DatabaseItem
-  originalGithubFile?: GithubFile
-
-  content?: string
-  document?: DatabaseItem
-
-  status: 'deleted' | 'created' | 'updated'
-
+  id: string // nuxt/content id
+  path: string // file path in content directory
+  originalDatabaseItem?: DatabaseItem // original collection document saved in db
+  originalGithubFile?: GithubFile // file fetched on gh
+  content?: string // Drafted raw markdown content
+  document?: DatabaseItem // Drafted parsed AST (body, frontmatter...)
+  status: 'deleted' | 'created' | 'updated' // Draft status
 }
 
 export interface DraftFileItem {
-  id: string
-  /**
-   * file path in content directory
-   */
-  path: string
-  oldPath?: string
-  content?: string
-  url?: string
+  id: string // nuxt/content id
+  path: string // file path in public directory
+  oldPath?: string // Old path in public directory (used for revert a renamed file)
+  content?: string // Base64 value
+  url?: string // Public gh url
 
+  // Image metas
   width?: number
   height?: number
   size?: number
   mimeType?: string
 
-
-  status: 'deleted' | 'created' | 'updated'
+  status: 'deleted' | 'created' | 'updated' // Draft status
 }
 
-export interface ConfigItem {
-
-}
+// export interface ConfigItem { ... }
