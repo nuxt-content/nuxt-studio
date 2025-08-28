@@ -22,7 +22,7 @@ const selectedContent = ref<any>()
 async function loadContents() {
   loading.value = true
   try {
-    contents.value = await preview.dbFiles.list()
+    contents.value = await preview.host.document.list()
   }
   finally {
     loading.value = false
@@ -55,7 +55,7 @@ const filtered = computed(() => {
 })
 
 async function onSelect(id: string) {
-  selectedContent.value = await preview.host.content.getDocumentById(id)
+  selectedContent.value = await preview.host.document.get(id)
   content.value = {
     ...withoutReservedKeys(selectedContent.value),
     body: selectedContent.value.body,

@@ -29,7 +29,7 @@ export default defineNuxtModule({
       config.optimizeDeps.include = [
         ...(config.optimizeDeps.include || []),
         'debug',
-        'extend'
+        'extend',
       ]
     })
 

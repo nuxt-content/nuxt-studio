@@ -22,11 +22,11 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
         })
 
         app.use(router)
-        app._context.provides.usehead = true
 
+        // app._context.provides.usehead = true
         app.use({
           install() {
-            useDark()
+            // useDark()
             const head = createHead({
               hooks: {
                 'dom:beforeRender': (args) => {
@@ -37,7 +37,6 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
             app.use(head)
           },
         })
-      // app.use(ui)
       },
       styles: [
         tailwindColors,

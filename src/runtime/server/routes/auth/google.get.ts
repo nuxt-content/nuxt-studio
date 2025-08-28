@@ -1,12 +1,12 @@
-import { defineOAuthGoogleEventHandler, setUserSession } from "#imports"
-import { sendRedirect } from "h3"
+import { defineOAuthGoogleEventHandler, setUserSession } from '#imports'
+import { sendRedirect } from 'h3'
 
 export default defineOAuthGoogleEventHandler({
   config: {
-    emailRequired: true
+    emailRequired: true,
   },
   async onSuccess(event, { user }) {
-    const moderators = (process.env.NUXT_ADMIN_CONTENT_MODERATORS || '').split(','). map(email => email.trim())
+    const moderators = (process.env.NUXT_ADMIN_CONTENT_MODERATORS || '').split(',').map(email => email.trim())
     if (!moderators.includes(user.email)) {
       return sendRedirect(event, '/')
     }
@@ -19,8 +19,8 @@ export default defineOAuthGoogleEventHandler({
         name: user.name,
         avatar: user.picture,
         email: user.email,
-        provider: 'google'
-      }
+        provider: 'google',
+      },
     })
     return sendRedirect(event, '/')
   },

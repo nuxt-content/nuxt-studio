@@ -1,20 +1,20 @@
 export default defineNuxtConfig({
   modules: [
-    '@nuxt/ui-pro',
+    // '@nuxt/ui-pro',
     '../src/module',
-    '@nuxt/content'
+    '@nuxt/content',
   ],
-  css: ['~/assets/css/main.css'],
+  // css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
-  compatibilityDate: '2025-08-26',
   content: {
     experimental: {
-      sqliteConnector: 'native'
+      sqliteConnector: 'native',
     },
 
     preview: {
       dev: true,
       api: 'http://localhost:3000',
-    }
-  }
+    },
+  },
+  compatibilityDate: '2025-08-26',
 })

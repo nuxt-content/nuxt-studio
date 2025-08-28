@@ -1,24 +1,5 @@
 import type { CollectionItemBase, PageCollectionItemBase, DataCollectionItemBase } from '@nuxt/content'
 
-// export interface DBFile extends CollectionItemBase {
-//   [key: string]: any
-// }
-
-// export interface ContentDraft {
-//   id: string
-//   parsed: MDCRoot
-//   markdown?: string
-//   gitFile?: GithubFile
-//   dbFile?: DBFile | null
-//   deleted?: boolean
-// }
-
-// export interface ReviewFile extends ContentDraft {
-//   path: string
-//   markdown: string
-//   original: string
-// }
-
 export interface DatabaseItem extends CollectionItemBase {
   [key: string]: unknown
 }

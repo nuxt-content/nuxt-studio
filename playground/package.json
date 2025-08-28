@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "nuxt": "^4.0.3",
-    "reka-ui": "^2.4.1"
+    "reka-ui": "^2.5.0"
   }
 }

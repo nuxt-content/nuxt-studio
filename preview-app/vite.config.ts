@@ -27,12 +27,16 @@ export default defineConfig({
   ],
   build: {
     cssCodeSplit: false,
+    outDir: './dist',
     lib: {
-      entry: './src/custom-element.main.ts',
+      entry: './src/preview-app.webcomponent.ts',
       name: 'preview-app',
       formats: ['es'],
       // the proper extensions will be added
       fileName: 'preview-app',
+    },
+    rollupOptions: {
+      external: ['shiki', '@nuxtjs/mdc'],
     },
     sourcemap: true,
   },

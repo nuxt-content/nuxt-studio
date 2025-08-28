@@ -165,15 +165,6 @@ export function generateRecordInsert(collection: CollectionInfo, data: Record<st
     .replace(/\?/g, () => values[index++] as string)
 }
 
-export function generateRecordUpsert(collection: CollectionInfo, id: string, data: Record<string, unknown>) {
-  id = id.replace(/:/g, '/')
-  const deleteQuery = generateRecordDeletion(collection, id)
-
-  const insertQuery = generateRecordInsert(collection, data)
-
-  return [deleteQuery, insertQuery]
-}
-
 export function generateRecordDeletion(collection: CollectionInfo, id: string) {
   return `DELETE FROM ${collection.tableName} WHERE id = '${id}';`
 }

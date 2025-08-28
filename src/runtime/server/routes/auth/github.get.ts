@@ -1,9 +1,9 @@
-import { defineOAuthGitHubEventHandler, setUserSession } from "#imports"
-import { sendRedirect } from "h3"
+import { defineOAuthGitHubEventHandler, setUserSession } from '#imports'
+import { sendRedirect } from 'h3'
 
 export default defineOAuthGitHubEventHandler({
   config: {
-    emailRequired: true
+    emailRequired: true,
   },
   async onSuccess(event, { user, tokens }) {
     await setUserSession(event, {
@@ -14,8 +14,8 @@ export default defineOAuthGitHubEventHandler({
         name: user.name,
         avatar: user.avatar_url,
         email: user.email,
-        provider: 'github'
-      }
+        provider: 'github',
+      },
     })
     return sendRedirect(event, '/')
   },

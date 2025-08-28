@@ -2,7 +2,7 @@
   <div class="flex">
     <UDashboardSidebar
       id="default"
-      :ui="{ footer: 'lg:border-t lg:border-default', 'body': '!p-0' }"
+      :ui="{ footer: 'lg:border-t lg:border-default', body: '!p-0' }"
     >
       <UNavigationMenu
         orientation="vertical"

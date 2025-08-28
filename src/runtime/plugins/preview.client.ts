@@ -2,7 +2,6 @@ import { watch } from 'vue'
 import { defineNuxtPlugin, getAppManifest, useUserSession } from '#imports'
 import type { NuxtApp } from 'nuxt/app'
 
-
 export default defineNuxtPlugin(async (nuxtApp) => {
   const { user } = useUserSession()
 
@@ -11,14 +10,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (newUser?.contentUser) {
       await mountPreviewUIIfLoggedIn(nuxtApp as NuxtApp, newUser)
       mounted = true
-    } else if (mounted) {
+    }
+    else if (mounted) {
       if (typeof window !== 'undefined') {
         window.location.reload()
       }
     }
   }, { immediate: true })
-
-  
 })
 
 async function mountPreviewUIIfLoggedIn(nuxtApp: NuxtApp, user: any) {
@@ -29,13 +27,30 @@ async function mountPreviewUIIfLoggedIn(nuxtApp: NuxtApp, user: any) {
   // preview/admin login logic
   if (typeof window === 'undefined') {
     nuxtApp.hook('app:mounted', async () => {
-      await import('../utils/mountPreviewUI').then(({ mountPreviewUI }) => {
-        mountPreviewUI()
-      })
-    })
-  } else {
-    await import('../utils/mountPreviewUI').then(({ mountPreviewUI }) => {
-      mountPreviewUI()
+      const el = document.createElement('script')
+      el.src = 'http://localhost:5174/src/preview-app.webcomponent.ts'
+      el.type='module'
+      document.body.appendChild(el)
+
+      const wp = document.createElement('preview-app')
+      document.body.appendChild(wp)
+      // await import('../utils/mountPreviewUI').then(({ mountPreviewUI }) => {
+      //   mountPreviewUI()
+      // })
     })
   }
+  else {
+    const el = document.createElement('script')
+    el.src = 'http://localhost:5174/src/preview-app.webcomponent.ts'
+    el.type='module'
+    document.body.appendChild(el)
+
+    const wp = document.createElement('preview-app')
+    document.body.appendChild(wp)
+    // await import('../utils/mountPreviewUI').then(({ mountPreviewUI }) => {
+    //   mountPreviewUI()
+    // })
+  }
 }
+
+

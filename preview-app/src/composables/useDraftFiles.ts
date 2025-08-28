@@ -4,7 +4,6 @@ import type { DatabaseItem, DraftFileItem } from '../types'
 import type { useHost } from './useHost'
 import type { useGit } from './useGit'
 import { createCollectionDocument, getCollectionInfo } from '../utils/collections'
-import { deleteItemInDatabase, upsertItemInDatabase } from '../utils/database'
 import { generateMarkdown } from '../utils/content'
 
 export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<typeof useGit>, storage: Storage<StorageValue>) {
@@ -13,11 +12,9 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
   async function get(id: string, { generateContent = false }: { generateContent?: boolean } = {}) {
     const item = await storage.getItem(id) as DraftFileItem
     if (generateContent) {
-      const { collection } = getCollectionInfo(id, host.content.collections)
-      const doc = createCollectionDocument(collection, id, item.document!)
       return {
         ...item,
-        content: await generateMarkdown(doc) || '',
+        content: await generateMarkdown(item.document!) || '',
       }
     }
     return item
@@ -27,11 +24,11 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
     id = id.replace(/:/g, '/')
     let draft = await storage.getItem(id) as DraftFileItem
     if (!draft) {
-      const { path } = getCollectionInfo(id, host.content.collections)
+      const { path } = getCollectionInfo(id, host.collections > list)
 
       // Fetch github file before creating draft to detect non deployed changes before publishing
       const originalGithubFile = await git.fetchFile(path, { cached: true })
-      const originalDatabaseItem = await host.content.getDocumentById(id)
+      const originalDatabaseItem = await host.document.get(id)
 
       draft = {
         id,
@@ -57,20 +54,19 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
       draftFiles.value.push(draft)
     }
 
-    await upsertItemInDatabase(host, id, draft.document!)
-
-    host.nuxtApp.hooks.callHookParallel('app:data:refresh')
+    await host.document.upsert(id, draft.document!)
+    host.requestRerender()
   }
 
   async function remove(id: string) {
     const draft = await storage.getItem(id) as DraftFileItem
-    const { collection, path } = getCollectionInfo(id, host.content.collections)
+    const path = host.document.getFileSystemPath(id)
 
     if (draft) {
       if (draft.status === 'deleted') return
 
       await storage.removeItem(id)
-      await deleteItemInDatabase(host, id, collection)
+      await host.document.delete(id)
 
       if (draft.originalDatabaseItem) {
         const deleteDraft: DraftFileItem = {
@@ -82,13 +78,13 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
         }
 
         await storage.setItem(id, deleteDraft)
-        await upsertItemInDatabase(host, id, draft.originalDatabaseItem!)
+        await host.document.upsert(id, draft.originalDatabaseItem!)
       }
     }
     else {
       // Fetch github file before creating draft to detect non deployed changes
       const originalGithubFile = await git.fetchFile(path, { cached: true })
-      const originalDatabaseItem = await host.content.getDocumentById(id)
+      const originalDatabaseItem = await host.document.get(id)
 
       const deleteDraft: DraftFileItem = {
         id,
@@ -100,11 +96,11 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
 
       await storage.setItem(id, deleteDraft)
 
-      await deleteItemInDatabase(host, id, collection)
+      await host.document.delete(id)
     }
 
     draftFiles.value = draftFiles.value.filter(item => item.id !== id)
-    host.nuxtApp.hooks.callHookParallel('app:data:refresh')
+    host.requestRerender()
   }
 
   async function revert(id: string) {
@@ -116,28 +112,27 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
     draftFiles.value = draftFiles.value.filter(item => item.id !== id)
 
     if (draft.originalDatabaseItem) {
-      await upsertItemInDatabase(host, id, draft.originalDatabaseItem)
+      await host.document.upsert(id, draft.originalDatabaseItem)
     }
 
     if (draft.status === 'created') {
-      await deleteItemInDatabase(host, id)
+      await host.document.delete(id)
     }
-
-    host.nuxtApp.hooks.callHookParallel('app:data:refresh')
+    host.requestRerender()
   }
 
   async function revertAll() {
     await storage.clear()
     for (const draft of draftFiles.value) {
       if (draft.originalDatabaseItem) {
-        await upsertItemInDatabase(host, draft.id, draft.originalDatabaseItem)
+        await host.document.upsert(draft.id, draft.originalDatabaseItem)
       }
       else if (draft.status === 'created') {
-        await deleteItemInDatabase(host, draft.id)
+        await host.document.delete(draft.id)
       }
     }
     draftFiles.value = []
-    host.nuxtApp.hooks.callHookParallel('app:data:refresh')
+    host.requestRerender()
   }
 
   async function load() {

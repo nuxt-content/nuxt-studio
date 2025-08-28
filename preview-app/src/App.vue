@@ -8,7 +8,7 @@ import PreviewToolbar from './components/PreviewToolbar.vue'
 
 const { host, draftFiles } = usePreview()
 
-const activeContents = ref<{ id: string, label: string, value: string }[]>([])
+const activeDocuments = ref<{ id: string, label: string, value: string }[]>([])
 
 const selectedContentId = ref<string | null>(null)
 const selectedContent = ref<any | null>(null)
@@ -21,17 +21,17 @@ const ui = reactive({
 
 const contentItems = computed(() => {
   const items = []
-  if (activeContents.value.length > 0) {
+  if (activeDocuments.value.length > 0) {
     items.unshift(
-      activeContents.value,
+      activeDocuments.value,
     )
   }
 
-  if (draftFiles.value.length > 0) {
+  if (draftFiles.list.value.length > 0) {
     items.push([
       {
-        label: `Drafts (${draftFiles.value.length})`,
-        children: draftFiles.value.map((draft) => {
+        label: `Drafts (${draftFiles.list.value.length})`,
+        children: draftFiles.list.value.map((draft) => {
           return {
             label: draft.id,
             value: draft.id,
@@ -71,7 +71,7 @@ watch(isLeftSidebarOpen, (value) => {
 
 async function onContentSelect(id: string) {
   selectedContentId.value = id
-  selectedContent.value = await host.content.getDocumentById(id)
+  selectedContent.value = await host.document.get(id)
   ui.editorVisibility = true
 }
 function onEditorUpdate(content: any) {
@@ -81,8 +81,8 @@ function onRevert() {
   draftFiles.revert(selectedContentId.value!)
 }
 
-function detectRenderedContents() {
-  activeContents.value = host.detectRenderedContents().map((content) => {
+function detectActiveDocuments() {
+  activeDocuments.value = host.document.detectActives().map((content) => {
     return {
       id: content.id,
       label: content.title,
@@ -94,12 +94,11 @@ function detectRenderedContents() {
   })
 }
 
-host.onMounted(() => {
-  detectRenderedContents()
-  const router = (host.nuxtApp as any).$router
-  router?.afterEach?.(() => {
+host.on.mounted(() => {
+  detectActiveDocuments()
+  host.on.routeChange(() => {
     setTimeout(() => {
-      detectRenderedContents()
+      detectActiveDocuments()
     }, 100)
   })
 })
