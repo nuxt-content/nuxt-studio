@@ -24,7 +24,7 @@ export function useDraftFiles(host: ReturnType<typeof useHost>, git: ReturnType<
     id = id.replace(/:/g, '/')
     let draft = await storage.getItem(id) as DraftFileItem
     if (!draft) {
-      const { path } = getCollectionInfo(id, host.collections > list)
+      const path = host.document.getFileSystemPath(id)
 
       // Fetch github file before creating draft to detect non deployed changes before publishing
       const originalGithubFile = await git.fetchFile(path, { cached: true })

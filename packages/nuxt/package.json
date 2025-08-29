@@ -5,27 +5,42 @@
   "repository": "@nuxtlabs/content-preview",
   "license": "MIT",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepack": "nuxt-module-build build",
-    "dev": "npm run dev:prepare && PREVIEW_DEV_SERVER=http://localhost:5151 nuxi dev playground",
-    "dev:app": "vite packages/preview-app --port 5151",
+    "dev": "npm run dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build build --stub packages/nuxt && nuxt-module-build prepare packages/nuxt && nuxi prepare playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
-  "devDependencies": {
-    "@nuxt/eslint-config": "latest",
-    "eslint": "^9.34.0",
-    "preview-app": "./packages/preview-app",
-    "vitest": "^3.2.4",
-    "vue-tsc": "^3.0.6"
+  "dependencies": {
+    "@nuxt/kit": "latest",
+    "nuxt-auth-utils": "latest",
+    "@nuxt/content": "latest"
   },
-  "resolutions": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@8488733"
+  "devDependencies": {
+    "nuxt": "latest",
+    "@nuxt/module-builder": "^1.0.2"
   },
   "packageManager": "pnpm@10.15.0"
 }

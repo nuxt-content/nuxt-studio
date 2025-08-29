@@ -74,6 +74,17 @@ export function withoutReservedKeys(content: ParsedContentFile) {
   if (result.navigation === true) {
     Reflect.deleteProperty(result, 'navigation')
   }
+
+  if (content.seo) {
+    const seo = content.seo as Record<string, unknown>
+    if (seo.title === content.title) {
+      Reflect.deleteProperty(result, 'seo')
+    }
+    if (seo.description === content.description) {
+      Reflect.deleteProperty(result, 'seo')
+    }
+  }
+
   // expand meta to the root
   for (const key in (content.meta || {})) {
     if (key !== '__hash__') {

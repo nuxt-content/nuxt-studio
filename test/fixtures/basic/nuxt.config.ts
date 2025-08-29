@@ -1,4 +1,4 @@
-import MyModule from '../../../src/module'
+import MyModule from 'content-preview'
 
 export default defineNuxtConfig({
   modules: [

@@ -112,7 +112,8 @@ function confirm() {
         <UButton label="Save" icon="i-lucide-save" color="primary" variant="solid" />
       </template> -->
       <!-- <template #body> -->
-      <MDCEditorAST v-model="content" />
+      <!-- <MDCEditorAST v-model="content" /> -->
+      <SimpleTextEditor v-model:document="content" />
       <!-- </template> -->
     <!-- </USlideover> -->
     </div>

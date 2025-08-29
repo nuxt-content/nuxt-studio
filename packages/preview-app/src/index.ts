@@ -6,7 +6,6 @@ import styles from './assets/css/main.css?inline'
 
 import { createHead } from '@unhead/vue/client'
 import { generateColors, tailwindColors } from './utils/colors'
-import { useDark } from '@vueuse/core'
 
 import App from './App.vue'
 
@@ -22,11 +21,9 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
         })
 
         app.use(router)
-
         // app._context.provides.usehead = true
         app.use({
           install() {
-            // useDark()
             const head = createHead({
               hooks: {
                 'dom:beforeRender': (args) => {

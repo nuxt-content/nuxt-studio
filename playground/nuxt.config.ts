@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   modules: [
     // '@nuxt/ui-pro',
-    '../src/module',
+    'content-preview',
     '@nuxt/content',
   ],
   // css: ['~/assets/css/main.css'],

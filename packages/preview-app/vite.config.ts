@@ -29,7 +29,7 @@ export default defineConfig({
     cssCodeSplit: false,
     outDir: './dist',
     lib: {
-      entry: './src/preview-app.webcomponent.ts',
+      entry: './src/index.ts',
       name: 'preview-app',
       formats: ['es'],
       // the proper extensions will be added

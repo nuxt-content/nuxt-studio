@@ -8,7 +8,8 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "nuxt": "^4.0.3",
-    "reka-ui": "^2.5.0"
+    "nuxt": "latest",
+    "reka-ui": "^2.5.0",
+    "content-preview": "workspace:*"
   }
 }
