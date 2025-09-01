@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint-config": "latest",
+    "@nuxt/module-builder": "^1.0.2",
     "eslint": "^9.34.0",
     "preview-app": "./packages/preview-app",
     "vitest": "^3.2.4",
