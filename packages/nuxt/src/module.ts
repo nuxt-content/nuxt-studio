@@ -10,7 +10,6 @@ export default defineNuxtModule({
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
 
-
     if (process.env.PREVIEW_DEV_SERVER) {
       nuxt.options.runtimeConfig.public.previewDevServer = process.env.PREVIEW_DEV_SERVER
       addPlugin(runtime('./plugins/preview.client.dev'))

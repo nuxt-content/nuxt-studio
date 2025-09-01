@@ -4,8 +4,8 @@ export default defineNuxtConfig({
     'content-preview',
     '@nuxt/content',
   ],
-  // css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
+  css: ['~/assets/css/main.css'],
   content: {
     experimental: {
       sqliteConnector: 'native',

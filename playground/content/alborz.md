@@ -26,8 +26,12 @@ The Alborz range has played a significant role in Persian history and mythology.
 
 ## Gallery
 
-![Mount Damavand](https://upload.wikimedia.org/wikipedia/commons/2/2e/Mount_Damavand_in_winter_2019.jpg)
-*Mount Damavand, the highest peak of Alborz and Iran*
+::browser-frame
+---
+title: Mount Damavand, the highest peak of Alborz and Iran
+---
+![Mount Damavand](/alborz.webp)
+::
 
 ## References
 

@@ -27,8 +27,12 @@ Mount Fuji has been a sacred site in Shinto and Buddhist traditions for centurie
 
 ## Gallery
 
-![Mount Fuji](https://upload.wikimedia.org/wikipedia/commons/1/12/Mount_Fuji_from_Hakone%2C_Japan.jpg)
-*Mount Fuji viewed from Hakone, Japan*
+::browser-frame
+---
+title: Mount Fuji viewed from Hakone, Japan
+---
+![Mount Fuji](/fuji.webp)
+::
 
 ## References
 

@@ -35,8 +35,12 @@ Mount Everest holds deep spiritual significance for local Sherpa people and Tibe
 
 ## Gallery
 
-![Mount Everest](https://upload.wikimedia.org/wikipedia/commons/1/12/Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg)
-*Mount Everest as seen from the south, with Lhotse and Nuptse in the foreground*
+::browser-frame
+---
+title: Mount Everest as seen from the south, with Lhotse and Nuptse in the foreground
+---
+![Mount Everest](/everest.webp)
+::
 
 ## References
 

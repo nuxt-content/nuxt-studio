@@ -10,7 +10,7 @@ const { data: nav } = await useAsyncData('nav', () => {
       <ul>
         <li
           v-for="item in nav"
-          :key="item.id"
+          :key="item.id as string"
         >
           <NuxtLink :to="item.path">{{ item.title }}</NuxtLink>
         </li>
@@ -46,11 +46,13 @@ const { data: nav } = await useAsyncData('nav', () => {
   color: #333;
   font-weight: 500;
 }
-.sidebar a.router-link-exact-active {
-  color: #0070f3;
-}
+
 .content {
   flex: 1;
   padding: 2rem;
+}
+
+.content * {
+  max-width: 100%;
 }
 </style>
