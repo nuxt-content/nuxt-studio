@@ -1,14 +1,14 @@
-# @nuxtlabs/content-preview
+# nuxt-studio
 
 ## Quick Setup
 
 Install the module to your Nuxt application with one command:
 
 ```bash
-npx nuxi module add content-preview
+npx nuxi module add nuxt-studio
 ```
 
-That's it! You can now use Content Preview in your Nuxt app ✨
+That's it! You can now use Content Studio in your Nuxt app ✨
 
 
 ## Contribution

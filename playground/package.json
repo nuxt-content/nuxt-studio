@@ -10,6 +10,6 @@
   "dependencies": {
     "nuxt": "latest",
     "reka-ui": "^2.5.0",
-    "content-preview": "workspace:*"
+    "nuxt-studio": "workspace:*"
   }
 }

@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   modules: [
     // '@nuxt/ui-pro',
-    'content-preview',
+    'nuxt-studio',
     '@nuxt/content',
   ],
   devtools: { enabled: true },
