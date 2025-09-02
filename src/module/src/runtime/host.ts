@@ -1,8 +1,8 @@
-import { ref, onBeforeMount } from 'vue'
-import { ensure } from './ensure'
+import { ref } from 'vue'
+import { ensure } from './utils/ensure'
 import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
-import type { ContentDatabaseAdapter, ContentProvide } from '../../types/content'
-import { createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './collections'
+import type { ContentDatabaseAdapter, ContentProvide } from '../types/content'
+import { createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
 import { kebabCase } from 'lodash'
 
 const hostStyles = {
