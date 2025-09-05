@@ -56,16 +56,16 @@ const contentItems = computed(() => {
   return items
 })
 
-const isLeftSidebarOpen = computed(() => {
+const isSidebarOpen = computed(() => {
   return ui.editorVisibility
 })
 
-watch(isLeftSidebarOpen, (value) => {
+watch(isSidebarOpen, (value) => {
   if (value) {
-    host.ui.pushBodyToLeft()
+    host.ui.expandSidebar()
   }
   else {
-    host.ui.pullBodyToRight()
+    host.ui.collapseSidebar()
   }
 })
 

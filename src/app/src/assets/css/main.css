@@ -7,6 +7,8 @@
 
 
 @theme static {
+  --toolbar-height: 60px;
+
   --font-sans: 'Public Sans', sans-serif;
 
   --color-green-50: oklch(90.98% 0.04338 166.72);
@@ -25,20 +27,16 @@
   --ui-primary: var(--ui-color-primary-500);
 }
 
-:host #__nuxt_preview_toolbar {
+:host #__studio_toolbar {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: var(--toolbar-height);
   background-color: rgba(0, 0, 0);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
   transition: all 0.3s ease;
-}
-
-preview-app::part(toolbar-placeholder) {
-  height: 60px;
 }

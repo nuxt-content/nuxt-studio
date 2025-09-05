@@ -24,16 +24,16 @@ const userMenuItems = computed(() => [
   <div
     ref="toolbarWrapper"
     class="toolbar-wrapper"
-    style=" transition: all 0.3s ease; height: 60px;"
+    style=" transition: all 0.3s ease; height: var(--toolbar-height);"
   >
     <div
-      id="__nuxt_preview_toolbar_placeholder"
+      id="__studio_toolbar_placeholder"
       part="toolbar-placeholder"
     >
 &nbsp;
     </div>
     <div
-      id="__nuxt_preview_toolbar"
+      id="__studio_toolbar"
       part="toolbar"
       class="relative"
     >

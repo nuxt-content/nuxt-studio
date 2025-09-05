@@ -6,32 +6,19 @@ import { createCollectionDocument, generateRecordDeletion, generateRecordInsert,
 import { kebabCase } from 'lodash'
 
 const hostStyles = {
-  'body[mdc-editor-mr440]': {
-    animation: 'mr440 0.3s ease',
-    animationFillMode: 'forwards',
+  'body[data-studio-active]': {
+    transition: 'margin 0.3s ease',
   },
-  'body[mdc-editor-mr0]': {
-    animation: 'mr0 0.3s ease',
-    animationFillMode: 'forwards',
+  'body[data-studio-active][data-expand-sidebar]': {
+    marginLeft: '440px',
   },
-  'css': `
-    @keyframes mr440 {
-    0% {
-        margin-right: 0;
-    }
-    100% {
-        margin-right: 440px;
-    }
-    }
-    @keyframes mr0 {
-    0% {
-        margin-right: 440px;
-    }
-    100% {
-        margin-right: 0;
-    }
-    }
-  `,
+  'body[data-studio-active][data-expand-toolbar]': {
+    marginTop: '60px',
+  },
+  'body[data-studio-active][data-expand-sidebar][data-expand-toolbar]': {
+    marginLeft: '440px',
+    marginTop: '60px',
+  },
 }
 
 declare global {
@@ -73,21 +60,38 @@ export function useStudioHost() {
       },
       mounted: (fn: () => void) => ensure(() => isMounted.value).then(fn),
       beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => {
+        host.ui.deactivateStudio()
         ensure(() => isMounted.value).then(() => {
           window.addEventListener('beforeunload', fn)
         })
       },
     },
     ui: {
-      pushBodyToLeft: () => {
-        // rename to data-...
-        document.body.removeAttribute('mdc-editor-mr0')
-        document.body.setAttribute('mdc-editor-mr440', 'true')
+      activateStudio: () => {
+        document.body.setAttribute('data-studio-active', 'true')
+        host.ui.expandToolbar()
         host.ui.updateStyles()
       },
-      pullBodyToRight: () => {
-        document.body.setAttribute('mdc-editor-mr0', 'true')
-        document.body.removeAttribute('mdc-editor-mr440')
+      deactivateStudio: () => {
+        document.body.removeAttribute('data-studio-active')
+        host.ui.collapseToolbar()
+        host.ui.collapseSidebar()
+        host.ui.updateStyles()
+      },
+      expandToolbar: () => {
+        document.body.setAttribute('data-expand-toolbar', 'true')
+        host.ui.updateStyles()
+      },
+      collapseToolbar: () => {
+        document.body.removeAttribute('data-expand-toolbar')
+        host.ui.updateStyles()
+      },
+      expandSidebar: () => {
+        document.body.setAttribute('data-expand-sidebar', 'true')
+        host.ui.updateStyles()
+      },
+      collapseSidebar: () => {
+        document.body.removeAttribute('data-expand-sidebar')
         host.ui.updateStyles()
       },
       updateStyles: () => {
@@ -96,10 +100,10 @@ export function useStudioHost() {
           const styleText = Object.entries(hostStyles[selector as keyof typeof hostStyles]).map(([key, value]) => `${kebabCase(key)}: ${value}`).join(';')
           return `${selector} { ${styleText} }`
         }).join('')
-        let styleElement = document.querySelector('[mdc-editor-styles]')
+        let styleElement = document.querySelector('[data-studio-style]')
         if (!styleElement) {
           styleElement = document.createElement('style')
-          styleElement.setAttribute('mdc-editor-styles', '')
+          styleElement.setAttribute('data-studio-style', '')
           document.head.appendChild(styleElement)
         }
         styleElement.textContent = styles
@@ -158,7 +162,7 @@ export function useStudioHost() {
   }
 
   ;(async () => {
-    host.ui.updateStyles()
+    host.ui.activateStudio()
     // Trigger dummy query to make sure content database is loaded on the client
     await useContentCollectionQuery('content').first().catch((e) => {
       console.error(e)

@@ -82,7 +82,7 @@ function confirm() {
   <Transition name="slide">
     <div
       v-if="modelValue"
-      class="fixed top-0 bottom-0 right-0 w-112 h-full overflow-y-auto text-black dark:text-white bg-white dark:bg-neutral-900"
+      class="fixed top-0 bottom-0 left-0 w-112 h-full overflow-y-auto text-black dark:text-white bg-white dark:bg-neutral-900"
     >
       <!-- <USlideover
       v-model:open="modelValue"

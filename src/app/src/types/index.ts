@@ -7,6 +7,12 @@ export interface StudioHost {
     beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => void
   }
   ui: {
+    activateStudio: () => void
+    deactivateStudio: () => void
+    expandSidebar: () => void
+    collapseSidebar: () => void
+    expandToolbar: () => void
+    collapseToolbar: () => void
     updateStyles: () => void
   }
   document: {
@@ -15,6 +21,7 @@ export interface StudioHost {
     list: () => Promise<DatabaseItem[]>
     upsert: (id: string, upsertedDocument: DatabaseItem) => Promise<void>
     delete: (id: string) => Promise<void>
+    detectActives: () => Array<{ id: string, title: string }>
   }
   requestRerender: () => void
 }
