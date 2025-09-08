@@ -4,6 +4,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect, createError, getRequestURL, setCookie, deleteCookie, getCookie, useSession } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import type { Endpoints } from '@octokit/types'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthGitHubConfig {
@@ -61,6 +62,15 @@ export interface OAuthGitHubConfig {
    * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps
    */
   redirectURL?: string
+}
+
+interface RequestAccessTokenResponse {
+  "access_token"?: string,
+  "scope"?: string,
+  "token_type"?: string,
+  "error"?: string,
+  "error_description"?: string,
+  "error_uri"?: string
 }
 
 export default eventHandler(async (event: H3Event) => {
@@ -125,7 +135,7 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const tokens = await requestAccessToken(config.tokenURL as string, {
+  const token = await requestAccessToken(config.tokenURL as string, {
     body: {
       grant_type: 'authorization_code',
       client_id: config.clientId,
@@ -135,17 +145,17 @@ export default eventHandler(async (event: H3Event) => {
     },
   })
 
-  if (tokens.error) {
+  if (token.error || !token.access_token) {
     throw createError({
       statusCode: 500,
       message: 'Failed to get access token',
-      data: tokens,
+      data: token,
     })
   }
 
-  const accessToken = tokens.access_token
+  const accessToken = token.access_token
 
-  const user: any = await $fetch(`${config.apiURL}/user`, {
+  const user: Endpoints['GET /user']['response']['data'] = await $fetch(`${config.apiURL}/user`, {
     headers: {
       'User-Agent': `Github-OAuth-${config.clientId}`,
       'Authorization': `token ${accessToken}`,
@@ -154,8 +164,7 @@ export default eventHandler(async (event: H3Event) => {
 
   // if no public email, check the private ones
   if (!user.email && config.emailRequired) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const emails: any[] = await $fetch(`${config.apiURL}/user/emails`, {
+    const emails: Endpoints['GET /user/emails']['response']['data'] = await $fetch(`${config.apiURL}/user/emails`, {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
         'Authorization': `token ${accessToken}`,
@@ -168,11 +177,10 @@ export default eventHandler(async (event: H3Event) => {
       throw createError({
         statusCode: 500,
         message: 'Could not get GitHub user email',
-        data: tokens,
+        data: token,
       })
     }
     user.email = primaryEmail.email
-    user.email_verified = primaryEmail.verified
   }
 
   // Success
@@ -185,7 +193,7 @@ export default eventHandler(async (event: H3Event) => {
     user: {
       contentUser: true,
       githubId: user.id,
-      githubToken: tokens.access_token,
+      githubToken: token.access_token,
       name: user.name,
       avatar: user.avatar_url,
       email: user.email,
@@ -196,7 +204,7 @@ export default eventHandler(async (event: H3Event) => {
   return sendRedirect(event, '/')
 })
 
-async function requestAccessToken(url: string, options: any): Promise<any> {
+async function requestAccessToken(url: string, options: any): Promise<RequestAccessTokenResponse> {
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     ...options.headers,
@@ -208,7 +216,7 @@ async function requestAccessToken(url: string, options: any): Promise<any> {
       ).toString()
     : options.body
 
-  return $fetch(url, {
+  return $fetch<RequestAccessTokenResponse>(url, {
     method: 'POST',
     headers,
     body,
