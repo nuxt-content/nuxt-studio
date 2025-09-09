@@ -1,6 +1,7 @@
 import { createStorage } from 'unstorage'
 import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { useGit } from './useGit'
+import { useUi } from './useUi'
 import { useDraftFiles } from './useDraftFiles'
 
 const storage = createStorage({
@@ -9,7 +10,7 @@ const storage = createStorage({
   }),
 })
 
-export function useStudio() {
+export const useStudio = () => {
   const host = window.useStudioHost()
   const git = useGit({
     owner: 'owner',
@@ -20,6 +21,7 @@ export function useStudio() {
     authorEmail: 'email@example.com',
   })
 
+  const ui = useUi(host)
   const draftFiles = useDraftFiles(host, git, storage)
 
   host.on.mounted(async () => {
@@ -53,9 +55,10 @@ export function useStudio() {
   //   return 'Sure?'
   // })
 
-  return {
+  const returnValue = {
     host,
     git,
+    ui,
     draftFiles,
     // draftMedia: {
     //   get -> DraftMediaItem
@@ -75,4 +78,6 @@ export function useStudio() {
     //   revert
     // }
   }
+
+  return returnValue
 }

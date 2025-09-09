@@ -4,14 +4,13 @@ import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter, ContentProvide } from '../types/content'
 import { createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
 import { kebabCase } from 'lodash'
-import type { UseStudioHost, StudioHost, ContentStudioUser } from 'nuxt-studio/app'
+import type { UseStudioHost, StudioHost, StudioUser } from 'nuxt-studio/app'
 
 declare global {
   interface Window {
     useStudioHost: UseStudioHost
   }
 }
-
 
 const hostStyles: Record<string, Record<string, string>> & { css?: string } = {
   'body[data-studio-active]': {
@@ -20,16 +19,16 @@ const hostStyles: Record<string, Record<string, string>> & { css?: string } = {
   'body[data-studio-active][data-expand-sidebar]': {
     marginLeft: '440px',
   },
-  'body[data-studio-active][data-expand-toolbar]': {
-    marginTop: '60px',
-  },
-  'body[data-studio-active][data-expand-sidebar][data-expand-toolbar]': {
-    marginLeft: '440px',
-    marginTop: '60px',
-  },
+  // 'body[data-studio-active][data-expand-toolbar]': {
+  //   marginTop: '60px',
+  // },
+  // 'body[data-studio-active][data-expand-sidebar][data-expand-toolbar]': {
+  //   marginLeft: '440px',
+  //   marginTop: '60px',
+  // },
 }
 
-export function useStudioHost(user: ContentStudioUser): StudioHost {
+export function useStudioHost(user: StudioUser): StudioHost {
   const isMounted = ref(false)
 
   function useNuxtApp() {
@@ -71,23 +70,23 @@ export function useStudioHost(user: ContentStudioUser): StudioHost {
     ui: {
       activateStudio: () => {
         document.body.setAttribute('data-studio-active', 'true')
-        host.ui.expandToolbar()
-        host.ui.updateStyles()
+        // host.ui.expandToolbar()
+        // host.ui.updateStyles()
       },
       deactivateStudio: () => {
         document.body.removeAttribute('data-studio-active')
-        host.ui.collapseToolbar()
+        // host.ui.collapseToolbar()
         host.ui.collapseSidebar()
         host.ui.updateStyles()
       },
-      expandToolbar: () => {
-        document.body.setAttribute('data-expand-toolbar', 'true')
-        host.ui.updateStyles()
-      },
-      collapseToolbar: () => {
-        document.body.removeAttribute('data-expand-toolbar')
-        host.ui.updateStyles()
-      },
+      // expandToolbar: () => {
+      //   document.body.setAttribute('data-expand-toolbar', 'true')
+      //   host.ui.updateStyles()
+      // },
+      // collapseToolbar: () => {
+      //   document.body.removeAttribute('data-expand-toolbar')
+      //   host.ui.updateStyles()
+      // },
       expandSidebar: () => {
         document.body.setAttribute('data-expand-sidebar', 'true')
         host.ui.updateStyles()
@@ -166,7 +165,8 @@ export function useStudioHost(user: ContentStudioUser): StudioHost {
   ;(async () => {
     host.ui.activateStudio()
     // Trigger dummy query to make sure content database is loaded on the client
-    await useContentCollectionQuery('content').first().catch((e) => {
+    // TODO: browse collections and call one of them
+    await useContentCollectionQuery('docs').first().catch((e) => {
       console.error(e)
     })
     ensure(() => useNuxtApp().$contentLocalDatabase !== undefined).then(() => {

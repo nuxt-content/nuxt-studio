@@ -113,7 +113,7 @@ function confirm() {
       </template> -->
       <!-- <template #body> -->
       <!-- <MDCEditorAST v-model="content" /> -->
-      <SimpleTextEditor v-model:document="content" />
+      <!-- <SimpleTextEditor v-model:document="content" /> -->
       <!-- </template> -->
     <!-- </USlideover> -->
     </div>

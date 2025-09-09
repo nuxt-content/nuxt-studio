@@ -1,5 +1,5 @@
 import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, useLogger, extendPages, addServerHandler } from '@nuxt/kit'
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 import { defu } from 'defu'
 
 interface ModuleOptions {
@@ -16,18 +16,18 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-studio',
     configKey: 'contentStudio',
-    defaults: {}
+    defaults: {},
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
-    const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)  
+    const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
     options = defu(options, {
       auth: {
         github: {
           clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
-          clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET
+          clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
         },
-      }
+      },
     }) as ModuleOptions
 
     if (!nuxt.options.dev) {
@@ -49,14 +49,13 @@ export default defineNuxtModule<ModuleOptions>({
           options.auth?.github?.clientSecret,
         ].join('')).digest('hex'),
         github: options.auth?.github,
-      }
+      },
     }
 
-    addPlugin(process.env.STUDIO_DEV_SERVER 
-      ? runtime('./plugins/studio.client.dev') 
+    addPlugin(process.env.STUDIO_DEV_SERVER
+      ? runtime('./plugins/studio.client.dev')
       : runtime('./plugins/studio.client'))
 
-    
     nuxt.options.vite = defu(nuxt.options.vite, {
       vue: {
         template: {

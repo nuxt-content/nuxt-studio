@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useState, definePageMeta } from '#imports'
-import type { ContentStudioUser } from 'nuxt-studio/app'
+import type { StudioUser } from 'nuxt-studio/app'
 
 definePageMeta({
   layout: '',
 })
 
 const storageListenerKey = 'content-studio-auth-popup'
-const user = useState<ContentStudioUser | null>('content-studio-user', () => null)
+const user = useState<StudioUser | null>('content-studio-user', () => null)
 const loggedIn = computed(() => user.value !== null)
 const clear = () => {
   user.value = null
@@ -16,7 +16,7 @@ const clear = () => {
 
 const popupListener = (e: StorageEvent) => {
   if (e.key === `temp-${storageListenerKey}`) {
-    $fetch<{ user: ContentStudioUser }>('/__nuxt_content/studio/auth/session')
+    $fetch<{ user: StudioUser }>('/__nuxt_content/studio/auth/session')
       .then((session) => {
         user.value = session.user
       }).catch(() => {
