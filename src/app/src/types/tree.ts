@@ -4,8 +4,10 @@ export interface TreeItem {
   id: string
   name: string
   path: string
-  status?: DraftStatus
   type: 'file' | 'directory'
+  status?: DraftStatus
+  fileType?: 'page' | 'data'
+  pagePath?: string
   children?: TreeItem[]
 
   // Corresponding file route in url

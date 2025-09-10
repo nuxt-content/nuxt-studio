@@ -1,4 +1,6 @@
 import type { DatabaseItem, DraftFileItem, TreeItem } from '../types'
+import { withLeadingSlash } from 'ufo'
+import { stripNumericPrefix } from './string'
 
 export type DraftStatus = 'created' | 'updated' | 'deleted' | 'renamed'
 
@@ -9,64 +11,111 @@ export const COLOR_STATUS_MAP: { [key in DraftStatus]?: string } = {
   renamed: 'blue',
 }
 
-export function buildTree(items: DatabaseItem[], draft: DraftFileItem[]): TreeItem[] {
-  const result: TreeItem[] = []
-  const pathMap = new Map<string, TreeItem>()
+export function buildTree(items: DatabaseItem[], _draft: DraftFileItem[]): TreeItem[] {
+  const tree: TreeItem[] = []
+  const directoryMap = new Map<string, TreeItem>()
 
-  // Sort items by path to ensure parent directories are processed first
-  const sortedItems = items
-    .filter(item => item._path)
-    .sort((a, b) => (a._path as string).localeCompare(b._path as string))
+  for (const item of items) {
+    // Use stem to determine tree structure
+    const stemSegments = item.stem.split('/')
+    const directorySegments = stemSegments.slice(0, -1)
+    let fileName = stemSegments[stemSegments.length - 1]
 
-  for (const item of sortedItems) {
-    const path = item._path as string
-    const segments = path.split('/').filter(Boolean)
+    /*****************
+    Generate root file
+    ******************/
+    if (directorySegments.length === 0) {
+      fileName = fileName === 'index' ? 'home' : stripNumericPrefix(fileName)
+      const filePath = fileName === 'home' ? '/' : withLeadingSlash(stripNumericPrefix(fileName))
 
-    // Build the full path for each segment
-    for (let i = 0; i < segments.length; i++) {
-      const currentPath = '/' + segments.slice(0, i + 1).join('/')
-      const name = segments[i]
-      const isFile = i === segments.length - 1
-
-      if (pathMap.has(currentPath)) {
-        continue
-      }
-
-      const treeItem: TreeItem = {
+      const fileItem: TreeItem = {
         id: item.id,
-        name,
-        path: currentPath,
-        type: isFile ? 'file' : 'directory',
-        status: getDraftStatus(draft, item.id),
+        name: fileName,
+        path: filePath,
+        type: 'file',
       }
 
-      if (!isFile) {
-        treeItem.children = []
+      // Page type
+      if (item.path) {
+        fileItem.fileType = 'page'
+        fileItem.pagePath = item.path as string
       }
-
-      pathMap.set(currentPath, treeItem)
-
-      // Add to root
-      if (i === 0) {
-        result.push(treeItem)
-      }
-      // Add to parent
+      // Data type
       else {
-        const parentPath = '/' + segments.slice(0, i).join('/')
-        const parent = pathMap.get(parentPath)
-        if (parent && parent.children) {
-          parent.children.push(treeItem)
+        fileItem.fileType = 'data'
+      }
+
+      tree.push(fileItem)
+      continue
+    }
+
+    /*****************
+    Generate directory
+    ******************/
+    function dirIdBuilder(index: number) {
+      const idSegments = item.id.split('/')
+      const stemVsIdGap = idSegments.length - stemSegments.length
+      return idSegments.slice(0, index + stemVsIdGap + 1).join('/')
+    }
+
+    function dirPathBuilder(index: number) {
+      return withLeadingSlash(directorySegments.slice(0, index + 1).map(seg => stripNumericPrefix(seg)).join('/'))
+    }
+
+    let directoryChildren = tree
+    for (let i = 0; i < directorySegments.length; i++) {
+      const dirName = stripNumericPrefix(directorySegments[i])
+      const dirId = dirIdBuilder(i)
+      const dirPath = dirPathBuilder(i)
+
+      // Only create directory if it doesn't exist
+      let directory = directoryMap.get(dirPath)
+      if (!directory) {
+        directory = {
+          id: dirId,
+          name: dirName,
+          path: dirPath,
+          type: 'directory',
+          children: [],
+        }
+
+        directoryMap.set(dirPath, directory)
+
+        if (!directoryChildren.find(child => child.id === dirId)) {
+          directoryChildren.push(directory)
         }
       }
+
+      directoryChildren = directory.children!
     }
+
+    /****************************************
+    Generate file in directory (last segment)
+    ******************************************/
+    const filePath = withLeadingSlash(stemSegments.map(seg => stripNumericPrefix(seg)).join('/'))
+
+    const fileItem: TreeItem = {
+      id: item.id,
+      name: stripNumericPrefix(fileName),
+      path: filePath,
+      type: 'file',
+    }
+
+    if (item.path) {
+      fileItem.fileType = 'page'
+      fileItem.pagePath = item.path as string
+    }
+    else {
+      fileItem.fileType = 'data'
+    }
+
+    directoryChildren.push(fileItem)
   }
 
-  calculateDirectoryStatuses(result)
-
-  return result
+  return tree
 }
 
-function getDraftStatus(draft: DraftFileItem[], id: string) {
+function _getDraftStatus(draft: DraftFileItem[], id: string) {
   const draftItem = draft.find(item => item.id === id)
   return draftItem?.status
 }
@@ -74,11 +123,11 @@ function getDraftStatus(draft: DraftFileItem[], id: string) {
 /**
  * Calculate status for directories based on their children
  */
-function calculateDirectoryStatuses(items: TreeItem[]) {
+function _calculateDirectoryStatuses(items: TreeItem[]) {
   for (const item of items) {
     if (item.type === 'directory' && item.children) {
       // Recursively calculate children first
-      calculateDirectoryStatuses(item.children)
+      _calculateDirectoryStatuses(item.children)
 
       // Calculate this directory's status based on children
       const childStatuses = item.children

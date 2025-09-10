@@ -54,7 +54,7 @@ export function useDraft(host: StudioHost, git: ReturnType<typeof useGit>, stora
     }
 
     await host.document.upsert(id, item.document!)
-    refresh()
+    await refresh()
   }
 
   async function remove(id: string) {
@@ -99,7 +99,7 @@ export function useDraft(host: StudioHost, git: ReturnType<typeof useGit>, stora
     }
 
     draft.value = draft.value.filter(item => item.id !== id)
-    refresh()
+    await refresh()
   }
 
   async function revert(id: string) {
@@ -117,7 +117,7 @@ export function useDraft(host: StudioHost, git: ReturnType<typeof useGit>, stora
     if (item.status === 'created') {
       await host.document.delete(id)
     }
-    refresh()
+    await refresh()
   }
 
   async function revertAll() {
@@ -131,7 +131,7 @@ export function useDraft(host: StudioHost, git: ReturnType<typeof useGit>, stora
       }
     }
     draft.value = []
-    refresh()
+    await refresh()
   }
 
   async function load() {
@@ -150,12 +150,15 @@ export function useDraft(host: StudioHost, git: ReturnType<typeof useGit>, stora
         await host.document.upsert(draft.id, draft.document!)
       }
     }))
+
+    await refresh()
   }
 
   async function refresh() {
     // TODO: Optimize this
     const dbItems = await host.document.list()
     tree.value = buildTree(dbItems, draft.value)
+    console.log('tree after refresh', tree.value)
     host.requestRerender()
   }
 

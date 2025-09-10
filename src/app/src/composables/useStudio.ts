@@ -4,6 +4,7 @@ import { useGit } from './useGit'
 import { useUi } from './useUi'
 import { useContext } from './useContext'
 import { useDraft } from './useDraft'
+import { ref } from 'vue'
 
 const storage = createStorage({
   driver: indexedDbDriver({
@@ -22,13 +23,16 @@ export const useStudio = () => {
     authorEmail: 'email@example.com',
   })
 
+  const isReady = ref(false)
   const ui = useUi(host)
   const context = useContext(host)
   const draft = useDraft(host, git, storage)
 
   host.on.mounted(async () => {
+    // TODO: Mounted is triggered 6 times
     await draft.load()
     host.requestRerender()
+    isReady.value = true
   })
 
   // host.on.beforeUnload((event: BeforeUnloadEvent) => {
@@ -50,6 +54,7 @@ export const useStudio = () => {
   // })
 
   return {
+    isReady,
     host,
     git,
     ui,

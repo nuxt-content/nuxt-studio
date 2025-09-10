@@ -9,7 +9,7 @@ import PanelConfig from './components/panel/PanelConfig.vue'
 // import CommitPreviewModal from './components/CommitPreviewModal.vue'
 
 // const studio = useStudio()
-const { ui: { isPanelOpen, panels } } = useStudio()
+const { ui: { isPanelOpen, panels }, isReady } = useStudio()
 // const activeDocuments = ref<{ id: string, label: string, value: string }[]>([])
 
 // const selectedContentId = ref<string | null>(null)
@@ -89,7 +89,10 @@ const { ui: { isPanelOpen, panels } } = useStudio()
 
 <template>
   <Suspense>
-    <UApp :toaster="{ portal: false }">
+    <UApp
+      v-if="isReady"
+      :toaster="{ portal: false }"
+    >
       <PanelBase v-model="isPanelOpen">
         <PanelContent v-if="panels.content" />
         <PanelMedia v-else-if="panels.media" />

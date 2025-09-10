@@ -53,7 +53,7 @@ function onLeave(el: Element, done: () => void) {
     >
       <PanelBaseHeader />
 
-      <div class="min-h-[calc(100vh-var(--ui-header-height)-var(--ui-footer-height))]">
+      <div class="min-h-[calc(100vh-var(--ui-header-height)-var(--ui-footer-height))] p-4">
         <slot />
       </div>
 
