@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import PanelBaseHeader from './PanelBaseHeader.vue'
 import PanelBaseFooter from './PanelBaseFooter.vue'
+import PanelBaseResizeHandle from './PanelBaseResizeHandle.vue'
+import { useSidebar } from '../../../composables/useSidebar'
 
 defineProps<{
   title?: string
 }>()
+
+const { sidebarStyle } = useSidebar()
 
 const open = defineModel<boolean>()
 
@@ -49,7 +53,8 @@ function onLeave(el: Element, done: () => void) {
   >
     <div
       v-if="open"
-      class="fixed w-112 top-0 bottom-0 left-0 overflow-y-auto border-r border-gray-200 bg-white"
+      class="fixed top-0 bottom-0 left-0 overflow-y-auto border-r border-gray-200 bg-white"
+      :style="sidebarStyle"
     >
       <PanelBaseHeader />
 
@@ -58,6 +63,8 @@ function onLeave(el: Element, done: () => void) {
       </div>
 
       <PanelBaseFooter />
+
+      <PanelBaseResizeHandle />
     </div>
   </Transition>
 </template>

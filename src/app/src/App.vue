@@ -6,10 +6,18 @@ import { useStudio } from './composables/useStudio'
 import PanelContent from './components/panel/content/PanelContent.vue'
 import PanelMedia from './components/panel/PanelMedia.vue'
 import PanelConfig from './components/panel/PanelConfig.vue'
+import { useSidebar } from './composables/useSidebar'
+import { watch } from 'vue'
 // import CommitPreviewModal from './components/CommitPreviewModal.vue'
 
-// const studio = useStudio()
-const { ui: { isPanelOpen, panels }, isReady } = useStudio()
+const { sidebarWidth } = useSidebar()
+const { ui: { isPanelOpen, panels }, host, isReady } = useStudio()
+
+watch(sidebarWidth, () => {
+  if (isPanelOpen.value) {
+    host.ui.updateStyles()
+  }
+})
 // const activeDocuments = ref<{ id: string, label: string, value: string }[]>([])
 
 // const selectedContentId = ref<string | null>(null)

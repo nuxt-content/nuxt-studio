@@ -6,26 +6,45 @@ import { createCollectionDocument, generateRecordDeletion, generateRecordInsert,
 import { kebabCase } from 'lodash'
 import type { UseStudioHost, StudioHost, StudioUser } from 'nuxt-studio/app'
 
+function getSidebarWidth(): number {
+  let sidebarWidth = 440
+  // Try to get width from localStorage if available
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const savedWidth = localStorage.getItem('studio-sidebar-width')
+    if (savedWidth) {
+      const width = Number.parseInt(savedWidth, 10)
+      if (!Number.isNaN(width)) {
+        sidebarWidth = width
+        return width
+      }
+    }
+  }
+  return sidebarWidth
+}
+
 declare global {
   interface Window {
     useStudioHost: UseStudioHost
   }
 }
 
-const hostStyles: Record<string, Record<string, string>> & { css?: string } = {
-  'body[data-studio-active]': {
-    transition: 'margin 0.3s ease',
-  },
-  'body[data-studio-active][data-expand-sidebar]': {
-    marginLeft: '440px',
-  },
-  // 'body[data-studio-active][data-expand-toolbar]': {
-  //   marginTop: '60px',
-  // },
-  // 'body[data-studio-active][data-expand-sidebar][data-expand-toolbar]': {
-  //   marginLeft: '440px',
-  //   marginTop: '60px',
-  // },
+function getHostStyles(): Record<string, Record<string, string>> & { css?: string } {
+  const currentWidth = getSidebarWidth()
+  return {
+    'body[data-studio-active]': {
+      transition: 'margin 0.3s ease',
+    },
+    'body[data-studio-active][data-expand-sidebar]': {
+      marginLeft: `${currentWidth}px`,
+    },
+    // 'body[data-studio-active][data-expand-toolbar]': {
+    //   marginTop: '60px',
+    // },
+    // 'body[data-studio-active][data-expand-sidebar][data-expand-toolbar]': {
+    //   marginLeft: `${currentWidth}px`,
+    //   marginTop: '60px',
+    // },
+  }
 }
 
 export function useStudioHost(user: StudioUser): StudioHost {
@@ -54,8 +73,8 @@ export function useStudioHost(user: StudioUser): StudioHost {
   const host: StudioHost = {
     on: {
       routeChange: (fn: () => void) => {
-        const router = useNuxtApp().$router;
-        (router as any)?.afterEach?.(() => {
+        const router = useNuxtApp().$router as { afterEach?: (callback: () => void) => void }
+        router?.afterEach?.(() => {
           fn()
         })
       },
@@ -96,6 +115,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
         host.ui.updateStyles()
       },
       updateStyles: () => {
+        const hostStyles = getHostStyles()
         const styles: string = Object.keys(hostStyles).map((selector) => {
           if (selector === 'css') return hostStyles.css || ''
           const styleText = Object.entries(hostStyles[selector] as Record<string, string>).map(([key, value]) => `${kebabCase(key)}: ${value}`).join(';')
@@ -117,7 +137,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
 
     document: {
       get: async (id: string): Promise<CollectionItemBase> => {
-        return useContentCollectionQuery(id.split('/')[0]).where('id', '=', id).first() as unknown as Promise<CollectionItemBase>
+        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first() as unknown as Promise<CollectionItemBase>
       },
       getFileSystemPath: (id: string) => {
         return getCollectionInfo(id, useContentCollections()).path
@@ -149,9 +169,10 @@ export function useStudioHost(user: StudioUser): StudioHost {
         const wrappers = document.querySelectorAll('[data-content-id]')
         return Array.from(wrappers).map((wrapper) => {
           const id = wrapper.getAttribute('data-content-id')!
+          const title = id.split(/[/:]/).pop() || id
           return {
             id,
-            title: id.split(/[/:]/).pop()!, // TODO: get title from content if possible
+            title,
           }
         })
       },
