@@ -158,7 +158,6 @@ export function useDraft(host: StudioHost, git: ReturnType<typeof useGit>, stora
     // TODO: Optimize this
     const dbItems = await host.document.list()
     tree.value = buildTree(dbItems, draft.value)
-    console.log('tree after refresh', tree.value)
     host.requestRerender()
   }
 

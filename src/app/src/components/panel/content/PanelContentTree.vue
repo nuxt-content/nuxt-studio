@@ -23,7 +23,7 @@ defineProps({
   <div class="flex flex-col @container">
     <ul
       ref="container"
-      class="grid grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-4 @7xl:grid-cols-6 gap-6"
+      class="grid grid-cols-1 @sm:grid-cols-2 @md:grid-cols-3 @4xl:grid-cols-4 @7xl:grid-cols-6 gap-6"
     >
       <li
         v-show="type === 'directory' && currentFile?.type === 'directory'"

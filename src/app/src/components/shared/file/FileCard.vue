@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useTimeAgo } from '@vueuse/core'
 import type { TreeItem } from '../../../types'
 import type { PropType } from 'vue'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { Image } from '@unpic/vue'
+import { titleCase } from 'scule'
+import { COLOR_STATUS_MAP } from '../../../utils/draft'
 
 const props = defineProps({
   file: {
@@ -31,9 +33,24 @@ const props = defineProps({
   // },
 })
 
-const ongoingFileRename = ref(false)
 const isFolder = computed(() => props.file.type === 'directory')
-const name = computed(() => props.file.name)
+const name = computed(() => titleCase(props.file.name))
+
+const fileExtensionIcon = computed(() => {
+  const ext = props.file.id.split('.').pop()?.toLowerCase() || ''
+  console.log(ext)
+  return {
+    md: 'i-ph-markdown-logo',
+    yaml: 'i-fluent-document-yml-20-regular',
+    yml: 'i-fluent-document-yml-20-regular',
+    json: 'i-lucide-file-json',
+  }[ext] || 'i-mdi-file'
+})
+
+console.log(props.file)
+
+// Safelist status colors: ring-red-100, ring-green-100, ring-orange-100, ring-blue-100
+const statusColor = computed(() => props.file.status ? COLOR_STATUS_MAP[props.file.status] : 'gray')
 
 // const { computeFileActions } = useProjectContext(project.value)
 // const loaded = ref(false)
@@ -68,16 +85,6 @@ const name = computed(() => props.file.name)
 //   return titleCase(fileName)
 // })
 
-const icon = computed(() => {
-  const ext = props.file.path.split('.').pop()?.toLowerCase() || ''
-  return {
-    md: 'i-simple-icons-markdown',
-    yaml: 'i-simple-icons-yaml',
-    yml: 'i-simple-icons-yaml',
-    json: 'i-mdi-code-json',
-  }[ext] || 'i-mdi-file'
-})
-
 // const imgUrl = computed(() => url.value ? `${url.value}?theme=${colorMode.value}` : null)
 
 // const isFolder = computed(() => props.file.type === 'directory')
@@ -99,23 +106,81 @@ const icon = computed(() => {
 </script>
 
 <template>
-  <UPageCard>
-    <div class="relative">
-      <NuxtImg
-        src="/assets/card-placeholder-light.png"
-        width="695"
-        height="390"
+  <UPageCard
+    reverse
+    class="cursor-pointer hover:ring-gray-300 hover:dark:ring-gray-700 relative"
+  >
+    <div
+      v-if="!file.status"
+      class="absolute top-2 right-2 z-10 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900"
+      :class="`bg-${statusColor}-500`"
+    />
+    <div
+      v-if="file.type === 'file'"
+      class="relative"
+    >
+      <Image
+        src="https://placehold.co/1920x1080/f9fafc/f9fafc"
+        width="426"
+        height="240"
+        alt="Card placeholder"
         class="z-[-1] rounded-t-lg"
       />
-      <div
-        class="absolute inset-0 flex items-center justify-center"
-      >
+      <div class="absolute inset-0 flex items-center justify-center">
         <UIcon
-          :name="icon"
+          :name="fileExtensionIcon"
           class="w-8 h-8 text-gray-400 dark:text-gray-500"
         />
       </div>
     </div>
+
+    <template #body>
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-1 min-w-0">
+          <UIcon
+            v-if="isFolder"
+            name="i-lucide-folder"
+            class="h-4 w-4"
+          />
+          <UIcon
+            v-else-if="name === 'home'"
+            name="i-lucide-house"
+            class="h-4 w-4"
+          />
+          <h3
+            class="text-sm font-semibold truncate"
+            :class="props.file.status === 'deleted' && 'line-through'"
+          >
+            {{ name }}
+          </h3>
+        </div>
+        <!-- <UDropdown
+          v-if="!readOnly && isFolder"
+          class="hidden group-hover:block"
+          :items="actionItems"
+          :popper="{ strategy: 'absolute' }"
+          @click="$event.stopPropagation()"
+        >
+          <UButton
+            color="gray"
+            variant="ghost"
+            aria-label="Open items"
+            icon="i-ph-dots-three-vertical"
+            square
+          />
+        </UDropdown> -->
+        <FileBadge
+          v-if="file.status"
+          :status="file.status"
+        />
+      </div>
+
+      <UTooltip :text="file.path">
+        <span class="truncate leading-relaxed text-xs text-gray-400 dark:text-gray-500">
+          {{ file.pagePath || file.path }}
+        </span>
+      </UTooltip>
+    </template>
     <!-- <template
       v-if="file.type === 'file'"
       #header
@@ -173,76 +238,5 @@ const icon = computed(() => {
         />
       </UDropdown>
     </template> -->
-    <div class="flex items-center justify-between gap-3 mb-1">
-      <div v-if="ongoingFileRename">
-        <!-- <ProjectFileFormInput
-          v-if="ongoingFileRename"
-          class="flex-1 my-0.5"
-          :current-file="file"
-          :ongoing-file-action="ongoingFileAction"
-          @submit="emit('rename', $event)"
-          @click="$event.stopPropagation()"
-        /> -->
-      </div>
-      <template v-else>
-        <div class="flex items-center gap-1 min-w-0 my-1 relative">
-          <UIcon
-            v-if="isFolder"
-            name="i-lucide-folder"
-            class="h-4 w-4"
-          />
-          <UIcon
-            v-else-if="name.endsWith('.home')"
-            name="i-lucide-house"
-            class="h-4 w-4"
-          />
-          <h3
-            class="text-base font-semibold truncate"
-            :class="props.file.status === 'deleted' && 'line-through'"
-          >
-            {{ name }}
-          </h3>
-        </div>
-        <!-- <UDropdown
-          v-if="!readOnly && isFolder"
-          class="hidden group-hover:block"
-          :items="actionItems"
-          :popper="{ strategy: 'absolute' }"
-          @click="$event.stopPropagation()"
-        >
-          <UButton
-            color="gray"
-            variant="ghost"
-            aria-label="Open items"
-            icon="i-ph-dots-three-vertical"
-            square
-          />
-        </UDropdown> -->
-        <PanelBaseBadge
-          v-if="file.status"
-          :status="file.status"
-        />
-      </template>
-    </div>
-
-    <UTooltip
-      :text="file.path"
-      class="flex items-center justify-between gap-3 leading-none text-gray-400 dark:text-gray-500"
-    >
-      <div class="flex w-[70%]">
-        <span class="truncate leading-relaxed">
-          {{ file.path }}
-        </span>
-      </div>
-      <div class="flex items-center gap-1 min-w-0">
-        <UIcon
-          name="i-lucide-clock"
-          class="w-4 h-4 flex-shrink-0"
-        />
-        <time class="truncate leading-relaxed">
-          {{ useTimeAgo(file.updatedAt ? new Date(file.updatedAt) : new Date()).value }}
-        </time>
-      </div>
-    </UTooltip>
   </UPageCard>
 </template>

@@ -31,6 +31,12 @@ export default defineConfig({
             container: 'px-1 sm:px-2 lg:px-2',
           },
         },
+        pageCard: {
+          slots: {
+            container: 'p-0 sm:p-0 gap-y-0',
+            body: 'p-3 sm:p-3',
+          },
+        },
       },
     }),
     libCss(),
