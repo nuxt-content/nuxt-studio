@@ -35,7 +35,7 @@ export interface StudioHost {
   requestRerender: () => void
 }
 
-export type UseStudioHost = () => StudioHost
+export type UseStudioHost = (user: StudioUser) => StudioHost
 
 declare global {
   interface Window {
