@@ -3,13 +3,21 @@
 // import PreviewEditor from './components/PreviewEditor.vue'
 // import ContentsListModal from './components/ContentsListModal.vue'
 import { useStudio } from './composables/useStudio'
-import PanelFiles from './components/panel/PanelFiles.vue'
-import PanelMedias from './components/panel/PanelMedias.vue'
+import PanelContent from './components/panel/content/PanelContent.vue'
+import PanelMedia from './components/panel/PanelMedia.vue'
 import PanelConfig from './components/panel/PanelConfig.vue'
+import { useSidebar } from './composables/useSidebar'
+import { watch } from 'vue'
 // import CommitPreviewModal from './components/CommitPreviewModal.vue'
 
-// const studio = useStudio()
-const { ui: { isPanelOpen, panels } } = useStudio()
+const { sidebarWidth } = useSidebar()
+const { ui, host, isReady } = useStudio()
+
+watch(sidebarWidth, () => {
+  if (ui.isPanelOpen.value) {
+    host.ui.updateStyles()
+  }
+})
 // const activeDocuments = ref<{ id: string, label: string, value: string }[]>([])
 
 // const selectedContentId = ref<string | null>(null)
@@ -23,11 +31,11 @@ const { ui: { isPanelOpen, panels } } = useStudio()
 //     )
 //   }
 
-//   if (draftFiles.list.value.length > 0) {
+//   if (draft.list.value.length > 0) {
 //     items.push([
 //       {
-//         label: `Drafts (${draftFiles.list.value.length})`,
-//         children: draftFiles.list.value.map((draft) => {
+//         label: `Drafts (${draft.list.value.length})`,
+//         children: draft.list.value.map((draft) => {
 //           return {
 //             label: draft.id,
 //             value: draft.id,
@@ -58,10 +66,10 @@ const { ui: { isPanelOpen, panels } } = useStudio()
 // }
 
 // function onEditorUpdate(content: any) {
-//   draftFiles.upsert(selectedContentId.value!, content)
+//   draft.upsert(selectedContentId.value!, content)
 // }
 // function onRevert() {
-//   draftFiles.revert(selectedContentId.value!)
+//   draft.revert(selectedContentId.value!)
 // }
 
 // function detectActiveDocuments() {
@@ -89,21 +97,24 @@ const { ui: { isPanelOpen, panels } } = useStudio()
 
 <template>
   <Suspense>
-    <UApp :toaster="{ portal: false }">
-      <PanelBase v-model="isPanelOpen">
-        <PanelFiles v-if="panels.files" />
-        <PanelMedias v-else-if="panels.medias" />
-        <PanelConfig v-else-if="panels.config" />
+    <UApp
+      v-if="isReady"
+      :toaster="{ portal: false }"
+    >
+      <PanelBase v-model="ui.isPanelOpen.value">
+        <PanelContent v-if="ui.panels.content" />
+        <PanelMedia v-else-if="ui.panels.media" />
+        <PanelConfig v-else-if="ui.panels.config" />
       </PanelBase>
 
       <!-- Floating Files Panel Toggle -->
       <UButton
-        v-if="!isPanelOpen"
+        v-if="!ui.isPanelOpen.value"
         icon="i-lucide-panel-left-open"
         size="lg"
         color="primary"
         class="fixed bottom-4 left-4 z-50 shadow-lg"
-        @click="panels.files = true"
+        @click="ui.panels.content = true"
       />
 
       <!-- <PreviewEditor

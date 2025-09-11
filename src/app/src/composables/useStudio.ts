@@ -2,7 +2,11 @@ import { createStorage } from 'unstorage'
 import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { useGit } from './useGit'
 import { useUi } from './useUi'
+import { useContext } from './useContext'
 import { useDraftFiles } from './useDraftFiles'
+import { ref } from 'vue'
+import { useTree } from './useTree'
+import { createSharedComposable } from '@vueuse/core'
 
 const storage = createStorage({
   driver: indexedDbDriver({
@@ -10,7 +14,7 @@ const storage = createStorage({
   }),
 })
 
-export const useStudio = () => {
+export const useStudio = createSharedComposable(() => {
   const host = window.useStudioHost()
   const git = useGit({
     owner: 'owner',
@@ -21,26 +25,22 @@ export const useStudio = () => {
     authorEmail: 'email@example.com',
   })
 
+  const isReady = ref(false)
   const ui = useUi(host)
+  const context = useContext(host, ui)
   const draftFiles = useDraftFiles(host, git, storage)
+  const tree = useTree(host, draftFiles)
 
   host.on.mounted(async () => {
     await draftFiles.load()
-    await Promise.all(draftFiles.list.value.map(async (draft) => {
-      if (draft.status === 'deleted') {
-        await host.document.delete(draft.id)
-      }
-      else {
-        await host.document.upsert(draft.id, draft.document!)
-      }
-    }))
     host.requestRerender()
+    isReady.value = true
   })
 
   // host.on.beforeUnload((event: BeforeUnloadEvent) => {
   //   // Ignore on development to prevent annoying dialogs
   //   if (import.meta.dev) return
-  //   if (!draftFiles.list.value.length) return
+  //   if (!draft.list.value.length) return
 
   //   // Recommended
   //   event.preventDefault()
@@ -55,11 +55,14 @@ export const useStudio = () => {
   //   return 'Sure?'
   // })
 
-  const returnValue = {
+  return {
+    isReady,
     host,
     git,
     ui,
+    context,
     draftFiles,
+    tree,
     // draftMedia: {
     //   get -> DraftMediaItem
     //   upsert
@@ -78,6 +81,4 @@ export const useStudio = () => {
     //   revert
     // }
   }
-
-  return returnValue
-}
+})

@@ -21,8 +21,8 @@ const filesToReview = ref<DraftFileItem[]>([])
 
 async function prepareReview() {
   loading.value = true
-  filesToReview.value = await Promise.all(preview.draftFiles.list.value.map(async ({ id }) => {
-    const draft = await preview.draftFiles.get(id, { generateContent: true })
+  filesToReview.value = await Promise.all(preview.draft.list.value.map(async ({ id }) => {
+    const draft = await preview.draft.get(id, { generateContent: true })
     return {
       ...draft,
       markdown: draft.content!,
@@ -51,7 +51,7 @@ async function commitChanges() {
     //   color: 'green',
     // })
 
-    await preview.draftFiles.revertAll()
+    await preview.draft.revertAll()
     modelValue.value = false
   }
   catch (e) {

@@ -25,9 +25,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { PropType } from 'vue'
-import type { NavigationMenuItem } from '@nuxt/ui'
 import ContentDiffView from './ContentDiffView.vue'
-import type { ReviewFile } from '../types'
 
 const props = defineProps({
   selectedFile: {

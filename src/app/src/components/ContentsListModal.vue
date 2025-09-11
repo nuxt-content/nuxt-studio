@@ -38,7 +38,7 @@ watch(modelValue, (open) => {
 })
 
 watch(content, async (value) => {
-  preview.draftFiles.upsert(selectedContent.value.id, {
+  preview.draft.upsert(selectedContent.value.id, {
     ...toRaw(value),
     id: selectedContent.value.id,
     extension: selectedContent.value.extension,
