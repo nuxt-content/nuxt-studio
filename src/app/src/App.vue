@@ -11,10 +11,10 @@ import { watch } from 'vue'
 // import CommitPreviewModal from './components/CommitPreviewModal.vue'
 
 const { sidebarWidth } = useSidebar()
-const { ui: { isPanelOpen, panels }, host, isReady } = useStudio()
+const { ui, host, isReady } = useStudio()
 
 watch(sidebarWidth, () => {
-  if (isPanelOpen.value) {
+  if (ui.isPanelOpen.value) {
     host.ui.updateStyles()
   }
 })
@@ -101,20 +101,20 @@ watch(sidebarWidth, () => {
       v-if="isReady"
       :toaster="{ portal: false }"
     >
-      <PanelBase v-model="isPanelOpen">
-        <PanelContent v-if="panels.content" />
-        <PanelMedia v-else-if="panels.media" />
-        <PanelConfig v-else-if="panels.config" />
+      <PanelBase v-model="ui.isPanelOpen.value">
+        <PanelContent v-if="ui.panels.content" />
+        <PanelMedia v-else-if="ui.panels.media" />
+        <PanelConfig v-else-if="ui.panels.config" />
       </PanelBase>
 
       <!-- Floating Files Panel Toggle -->
       <UButton
-        v-if="!isPanelOpen"
+        v-if="!ui.isPanelOpen"
         icon="i-lucide-panel-left-open"
         size="lg"
         color="primary"
         class="fixed bottom-4 left-4 z-50 shadow-lg"
-        @click="panels.content = true"
+        @click="ui.panels.content = true"
       />
 
       <!-- <PreviewEditor
