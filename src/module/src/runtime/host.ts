@@ -28,6 +28,7 @@ declare global {
   }
 }
 
+// TODO: Move styles and these logics out of host (Maybe have a injectCSS util in host)
 function getHostStyles(): Record<string, Record<string, string>> & { css?: string } {
   const currentWidth = getSidebarWidth()
   return {
