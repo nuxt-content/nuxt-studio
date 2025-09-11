@@ -1,0 +1,58 @@
+import type { DatabaseItem } from '../../src/types/database'
+
+export const dbItemsList: DatabaseItem[] = [
+  {
+    id: 'landing/index.md',
+    title: '',
+    body: {},
+    description: '',
+    extension: 'md',
+    meta: {},
+    navigation: true,
+    path: '/',
+    seo: {
+      title: 'Write beautiful docs with Markdown',
+      description: 'Ship fast, flexible, and SEO-optimized documentation with beautiful design out of the box. Docus brings together the best of the Nuxt ecosystem. Powered by Nuxt UI Pro.',
+    },
+    stem: 'index',
+    __hash__: 'I5DZ788a81SSvMzuq9PWhb5ZzxBkldex06835FXfwfE',
+  },
+  {
+    id: 'docs/1.getting-started/2.introduction.md',
+    title: 'Introduction',
+    body: {},
+    description: 'Welcome to Docus theme documentation.',
+    extension: 'md',
+    layout: null,
+    links: null,
+    meta: {},
+    navigation: {
+      icon: 'i-lucide-house',
+    },
+    path: '/getting-started/introduction',
+    seo: {
+      title: 'Introduction',
+      description: 'Discover how to create, manage, and publish documentation effortlessly with Docus.',
+    },
+    stem: '1.getting-started/2.introduction',
+    __hash__: 'WWXJ_T8Q34NFqejquMghrl8dsHi4xtSSBLtx57zHwFA',
+  },
+  {
+    id: 'docs/1.getting-started/3.installation.md',
+    title: 'Installation',
+    body: {},
+    description: 'Learn how to install Docus.',
+    extension: 'md',
+    layout: null,
+    links: null,
+    meta: {},
+    navigation: {},
+    path: '/getting-started/installation',
+    seo: {
+      title: 'Installation',
+      description: 'Learn how to install Docus.',
+    },
+    stem: '1.getting-started/3.installation',
+    __hash__: 'EXAMPLE_HASH_FOR_INSTALLATION',
+  },
+]

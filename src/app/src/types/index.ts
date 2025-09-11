@@ -4,6 +4,7 @@ import type { DatabaseItem } from './database'
 export * from './draft'
 export * from './database'
 export * from './user'
+export * from './tree'
 
 export interface StudioHost {
   on: {
