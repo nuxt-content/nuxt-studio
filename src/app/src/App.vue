@@ -48,7 +48,6 @@ watch(sidebarWidth, () => {
       <PanelBase v-model="ui.isPanelOpen.value">
         <template #header>
           <ItemBreadcrumb
-            v-if="ui.panels.content"
             :current-item="tree.currentItem.value"
             :tree="tree.root.value"
           />
