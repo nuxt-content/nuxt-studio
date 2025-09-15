@@ -33,14 +33,22 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
     return parent || { name: 'content', path: '../', type: 'directory' } as TreeItem
   })
 
-  function selectItem(item: TreeItem | null) {
+  async function selectItem(item: TreeItem | null) {
     currentItem.value = item
+    if (item?.type === 'file') {
+      const originalDatabaseItem = await host.document.get(item.id)
+      const draftFileItem = await draftFiles.upsert(item.id, originalDatabaseItem)
+      draftFiles.select(draftFileItem)
+    }
+    else {
+      draftFiles.select(null)
+    }
   }
 
-  watch(draftFiles.list, async (draftItems) => {
+  watch(draftFiles.list, async () => {
     const list = await host.document.list()
-    tree.value = buildTree(list, draftItems)
-  })
+    tree.value = buildTree(list, draftFiles.list.value)
+  }, { deep: true })
 
   return {
     current: currentTree,

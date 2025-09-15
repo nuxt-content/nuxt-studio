@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DraftStatus } from '../../../utils/draft'
-import { COLOR_STATUS_MAP } from '../../../utils/draft'
+import { COLOR_UI_STATUS_MAP } from '../../../utils/draft'
+import type { DraftStatus } from '../../../types/draft'
 import type { PropType } from 'vue'
 
 defineProps({
@@ -12,7 +12,9 @@ defineProps({
 </script>
 
 <template>
-  <UBadge :color="COLOR_STATUS_MAP[status]">
-    {{ status }}
-  </UBadge>
+  <UBadge
+    :color="COLOR_UI_STATUS_MAP[status]"
+    :label="status"
+    variant="soft"
+  />
 </template>

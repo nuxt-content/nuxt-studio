@@ -5,6 +5,12 @@
 @source "@farnabaz/mdc-editor";
 @source "../../**";
 
+@source inline('ring-orange-200 hover:ring-orange-300 hover:dark:ring-orange-700');
+@source inline('ring-blue-200 hover:ring-blue-300 hover:dark:ring-blue-700');
+@source inline('ring-gray-200 hover:ring-gray-300 hover:dark:ring-gray-700');
+@source inline('ring-red-200 hover:ring-red-300 hover:dark:ring-red-700');
+@source inline('ring-green-200 hover:ring-green-300 hover:dark:ring-green-700');
+
 @theme static {
   --ui-header-height: 50px;
   --ui-footer-height: 40px;

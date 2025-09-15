@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { DatabasePageItem } from '../types'
+import type { DatabasePageItem } from '../../../../types'
 import { parseMarkdown, stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { decompressTree, compressTree } from '@nuxt/content/runtime'
 import type { MDCRoot } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
-import { withoutReservedKeys } from '../utils/collections'
+import { withoutReservedKeys } from '../../../../utils/collections'
 
-const document = defineModel<DatabasePageItem>('document')
-
+const document = defineModel<DatabasePageItem>()
 const content = ref('')
 
 watch(() => document.value?.id, async () => {
@@ -25,7 +24,7 @@ watch(content, (newContent) => {
   parseMarkdown(newContent).then((tree) => {
     document.value = {
       ...document.value,
-      body: tree.body.type === 'root' ? compressTree(tree.body) : tree.body as unknown as MarkdownRoot,
+      body: tree.body.type === 'root' ? compressTree(tree.body) : tree.body as never as MarkdownRoot,
       ...tree.data,
     } as DatabasePageItem
   })

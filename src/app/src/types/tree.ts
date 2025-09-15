@@ -1,4 +1,4 @@
-import type { DraftStatus } from '../utils/draft'
+import type { DraftStatus } from '../types/draft'
 
 export interface TreeItem {
   id: string

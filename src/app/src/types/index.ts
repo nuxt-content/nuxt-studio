@@ -5,6 +5,7 @@ export * from './draft'
 export * from './database'
 export * from './user'
 export * from './tree'
+export * from './github'
 
 export interface StudioHost {
   on: {

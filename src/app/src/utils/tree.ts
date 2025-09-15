@@ -2,7 +2,8 @@ import type { DatabaseItem, DraftFileItem, TreeItem } from '../types'
 import { withLeadingSlash } from 'ufo'
 import { stripNumericPrefix } from './string'
 
-export function buildTree(items: DatabaseItem[], _draft: DraftFileItem[]): TreeItem[] {
+export function buildTree(items: DatabaseItem[], draftList: DraftFileItem[] | null):
+TreeItem[] {
   const tree: TreeItem[] = []
   const directoryMap = new Map<string, TreeItem>()
 
@@ -24,6 +25,11 @@ export function buildTree(items: DatabaseItem[], _draft: DraftFileItem[]): TreeI
         name: fileName,
         path: filePath,
         type: 'file',
+      }
+
+      const draftFileItem = draftList?.find(draft => draft.id === item.id)
+      if (draftFileItem) {
+        fileItem.status = draftFileItem.status
       }
 
       // Page type
@@ -92,6 +98,11 @@ export function buildTree(items: DatabaseItem[], _draft: DraftFileItem[]): TreeI
       type: 'file',
     }
 
+    const draftFileItem = draftList?.find(draft => draft.id === item.id)
+    if (draftFileItem) {
+      fileItem.status = draftFileItem.status
+    }
+
     if (item.path) {
       fileItem.fileType = 'page'
       fileItem.pagePath = item.path as string
@@ -139,14 +150,14 @@ export function findParentFromId(tree: TreeItem[], id: string): TreeItem | null 
 
 //       if (childStatuses.length > 0) {
 //         // Priority: deleted > created > updated
-//         if (childStatuses.includes('deleted')) {
-//           item.status = 'deleted'
+//         if (childStatuses.includes(DraftStatus.Deleted)) {
+//           item.status = DraftStatus.Deleted
 //         }
-//         else if (childStatuses.includes('created')) {
-//           item.status = 'created'
+//         else if (childStatuses.includes(DraftStatus.Created)) {
+//           item.status = DraftStatus.Created
 //         }
-//         else if (childStatuses.includes('updated')) {
-//           item.status = 'updated'
+//         else if (childStatuses.includes(DraftStatus.Updated)) {
+//           item.status = DraftStatus.Updated
 //         }
 //       }
 //     }
