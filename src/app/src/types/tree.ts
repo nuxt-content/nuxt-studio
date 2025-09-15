@@ -7,9 +7,6 @@ export interface TreeItem {
   type: 'file' | 'directory'
   status?: DraftStatus
   fileType?: 'page' | 'data'
-  pagePath?: string
+  routePath?: string
   children?: TreeItem[]
-
-  // Corresponding file route in url
-  // pathRoute?: string
 }

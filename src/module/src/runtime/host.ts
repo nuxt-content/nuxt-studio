@@ -5,6 +5,7 @@ import type { ContentDatabaseAdapter, ContentProvide } from '../types/content'
 import { createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
 import { kebabCase } from 'lodash'
 import type { UseStudioHost, StudioHost, StudioUser } from 'nuxt-studio/app'
+import type { RouteLocationNormalized, Router } from 'vue-router'
 
 function getSidebarWidth(): number {
   let sidebarWidth = 440
@@ -73,10 +74,10 @@ export function useStudioHost(user: StudioUser): StudioHost {
 
   const host: StudioHost = {
     on: {
-      routeChange: (fn: () => void) => {
-        const router = useNuxtApp().$router as { afterEach?: (callback: () => void) => void }
-        router?.afterEach?.(() => {
-          fn()
+      routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
+        const router = useNuxtApp().$router as Router
+        router?.afterEach?.((to, from) => {
+          fn(to, from)
         })
       },
       mounted: (fn: () => void) => ensure(() => isMounted.value).then(fn),

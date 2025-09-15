@@ -1,5 +1,6 @@
 import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
+import type { RouteLocationNormalized } from 'vue-router'
 
 export * from './draft'
 export * from './database'
@@ -10,7 +11,7 @@ export * from './context'
 
 export interface StudioHost {
   on: {
-    routeChange: (fn: () => void) => void
+    routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void
     mounted: (fn: () => void) => void
     beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => void
   }

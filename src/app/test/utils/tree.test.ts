@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { buildTree, findParentFromId } from '../../src/utils/tree'
+import { buildTree, findParentFromId, findItemFromRoute } from '../../src/utils/tree'
 import { tree } from '../mocks/tree'
 import type { TreeItem } from '../../src/types/tree'
 import { dbItemsList } from '../mocks/database'
 import type { DraftFileItem } from '../../src/types/draft'
 import { DraftStatus } from '../../src/types/draft'
+import type { RouteLocationNormalized } from 'vue-router'
 
 describe('buildTree', () => {
   // Result based on dbItemsList mock
@@ -14,7 +15,7 @@ describe('buildTree', () => {
       name: 'home',
       path: '/',
       type: 'file',
-      pagePath: '/',
+      routePath: '/',
       fileType: 'page',
     },
     {
@@ -29,7 +30,7 @@ describe('buildTree', () => {
           path: '/getting-started/introduction',
           type: 'file',
           fileType: 'page',
-          pagePath: '/getting-started/introduction',
+          routePath: '/getting-started/introduction',
         },
         {
           id: 'docs/1.getting-started/3.installation.md',
@@ -37,7 +38,7 @@ describe('buildTree', () => {
           path: '/getting-started/installation',
           type: 'file',
           fileType: 'page',
-          pagePath: '/getting-started/installation',
+          routePath: '/getting-started/installation',
         },
       ],
     },
@@ -112,5 +113,45 @@ describe('findParentFromId', () => {
   it('should return null for empty tree', () => {
     const parent = findParentFromId([], 'any/item.md')
     expect(parent).toBeNull()
+  })
+})
+
+describe('findItemFromRoute', () => {
+  const mockRoute = (path: string) => ({ path }) as RouteLocationNormalized
+
+  it('should find root level file by path', () => {
+    const route = mockRoute('/')
+    const item = findItemFromRoute(tree, route)
+    expect(item).toBeDefined()
+    expect(item?.id).toBe('landing/index.md')
+    expect(item?.name).toBe('home')
+  })
+
+  it('should find nested file by path', () => {
+    const route = mockRoute('/getting-started/introduction')
+    const item = findItemFromRoute(tree, route)
+    expect(item).toBeDefined()
+    expect(item?.id).toBe('docs/1.getting-started/2.introduction.md')
+    expect(item?.name).toBe('introduction')
+  })
+
+  it('should find deeply nested file by path', () => {
+    const route = mockRoute('/getting-started/installation/advanced/studio')
+    const item = findItemFromRoute(tree, route)
+    expect(item).toBeDefined()
+    expect(item?.id).toBe('docs/1.getting-started/1.advanced/1.studio.md')
+    expect(item?.name).toBe('studio')
+  })
+
+  it('should return null for non-existent route', () => {
+    const route = mockRoute('/non/existent/path')
+    const item = findItemFromRoute(tree, route)
+    expect(item).toBeNull()
+  })
+
+  it('should return null for empty tree', () => {
+    const route = mockRoute('/')
+    const item = findItemFromRoute([], route)
+    expect(item).toBeNull()
   })
 })

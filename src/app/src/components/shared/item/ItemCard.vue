@@ -101,7 +101,7 @@ const statusRingColor = computed(() => props.item.status ? `ring-${COLOR_STATUS_
 
       <UTooltip :text="item.path">
         <span class="truncate leading-relaxed text-xs text-gray-400 dark:text-gray-500 block w-full">
-          {{ item.pagePath || item.path }}
+          {{ item.routePath || item.path }}
         </span>
       </UTooltip>
     </template>

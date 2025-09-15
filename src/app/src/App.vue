@@ -8,7 +8,6 @@ import { watch } from 'vue'
 
 const { sidebarWidth } = useSidebar()
 const { ui, host, isReady, tree } = useStudio()
-
 watch(sidebarWidth, () => {
   if (ui.isPanelOpen.value) {
     host.ui.updateStyles()

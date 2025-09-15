@@ -7,6 +7,7 @@ import { useDraftFiles } from './useDraftFiles'
 import { ref } from 'vue'
 import { useTree } from './useTree'
 import { createSharedComposable } from '@vueuse/core'
+import type { RouteLocationNormalized } from 'vue-router'
 
 const storage = createStorage({
   driver: indexedDbDriver({
@@ -35,6 +36,13 @@ export const useStudio = createSharedComposable(() => {
     await draftFiles.load()
     host.requestRerender()
     isReady.value = true
+
+    host.on.routeChange((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
+      tree.selectByRoute(to)
+      // setTimeout(() => {
+      //   detectActiveDocuments()
+      // }, 100)
+    })
   })
 
   // host.on.beforeUnload((event: BeforeUnloadEvent) => {

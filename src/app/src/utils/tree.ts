@@ -1,6 +1,7 @@
 import type { DatabaseItem, DraftFileItem, TreeItem } from '../types'
 import { withLeadingSlash } from 'ufo'
 import { stripNumericPrefix } from './string'
+import type { RouteLocationNormalized } from 'vue-router'
 
 export function buildTree(items: DatabaseItem[], draftList: DraftFileItem[] | null):
 TreeItem[] {
@@ -35,7 +36,7 @@ TreeItem[] {
       // Page type
       if (item.path) {
         fileItem.fileType = 'page'
-        fileItem.pagePath = item.path as string
+        fileItem.routePath = item.path as string
       }
       // Data type
       else {
@@ -105,7 +106,7 @@ TreeItem[] {
 
     if (item.path) {
       fileItem.fileType = 'page'
-      fileItem.pagePath = item.path as string
+      fileItem.routePath = item.path as string
     }
     else {
       fileItem.fileType = 'data'
@@ -134,6 +135,23 @@ export function findParentFromId(tree: TreeItem[], id: string): TreeItem | null 
   }
 
   // Not found in this branch
+  return null
+}
+
+export function findItemFromRoute(tree: TreeItem[], route: RouteLocationNormalized): TreeItem | null {
+  for (const item of tree) {
+    if (item.routePath === route.path) {
+      return item
+    }
+
+    if (item.type === 'directory' && item.children) {
+      const foundInChildren = findItemFromRoute(item.children, route)
+      if (foundInChildren) {
+        return foundInChildren
+      }
+    }
+  }
+
   return null
 }
 

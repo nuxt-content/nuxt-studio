@@ -38,6 +38,17 @@ export default defineConfig({
             body: 'p-3 sm:p-3 w-full',
           },
         },
+        navigationMenu: {
+          slots: {
+            link: 'cursor-pointer',
+          },
+        },
+        breadcrumb: {
+          slots: {
+            link: 'cursor-pointer',
+          },
+        },
+
       },
     }),
     libCss(),

@@ -39,9 +39,8 @@ const items = computed<BreadcrumbItem[]>(() => {
     const itemToSelect = currentTreeItem
     breadcrumbItems.unshift({
       label: currentTreeItem.name,
-      onClick: () => {
-        console.log('selectItem', itemToSelect)
-        treeApi.selectItem(itemToSelect)
+      onClick: async () => {
+        await treeApi.selectItem(itemToSelect)
       },
     })
 

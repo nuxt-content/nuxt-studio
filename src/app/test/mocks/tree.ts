@@ -6,6 +6,8 @@ export const tree: TreeItem[] = [
     name: 'home',
     path: '/',
     type: 'file',
+    routePath: '/',
+    fileType: 'page',
   },
   {
     id: 'docs/1.getting-started',
@@ -19,6 +21,7 @@ export const tree: TreeItem[] = [
         path: '/getting-started/introduction',
         type: 'file',
         fileType: 'page',
+        routePath: '/getting-started/introduction',
       },
       {
         id: 'docs/1.getting-started/3.installation.md',
@@ -26,6 +29,7 @@ export const tree: TreeItem[] = [
         path: '/getting-started/installation',
         type: 'file',
         fileType: 'page',
+        routePath: '/getting-started/installation',
       },
       {
         id: 'docs/1.getting-started/1.advanced',
@@ -39,6 +43,7 @@ export const tree: TreeItem[] = [
             path: '/getting-started/installation/advanced/studio',
             type: 'file',
             fileType: 'page',
+            routePath: '/getting-started/installation/advanced/studio',
           },
         ],
       },

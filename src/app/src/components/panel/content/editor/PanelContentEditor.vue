@@ -17,7 +17,7 @@ const { draftFiles } = useStudio()
 const document = computed<DatabasePageItem>({
   get() {
     if (!props.dbItem) {
-      return {}
+      return {} as DatabasePageItem
     }
 
     let result: DatabasePageItem

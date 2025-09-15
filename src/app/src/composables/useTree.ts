@@ -1,7 +1,8 @@
 import type { StudioHost, TreeItem } from '../types'
 import { ref, watch, computed } from 'vue'
 import type { useDraftFiles } from './useDraftFiles'
-import { findParentFromId, buildTree } from '../utils/tree'
+import { findParentFromId, buildTree, findItemFromRoute } from '../utils/tree'
+import type { RouteLocationNormalized } from 'vue-router'
 
 export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraftFiles>) {
   const tree = ref<TreeItem[]>([])
@@ -35,13 +36,24 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
   async function selectItem(item: TreeItem | null) {
     currentItem.value = item
     if (item?.type === 'file') {
-      const originalDatabaseItem = await host.document.get(item.id)
-      const draftFileItem = await draftFiles.upsert(item.id, originalDatabaseItem)
-      draftFiles.select(draftFileItem)
+      await selectCorrespondingDraftFile(item)
     }
     else {
       draftFiles.select(null)
     }
+  }
+
+  async function selectByRoute(route: RouteLocationNormalized) {
+    const item = findItemFromRoute(tree.value, route)
+    if (!item) return
+    currentItem.value = item
+    await selectCorrespondingDraftFile(item)
+  }
+
+  async function selectCorrespondingDraftFile(item: TreeItem) {
+    const originalDatabaseItem = await host.document.get(item.id)
+    const draftFileItem = await draftFiles.upsert(item.id, originalDatabaseItem)
+    draftFiles.select(draftFileItem)
   }
 
   watch(draftFiles.list, async () => {
@@ -55,5 +67,6 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
     currentItem,
     parentItem,
     selectItem,
+    selectByRoute,
   }
 }
