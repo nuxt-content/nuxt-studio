@@ -7,7 +7,7 @@ import { useSidebar } from './composables/useSidebar'
 import { watch } from 'vue'
 
 const { sidebarWidth } = useSidebar()
-const { ui, host, isReady } = useStudio()
+const { ui, host, isReady, tree } = useStudio()
 
 watch(sidebarWidth, () => {
   if (ui.isPanelOpen.value) {
@@ -46,6 +46,14 @@ watch(sidebarWidth, () => {
       :toaster="{ portal: false }"
     >
       <PanelBase v-model="ui.isPanelOpen.value">
+        <template #header>
+          <ItemBreadcrumb
+            v-if="ui.panels.content"
+            :current-item="tree.currentItem.value"
+            :tree="tree.root.value"
+          />
+        </template>
+
         <PanelContent v-if="ui.panels.content" />
         <PanelMedia v-else-if="ui.panels.media" />
         <PanelConfig v-else-if="ui.panels.config" />

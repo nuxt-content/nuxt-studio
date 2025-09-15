@@ -7,7 +7,7 @@ import { titleCase } from 'scule'
 import { COLOR_STATUS_MAP } from '../../../utils/draft'
 
 const props = defineProps({
-  file: {
+  item: {
     type: Object as PropType<TreeItem>,
     required: true,
   },
@@ -17,11 +17,11 @@ const props = defineProps({
   // },
 })
 
-const isFolder = computed(() => props.file.type === 'directory')
-const name = computed(() => titleCase(props.file.name))
+const isFolder = computed(() => props.item.type === 'directory')
+const name = computed(() => titleCase(props.item.name))
 
-const fileExtensionIcon = computed(() => {
-  const ext = props.file.id.split('.').pop()?.toLowerCase() || ''
+const itemExtensionIcon = computed(() => {
+  const ext = props.item.id.split('.').pop()?.toLowerCase() || ''
   return {
     md: 'i-ph-markdown-logo',
     yaml: 'i-fluent-document-yml-20-regular',
@@ -30,7 +30,7 @@ const fileExtensionIcon = computed(() => {
   }[ext] || 'i-mdi-file'
 })
 
-const statusRingColor = computed(() => props.file.status ? `ring-${COLOR_STATUS_MAP[props.file.status]}-200 hover:ring-${COLOR_STATUS_MAP[props.file.status]}-300 hover:dark:ring-${COLOR_STATUS_MAP[props.file.status]}-700` : 'ring-gray-200 hover:ring-gray-300 hover:dark:ring-gray-700')
+const statusRingColor = computed(() => props.item.status ? `ring-${COLOR_STATUS_MAP[props.item.status]}-200 hover:ring-${COLOR_STATUS_MAP[props.item.status]}-300 hover:dark:ring-${COLOR_STATUS_MAP[props.item.status]}-700` : 'ring-gray-200 hover:ring-gray-300 hover:dark:ring-gray-700')
 </script>
 
 <template>
@@ -40,7 +40,7 @@ const statusRingColor = computed(() => props.file.status ? `ring-${COLOR_STATUS_
     :class="statusRingColor"
   >
     <div
-      v-if="file.type === 'file'"
+      v-if="item.type === 'file'"
       class="relative"
     >
       <Image
@@ -52,7 +52,7 @@ const statusRingColor = computed(() => props.file.status ? `ring-${COLOR_STATUS_
       />
       <div class="absolute inset-0 flex items-center justify-center">
         <UIcon
-          :name="fileExtensionIcon"
+          :name="itemExtensionIcon"
           class="w-8 h-8 text-gray-400 dark:text-gray-500"
         />
       </div>
@@ -73,14 +73,14 @@ const statusRingColor = computed(() => props.file.status ? `ring-${COLOR_STATUS_
           />
           <h3
             class="text-sm font-semibold truncate"
-            :class="props.file.status === 'deleted' && 'line-through'"
+            :class="props.item.status === 'deleted' && 'line-through'"
           >
             {{ name }}
           </h3>
         </div>
-        <FileBadge
-          v-if="file.status"
-          :status="file.status"
+        <ItemBadge
+          v-if="item.status"
+          :status="item.status"
         />
         <!-- <UDropdown
           v-if="!readOnly && isFolder"
@@ -97,15 +97,11 @@ const statusRingColor = computed(() => props.file.status ? `ring-${COLOR_STATUS_
             square
           />
         </UDropdown> -->
-        <!-- <FileBadge
-          v-if="file.status"
-          :status="file.status"
-        /> -->
       </div>
 
-      <UTooltip :text="file.path">
+      <UTooltip :text="item.path">
         <span class="truncate leading-relaxed text-xs text-gray-400 dark:text-gray-500 block w-full">
-          {{ file.pagePath || file.path }}
+          {{ item.pagePath || item.path }}
         </span>
       </UTooltip>
     </template>

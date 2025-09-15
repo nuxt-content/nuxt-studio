@@ -8,7 +8,6 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
   const currentItem = ref<TreeItem | null>(null)
 
   const currentTree = computed<TreeItem[]>(() => {
-    // If no files is selected
     if (!currentItem.value) {
       return tree.value
     }
@@ -51,6 +50,7 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
   }, { deep: true })
 
   return {
+    root: tree,
     current: currentTree,
     currentItem,
     parentItem,

@@ -33,8 +33,8 @@ defineProps({
     >
       <li v-if="!!parentItem">
         <!-- parent card -->
-        <FileCard
-          :file="parentItem!"
+        <ItemCard
+          :item="parentItem!"
           @click="treeApi.selectItem(parentItem?.id ? parentItem : null)"
         />
       </li>
@@ -42,8 +42,8 @@ defineProps({
         v-for="(item, index) in tree"
         :key="`${item.path}-${index}`"
       >
-        <FileCard
-          :file="item"
+        <ItemCard
+          :item="item"
           @click="treeApi.selectItem(item)"
         />
       </li>

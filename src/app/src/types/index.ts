@@ -6,6 +6,7 @@ export * from './database'
 export * from './user'
 export * from './tree'
 export * from './github'
+export * from './context'
 
 export interface StudioHost {
   on: {

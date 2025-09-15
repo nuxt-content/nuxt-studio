@@ -1,12 +1,12 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, reactive, watch } from 'vue'
-import type { StudioHost } from '../types'
+import { type StudioHost, StudioFeature } from '../types'
 
 export const useUi = createSharedComposable((host: StudioHost) => {
   const panels = reactive({
-    content: false,
-    media: false,
-    config: false,
+    [StudioFeature.Content]: true,
+    [StudioFeature.Media]: false,
+    [StudioFeature.Config]: false,
   })
 
   const isPanelOpen = computed(() => Object.values(panels).some(value => value))
@@ -19,7 +19,7 @@ export const useUi = createSharedComposable((host: StudioHost) => {
     }
   })
 
-  function openPanel(openPanel: keyof typeof panels) {
+  function openPanel(openPanel: StudioFeature) {
     if (panels[openPanel]) {
       return
     }

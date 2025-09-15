@@ -58,7 +58,11 @@ function onLeave(el: Element, done: () => void) {
     >
       <PanelBaseHeader />
 
-      <div class="h-[calc(100vh-var(--ui-header-height)-var(--ui-footer-height))] p-4">
+      <div class="px-4 py-2 h-[var(--ui-sub-header-height)] border-b border-gray-200">
+        <slot name="header" />
+      </div>
+
+      <div class="h-[calc(100vh-var(--ui-header-height)-var(--ui-sub-header-height)-var(--ui-footer-height))] p-4">
         <slot />
       </div>
 

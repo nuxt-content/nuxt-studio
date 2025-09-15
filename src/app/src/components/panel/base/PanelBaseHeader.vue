@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useStudio } from '../../../composables/useStudio'
+import { StudioFeature } from '../../../types'
 
 const { ui, context, tree } = useStudio()
 
@@ -7,47 +8,45 @@ const features = [{
   label: 'Content',
   icon: 'i-lucide-files',
   onClick: () => {
-    if (context.feature.value === 'content') {
+    if (context.feature.value === StudioFeature.Content) {
       tree.selectItem(null)
       return
     }
 
-    ui.openPanel('content')
+    ui.openPanel(StudioFeature.Content)
   },
 }, {
   label: 'Media',
   icon: 'i-lucide-image',
   onClick: () => {
-    if (context.feature.value === 'media') {
+    if (context.feature.value === StudioFeature.Media) {
       return
     }
 
-    ui.openPanel('media')
+    ui.openPanel(StudioFeature.Media)
   },
 },
 {
   label: 'Config',
   icon: 'i-lucide-settings',
   onClick: () => {
-    if (context.feature.value === 'config') {
+    if (context.feature.value === StudioFeature.Config) {
       return
     }
 
-    ui.openPanel('config')
+    ui.openPanel(StudioFeature.Config)
   },
 }]
 </script>
 
 <template>
-  <UHeader class="">
+  <UHeader>
     <template #title>
-      <div class="flex gap-2">
-        <UNavigationMenu
-          :items="features"
-          size="sm"
-          highlight
-        />
-      </div>
+      <UNavigationMenu
+        :items="features"
+        size="sm"
+        highlight
+      />
     </template>
 
     <template #right>
