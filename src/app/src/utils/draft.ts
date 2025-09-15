@@ -9,6 +9,14 @@ export const COLOR_STATUS_MAP: { [key in DraftStatus]?: string } = {
   opened: 'gray',
 }
 
+export const COLOR_UI_STATUS_MAP: { [key in DraftStatus]?: string } = {
+  created: 'primary',
+  updated: 'warning',
+  deleted: 'danger',
+  renamed: 'info',
+  opened: 'neutral',
+}
+
 export function getDraftStatus(draftedDocument: DatabaseItem, originalDatabaseItem: DatabaseItem | undefined) {
   if (!originalDatabaseItem) {
     return DraftStatus.Created

@@ -51,6 +51,7 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
     const existingItem = list.value.find(item => item.id == id)
     if (existingItem) {
       existingItem.document = document
+      existingItem.status = item.status
     }
     else {
       list.value.push(item)
