@@ -18,11 +18,10 @@ const fileTree = computed(() => (tree.current.value || []).filter(f => f.type ==
     />
     <template v-else>
       <PanelContentTree
-        v-if="folderTree?.length > 0 || tree.currentItem.value?.type === 'directory'"
+        v-if="folderTree?.length > 0"
         class="mb-4"
         :tree="folderTree"
         :current-tree-item="tree.currentItem.value"
-        :parent-item="tree.parentItem.value"
         type="directory"
       />
       <PanelContentTree

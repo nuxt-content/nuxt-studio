@@ -26,12 +26,12 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
     return subTree
   })
 
-  const parentItem = computed<TreeItem | null>(() => {
-    if (!currentItem.value) return null
+  // const parentItem = computed<TreeItem | null>(() => {
+  //   if (!currentItem.value) return null
 
-    const parent = findParentFromId(tree.value, currentItem.value.id)
-    return parent || { name: 'content', path: '../', type: 'directory' } as TreeItem
-  })
+  //   const parent = findParentFromId(tree.value, currentItem.value.id)
+  //   return parent || { name: 'content', path: '../', type: 'directory' } as TreeItem
+  // })
 
   async function selectItem(item: TreeItem | null) {
     currentItem.value = item
@@ -66,7 +66,7 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
     root: tree,
     current: currentTree,
     currentItem,
-    parentItem,
+    // parentItem,
     selectItem,
     selectByRoute,
   }

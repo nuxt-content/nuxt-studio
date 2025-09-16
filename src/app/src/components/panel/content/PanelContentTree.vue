@@ -18,10 +18,6 @@ defineProps({
     type: Object as PropType<TreeItem | null>,
     default: null,
   },
-  parentItem: {
-    type: Object as PropType<TreeItem | null>,
-    default: null,
-  },
 })
 </script>
 
@@ -31,13 +27,6 @@ defineProps({
       ref="container"
       class="grid grid-cols-1 @sm:grid-cols-2 @md:grid-cols-3 @4xl:grid-cols-4 @7xl:grid-cols-6 gap-4"
     >
-      <li v-if="!!parentItem">
-        <!-- parent card -->
-        <ItemCard
-          :item="parentItem!"
-          @click="treeApi.selectItem(parentItem?.id ? parentItem : null)"
-        />
-      </li>
       <li
         v-for="(item, index) in tree"
         :key="`${item.path}-${index}`"
