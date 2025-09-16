@@ -70,8 +70,8 @@ importers:
         specifier: ^12.2.0
         version: 12.2.0
       docus:
-        specifier: https://pkg.pr.new/docus@23d88e3
-        version: https://pkg.pr.new/docus@23d88e3(0ca7d6196b3d8b936c9ae631cff20649)
+        specifier: https://pkg.pr.new/docus@db0ec99
+        version: https://pkg.pr.new/docus@db0ec99(0ca7d6196b3d8b936c9ae631cff20649)
       nuxt:
         specifier: latest
         version: 4.1.1(@parcel/watcher@2.5.1)(@types/node@24.3.1)(@vue/compiler-sfc@3.5.21)(better-sqlite3@12.2.0)(db0@0.3.2(better-sqlite3@12.2.0))(eslint@9.35.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.7.0)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.50.1)(terser@5.44.0)(typescript@5.9.2)(vite@7.1.5(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1))(vue-tsc@3.0.7(typescript@5.9.2))(yaml@2.8.1)
@@ -3012,8 +3012,8 @@ packages:
     resolution: {integrity: sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==}
     engines: {node: '>=0.3.1'}
 
-  docus@https://pkg.pr.new/docus@23d88e3:
-    resolution: {tarball: https://pkg.pr.new/docus@23d88e3}
+  docus@https://pkg.pr.new/docus@db0ec99:
+    resolution: {tarball: https://pkg.pr.new/docus@db0ec99}
     version: 4.1.4
     peerDependencies:
       better-sqlite3: 12.x
@@ -9456,7 +9456,7 @@ snapshots:
 
   diff@8.0.2: {}
 
-  docus@https://pkg.pr.new/docus@23d88e3(0ca7d6196b3d8b936c9ae631cff20649):
+  docus@https://pkg.pr.new/docus@db0ec99(0ca7d6196b3d8b936c9ae631cff20649):
     dependencies:
       '@iconify-json/lucide': 1.2.66
       '@iconify-json/simple-icons': 1.2.50
