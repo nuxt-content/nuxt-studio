@@ -58,7 +58,7 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
     }
 
     await host.document.upsert(id, item.document!)
-    host.requestRerender()
+    host.app.requestRerender()
 
     return item
   }
@@ -105,7 +105,7 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
     }
 
     list.value = list.value.filter(item => item.id !== id)
-    host.requestRerender()
+    host.app.requestRerender()
   }
 
   async function revert(id: string) {
@@ -123,7 +123,7 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
     if (item.status === DraftStatus.Created) {
       await host.document.delete(id)
     }
-    host.requestRerender()
+    host.app.requestRerender()
   }
 
   async function revertAll() {
@@ -137,7 +137,7 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
       }
     }
     list.value = []
-    host.requestRerender()
+    host.app.requestRerender()
   }
 
   async function load() {
@@ -164,7 +164,7 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
       }
     }))
 
-    host.requestRerender()
+    host.app.requestRerender()
   }
 
   function select(draftItem: DraftFileItem | null) {

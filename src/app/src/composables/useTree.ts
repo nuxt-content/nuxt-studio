@@ -36,6 +36,7 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
   async function selectItem(item: TreeItem | null) {
     currentItem.value = item
     if (item?.type === 'file') {
+      host.app.navigateTo(item.routePath!)
       await selectCorrespondingDraftFile(item)
     }
     else {

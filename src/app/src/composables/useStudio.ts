@@ -34,7 +34,7 @@ export const useStudio = createSharedComposable(() => {
 
   host.on.mounted(async () => {
     await draftFiles.load()
-    host.requestRerender()
+    host.app.requestRerender()
     isReady.value = true
 
     host.on.routeChange((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {

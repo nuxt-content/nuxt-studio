@@ -180,8 +180,13 @@ export function useStudioHost(user: StudioUser): StudioHost {
       },
     },
 
-    requestRerender: () => {
-      useNuxtApp().hooks.callHookParallel('app:data:refresh')
+    app: {
+      requestRerender: () => {
+        useNuxtApp().hooks.callHookParallel('app:data:refresh')
+      },
+      navigateTo: (path: string) => {
+        useNuxtApp().$router.push(path)
+      },
     },
   }
 

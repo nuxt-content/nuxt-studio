@@ -35,7 +35,10 @@ export interface StudioHost {
   user: {
     get: () => StudioUser
   }
-  requestRerender: () => void
+  app: {
+    requestRerender: () => void
+    navigateTo: (path: string) => void
+  }
 }
 
 export type UseStudioHost = (user: StudioUser) => StudioHost
