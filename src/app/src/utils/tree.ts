@@ -1,4 +1,4 @@
-import type { DatabaseItem, DraftFileItem, TreeItem } from '../types'
+import { DraftStatus, type DatabaseItem, type DraftFileItem, type TreeItem } from '../types'
 import { withLeadingSlash } from 'ufo'
 import { stripNumericPrefix } from './string'
 import type { RouteLocationNormalized } from 'vue-router'
@@ -115,6 +115,8 @@ TreeItem[] {
     directoryChildren.push(fileItem)
   }
 
+  calculateDirectoryStatuses(tree)
+
   return tree
 }
 
@@ -155,29 +157,17 @@ export function findItemFromRoute(tree: TreeItem[], route: RouteLocationNormaliz
   return null
 }
 
-// function _calculateDirectoryStatuses(items: TreeItem[]) {
-//   for (const item of items) {
-//     if (item.type === 'directory' && item.children) {
-//       // Recursively calculate children first
-//       _calculateDirectoryStatuses(item.children)
+function calculateDirectoryStatuses(items: TreeItem[]) {
+  for (const item of items) {
+    if (item.type === 'directory' && item.children) {
+      calculateDirectoryStatuses(item.children)
 
-//       // Calculate this directory's status based on children
-//       const childStatuses = item.children
-//         .map(child => child.status)
-//         .filter(Boolean)
-
-//       if (childStatuses.length > 0) {
-//         // Priority: deleted > created > updated
-//         if (childStatuses.includes(DraftStatus.Deleted)) {
-//           item.status = DraftStatus.Deleted
-//         }
-//         else if (childStatuses.includes(DraftStatus.Created)) {
-//           item.status = DraftStatus.Created
-//         }
-//         else if (childStatuses.includes(DraftStatus.Updated)) {
-//           item.status = DraftStatus.Updated
-//         }
-//       }
-//     }
-//   }
-// }
+      for (const child of item.children) {
+        if (child.status) {
+          item.status = DraftStatus.Updated
+          break
+        }
+      }
+    }
+  }
+}
