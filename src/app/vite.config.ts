@@ -23,7 +23,7 @@ export default defineConfig({
         },
         footer: {
           slots: {
-            container: 'py-2 lg:py-1 px-1 sm:px-4 lg:px-4',
+            container: 'py-2 lg:py-1 px-1 sm:px-3 lg:px-3',
           },
         },
         header: {
@@ -35,12 +35,15 @@ export default defineConfig({
           slots: {
             wrapper: 'min-w-0',
             container: 'p-0 sm:p-0 gap-y-0',
-            body: 'p-3 sm:p-3 w-full',
+            body: 'p-3  sm:p-3 w-full',
           },
         },
         navigationMenu: {
           slots: {
             link: 'cursor-pointer',
+          },
+          defaultVariants: {
+            size: 'sm',
           },
         },
         breadcrumb: {
@@ -48,7 +51,24 @@ export default defineConfig({
             link: 'cursor-pointer',
           },
         },
-
+        button: {
+          variants: {
+            size: {
+              xs: {
+                leadingIcon: 'size-3',
+                trailingIcon: 'size-3',
+              },
+            },
+          },
+          defaultVariants: {
+            size: 'sm',
+          },
+        },
+        dropdownMenu: {
+          defaultVariants: {
+            size: 'sm',
+          },
+        },
       },
     }),
     libCss(),

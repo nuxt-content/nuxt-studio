@@ -46,7 +46,6 @@ const features = [{
     <template #title>
       <UNavigationMenu
         :items="features"
-        size="sm"
         highlight
       />
     </template>

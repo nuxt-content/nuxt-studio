@@ -64,12 +64,12 @@ const statusRingColor = computed(() => props.item.status ? `ring-${COLOR_STATUS_
           <UIcon
             v-if="isFolder"
             name="i-lucide-folder"
-            class="h-4 w-4"
+            class="h-4 w-4 shrink-0"
           />
           <UIcon
             v-else-if="name === 'home'"
             name="i-lucide-house"
-            class="h-4 w-4"
+            class="h-4 w-4 shrink-0"
           />
           <h3
             class="text-sm font-semibold truncate"
@@ -78,32 +78,21 @@ const statusRingColor = computed(() => props.item.status ? `ring-${COLOR_STATUS_
             {{ name }}
           </h3>
         </div>
+        <ItemActionsDropdown :item="item" />
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <UTooltip :text="item.path">
+          <span class="truncate leading-relaxed text-xs text-gray-400 dark:text-gray-500 block w-full">
+            {{ item.routePath || item.path }}
+          </span>
+        </UTooltip>
+
         <ItemBadge
           v-if="item.status"
           :status="item.status"
         />
-        <!-- <UDropdown
-          v-if="!readOnly && isFolder"
-          class="hidden group-hover:block"
-          :items="actionItems"
-          :popper="{ strategy: 'absolute' }"
-          @click="$event.stopPropagation()"
-        >
-          <UButton
-            color="gray"
-            variant="ghost"
-            aria-label="Open items"
-            icon="i-ph-dots-three-vertical"
-            square
-          />
-        </UDropdown> -->
       </div>
-
-      <UTooltip :text="item.path">
-        <span class="truncate leading-relaxed text-xs text-gray-400 dark:text-gray-500 block w-full">
-          {{ item.routePath || item.path }}
-        </span>
-      </UTooltip>
     </template>
   </UPageCard>
 </template>
