@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { computeActionItems, STUDIO_ACTION_DEFINITIONS, StudioActionId } from '../../src/utils/context'
-import type { TreeItem } from '../../src/types'
+import { computeActionItems, STUDIO_ITEM_ACTION_DEFINITIONS } from '../../src/utils/context'
+import { StudioActionId, type TreeItem } from '../../src/types'
 import { DraftStatus } from '../../src/types/draft'
 
 describe('computeActionItems', () => {
   it('should return all actions when item is undefined', () => {
-    const result = computeActionItems(undefined)
-    expect(result).toEqual(STUDIO_ACTION_DEFINITIONS)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, undefined)
+    expect(result).toEqual(STUDIO_ITEM_ACTION_DEFINITIONS)
   })
 
   /**************************************************
@@ -19,13 +19,13 @@ describe('computeActionItems', () => {
       path: '/',
     } as TreeItem
 
-    const result = computeActionItems(rootItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
 
     expect(result.find(action => action.id === StudioActionId.RenameItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.DeleteItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.RenameItem
       && action.id !== StudioActionId.DeleteItem
       && action.id !== StudioActionId.DuplicateItem,
@@ -43,13 +43,13 @@ describe('computeActionItems', () => {
       path: '/test.md',
     } as TreeItem
 
-    const result = computeActionItems(fileItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     expect(result.find(action => action.id === StudioActionId.CreateFolder)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.CreateFile)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RevertItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.CreateFolder
       && action.id !== StudioActionId.CreateFile
       && action.id !== StudioActionId.RevertItem,
@@ -65,13 +65,13 @@ describe('computeActionItems', () => {
       status: DraftStatus.Opened,
     } as TreeItem
 
-    const result = computeActionItems(fileItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     expect(result.find(action => action.id === StudioActionId.CreateFolder)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.CreateFile)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RevertItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.CreateFolder
       && action.id !== StudioActionId.CreateFile
       && action.id !== StudioActionId.RevertItem,
@@ -87,12 +87,12 @@ describe('computeActionItems', () => {
       status: DraftStatus.Updated,
     } as TreeItem
 
-    const result = computeActionItems(fileItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     expect(result.find(action => action.id === StudioActionId.CreateFolder)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.CreateFile)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.CreateFolder
       && action.id !== StudioActionId.CreateFile,
     )
@@ -107,12 +107,12 @@ describe('computeActionItems', () => {
       status: DraftStatus.Created,
     } as TreeItem
 
-    const result = computeActionItems(fileItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     expect(result.find(action => action.id === StudioActionId.CreateFolder)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.CreateFile)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.CreateFolder
       && action.id !== StudioActionId.CreateFile,
     )
@@ -127,7 +127,7 @@ describe('computeActionItems', () => {
       status: DraftStatus.Deleted,
     } as TreeItem
 
-    const result = computeActionItems(fileItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     expect(result.find(action => action.id === StudioActionId.CreateFolder)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.CreateFile)).toBeUndefined()
@@ -135,7 +135,7 @@ describe('computeActionItems', () => {
     expect(result.find(action => action.id === StudioActionId.RenameItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.DeleteItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.CreateFolder
       && action.id !== StudioActionId.CreateFile
       && action.id !== StudioActionId.DuplicateItem
@@ -153,13 +153,13 @@ describe('computeActionItems', () => {
       status: DraftStatus.Renamed,
     } as TreeItem
 
-    const result = computeActionItems(fileItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     expect(result.find(action => action.id === StudioActionId.CreateFolder)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.CreateFile)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RenameItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.CreateFolder
       && action.id !== StudioActionId.CreateFile
       && action.id !== StudioActionId.RenameItem,
@@ -178,12 +178,12 @@ describe('computeActionItems', () => {
       path: '/folder',
     } as TreeItem
 
-    const result = computeActionItems(directoryItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RevertItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.DuplicateItem
       && action.id !== StudioActionId.RevertItem,
     )
@@ -198,12 +198,12 @@ describe('computeActionItems', () => {
       status: DraftStatus.Opened,
     } as TreeItem
 
-    const result = computeActionItems(directoryItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RevertItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.DuplicateItem
       && action.id !== StudioActionId.RevertItem,
     )
@@ -218,11 +218,11 @@ describe('computeActionItems', () => {
       status: DraftStatus.Updated,
     } as TreeItem
 
-    const result = computeActionItems(directoryItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.DuplicateItem,
     )
     expect(result).toEqual(expectedActions)
@@ -236,11 +236,11 @@ describe('computeActionItems', () => {
       status: DraftStatus.Created,
     } as TreeItem
 
-    const result = computeActionItems(directoryItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.DuplicateItem,
     )
     expect(result).toEqual(expectedActions)
@@ -254,13 +254,13 @@ describe('computeActionItems', () => {
       status: DraftStatus.Deleted,
     } as TreeItem
 
-    const result = computeActionItems(directoryItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RenameItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.DeleteItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.DuplicateItem
       && action.id !== StudioActionId.RenameItem
       && action.id !== StudioActionId.DeleteItem,
@@ -276,12 +276,12 @@ describe('computeActionItems', () => {
       status: DraftStatus.Renamed,
     } as TreeItem
 
-    const result = computeActionItems(directoryItem)
+    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     expect(result.find(action => action.id === StudioActionId.DuplicateItem)).toBeUndefined()
     expect(result.find(action => action.id === StudioActionId.RenameItem)).toBeUndefined()
 
-    const expectedActions = STUDIO_ACTION_DEFINITIONS.filter(action =>
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioActionId.DuplicateItem
       && action.id !== StudioActionId.RenameItem,
     )

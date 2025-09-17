@@ -2,6 +2,9 @@
 import { computed, type PropType } from 'vue'
 import type { TreeItem } from '../../../types'
 import { computeActionItems } from '../../../utils/context'
+import { useStudio } from '../../../composables/useStudio'
+
+const { context } = useStudio()
 
 const props = defineProps({
   item: {
@@ -11,7 +14,7 @@ const props = defineProps({
 })
 
 const actions = computed(() => {
-  return computeActionItems(props.item)
+  return computeActionItems(context.itemActions.value, props.item)
 })
 </script>
 
@@ -28,6 +31,7 @@ const actions = computed(() => {
         size="sm"
         color="neutral"
         variant="ghost"
+        @click="action.handler"
       />
     </UTooltip>
   </div>

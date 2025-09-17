@@ -1,5 +1,6 @@
 import { type StudioAction, StudioFeature, type TreeItem } from '../types'
 import { DraftStatus } from '../types/draft'
+import { StudioActionId } from '../types/context'
 
 export const FEATURE_DISPLAY_MAP = {
   [StudioFeature.Content]: 'Content files',
@@ -7,16 +8,7 @@ export const FEATURE_DISPLAY_MAP = {
   [StudioFeature.Config]: 'Application configuration',
 } as const
 
-export enum StudioActionId {
-  CreateFolder = 'create-folder',
-  CreateFile = 'create-file',
-  RevertItem = 'revert-item',
-  RenameItem = 'rename-item',
-  DeleteItem = 'delete-item',
-  DuplicateItem = 'duplicate-item',
-}
-
-export const STUDIO_ACTION_DEFINITIONS: StudioAction[] = [
+export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
   {
     id: StudioActionId.CreateFolder,
     label: 'Create folder',
@@ -55,17 +47,15 @@ export const STUDIO_ACTION_DEFINITIONS: StudioAction[] = [
   },
 ] as const
 
-export function computeActionItems(item?: TreeItem | null): StudioAction[] {
-  const studioActions = [...STUDIO_ACTION_DEFINITIONS]
-
+export function computeActionItems(itemActions: StudioAction[], item?: TreeItem | null): StudioAction[] {
   if (!item) {
-    return studioActions
+    return itemActions
   }
 
   const forbiddenActions: StudioActionId[] = []
 
   if (item.type === 'root') {
-    return studioActions.filter(action => ![StudioActionId.RenameItem, StudioActionId.DeleteItem, StudioActionId.DuplicateItem].includes(action.id))
+    return itemActions.filter(action => ![StudioActionId.RenameItem, StudioActionId.DeleteItem, StudioActionId.DuplicateItem].includes(action.id))
   }
 
   // Item type filtering
@@ -94,5 +84,5 @@ export function computeActionItems(item?: TreeItem | null): StudioAction[] {
       break
   }
 
-  return studioActions.filter(action => !forbiddenActions.includes(action.id))
+  return itemActions.filter(action => !forbiddenActions.includes(action.id))
 }
