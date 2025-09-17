@@ -1,22 +1,24 @@
-import { useRuntimeConfig } from '#imports'
+import { defineNuxtPlugin, useRuntimeConfig } from '#imports'
 import { defineStudioActivationPlugin } from '../utils/activation'
 
-export default defineStudioActivationPlugin(async () => {
-  console.log(`
-███████╗████████╗██╗   ██╗██████╗ ██╗ ██████╗     ██████╗ ███████╗██╗   ██╗
-██╔════╝╚══██╔══╝██║   ██║██╔══██╗██║██╔═══██╗    ██╔══██╗██╔════╝██║   ██║
-███████╗   ██║   ██║   ██║██║  ██║██║██║   ██║    ██║  ██║█████╗  ██║   ██║
-╚════██║   ██║   ██║   ██║██║  ██║██║██║   ██║    ██║  ██║██╔══╝  ╚██╗ ██╔╝
-███████║   ██║   ╚██████╔╝██████╔╝██║╚██████╔╝    ██████╔╝███████╗ ╚████╔╝
-╚══════╝   ╚═╝    ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝     ╚═════╝ ╚══════╝  ╚═══╝
-  `)
+export default defineNuxtPlugin(async () => {
+  await defineStudioActivationPlugin(async () => {
+    console.log(`
+  ███████╗████████╗██╗   ██╗██████╗ ██╗ ██████╗     ██████╗ ███████╗██╗   ██╗
+  ██╔════╝╚══██╔══╝██║   ██║██╔══██╗██║██╔═══██╗    ██╔══██╗██╔════╝██║   ██║
+  ███████╗   ██║   ██║   ██║██║  ██║██║██║   ██║    ██║  ██║█████╗  ██║   ██║
+  ╚════██║   ██║   ██║   ██║██║  ██║██║██║   ██║    ██║  ██║██╔══╝  ╚██╗ ██╔╝
+  ███████║   ██║   ╚██████╔╝██████╔╝██║╚██████╔╝    ██████╔╝███████╗ ╚████╔╝
+  ╚══════╝   ╚═╝    ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝     ╚═════╝ ╚══════╝  ╚═══╝
+    `)
 
-  const config = useRuntimeConfig()
-  const el = document.createElement('script')
-  el.src = `${config.public.contentStudio?.studioDevServer}/src/index.ts`
-  el.type = 'module'
-  document.body.appendChild(el)
+    const config = useRuntimeConfig()
+    const el = document.createElement('script')
+    el.src = `${config.public.contentStudio?.studioDevServer}/src/index.ts`
+    el.type = 'module'
+    document.body.appendChild(el)
 
-  const wp = document.createElement('nuxt-studio')
-  document.body.appendChild(wp)
+    const wp = document.createElement('nuxt-studio')
+    document.body.appendChild(wp)
+  })
 })

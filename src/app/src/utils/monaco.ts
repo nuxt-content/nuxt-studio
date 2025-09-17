@@ -1,62 +1,83 @@
 import { createSingletonPromise } from '@vueuse/core'
-import type { editor as Editor } from 'monaco-editor'
-import { language as mdcLanguage } from '@nuxtlabs/monarch-mdc'
+import type { editor as Editor } from 'modern-monaco/editor-core'
 
-// export { setupSuggestion } from './mdc-completion'
+export type { editor as Editor } from 'modern-monaco/editor-core'
+export type Monaco = Awaited<ReturnType<typeof import('modern-monaco')['init']>>
+
 
 export const setupMonaco = createSingletonPromise(async () => {
-  const monaco = await import('monaco-editor')
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-    ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
-    noUnusedLocals: false,
-    noUnusedParameters: false,
-    allowUnreachableCode: true,
-    allowUnusedLabels: true,
-    strict: true,
-  })
+  // @ts-expect-error -- esm.sh
+  const init = await import("https://esm.sh/modern-monaco").then(m => m.init)
+  // @ts-expect-error -- esm.sh
+  const cssBundle = await import("https://esm.sh/modern-monaco/editor-core").then(m => m.cssBundle)
 
-  await Promise.all([
-    // load workers
-    (async () => {
-      const [
-        { default: EditorWorker },
-        { default: JsonWorker },
-        { default: CssWorker },
-        { default: HtmlWorker },
-        { default: TsWorker },
-      ] = await Promise.all([
-        import('monaco-editor/esm/vs/editor/editor.worker?worker'),
-        import('monaco-editor/esm/vs/language/json/json.worker?worker'),
-        import('monaco-editor/esm/vs/language/css/css.worker?worker'),
-        import('monaco-editor/esm/vs/language/html/html.worker?worker'),
-        import('monaco-editor/esm/vs/language/typescript/ts.worker?worker'),
-      ])
+  if (!window.document.getElementById("monaco-editor-core-css")) {
+    const styleEl = window.document.createElement("style");
+    styleEl.id = "monaco-editor-core-css";
+    styleEl.media = "screen";
+    styleEl.textContent = '/* Dummy CSS to disable modern monaco styles. TODO: drop a PR to modern-monaco */';
+    window.document.head.appendChild(styleEl);
+  }
 
-      window.MonacoEnvironment = {
-        getWorker(_: unknown, label: string) {
-          if (label === 'json') return new JsonWorker()
-          if (label === 'css' || label === 'scss' || label === 'less') return new CssWorker()
-          if (label === 'html' || label === 'handlebars' || label === 'razor' || label === 'vue3') return new HtmlWorker()
-          if (label === 'typescript' || label === 'javascript') return new TsWorker()
-          return new EditorWorker()
-        },
-      }
+  const monaco = await init();
 
-      monaco.languages.register({ id: 'mdc', aliases: ['mdc', 'md', 'markdown'] })
-      // Register a tokens provider for the language
-      monaco.languages.setMonarchTokensProvider('mdc', mdcLanguage)
-      monaco.languages.setLanguageConfiguration('mdc', {
-        comments: {
-          blockComment: ['<!--', '-->'],
-        },
-      })
-    })(),
-  ])
+  return {
+    editor: monaco.editor,
+    createEditor: ((domElement, options, override) => {
+      // Inject the CSS bundle into the DOM
+      const styleEl = window.document.createElement("style");
+      styleEl.id = "monaco-editor-core-css";
+      styleEl.media = "screen";
+      styleEl.textContent = cssBundle;
+      domElement.parentNode!.appendChild(styleEl);
 
-  return monaco
+      document.createElement('style')
+
+      return monaco.editor.create(domElement, options, override)
+    }) as Monaco['editor']['create']
+  }
+  // await Promise.all([
+  //   // load workers
+  //   (async () => {
+  //     const [
+  //       { default: EditorWorker },
+  //       { default: JsonWorker },
+  //       { default: CssWorker },
+  //       { default: HtmlWorker },
+  //       { default: TsWorker },
+  //     ] = await Promise.all([
+  //       import('monaco-editor/esm/vs/editor/editor.worker?worker'),
+  //       import('monaco-editor/esm/vs/language/json/json.worker?worker'),
+  //       import('monaco-editor/esm/vs/language/css/css.worker?worker'),
+  //       import('monaco-editor/esm/vs/language/html/html.worker?worker'),
+  //       import('monaco-editor/esm/vs/language/typescript/ts.worker?worker'),
+  //     ])
+
+  //     window.MonacoEnvironment = {
+  //       getWorker(_: unknown, label: string) {
+  //         if (label === 'json') return new JsonWorker()
+  //         if (label === 'css' || label === 'scss' || label === 'less') return new CssWorker()
+  //         if (label === 'html' || label === 'handlebars' || label === 'razor' || label === 'vue3') return new HtmlWorker()
+  //         if (label === 'typescript' || label === 'javascript') return new TsWorker()
+  //         return new EditorWorker()
+  //       },
+  //     }
+
+  //     monaco.languages.register({ id: 'mdc', aliases: ['mdc', 'md', 'markdown'] })
+  //     // Register a tokens provider for the language
+  //     monaco.languages.setMonarchTokensProvider('mdc', mdcLanguage)
+  //     monaco.languages.setLanguageConfiguration('mdc', {
+  //       comments: {
+  //         blockComment: ['<!--', '-->'],
+  //       },
+  //     })
+  //   })(),
+  // ])
+
+  // return monaco
 })
 
-export function setupTheme(monaco: typeof import('monaco-editor')) {
+export function setupTheme(monaco: any) {
   monaco.editor.defineTheme('studio-dark', {
     base: 'vs-dark',
     inherit: true,
