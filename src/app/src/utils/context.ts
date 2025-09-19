@@ -8,6 +8,9 @@ export const FEATURE_DISPLAY_MAP = {
   [StudioFeature.Config]: 'Application configuration',
 } as const
 
+export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
+export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateFile, StudioItemActionId.CreateFolder, StudioItemActionId.RenameItem]
+
 export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
   {
     id: StudioItemActionId.CreateFolder,

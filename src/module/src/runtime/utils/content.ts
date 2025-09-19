@@ -1,6 +1,6 @@
 // import type { ParsedContentFile } from '@nuxt/content'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
-import { generateStemFromPath } from './collections'
+import { generateStemFromFsPath } from './collections'
 import type { MarkdownRoot, ParsedContentFile } from '@nuxt/content'
 import { omit } from './object'
 
@@ -30,15 +30,15 @@ export function removeReservedKeysFromDocument(document: ParsedContentFile) {
   return result
 }
 
-export async function generateDocumentFromContent(id: string, path: string, content: string): Promise<ParsedContentFile> {
-  const stem = generateStemFromPath(path)
+export async function generateDocumentFromContent(id: string, fsPath: string, routePath: string, content: string): Promise<ParsedContentFile> {
+  const stem = generateStemFromFsPath(fsPath)
 
   const parsed = await parseMarkdown(content)
 
   return {
     id,
     stem,
-    path,
+    path: routePath,
     meta: {},
     extension: 'md',
     seo: {

@@ -21,16 +21,6 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
     return item
   }
 
-  // Create a new draft file without exsiting document in database
-  async function create(path: string, content: string): Promise<DraftFileItem> {
-    // id = id.replace(/:/g, '/')
-    const document = await host.document.create(path, content)
-
-    await host.document.upsert(document.id, document)
-
-    return await upsert(document.id, document)
-  }
-
   // Update and create draft file with exsiting document in database
   async function upsert(id: string, document: DatabaseItem) {
     id = id.replace(/:/g, '/')
@@ -184,7 +174,6 @@ export function useDraftFiles(host: StudioHost, git: ReturnType<typeof useGit>, 
 
   return {
     get,
-    create,
     upsert,
     remove,
     revert,

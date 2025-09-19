@@ -1,9 +1,8 @@
 import { ref } from 'vue'
 import { ensure } from './utils/ensure'
-import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
+import type { CollectionItemBase, CollectionInfo, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
-import { getCollectionByFilePath, generateIdFromPath } from './utils/collections'
-import { createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
+import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
 import { kebabCase } from 'lodash'
 import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -70,11 +69,11 @@ export function useStudioHost(user: StudioUser): StudioHost {
       queryCollectionItemSurroundings,
       queryCollectionNavigation,
       queryCollectionSearchSections,
-      collections
+      collections,
     }
   }
 
-  function useContentCollections() {
+  function useContentCollections(): Record<string, CollectionInfo> {
     return useContent().collections
   }
 
@@ -151,27 +150,23 @@ export function useStudioHost(user: StudioUser): StudioHost {
 
         return contents.flat()
       },
-      create: async (path: string, content: string) => {
-        console.log('create draft file for', path, content)
+      create: async (fsPath: string, routePath: string, content: string) => {
         const collections = useContentCollections()
 
-        console.log('collections', collections)
-        const collection = getCollectionByFilePath(path, collections)
+        const collectionInfo = getCollectionByFilePath(fsPath, collections)
 
-        console.log('collection', collection)
-
-        const id = generateIdFromPath(path, collection!)
-
-        console.log('id', id)
+        const id = generateIdFromFsPath(fsPath, collectionInfo!)
 
         const existingDocument = await host.document.get(id)
         if (existingDocument) {
           throw new Error(`Cannot create document with id "${id}": document already exists.`)
         }
 
-        const document = await generateDocumentFromContent(id, path, content)
+        const document = await generateDocumentFromContent(id, fsPath, routePath, content)
 
-        console.log('document create', document)
+        await host.document.upsert(id, document)
+
+        return document
       },
       upsert: async (id: string, upsertedDocument: CollectionItemBase) => {
         console.log('upsert', id, upsertedDocument)
@@ -218,7 +213,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
     // Trigger dummy query to make sure content database is loaded on the client
     // TODO: browse collections and call one of them
     ensure(() => useContent().queryCollection !== void 0, 500)
-      .then(() =>useContentCollectionQuery("docs").first())
+      .then(() => useContentCollectionQuery('docs').first())
       .then(() => ensure(() => useNuxtApp().$contentLocalDatabase !== void 0))
       .then(() => { isMounted.value = true })
   })()

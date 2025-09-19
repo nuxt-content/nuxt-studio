@@ -11,10 +11,16 @@ TreeItem[] {
   const directoryMap = new Map<string, TreeItem>()
 
   for (const dbItem of dbItems) {
+    const fileType = dbItem.path ? 'page' : 'data'
     // Use stem to determine tree structure
     const stemSegments = dbItem.stem.split('/')
     const directorySegments = stemSegments.slice(0, -1)
     let fileName = stemSegments[stemSegments.length - 1]
+
+    let routePathSegments: string[] | undefined
+    if (fileType === 'page') {
+      routePathSegments = (dbItem.path as string).split('/').slice(0, -1).filter(Boolean)
+    }
 
     /*****************
     Generate root file
@@ -28,21 +34,16 @@ TreeItem[] {
         name: fileName,
         fsPath,
         type: 'file',
+        fileType,
+      }
+
+      if (fileType === 'page') {
+        fileItem.routePath = dbItem.path as string
       }
 
       const draftFileItem = draftList?.find(draft => draft.id === dbItem.id)
       if (draftFileItem) {
         fileItem.status = draftFileItem.status
-      }
-
-      // Page type
-      if (dbItem.path) {
-        fileItem.fileType = 'page'
-        fileItem.routePath = dbItem.path as string
-      }
-      // Data type
-      else {
-        fileItem.fileType = 'data'
       }
 
       tree.push(fileItem)
@@ -62,6 +63,10 @@ TreeItem[] {
       return withLeadingSlash(directorySegments.slice(0, index + 1).join('/'))
     }
 
+    function dirRoutePathBuilder(index: number) {
+      return withLeadingSlash(routePathSegments!.slice(0, index + 1).join('/'))
+    }
+
     let directoryChildren = tree
     for (let i = 0; i < directorySegments.length; i++) {
       const dirName = stripNumericPrefix(directorySegments[i])
@@ -77,6 +82,10 @@ TreeItem[] {
           fsPath: dirFsPath,
           type: 'directory',
           children: [],
+        }
+
+        if (fileType === 'page') {
+          directory.routePath = dirRoutePathBuilder(i)
         }
 
         directoryMap.set(dirId, directory)

@@ -1,16 +1,16 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import type { useUi } from './useUi'
-import { type StudioHost, type StudioAction, type TreeItem, StudioItemActionId } from '../types'
-import { STUDIO_ITEM_ACTION_DEFINITIONS } from '../utils/context'
+import { type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId } from '../types'
+import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
 import type { useDraftFiles } from './useDraftFiles'
 
 export const useContext = createSharedComposable((
-  _host: StudioHost,
+  host: StudioHost,
   ui: ReturnType<typeof useUi>,
   draftFiles: ReturnType<typeof useDraftFiles>,
 ) => {
-  const actionInProgress = ref<StudioItemActionId>()
+  const actionInProgress = ref<StudioItemActionId | null>(null)
   const currentFeature = computed<keyof typeof ui.panels | null>(() =>
     Object.keys(ui.panels).find(key => ui.panels[key as keyof typeof ui.panels]) as keyof typeof ui.panels,
   )
@@ -20,15 +20,25 @@ export const useContext = createSharedComposable((
       ...action,
       handler: async (...args: any) => {
         if (actionInProgress.value === action.id) {
-          console.log('action already in progress')
-          return
+          // Two steps actions need to be already in progress to be executed
+          if (twoStepActions.includes(action.id)) {
+            await itemActionHandler[action.id](...args)
+            unsetActionInProgress()
+            return
+          }
+          // One step actions can't be executed if already in progress
+          else {
+            return
+          }
         }
-
-        console.log('action in progress', action.id, 'with args', args)
 
         actionInProgress.value = action.id
 
-        // await itemActionHandler[action.id](...args)
+        // One step actions can be executed immediately
+        if (oneStepActions.includes(action.id)) {
+          await itemActionHandler[action.id](...args)
+          unsetActionInProgress()
+        }
       },
     }))
   })
@@ -38,8 +48,9 @@ export const useContext = createSharedComposable((
       console.log('create folder', id)
       alert(`create folder ${id}`)
     },
-    [StudioItemActionId.CreateFile]: async ({ fsPath, content }: { fsPath: string, content?: string }) => {
-      await draftFiles.create(fsPath, content!)
+    [StudioItemActionId.CreateFile]: async ({ fsPath, routePath, content }: CreateFileParams) => {
+      const document = await host.document.create(fsPath, routePath, content)
+      await draftFiles.upsert(document.id, document)
 
       alert(`created file ${fsPath} ${content} !`)
     },
@@ -58,7 +69,7 @@ export const useContext = createSharedComposable((
   }
 
   function unsetActionInProgress() {
-    actionInProgress.value = undefined
+    actionInProgress.value = null
   }
 
   return {

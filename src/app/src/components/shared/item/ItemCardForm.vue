@@ -3,7 +3,7 @@ import { computed, reactive, type PropType } from 'vue'
 import { Image } from '@unpic/vue'
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { type TreeItem, ContentFileExtension } from '../../../types'
+import { type StudioAction, type TreeItem, ContentFileExtension } from '../../../types'
 import { joinURL } from 'ufo'
 import { contentFileExtensions } from '../../../utils/content'
 import { useStudio } from '../../../composables/useStudio'
@@ -14,7 +14,7 @@ const { context } = useStudio()
 
 const props = defineProps({
   actionId: {
-    type: String as PropType<StudioItemActionId>,
+    type: String as PropType<StudioItemActionId.CreateFile | StudioItemActionId.CreateFolder | StudioItemActionId.RenameItem>,
     required: true,
   },
   parentItem: {
@@ -32,10 +32,13 @@ const schema = z.object({
 })
 
 type Schema = z.output<typeof schema>
-
 const state = reactive<Schema>({
   name: '',
   extension: ContentFileExtension.Markdown,
+})
+
+const action = computed<StudioAction>(() => {
+  return context.itemActions.value.find(action => action.id === props.actionId)!
 })
 
 const itemExtensionIcon = computed<string>(() => {
@@ -64,11 +67,12 @@ const tooltipText = computed(() => {
 })
 
 function onSubmit(_event: FormSubmitEvent<Schema>) {
-  const fsPath = joinURL(props.parentItem.fsPath, state.name)
+  const fsPath = joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`)
 
-  context.itemActionHandler[props.actionId]({
+  action.value.handler!({
+    routePath: routePath.value,
     fsPath,
-    content: 'yolo',
+    content: `New ${state.name} file`,
   })
 }
 </script>

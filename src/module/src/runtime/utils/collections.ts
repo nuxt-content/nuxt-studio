@@ -4,6 +4,7 @@ import { pathMetaTransform } from './path-meta'
 import { minimatch } from 'minimatch'
 import { join, dirname, parse } from 'pathe'
 import type { DatabaseItem } from 'nuxt-studio/app'
+import { withoutLeadingSlash } from 'ufo'
 
 export const getCollectionByFilePath = (path: string, collections: Record<string, CollectionInfo>): CollectionInfo | undefined => {
   let matchedSource: ResolvedCollectionSource | undefined
@@ -29,13 +30,13 @@ export const getCollectionByFilePath = (path: string, collections: Record<string
   return collection
 }
 
-export function generateStemFromPath(path: string) {
-  return join(dirname(path), parse(path).name)
+export function generateStemFromFsPath(path: string) {
+  return withoutLeadingSlash(join(dirname(path), parse(path).name))
 }
 
 // TODO handle several sources case
-export function generateIdFromPath(path: string, collection: CollectionInfo) {
-  return join(collection.name, collection.source[0]?.prefix || '', path)
+export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
+  return join(collectionInfo.name, collectionInfo.source[0]?.prefix || '', path)
 }
 
 export function getOrderedSchemaKeys(schema: Draft07) {

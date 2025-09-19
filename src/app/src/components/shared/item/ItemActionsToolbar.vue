@@ -16,10 +16,6 @@ const props = defineProps({
 const actions = computed(() => {
   return computeActionItems(context.itemActions.value, props.item)
 })
-
-// function handleAction(actionId: StudioItemActionId) {
-//   action
-// }
 </script>
 
 <template>

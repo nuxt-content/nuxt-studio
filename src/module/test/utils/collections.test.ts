@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { getCollectionByFilePath, generateIdFromPath } from '../../src/runtime/utils/collections'
-import type { CollectionInfo } from '@nuxt/content'
+import { getCollectionByFilePath, generateIdFromFsPath } from '../../src/runtime/utils/collections'
+import type { CollectionInfo, ResolvedCollectionSource } from '@nuxt/content'
 import { collections } from '../mocks/collections'
 
 describe('getCollectionByFilePath', () => {
@@ -39,29 +39,27 @@ describe('getCollectionByFilePath', () => {
   })
 })
 
-describe('generateIdFromPath', () => {
+describe('generateIdFromFsPath', () => {
   it('should generate ID using collection name and prefix from landing collection', () => {
-    const result = generateIdFromPath('index.md', collections.landing!)
+    const result = generateIdFromFsPath('index.md', collections.landing!)
     expect(result).toBe('landing/index.md')
   })
 
   it('should generate ID using collection name and prefix from docs collection', () => {
-    const result = generateIdFromPath('1.getting-started/2.introduction.md', collections.docs!)
+    const result = generateIdFromFsPath('1.getting-started/2.introduction.md', collections.docs!)
     expect(result).toBe('docs/1.getting-started/2.introduction.md')
   })
 
   it('should handle collection with empty prefix', () => {
     const mockCollection: CollectionInfo = {
-      ...collections.docs,
+      ...collections.docs as CollectionInfo,
       name: 'test',
-      source: [
-        {
-          ...collections.docs.source[0],
-          prefix: '',
-        },
-      ],
+      source: [{
+        ...collections.docs!.source[0] as ResolvedCollectionSource,
+        prefix: '',
+      }],
     }
-    const result = generateIdFromPath('content/test.md', mockCollection)
+    const result = generateIdFromFsPath('content/test.md', mockCollection)
     expect(result).toBe('test/content/test.md')
   })
 
@@ -81,7 +79,7 @@ describe('generateIdFromPath', () => {
   //       },
   //     ],
   //   }
-  //   const result = generateIdFromPath(mockCollection, 'content/test.md')
+  //   const result = generateIdFromFsPath(mockCollection, 'content/test.md')
   //   expect(result).toBe('multi-source/first/content/test.md')
   // })
 })

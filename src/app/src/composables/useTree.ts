@@ -57,6 +57,7 @@ export function useTree(host: StudioHost, draftFiles: ReturnType<typeof useDraft
     draftFiles.select(draftFileItem)
   }
 
+  // TODO: Improve performance and do not list all files?
   watch(draftFiles.list, async () => {
     const list = await host.document.list()
     console.log('list', list)

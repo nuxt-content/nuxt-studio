@@ -22,6 +22,7 @@ describe('buildTree', () => {
       id: 'docs/1.getting-started',
       name: 'getting-started',
       fsPath: '/1.getting-started',
+      routePath: '/getting-started',
       type: 'directory',
       children: [
         {

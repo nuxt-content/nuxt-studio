@@ -20,3 +20,9 @@ export interface StudioAction {
   tooltip: string
   handler?: (...args: any) => void
 }
+
+export interface CreateFileParams {
+  fsPath: string
+  routePath: string
+  content: string
+}
