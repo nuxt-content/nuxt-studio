@@ -71,9 +71,6 @@ export default defineConfig({
       // the proper extensions will be added
       fileName: 'index',
     },
-    rollupOptions: {
-      external: ['shiki', '@nuxtjs/mdc'],
-    },
-    sourcemap: true,
+    sourcemap: false,
   },
 })

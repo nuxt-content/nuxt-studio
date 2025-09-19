@@ -78,15 +78,15 @@ export default defineNuxtModule<ModuleOptions>({
 
     addServerHandler({
       route: '/__nuxt_content/studio/auth/github',
-      handler: runtime('./server/routes/auth/github.get.ts'),
+      handler: runtime('./server/routes/auth/github.get'),
     })
     addServerHandler({
       route: '/__nuxt_content/studio/auth/session',
-      handler: runtime('./server/routes/auth/session.get.ts'),
+      handler: runtime('./server/routes/auth/session.get'),
     })
     // addServerHandler({
     //   route: '/__nuxt_content/studio/auth/google',
-    //   handler: runtime('./server/routes/auth/google.get.ts'),
+    //   handler: runtime('./server/routes/auth/google.get'),
     // })
     // TODO: refactor to a server handler
     extendPages((pages) => {

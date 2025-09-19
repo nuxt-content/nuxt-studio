@@ -1,7 +1,6 @@
 import { computed, watch, unref } from 'vue'
 import type { Ref } from 'vue'
-import { omit } from '../utils/object'
-import type { editor as Editor } from 'monaco-editor'
+import type { editor as Editor } from 'modern-monaco/editor-core'
 import { setupMonaco, setupTheme, baseEditorOptions } from '../utils/monaco'
 
 export function useMonacoDiff(target: Ref, options: { original: string, modified: string, language: string, renderSideBySide?: boolean }) {
@@ -27,7 +26,7 @@ export function useMonacoDiff(target: Ref, options: { original: string, modified
         setupTheme(monaco)
 
         editor = monaco.editor.createDiffEditor(el, {
-          ...omit(baseEditorOptions, 'theme'),
+          ...baseEditorOptions as unknown as Editor.IStandaloneDiffEditorConstructionOptions,
           theme: resolvedTheme.value,
           readOnly: true,
           renderSideBySide: options.renderSideBySide ?? false,

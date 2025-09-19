@@ -10,7 +10,6 @@ npx nuxi module add nuxt-studio
 
 That's it! You can now use Content Studio in your Nuxt app ✨
 
-
 ## Contribution
 
 <details>

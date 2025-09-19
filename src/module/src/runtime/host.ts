@@ -1,11 +1,13 @@
 import { ref } from 'vue'
 import { ensure } from './utils/ensure'
 import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
-import type { ContentDatabaseAdapter, ContentProvide } from '../types/content'
+import type { ContentDatabaseAdapter } from '../types/content'
 import { createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
 import { kebabCase } from 'lodash'
-import type { UseStudioHost, StudioHost, StudioUser } from 'nuxt-studio/app'
+import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
+import { queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
+import { collections } from '#content/preview'
 
 function getSidebarWidth(): number {
   let sidebarWidth = 440
@@ -61,7 +63,13 @@ export function useStudioHost(user: StudioUser): StudioHost {
   }
 
   function useContent() {
-    return window.useNuxtApp!().$content as ContentProvide
+    return {
+      queryCollection,
+      queryCollectionItemSurroundings,
+      queryCollectionNavigation,
+      queryCollectionSearchSections,
+      collections
+    }
   }
 
   function useContentCollections() {
@@ -80,7 +88,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
           fn(to, from)
         })
       },
-      mounted: (fn: () => void) => ensure(() => isMounted.value).then(fn),
+      mounted: (fn: () => void) => ensure(() => isMounted.value, 400).then(fn),
       beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => {
         host.ui.deactivateStudio()
         ensure(() => isMounted.value).then(() => {
@@ -138,16 +146,16 @@ export function useStudioHost(user: StudioUser): StudioHost {
     },
 
     document: {
-      get: async (id: string): Promise<CollectionItemBase> => {
-        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first() as unknown as Promise<CollectionItemBase>
+      get: async (id: string): Promise<DatabaseItem> => {
+        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first() as unknown as Promise<DatabaseItem>
       },
       getFileSystemPath: (id: string) => {
         return getCollectionInfo(id, useContentCollections()).path
       },
-      list: async (): Promise<CollectionItemBase[]> => {
+      list: async (): Promise<DatabaseItem[]> => {
         const collections = Object.keys(useContentCollections()).filter(c => c !== 'info')
         const contents = await Promise.all(collections.map(async (collection) => {
-          return await useContentCollectionQuery(collection).all() as CollectionItemBase[]
+          return await useContentCollectionQuery(collection).all() as DatabaseItem[]
         }))
         return contents.flat()
       },
@@ -194,12 +202,10 @@ export function useStudioHost(user: StudioUser): StudioHost {
     host.ui.activateStudio()
     // Trigger dummy query to make sure content database is loaded on the client
     // TODO: browse collections and call one of them
-    await useContentCollectionQuery('docs').first().catch((e) => {
-      console.error(e)
-    })
-    ensure(() => useNuxtApp().$contentLocalDatabase !== undefined).then(() => {
-      isMounted.value = true
-    })
+    ensure(() => useContent().queryCollection !== void 0, 500)
+      .then(() =>useContentCollectionQuery("docs").first())
+      .then(() => ensure(() => useNuxtApp().$contentLocalDatabase !== void 0))
+      .then(() => { isMounted.value = true })
   })()
 
   return host

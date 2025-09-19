@@ -16,7 +16,7 @@ const fileTree = computed(() => (tree.current.value || []).filter(f => f.type ==
       v-if="tree.currentItem.value?.type === 'file' && draftFiles.current.value"
       :db-item="draftFiles.current.value.document as DatabasePageItem"
     />
-    <template v-else>
+    <div v-else class="p-4">
       <PanelContentTree
         v-if="folderTree?.length > 0"
         class="mb-4"
@@ -30,6 +30,6 @@ const fileTree = computed(() => (tree.current.value || []).filter(f => f.type ==
         :current-tree-item="tree.currentItem.value"
         type="file"
       />
-    </template>
+    </div>
   </div>
 </template>

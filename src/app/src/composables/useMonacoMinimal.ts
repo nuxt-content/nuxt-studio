@@ -1,5 +1,5 @@
 import { computed, ref, watch, unref } from 'vue'
-import type { editor as Editor } from 'monaco-editor'
+import type { editor as Editor } from 'modern-monaco/editor-core'
 import type { Ref } from 'vue'
 import { omit } from '../utils/object'
 import { setupMonaco, setupTheme, baseEditorOptions } from '../utils/monaco'
@@ -16,7 +16,7 @@ export function useMonacoMinimal(target: Ref, options: {
   let monaco: Awaited<ReturnType<typeof setupMonaco>>
   let editor: Editor.IStandaloneCodeEditor
 
-  //   const colorMode = useColorMode()
+  // //   const colorMode = useColorMode()
 
   const resolvedTheme = computed(() => {
     if (options.resolvedTheme) {
@@ -25,7 +25,7 @@ export function useMonacoMinimal(target: Ref, options: {
     return baseEditorOptions.theme.dark // colorMode.value === 'dark' ? baseEditorOptions.theme.dark : baseEditorOptions.theme.light
   })
 
-  //   watch([() => colorMode.value, () => options.resolvedTheme?.value], () => setOptions({ theme: resolvedTheme.value }))
+  // //   watch([() => colorMode.value, () => options.resolvedTheme?.value], () => setOptions({ theme: resolvedTheme.value }))
 
   const setContent = (content: string, preserveCursor = true) => {
     if (!isSetup.value) return
@@ -55,7 +55,7 @@ export function useMonacoMinimal(target: Ref, options: {
         const model = monaco.editor.createModel(options.code, options.language)
 
         editor = monaco.editor.create(el, {
-          ...omit(baseEditorOptions, 'theme'),
+          ...baseEditorOptions as unknown as Editor.IEditorOptions,
           theme: resolvedTheme.value,
           ...omit(options, 'resolvedTheme'),
           model,
@@ -81,18 +81,20 @@ export function useMonacoMinimal(target: Ref, options: {
               return
             }
 
-            const contentHeight = Math.min((options.height.maxLines + 2) * lineHeight, Math.max((options.height.minLines + 2) * lineHeight, editor.getContentHeight() + lineHeight))
-            const { height: layoutHeight } = editor.getLayoutInfo()
-            if (layoutHeight === contentHeight) {
-              return
-            }
+            if (options.height) {
+              const contentHeight = Math.min((options.height.maxLines + 2) * lineHeight, Math.max((options.height.minLines + 2) * lineHeight, editor.getContentHeight() + lineHeight))
+              const { height: layoutHeight } = editor.getLayoutInfo()
+              if (layoutHeight === contentHeight) {
+                return
+              }
 
-            try {
-              editingLayout = true
-              editor.layout({ height: contentHeight, width: el.clientWidth })
-            }
-            catch {
-              // Ignore
+              try {
+                editingLayout = true
+                editor.layout({ height: contentHeight, width: el.clientWidth })
+              }
+              catch {
+                // Ignore
+              }
             }
             editingLayout = false
           }
