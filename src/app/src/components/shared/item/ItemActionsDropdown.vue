@@ -14,7 +14,7 @@ const props = defineProps({
   },
 })
 
-const actions = computed<DropdownMenuItem>(() => {
+const actions = computed<DropdownMenuItem[]>(() => {
   return computeActionItems(context.itemActions.value, props.item).map(action => ({
     ...action,
     onSelect: action.handler,
