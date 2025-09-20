@@ -50,14 +50,17 @@ export const useTree = createSharedComposable((host: StudioHost, draftFiles: Ret
 
   async function selectItemById(id: string) {
     const treeItem = findItemFromId(tree.value, id)
-    if (treeItem) {
-      selectItem(treeItem)
-    }
+
+    if (!treeItem || treeItem.id === currentItem.value.id) return
+
+    selectItem(treeItem)
   }
 
   async function selectItemByRoute(route: RouteLocationNormalized) {
     const item = findItemFromRoute(tree.value, route)
-    if (!item) return
+
+    if (!item || item.id === currentItem.value.id) return
+
     currentItem.value = item
     await selectCorrespondingDraftFile(item)
   }
