@@ -37,38 +37,23 @@ export const useTree = createSharedComposable((host: StudioHost, draftFiles: Ret
   //   return parent || ROOT_ITEM
   // })
 
-  async function selectItem(item: TreeItem) {
+  async function select(item: TreeItem) {
     currentItem.value = item
     if (item?.type === 'file') {
       host.app.navigateTo(item.routePath!)
-      await selectCorrespondingDraftFile(item)
+      await draftFiles.selectById(item.id)
     }
     else {
       draftFiles.select(null)
     }
   }
 
-  async function selectItemById(id: string) {
-    const treeItem = findItemFromId(tree.value, id)
-
-    if (!treeItem || treeItem.id === currentItem.value.id) return
-
-    selectItem(treeItem)
-  }
-
-  async function selectItemByRoute(route: RouteLocationNormalized) {
+  async function selectByRoute(route: RouteLocationNormalized) {
     const item = findItemFromRoute(tree.value, route)
 
     if (!item || item.id === currentItem.value.id) return
 
-    currentItem.value = item
-    await selectCorrespondingDraftFile(item)
-  }
-
-  async function selectCorrespondingDraftFile(item: TreeItem) {
-    const originalDatabaseItem = await host.document.get(item.id)
-    const draftFileItem = await draftFiles.upsert(item.id, originalDatabaseItem)
-    draftFiles.select(draftFileItem)
+    select(item)
   }
 
   hooks.hook('studio:draft:updated', async () => {
@@ -81,10 +66,12 @@ export const useTree = createSharedComposable((host: StudioHost, draftFiles: Ret
       }
     })
 
+    // Trigger tree rebuild to update files status
     tree.value = buildTree(listWithFsPath, draftFiles.list.value)
 
-    if (currentItem.value && draftFiles.current.value) {
-      currentItem.value.status = draftFiles.current.value.status
+    // Reselect current item to update status
+    if (currentItem.value.id !== ROOT_ITEM.id) {
+      select(findItemFromId(tree.value, currentItem.value.id)!)
     }
   })
 
@@ -93,8 +80,7 @@ export const useTree = createSharedComposable((host: StudioHost, draftFiles: Ret
     current: currentTree,
     currentItem,
     // parentItem,
-    selectItem,
-    selectItemByRoute,
-    selectItemById,
+    select,
+    selectByRoute,
   }
 })

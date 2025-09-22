@@ -12,12 +12,10 @@ const props = defineProps({
     required: true,
   },
   successCallback: {
-    type: Function as PropType<() => Promise<void>>,
+    type: Function as PropType<() => void>,
     required: true,
   },
 })
-
-console.log(props)
 
 const name = computed(() => {
   return props.itemId.split('/').pop()
@@ -37,8 +35,8 @@ const successLabelMap = {
   [StudioItemActionId.RevertItem]: 'Revert changes',
 } as Record<StudioItemActionId, string>
 
-const asyncSuccessCallback = async () => {
-  await props.successCallback()
+const handleConfirm = async () => {
+  props.successCallback()
   emit('close')
 }
 </script>
@@ -62,7 +60,7 @@ const asyncSuccessCallback = async () => {
         />
         <UButton
           :label="successLabelMap[actionId]"
-          @click="asyncSuccessCallback"
+          @click="handleConfirm"
         />
       </div>
     </template>

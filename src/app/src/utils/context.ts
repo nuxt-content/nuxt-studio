@@ -27,7 +27,7 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
   {
     id: StudioItemActionId.RevertItem,
     label: 'Revert changes',
-    icon: 'i-lucide-rotate-ccw',
+    icon: 'i-lucide-undo',
     tooltip: 'Revert changes',
   },
   {

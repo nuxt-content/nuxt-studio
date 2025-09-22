@@ -33,7 +33,7 @@ describe('getDraftStatus', () => {
     const originalDatabaseItem: DatabaseItem = dbItemsList[0]
     const draft: DatabaseItem = {
       ...originalDatabaseItem,
-      title: 'Upadted',
+      title: 'New title',
     }
 
     const status = getDraftStatus(draft, originalDatabaseItem)

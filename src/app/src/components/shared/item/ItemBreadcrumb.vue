@@ -24,7 +24,7 @@ const items = computed<BreadcrumbItem[]>(() => {
   const rootItem = {
     label: FEATURE_DISPLAY_MAP[context.feature.value as keyof typeof FEATURE_DISPLAY_MAP],
     onClick: () => {
-      treeApi.selectItem(ROOT_ITEM)
+      treeApi.select(ROOT_ITEM)
     },
   }
 
@@ -40,7 +40,7 @@ const items = computed<BreadcrumbItem[]>(() => {
     breadcrumbItems.unshift({
       label: currentTreeItem.name,
       onClick: async () => {
-        await treeApi.selectItem(itemToSelect)
+        await treeApi.select(itemToSelect)
       },
     })
 

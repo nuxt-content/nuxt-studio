@@ -10,7 +10,7 @@ const features = [{
   icon: 'i-lucide-files',
   onClick: () => {
     if (context.feature.value === StudioFeature.Content) {
-      tree.selectItem(ROOT_ITEM)
+      tree.select(ROOT_ITEM)
       return
     }
 
@@ -21,7 +21,7 @@ const features = [{
   icon: 'i-lucide-image',
   onClick: () => {
     if (context.feature.value === StudioFeature.Media) {
-      tree.selectItem(ROOT_ITEM)
+      tree.select(ROOT_ITEM)
       return
     }
 
@@ -33,7 +33,7 @@ const features = [{
   icon: 'i-lucide-settings',
   onClick: () => {
     if (context.feature.value === StudioFeature.Config) {
-      tree.selectItem(ROOT_ITEM)
+      tree.select(ROOT_ITEM)
       return
     }
 

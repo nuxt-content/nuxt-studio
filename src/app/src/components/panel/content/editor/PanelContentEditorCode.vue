@@ -13,6 +13,7 @@ const document = defineModel<DatabasePageItem>()
 const editor = shallowRef<Editor.IStandaloneCodeEditor | null>(null)
 const editorRef = ref()
 const content = ref<string>('')
+const currentDocumentId = ref<string | null>(null)
 
 watch(() => document.value?.id, async () => {
   if (document.value?.body) {
@@ -24,6 +25,8 @@ watch(() => document.value?.id, async () => {
       if (editor.value) {
         editor.value.getModel()?.setValue(md || '')
       }
+
+      currentDocumentId.value = document.value!.id
     })
   }
 }, { immediate: true })
@@ -34,6 +37,11 @@ onMounted(async () => {
   // create a Monaco editor instance
   editor.value = monaco.createEditor(editorRef.value)
   editor.value.onDidChangeModelContent(() => {
+    // Do not trigger model updates if the document id has changed
+    if (currentDocumentId.value !== document.value?.id) {
+      return
+    }
+
     content.value = editor.value!.getModel()!.getValue() || ''
     parseMarkdown(content.value).then((tree) => {
       document.value = {

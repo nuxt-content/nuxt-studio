@@ -30,7 +30,7 @@ export const useStudio = createSharedComposable(() => {
   const ui = useUi(host)
   const draftFiles = useDraftFiles(host, git, storage)
   const tree = useTree(host, draftFiles)
-  const context = useContext(host, ui, draftFiles, tree)
+  const context = useContext(host, ui, draftFiles)
 
   host.on.mounted(async () => {
     await draftFiles.load()
@@ -38,7 +38,7 @@ export const useStudio = createSharedComposable(() => {
     isReady.value = true
 
     host.on.routeChange((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
-      tree.selectItemByRoute(to)
+      tree.selectByRoute(to)
       // setTimeout(() => {
       //   detectActiveDocuments()
       // }, 100)
