@@ -105,16 +105,13 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/__nuxt_content/studio/auth/session',
       handler: runtime('./server/routes/auth/session.get'),
     })
+    addServerHandler({
+      route: '/__nuxt_content/studio',
+      handler: runtime('./server/routes/admin'),
+    })
     // addServerHandler({
     //   route: '/__nuxt_content/studio/auth/google',
     //   handler: runtime('./server/routes/auth/google.get'),
     // })
-    // TODO: refactor to a server handler
-    extendPages((pages) => {
-      pages.push({
-        path: '/__nuxt_content/studio',
-        file: runtime('./pages/admin.vue'),
-      })
-    })
   },
 })
