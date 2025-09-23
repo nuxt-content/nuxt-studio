@@ -140,7 +140,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
 
     document: {
       get: async (id: string): Promise<DatabaseItem> => {
-        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first() as unknown as Promise<DatabaseItem>
+        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first()
       },
       getFileSystemPath: (id: string) => {
         return getCollectionInfo(id, useContentCollections()).fsPath

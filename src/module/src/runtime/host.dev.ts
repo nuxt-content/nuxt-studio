@@ -28,7 +28,7 @@ export function useStudioHost(user: StudioUser) {
   host.document.upsert = async (id: string, upsertedDocument: DatabaseItem) => {
     id = id.replace(/:/g, '/')
 
-    const collection = getCollectionInfo(id, collections as any).collection
+    const collection = getCollectionInfo(id, collections).collection
     const doc = createCollectionDocument(collection, id, upsertedDocument)
 
     const content = await generateContentFromDocument(doc)
@@ -36,7 +36,7 @@ export function useStudioHost(user: StudioUser) {
     await devStorage.setItem(host.document.getFileSystemPath(id), content, {
       headers: {
         'content-type': 'text/plain',
-      }
+      },
     })
   }
 

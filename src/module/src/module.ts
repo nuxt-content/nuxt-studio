@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, useLogger, extendPages, addServerHandler } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, useLogger, addServerHandler } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
 import { defu } from 'defu'
 import { resolve } from 'node:path'
@@ -44,15 +44,17 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     nuxt.options.runtimeConfig.public.contentStudio = {
-      studioDevStorage: nuxt.options.dev && options.devStorage || false,
+      studioDevStorage: (nuxt.options.dev && options.devStorage) || false,
       studioDevServer: process.env.STUDIO_DEV_SERVER,
     }
+
     nuxt.options.runtimeConfig.contentStudio = {
       auth: {
         sessionSecret: createHash('md5').update([
           options.auth?.github?.clientId,
           options.auth?.github?.clientSecret,
         ].join('')).digest('hex'),
+        // @ts-expect-error todo fix github type issue
         github: options.auth?.github,
       },
     }

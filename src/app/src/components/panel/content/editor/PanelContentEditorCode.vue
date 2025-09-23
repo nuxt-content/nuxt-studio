@@ -54,7 +54,7 @@ onMounted(async () => {
     generateDocumentFromContent(document.value!.id, content.value).then((doc) => {
       document.value = {
         ...pickReservedKeysFromDocument(document.value!),
-        ...doc
+        ...doc,
       } as DatabasePageItem
     })
   })

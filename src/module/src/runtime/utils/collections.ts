@@ -105,11 +105,11 @@ export function parseSourceBase(source: CollectionSource) {
 export function createCollectionDocument(collection: CollectionInfo, id: string, item: CollectionItemBase) {
   const parsedContent = [
     pathMetaTransform,
-  ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as unknown as PageCollectionItemBase) : acc, { ...item, id } as Record<string, unknown>)
+  ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...item, id } as Record<string, unknown>)
   const result = { id } as DatabaseItem
   const meta = item.meta as Record<string, unknown>
 
-  const collectionKeys = getOrderedSchemaKeys(collection.schema as unknown as Draft07)
+  const collectionKeys = getOrderedSchemaKeys(collection.schema)
   for (const key of Object.keys(parsedContent)) {
     if (collectionKeys.includes(key)) {
       result[key] = parsedContent[key]
@@ -128,9 +128,9 @@ export function createCollectionDocument(collection: CollectionInfo, id: string,
   // }
 
   if (collectionKeys.includes('seo')) {
-    const seo = result.seo = (result.seo || {}) as Record<string, unknown>
-    seo.title = seo.title || result.title
-    seo.description = seo.description || result.description
+    const seo = result.seo = (result.seo || {}) as PageCollectionItemBase['seo']
+    seo.title = seo.title || result.title as string
+    seo.description = seo.description || result.description as string
   }
 
   return result

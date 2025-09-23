@@ -101,7 +101,7 @@ export default defineConfig({
     outDir: '../../dist/app',
     lib: {
       entry: ['./src/index.ts', './src/utils.ts'],
-      formats: ['es']
+      formats: ['es'],
     },
     sourcemap: false,
   },

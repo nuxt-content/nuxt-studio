@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { ref, watch } from 'vue'
 import ReviewPanel from './ReviewPanel.vue'
 import { useStudio } from '../composables/useStudio'
@@ -102,4 +102,4 @@ watch(modelValue, () => {
       </div>
     </template>
   </UModal>
-</template>
+</template> -->

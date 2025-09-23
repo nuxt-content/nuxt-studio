@@ -1,6 +1,6 @@
 import { eventHandler, createError } from 'h3'
 
-export default eventHandler(async (event) => {
+export default eventHandler(async () => {
   if (!process.env.STUDIO_GITHUB_TOKEN) {
     throw createError({
       statusCode: 500,
@@ -13,7 +13,7 @@ export default eventHandler(async (event) => {
   })
 })
 
-function hasModeratorAccess(email: string) {
-  const moderators = (process.env.STUDIO_MODERATORS || '').split(',').map(email => email.trim())
-  return moderators.includes(email)
-}
+// function hasModeratorAccess(email: string) {
+//   const moderators = (process.env.STUDIO_MODERATORS || '').split(',').map(email => email.trim())
+//   return moderators.includes(email)
+// }

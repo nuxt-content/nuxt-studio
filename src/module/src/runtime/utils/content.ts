@@ -50,7 +50,7 @@ export async function generateDocumentFromContent(id: string, fsPath: string, ro
     ...parsed.data,
     excerpt: parsed.excerpt,
     body: {
-      // TODO: fix type
+      // TODO: fix MarkdownRoot/MDCRoot conversion in MDC module
       ...(parsed.body as unknown as MarkdownRoot),
       toc: parsed.toc,
     },

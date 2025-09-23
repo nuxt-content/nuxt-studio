@@ -27,7 +27,8 @@ const document = computed<DatabasePageItem>({
     if (dbItem.body?.type === 'minimark') {
       result = {
         ...props.draftItem.document as DatabasePageItem,
-        body: decompressTree(dbItem.body) as unknown as MarkdownRoot,
+        // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
+        body: decompressTree(dbItem.body) as MarkdownRoot,
       }
     }
     else {

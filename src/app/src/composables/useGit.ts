@@ -2,7 +2,7 @@ import { ofetch } from 'ofetch'
 import type { GithubFile } from '../types/github'
 import { createSharedComposable } from '@vueuse/core'
 
-export const useGit = createSharedComposable(({ owner, repo, branch, token, authorName, authorEmail }: { owner: string, repo: string, branch: string, token: string, authorName: string, authorEmail: string }) => {
+export const useGit = createSharedComposable(({ owner, repo, token }: { owner: string, repo: string, branch: string, token: string, authorName: string, authorEmail: string }) => {
   const gitFiles: Record<string, GithubFile> = {}
 
   const $api = ofetch.create({

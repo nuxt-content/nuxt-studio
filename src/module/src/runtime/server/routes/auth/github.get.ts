@@ -65,12 +65,12 @@ export interface OAuthGitHubConfig {
 }
 
 interface RequestAccessTokenResponse {
-  "access_token"?: string,
-  "scope"?: string,
-  "token_type"?: string,
-  "error"?: string,
-  "error_description"?: string,
-  "error_uri"?: string
+  access_token?: string
+  scope?: string
+  token_type?: string
+  error?: string
+  error_description?: string
+  error_uri?: string
 }
 
 export default eventHandler(async (event: H3Event) => {
@@ -212,7 +212,7 @@ async function requestAccessToken(url: string, options: any): Promise<RequestAcc
 
   // Encode the body as a URLSearchParams if the content type is 'application/x-www-form-urlencoded'.
   const body = headers['Content-Type'] === 'application/x-www-form-urlencoded'
-    ? new URLSearchParams(options.body as unknown as Record<string, string> || options.params || {},
+    ? new URLSearchParams(options.body || options.params || {},
       ).toString()
     : options.body
 
@@ -244,7 +244,7 @@ async function handleState(event: H3Event) {
 }
 
 function encodeBase64Url(input: Uint8Array): string {
-  return btoa(String.fromCharCode.apply(null, input as unknown as number[]))
+  return btoa(String.fromCharCode.apply(null, Array.from(input)))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/g, '')

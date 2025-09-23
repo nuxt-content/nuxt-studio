@@ -26,6 +26,7 @@
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus",
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
