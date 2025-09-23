@@ -68,6 +68,7 @@
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "idb-keyval": "^6.2.2",
+    "minimark": "^0.2.0",
     "ofetch": "^1.4.1",
     "unstorage": "^1.17.1"
   }

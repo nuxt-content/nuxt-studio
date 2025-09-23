@@ -99,9 +99,7 @@ async function generateDocumentFromYAMLContent(id: string, content: string): Pro
     ...parsed,
     body: parsed.body || parsed,
     id,
-    stem: '',
-    extension: 'yaml',
-  }
+  } as unknown as DatabaseItem
 }
 
 async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem | null> {
@@ -120,22 +118,37 @@ async function generateDocumentFromJSONContent(id: string, content: string): Pro
     ...parsed,
     body: parsed.body || parsed,
     id,
-    stem: '',
-    extension: 'json',
-  }
+  } as unknown as DatabaseItem
 }
 
 async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem | null> {
-  const document = await parseMarkdown(content)
+  const document = await parseMarkdown(content, {
+    remark: {
+      plugins: {
+        'remark-mdc': {
+          options: {
+            autoUnwrap: true,
+          },
+        },
+      },
+    },
+  })
+
+  // Remove nofollow from links
+  visit(document.body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
+    if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
+      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
+    }
+  })
+
+  const body = document.body.type === 'root' ? compressTree(document.body) : document.body as never as MarkdownRoot
 
   return {
     id,
-    stem: '',
-    extension: 'md',
     meta: {},
-    body: document.body.type === 'root' ? compressTree(document.body) : document.body as never as MarkdownRoot,
+    body,
     ...document.data,
-  }
+  } as unknown as DatabaseItem
 }
 
 // MARK: - Generate Content
