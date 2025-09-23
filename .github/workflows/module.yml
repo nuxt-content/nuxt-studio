@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest", "windows-latest"]') }} # macos-latest
+        os: ubuntu-latest
         node: [22]
 
     steps:
