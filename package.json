@@ -10,6 +10,10 @@
     "./app": {
       "types": "./dist/app/index.d.ts",
       "default": "./dist/app/index.js"
+    },
+    "./app/utils": {
+      "types": "./dist/app/utils.d.ts",
+      "default": "./dist/app/utils.js"
     }
   },
   "main": "./dist/module/module.mjs",
@@ -48,16 +52,19 @@
     "zod": "^4.1.9"
   },
   "resolutions": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@22409fe"
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@22409fe",
+    "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@61af819",
+    "remark-mdc": "npm:remark-mdc-edge@3.6.0-29309241.be75677"
   },
   "packageManager": "pnpm@10.17.0",
   "dependencies": {
-    "@nuxtjs/mdc": "latest",
+    "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@61af819",
     "@nuxtlabs/monarch-mdc": "^0.8.1",
     "@unhead/vue": "^2.0.17",
     "@unpic/vue": "^1.0.0",
     "@vueuse/core": "^13.9.0",
     "defu": "^6.1.4",
+    "destr": "^2.0.5",
     "idb-keyval": "^6.2.2",
     "ofetch": "^1.4.1",
     "unstorage": "^1.17.1"

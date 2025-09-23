@@ -100,11 +100,8 @@ export default defineConfig({
     cssCodeSplit: false,
     outDir: '../../dist/app',
     lib: {
-      entry: './src/index.ts',
-      name: 'nuxt-studio',
-      formats: ['es'],
-      // the proper extensions will be added
-      fileName: 'index',
+      entry: ['./src/index.ts', './src/utils.ts'],
+      formats: ['es']
     },
     sourcemap: false,
   },

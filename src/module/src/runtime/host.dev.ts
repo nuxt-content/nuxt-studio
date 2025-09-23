@@ -1,5 +1,7 @@
 import { useStudioHost as useStudioHostBased } from './host'
 import type { StudioUser, DatabaseItem } from 'nuxt-studio/app'
+// TODO: use `nuxt-studio/app/utils` instead of `../../../app/src/utils`
+import { generateContentFromDocument } from '../../../app/src/utils'
 import { createCollectionDocument, getCollectionInfo } from './utils/collections'
 import { createStorage } from 'unstorage'
 import httpDriver from 'unstorage/drivers/http'
@@ -29,7 +31,13 @@ export function useStudioHost(user: StudioUser) {
     const collection = getCollectionInfo(id, collections as any).collection
     const doc = createCollectionDocument(collection, id, upsertedDocument)
 
-    await devStorage.setItem(host.document.getFileSystemPath(id), doc)
+    const content = await generateContentFromDocument(doc)
+
+    await devStorage.setItem(host.document.getFileSystemPath(id), content, {
+      headers: {
+        'content-type': 'text/plain',
+      }
+    })
   }
 
   host.document.delete = async (id: string) => {

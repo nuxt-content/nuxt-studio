@@ -107,7 +107,7 @@ export function createCollectionDocument(collection: CollectionInfo, id: string,
     pathMetaTransform,
   ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as unknown as PageCollectionItemBase) : acc, { ...item, id } as Record<string, unknown>)
   const result = { id } as DatabaseItem
-  const meta = {} as Record<string, unknown>
+  const meta = item.meta as Record<string, unknown>
 
   const collectionKeys = getOrderedSchemaKeys(collection.schema as unknown as Draft07)
   for (const key of Object.keys(parsedContent)) {

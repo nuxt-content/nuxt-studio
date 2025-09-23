@@ -29,14 +29,12 @@ export default eventHandler(async (event) => {
   }
 
   if (event.method === 'PUT') {
-    const isRaw
-      = getRequestHeader(event, 'content-type') === 'application/octet-stream'
-    const topts: TransactionOptions = {
-      ttl: Number(getRequestHeader(event, 'x-ttl')) || undefined,
-    }
-    if (isRaw) {
+    if (getRequestHeader(event, 'content-type') === 'application/octet-stream') {
       const value = await readRawBody(event, false)
-      await storage.setItemRaw(key, value, topts)
+      await storage.setItemRaw(key, value)
+    } else if (getRequestHeader(event, 'content-type') === 'text/plain') {
+      const value = await readRawBody(event, 'utf8')
+      await storage.setItem(key, value)
     }
     else {
       const value = await readRawBody(event, 'utf8')

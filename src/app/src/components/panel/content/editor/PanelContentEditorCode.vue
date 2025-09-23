@@ -2,12 +2,8 @@
 import { onMounted, ref, shallowRef, watch } from 'vue'
 import type { DatabasePageItem, DraftFileItem } from '../../../../types'
 import type { PropType } from 'vue'
-import { parseMarkdown, stringifyMarkdown } from '@nuxtjs/mdc/runtime'
-import { decompressTree, compressTree } from '@nuxt/content/runtime'
-import type { MDCRoot } from '@nuxtjs/mdc'
-import type { MarkdownRoot } from '@nuxt/content'
-import { removeReservedKeysFromDocument } from '../../../../utils/content'
 import { setupMonaco, type Editor } from '../../../../utils/monaco'
+import { generateContentFromDocument, generateDocumentFromContent, pickReservedKeysFromDocument } from '../../../../utils/content'
 
 const props = defineProps({
   draftItem: {
@@ -55,11 +51,10 @@ onMounted(async () => {
 
     content.value = newContent
 
-    parseMarkdown(content.value).then((tree) => {
+    generateDocumentFromContent(document.value!.id, content.value).then((doc) => {
       document.value = {
-        ...document.value,
-        body: tree.body.type === 'root' ? compressTree(tree.body) : tree.body as never as MarkdownRoot,
-        ...tree.data,
+        ...pickReservedKeysFromDocument(document.value!),
+        ...doc
       } as DatabasePageItem
     })
   })
@@ -69,9 +64,7 @@ onMounted(async () => {
 })
 
 function setContent(document: DatabasePageItem) {
-  const tree = document.body.type === 'minimark' ? decompressTree(document.body) : (document.body as unknown as MDCRoot)
-  const data = removeReservedKeysFromDocument(document)
-  stringifyMarkdown(tree, data).then((md) => {
+  generateContentFromDocument(document).then((md) => {
     content.value = md || ''
 
     if (editor.value) {
