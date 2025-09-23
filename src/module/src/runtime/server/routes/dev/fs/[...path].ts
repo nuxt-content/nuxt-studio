@@ -4,6 +4,7 @@ import type { StorageMeta } from 'unstorage'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { decompressTree } from '@nuxt/content/runtime'
 import { removeReservedKeysFromDocument } from '../../../../utils/content'
+// @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
 
 export default eventHandler(async (event) => {

@@ -27,6 +27,7 @@
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
+    "verify": "npm run lint && npm run typecheck && npm run test",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
@@ -55,7 +56,7 @@
   "resolutions": {
     "@nuxt/content": "https://pkg.pr.new/@nuxt/content@22409fe",
     "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@61af819",
-    "remark-mdc": "npm:remark-mdc-edge@3.6.0-29309241.be75677"
+    "remark-mdc": "npm:remark-mdc-edge@3.6.0-29310522.024adeb"
   },
   "packageManager": "pnpm@10.17.0",
   "dependencies": {

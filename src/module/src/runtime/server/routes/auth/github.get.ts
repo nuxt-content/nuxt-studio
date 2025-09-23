@@ -73,6 +73,12 @@ interface RequestAccessTokenResponse {
   error_uri?: string
 }
 
+interface RequestAccessTokenOptions {
+  headers?: Record<string, string>
+  body?: Record<string, string>
+  params?: Record<string, string>
+}
+
 export default eventHandler(async (event: H3Event) => {
   const config = defu(useRuntimeConfig(event).contentStudio?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
@@ -204,7 +210,7 @@ export default eventHandler(async (event: H3Event) => {
   return sendRedirect(event, '/')
 })
 
-async function requestAccessToken(url: string, options: any): Promise<RequestAccessTokenResponse> {
+async function requestAccessToken(url: string, options: RequestAccessTokenOptions): Promise<RequestAccessTokenResponse> {
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     ...options.headers,

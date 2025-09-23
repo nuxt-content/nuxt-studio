@@ -91,7 +91,7 @@ export const describeId = (id: string) => {
   return {
     source,
     stem,
-    extension,
+    extension: extension!,
     basename: basename || '',
   }
 }
