@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "nuxt-studio-playground-docus",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build --extends docus"
+  },
+  "dependencies": {
+    "docus": "https://pkg.pr.new/docus@db0ec99",
+    "better-sqlite3": "^12.2.0",
+    "nuxt": "latest",
+    "@nuxt/content": "latest",
+    "@nuxt/ui": "4.0.0-alpha.1",
+    "nuxt-studio": "workspace:*"
+  }
+}

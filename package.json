@@ -15,15 +15,16 @@
   "main": "./dist/module/module.mjs",
   "scripts": {
     "prepack": "nuxt-module-build build src/module; vite build src/app",
-    "dev": "npm run dev:prepare && STUDIO_DEV_SERVER=http://localhost:5151 nuxi dev playground",
+    "dev": "npm run dev:prepare && STUDIO_DEV_SERVER=http://localhost:5151 nuxi dev playground/docus",
+    "dev:minimal": "pnpm nuxt dev playground/minimal",
     "dev:app": "vite src/app --port 5151",
-    "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground",
+    "dev:build": "nuxi build playground/docus",
+    "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus",
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
   },
   "devDependencies": {
     "@nuxt/content": "https://pkg.pr.new/@nuxt/content@22409fe",
