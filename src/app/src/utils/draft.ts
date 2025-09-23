@@ -2,19 +2,19 @@ import type { DatabaseItem } from '../types/database'
 import { DraftStatus } from '../types/draft'
 
 export const COLOR_STATUS_MAP: { [key in DraftStatus]?: string } = {
-  created: 'green',
-  updated: 'orange',
-  deleted: 'red',
-  renamed: 'blue',
-  opened: 'gray',
+  [DraftStatus.Created]: 'green',
+  [DraftStatus.Updated]: 'orange',
+  [DraftStatus.Deleted]: 'red',
+  [DraftStatus.Renamed]: 'blue',
+  [DraftStatus.Opened]: 'gray',
 } as const
 
 export const COLOR_UI_STATUS_MAP: { [key in DraftStatus]?: string } = {
-  created: 'primary',
-  updated: 'warning',
-  deleted: 'danger',
-  renamed: 'info',
-  opened: 'neutral',
+  [DraftStatus.Created]: 'success',
+  [DraftStatus.Updated]: 'warning',
+  [DraftStatus.Deleted]: 'danger',
+  [DraftStatus.Renamed]: 'info',
+  [DraftStatus.Opened]: 'neutral',
 } as const
 
 export function getDraftStatus(draftedDocument: DatabaseItem, originalDatabaseItem: DatabaseItem | undefined) {
@@ -22,6 +22,7 @@ export function getDraftStatus(draftedDocument: DatabaseItem, originalDatabaseIt
     return DraftStatus.Created
   }
   else {
+    // TODO: check and fix with ahad toc and shiki presence, maybe check the content
     if (JSON.stringify(originalDatabaseItem) !== JSON.stringify(draftedDocument)) {
       return DraftStatus.Updated
     }

@@ -56,7 +56,6 @@ const statusRingColor = computed(() => props.item.status ? `ring-${COLOR_STATUS_
         v-if="item.status"
         :status="item.status"
         class="absolute top-2 right-2"
-        size="xs"
       />
     </div>
 

@@ -15,63 +15,69 @@ export const useDraftFiles = createSharedComposable((host: StudioHost, git: Retu
   const hooks = useHooks()
 
   async function get(id: string, { generateContent = false }: { generateContent?: boolean } = {}) {
-    const item = await storage.getItem(id) as DraftFileItem
-    if (generateContent) {
+    const item = list.value.find(item => item.id === id)
+    if (item && generateContent) {
       return {
         ...item,
-        content: await generateContentFromDocument(item.document! as DatabasePageItem) || '',
+        content: await generateContentFromDocument(item!.document as DatabasePageItem) || '',
       }
     }
     return item
   }
 
-  // Update and create draft file with exsiting document in database
-  async function upsert(id: string, document: DatabaseItem) {
-    id = id.replace(/:/g, '/')
-    let oldStatus: DraftStatus | undefined
-    let item = await storage.getItem(id) as DraftFileItem
-    if (!item) {
-      const fsPath = host.document.getFileSystemPath(id)
-
-      const originalGithubFile = await git.fetchFile(fsPath, { cached: true }) as GithubFile
-      const originalDatabaseItem = await host.document.get(id)
-
-      item = {
-        id,
-        fsPath,
-        originalDatabaseItem,
-        originalGithubFile,
-        status: originalGithubFile || originalDatabaseItem ? DraftStatus.Opened : DraftStatus.Created,
-        document,
-      }
-    }
-    else {
-      oldStatus = item.status
-      item.document = document
-    }
-
-    // TODO: fix double call on open document
-    item.status = getDraftStatus(document, item.originalDatabaseItem)
-
-    await storage.setItem(id, item)
-
-    const existingItem = list.value.find(item => item.id == id)
+  async function create(document: DatabaseItem, status: DraftStatus = DraftStatus.Created) {
+    const existingItem = list.value.find(item => item.id === document.id)
     if (existingItem) {
-      existingItem.document = document
-      existingItem.status = item.status
-    }
-    else {
-      list.value.push(item)
+      throw new Error(`Draft file already exists for document ${document.id}`)
     }
 
-    await host.document.upsert(id, item.document!)
+    const fsPath = host.document.getFileSystemPath(document.id)
+    const originalGithubFile = await git.fetchFile(fsPath, { cached: true }) as GithubFile
+
+    const item: DraftFileItem = {
+      id: document.id,
+      fsPath,
+      originalDatabaseItem: document,
+      originalGithubFile,
+      status,
+      document,
+    }
+
+    await storage.setItem(document.id, item)
+
+    list.value.push(item)
+
+    await hooks.callHook('studio:draft:updated')
+
+    return item
+  }
+
+  async function update(id: string, document: DatabaseItem) {
+    const existingItem = list.value.find(item => item.id === id)
+    if (!existingItem) {
+      throw new Error(`Draft file not found for document ${id}`)
+    }
+
+    const oldStatus = existingItem.status
+    existingItem.status = getDraftStatus(document, existingItem.originalDatabaseItem)
+    existingItem.document = document
+
+    await storage.setItem(id, existingItem)
+
+    list.value = list.value.map(item => item.id === id ? existingItem : item)
+
+    // Upsert document in database
+    await host.document.upsert(id, existingItem.document)
+
+    // Rerender host app
     host.app.requestRerender()
 
-    if (oldStatus !== item.status) {
+    // Trigger hook to warn that draft list has changed
+    if (existingItem.status !== oldStatus) {
       await hooks.callHook('studio:draft:updated')
     }
 
-    return item
+    return existingItem
   }
 
   async function remove(id: string) {
@@ -120,20 +126,25 @@ export const useDraftFiles = createSharedComposable((host: StudioHost, git: Retu
   }
 
   async function revert(id: string) {
-    const item = await storage.getItem(id) as DraftFileItem
-    if (!item) return
-
-    await storage.removeItem(id)
-
-    list.value = list.value.filter(item => item.id !== id)
-
-    if (item.originalDatabaseItem) {
-      await host.document.upsert(id, item.originalDatabaseItem)
+    const existingItem = list.value.find(item => item.id === id)
+    if (!existingItem) {
+      return
     }
 
-    if (item.status === DraftStatus.Created) {
+    if (existingItem.status === DraftStatus.Created) {
       await host.document.delete(id)
+      await storage.removeItem(id)
+      list.value = list.value.filter(item => item.id !== id)
     }
+    else {
+      await host.document.upsert(id, existingItem.originalDatabaseItem!)
+      existingItem.status = DraftStatus.Opened
+      existingItem.document = existingItem.originalDatabaseItem
+      await storage.setItem(id, existingItem)
+    }
+
+    await hooks.callHook('studio:draft:updated')
+
     host.app.requestRerender()
   }
 
@@ -184,9 +195,26 @@ export const useDraftFiles = createSharedComposable((host: StudioHost, git: Retu
     current.value = draftItem
   }
 
+  async function selectById(id: string) {
+    const existingItem = list.value.find(item => item.id === id)
+    if (existingItem) {
+      select(existingItem)
+      return
+    }
+
+    const dbItem = await host.document.get(id)
+    if (!dbItem) {
+      throw new Error(`Cannot select item: no corresponding database entry found for id ${id}`)
+    }
+
+    const draftItem = await create(dbItem, DraftStatus.Opened)
+    select(draftItem)
+  }
+
   return {
     get,
-    upsert,
+    create,
+    update,
     remove,
     revert,
     revertAll,
@@ -194,5 +222,6 @@ export const useDraftFiles = createSharedComposable((host: StudioHost, git: Retu
     load,
     current,
     select,
+    selectById,
   }
 })

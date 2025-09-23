@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
-import { type DatabasePageItem, StudioItemActionId } from '../../../types'
+import { StudioItemActionId } from '../../../types'
 
 const { tree, draftFiles, context } = useStudio()
 
@@ -15,7 +15,7 @@ const isFolderCreationInProgress = computed(() => context.actionInProgress.value
 <template>
   <PanelContentEditor
     v-if="tree.currentItem.value.type === 'file' && draftFiles.current.value"
-    :db-item="draftFiles.current.value.document as DatabasePageItem"
+    :draft-item="draftFiles.current.value"
   />
   <div
     v-else

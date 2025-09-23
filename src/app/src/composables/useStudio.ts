@@ -38,7 +38,7 @@ export const useStudio = createSharedComposable(() => {
     isReady.value = true
 
     host.on.routeChange((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
-      tree.selectItemByRoute(to)
+      tree.selectByRoute(to)
       // setTimeout(() => {
       //   detectActiveDocuments()
       // }, 100)

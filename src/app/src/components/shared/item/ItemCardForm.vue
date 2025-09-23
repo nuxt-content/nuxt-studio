@@ -14,7 +14,7 @@ const { context } = useStudio()
 
 const props = defineProps({
   actionId: {
-    type: String as PropType<StudioItemActionId.CreateFile | StudioItemActionId.CreateFolder | StudioItemActionId.RenameItem>,
+    type: String as PropType<StudioItemActionId>,
     required: true,
   },
   parentItem: {

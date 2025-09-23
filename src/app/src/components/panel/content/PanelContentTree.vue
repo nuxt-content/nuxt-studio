@@ -39,7 +39,7 @@ defineProps({
       >
         <ItemCard
           :item="item"
-          @click="treeApi.selectItem(item)"
+          @click="treeApi.select(item)"
         />
       </li>
     </ul>
