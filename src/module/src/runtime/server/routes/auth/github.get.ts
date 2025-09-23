@@ -176,8 +176,7 @@ export default eventHandler(async (event: H3Event) => {
         'Authorization': `token ${accessToken}`,
       },
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const primaryEmail = emails.find((email: any) => email.primary)
+    const primaryEmail = emails.find((email: { primary: boolean }) => email.primary)
     // Still no email
     if (!primaryEmail) {
       throw createError({
