@@ -1,9 +1,10 @@
 import type { H3Event } from 'h3'
 import { createError, eventHandler, getRequestHeader, readRawBody, setResponseHeader } from 'h3'
-import type { StorageMeta, TransactionOptions } from 'unstorage'
+import type { StorageMeta } from 'unstorage'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { decompressTree } from '@nuxt/content/runtime'
 import { removeReservedKeysFromDocument } from '../../../../utils/content'
+// @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
 
 export default eventHandler(async (event) => {
@@ -32,7 +33,8 @@ export default eventHandler(async (event) => {
     if (getRequestHeader(event, 'content-type') === 'application/octet-stream') {
       const value = await readRawBody(event, false)
       await storage.setItemRaw(key, value)
-    } else if (getRequestHeader(event, 'content-type') === 'text/plain') {
+    }
+    else if (getRequestHeader(event, 'content-type') === 'text/plain') {
       const value = await readRawBody(event, 'utf8')
       await storage.setItem(key, value)
     }

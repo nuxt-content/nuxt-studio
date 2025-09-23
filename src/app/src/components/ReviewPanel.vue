@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="flex">
     <UDashboardSidebar
       id="default"
@@ -79,4 +79,4 @@ const changedFileLinks = computed(() => {
     onSelect: () => selectDraft(file),
   } as NavigationMenuItem))
 })
-</script>
+</script> -->

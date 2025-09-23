@@ -12,7 +12,8 @@ const content = ref('')
 
 watch(() => document.value?.id, async () => {
   if (document.value?.body) {
-    const tree = document.value.body.type === 'minimark' ? decompressTree(document.value.body) : (document.value.body as unknown as MDCRoot)
+    // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
+    const tree = document.value.body.type === 'minimark' ? decompressTree(document.value.body) : (document.value.body as MDCRoot)
     const data = removeReservedKeysFromDocument(document.value)
     stringifyMarkdown(tree, data).then((md) => {
       content.value = md || ''

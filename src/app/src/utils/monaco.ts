@@ -4,37 +4,36 @@ import type { editor as Editor } from 'modern-monaco/editor-core'
 export type { editor as Editor } from 'modern-monaco/editor-core'
 export type Monaco = Awaited<ReturnType<typeof import('modern-monaco')['init']>>
 
-
 export const setupMonaco = createSingletonPromise(async () => {
-  // @ts-expect-error -- esm.sh
-  const init = await import("https://esm.sh/modern-monaco").then(m => m.init)
-  // @ts-expect-error -- esm.sh
-  const cssBundle = await import("https://esm.sh/modern-monaco/editor-core").then(m => m.cssBundle)
+  // @ts-expect-error -- use dynamic import to reduce bundle size
+  const init = await import('https://esm.sh/modern-monaco').then(m => m.init)
+  // @ts-expect-error -- use dynamic import to reduce bundle size
+  const cssBundle = await import('https://esm.sh/modern-monaco/editor-core').then(m => m.cssBundle)
 
-  if (!window.document.getElementById("monaco-editor-core-css")) {
-    const styleEl = window.document.createElement("style");
-    styleEl.id = "monaco-editor-core-css";
-    styleEl.media = "screen";
-    styleEl.textContent = '/* Dummy CSS to disable modern monaco styles. TODO: drop a PR to modern-monaco */';
-    window.document.head.appendChild(styleEl);
+  if (!window.document.getElementById('monaco-editor-core-css')) {
+    const styleEl = window.document.createElement('style')
+    styleEl.id = 'monaco-editor-core-css'
+    styleEl.media = 'screen'
+    styleEl.textContent = '/* Dummy CSS to disable modern monaco styles. TODO: drop a PR to modern-monaco */'
+    window.document.head.appendChild(styleEl)
   }
 
-  const monaco = await init();
+  const monaco: Monaco = await init()
 
   return {
     editor: monaco.editor,
     createEditor: ((domElement, options, override) => {
       // Inject the CSS bundle into the DOM
-      const styleEl = window.document.createElement("style");
-      styleEl.id = "monaco-editor-core-css";
-      styleEl.media = "screen";
-      styleEl.textContent = cssBundle;
-      domElement.parentNode!.appendChild(styleEl);
+      const styleEl = window.document.createElement('style')
+      styleEl.id = 'monaco-editor-core-css'
+      styleEl.media = 'screen'
+      styleEl.textContent = cssBundle
+      domElement.parentNode!.appendChild(styleEl)
 
       document.createElement('style')
 
       return monaco.editor.create(domElement, options, override)
-    }) as Monaco['editor']['create']
+    }) as Monaco['editor']['create'],
   }
   // await Promise.all([
   //   // load workers
@@ -77,7 +76,7 @@ export const setupMonaco = createSingletonPromise(async () => {
   // return monaco
 })
 
-export function setupTheme(monaco: any) {
+export function setupTheme(monaco: Monaco) {
   monaco.editor.defineTheme('studio-dark', {
     base: 'vs-dark',
     inherit: true,

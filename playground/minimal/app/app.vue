@@ -4,6 +4,9 @@ const { data } = await useAsyncData('posts', () => queryCollection('docs').path(
 
 <template>
   <div>
-    <ContentRenderer v-if="data" :value="data" />
+    <ContentRenderer
+      v-if="data"
+      :value="data"
+    />
   </div>
 </template>

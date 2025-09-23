@@ -11,23 +11,21 @@ const createDocsSchema = () => z.object({
   })).optional(),
 })
 
-let collections: Record<string, DefinedCollection>
-
-  collections = {
-    // landing: defineCollection({
-    //   type: 'page',
-    //   source: {
-    //     include: 'index.md',
-    //   },
-    // }),
-    docs: defineCollection({
-      type: 'page',
-      source: {
-        include: '**',
-        // exclude: ['index.md'],
-      },
-      schema: createDocsSchema(),
-    }),
-  }
+const collections: Record<string, DefinedCollection> = {
+  // landing: defineCollection({
+  //   type: 'page',
+  //   source: {
+  //     include: 'index.md',
+  //   },
+  // }),
+  docs: defineCollection({
+    type: 'page',
+    source: {
+      include: '**',
+      // exclude: ['index.md'],
+    },
+    schema: createDocsSchema(),
+  }),
+}
 
 export default defineContentConfig({ collections })

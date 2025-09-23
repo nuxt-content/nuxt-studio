@@ -1,0 +1,51 @@
+name: module
+
+on:
+  push:
+    branches:
+      - main
+      - feat/*
+      - fix/*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: ubuntu-latest
+        node: [22]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install node
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Prepare
+        run: pnpm run dev:prepare
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Prepack
+        run: pnpm run prepack
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test run

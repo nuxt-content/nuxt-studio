@@ -1,7 +1,7 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import type { useUi } from './useUi'
-import { type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId } from '../types'
+import { type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId, type ActionHandlerParams } from '../types'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
 import type { useDraftFiles } from './useDraftFiles'
 import { useModal } from './useModal'
@@ -23,11 +23,11 @@ export const useContext = createSharedComposable((
   const itemActions = computed<StudioAction[]>(() => {
     return STUDIO_ITEM_ACTION_DEFINITIONS.map(action => ({
       ...action,
-      handler: async (...args: any) => {
+      handler: async (args) => {
         if (actionInProgress.value === action.id) {
           // Two steps actions need to be already in progress to be executed
           if (twoStepActions.includes(action.id)) {
-            await itemActionHandler[action.id](...args)
+            await itemActionHandler[action.id](args)
             unsetActionInProgress()
             return
           }
@@ -41,16 +41,16 @@ export const useContext = createSharedComposable((
 
         // One step actions can be executed immediately
         if (oneStepActions.includes(action.id)) {
-          await itemActionHandler[action.id](...args)
+          await itemActionHandler[action.id](args)
           unsetActionInProgress()
         }
       },
     }))
   })
 
-  const itemActionHandler: Record<StudioItemActionId, (...args: any) => Promise<void>> = {
-    [StudioItemActionId.CreateFolder]: async (id: string) => {
-      alert(`create folder ${id}`)
+  const itemActionHandler: { [K in StudioItemActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
+    [StudioItemActionId.CreateFolder]: async (args: string) => {
+      alert(`create folder ${args}`)
     },
     [StudioItemActionId.CreateFile]: async ({ fsPath, routePath, content }: CreateFileParams) => {
       const document = await host.document.create(fsPath, routePath, content)

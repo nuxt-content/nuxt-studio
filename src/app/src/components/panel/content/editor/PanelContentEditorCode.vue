@@ -53,8 +53,8 @@ onMounted(async () => {
 
     generateDocumentFromContent(document.value!.id, content.value).then((doc) => {
       document.value = {
-        ...pickReservedKeysFromDocument(document.value!),
-        ...doc
+        ...pickReservedKeysFromDocument(props.draftItem.originalDatabaseItem as DatabasePageItem || document.value!),
+        ...doc,
       } as DatabasePageItem
     })
   })
@@ -67,7 +67,7 @@ function setContent(document: DatabasePageItem) {
   generateContentFromDocument(document).then((md) => {
     content.value = md || ''
 
-    if (editor.value) {
+    if (editor.value && editor.value.getModel()?.getValue() !== md) {
       editor.value.getModel()?.setValue(md || '')
     }
 

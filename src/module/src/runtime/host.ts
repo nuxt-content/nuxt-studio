@@ -7,6 +7,7 @@ import { kebabCase } from 'lodash'
 import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
 import { generateDocumentFromContent } from './utils/content'
+// @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
 import { queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
 import { collections } from '#content/preview'
 
@@ -60,6 +61,10 @@ export function useStudioHost(user: StudioUser): StudioHost {
     return window.useNuxtApp!()
   }
 
+  function useRouter() {
+    return useNuxtApp().$router as unknown as Router
+  }
+
   function useContent() {
     const $content = useNuxtApp().$content as { loadLocalDatabase: () => ContentDatabaseAdapter } || {}
     return {
@@ -87,7 +92,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
   const host: StudioHost = {
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
-        const router = useNuxtApp().$router as Router
+        const router = useRouter()
         router?.afterEach?.((to, from) => {
           fn(to, from)
         })
@@ -140,7 +145,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
 
     document: {
       get: async (id: string): Promise<DatabaseItem> => {
-        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first() as unknown as Promise<DatabaseItem>
+        return useContentCollectionQuery(id.split('/')[0] as string).where('id', '=', id).first()
       },
       getFileSystemPath: (id: string) => {
         return getCollectionInfo(id, useContentCollections()).fsPath
@@ -205,7 +210,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
         useNuxtApp().hooks.callHookParallel('app:data:refresh')
       },
       navigateTo: (path: string) => {
-        useNuxtApp().$router.push(path)
+        useRouter().push(path)
       },
     },
   }

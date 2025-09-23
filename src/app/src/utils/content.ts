@@ -1,5 +1,5 @@
 // import type { ParsedContentFile } from '@nuxt/content'
-import { parseMarkdown, stringifyMarkdown  } from '@nuxtjs/mdc/runtime'
+import { parseMarkdown, stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
 import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
 import { type DatabasePageItem, type DatabaseItem, ContentFileExtension } from '../types'
@@ -7,7 +7,7 @@ import { omit, pick } from './object'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { visit } from 'unist-util-visit'
 import type { Node } from 'unist'
-import { MarkdownRoot } from '@nuxt/content'
+import type { MarkdownRoot } from '@nuxt/content'
 import { destr } from 'destr'
 
 export const contentFileExtensions = [
@@ -34,8 +34,7 @@ export function removeReservedKeysFromDocument(document: DatabaseItem) {
     const seo = document.seo as Record<string, unknown>
     if (
       (!seo.title || seo.title === document.title)
-      &&
-      (!seo.description || seo.description === document.description)
+      && (!seo.description || seo.description === document.description)
     ) {
       Reflect.deleteProperty(result, 'seo')
     }
@@ -68,8 +67,8 @@ export function removeReservedKeysFromDocument(document: DatabaseItem) {
 
 export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
-  const extension = _id.split('.').pop()
-  
+  const extension = _id!.split('.').pop()
+
   if (extension === ContentFileExtension.Markdown) {
     return await generateDocumentFromMarkdownContent(id, content)
   }
@@ -84,8 +83,8 @@ export async function generateDocumentFromContent(id: string, content: string): 
 
   return null
 }
-  
-export async function generateDocumentFromYAMLContent(id: string, content: string): Promise<DatabaseItem | null> {
+
+async function generateDocumentFromYAMLContent(id: string, content: string): Promise<DatabaseItem | null> {
   const { data } = parseFrontMatter(`---\n${content}\n---`)
 
   // Keep array contents under `body` key
@@ -103,7 +102,7 @@ export async function generateDocumentFromYAMLContent(id: string, content: strin
   } as unknown as DatabaseItem
 }
 
-export async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem | null> {
+async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem | null> {
   let parsed: Record<string, unknown> = destr(content)
 
   // Keep array contents under `body` key
@@ -122,12 +121,32 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
   } as unknown as DatabaseItem
 }
 
-export async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem | null> {
-  const document = await parseMarkdown(content)
-  
+async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem | null> {
+  const document = await parseMarkdown(content, {
+    remark: {
+      plugins: {
+        'remark-mdc': {
+          options: {
+            autoUnwrap: true,
+          },
+        },
+      },
+    },
+  })
+
+  // Remove nofollow from links
+  visit(document.body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
+    if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
+      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
+    }
+  })
+
+  const body = document.body.type === 'root' ? compressTree(document.body) : document.body as never as MarkdownRoot
+
   return {
     id,
-    body: document.body.type === 'root' ? compressTree(document.body) : document.body as never as MarkdownRoot,
+    meta: {},
+    body,
     ...document.data,
   } as unknown as DatabaseItem
 }
@@ -136,10 +155,10 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
 
 export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
   const [id, _hash] = document.id.split('#')
-  const extension = id.split('.').pop()
-  
+  const extension = id!.split('.').pop()
+
   if (extension === ContentFileExtension.Markdown) {
-    return await generateContentFromMarkdownDocument(document as unknown as DatabasePageItem)
+    return await generateContentFromMarkdownDocument(document as DatabasePageItem)
   }
 
   if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
@@ -154,7 +173,7 @@ export async function generateContentFromDocument(document: DatabaseItem): Promi
 }
 
 export async function generateContentFromYAMLDocument(document: DatabaseItem): Promise<string | null> {
-  return await stringifyFrontMatter(removeReservedKeysFromDocument(document as unknown as DatabasePageItem), '', {
+  return await stringifyFrontMatter(removeReservedKeysFromDocument(document), '', {
     prefix: '',
     suffix: '',
   })
@@ -165,10 +184,11 @@ export async function generateContentFromJSONDocument(document: DatabaseItem): P
 }
 
 export async function generateContentFromMarkdownDocument(document: DatabasePageItem): Promise<string | null> {
-  const body = document.body.type === 'minimark' ? decompressTree(document.body) : (document.body as unknown as MDCRoot)
+  // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
+  const body = document.body.type === 'minimark' ? decompressTree(document.body) : (document.body as MDCRoot)
 
   // Remove nofollow from links
-  visit(body as unknown as Node, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
+  visit(body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
     if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
       Reflect.deleteProperty((node as MDCElement).props!, 'rel')
     }

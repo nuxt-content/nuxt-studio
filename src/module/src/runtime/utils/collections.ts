@@ -1,4 +1,4 @@
-import type { CollectionInfo, CollectionSource, Draft07, CollectionItemBase, PageCollectionItemBase, ResolvedCollectionSource } from '@nuxt/content'
+import type { CollectionInfo, CollectionSource, Draft07, CollectionItemBase, PageCollectionItemBase, ResolvedCollectionSource, Draft07DefinitionProperty } from '@nuxt/content'
 import { hash } from 'ohash'
 import { pathMetaTransform } from './path-meta'
 import { minimatch } from 'minimatch'
@@ -105,17 +105,17 @@ export function parseSourceBase(source: CollectionSource) {
 export function createCollectionDocument(collection: CollectionInfo, id: string, item: CollectionItemBase) {
   const parsedContent = [
     pathMetaTransform,
-  ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as unknown as PageCollectionItemBase) : acc, { ...item, id } as Record<string, unknown>)
+  ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...item, id } as PageCollectionItemBase)
   const result = { id } as DatabaseItem
   const meta = item.meta as Record<string, unknown>
 
-  const collectionKeys = getOrderedSchemaKeys(collection.schema as unknown as Draft07)
+  const collectionKeys = getOrderedSchemaKeys(collection.schema)
   for (const key of Object.keys(parsedContent)) {
     if (collectionKeys.includes(key)) {
-      result[key] = parsedContent[key]
+      result[key] = parsedContent[key as keyof PageCollectionItemBase]
     }
     else {
-      meta[key] = parsedContent[key]
+      meta[key] = parsedContent[key as keyof PageCollectionItemBase]
     }
   }
 
@@ -128,9 +128,9 @@ export function createCollectionDocument(collection: CollectionInfo, id: string,
   // }
 
   if (collectionKeys.includes('seo')) {
-    const seo = result.seo = (result.seo || {}) as Record<string, unknown>
-    seo.title = seo.title || result.title
-    seo.description = seo.description || result.description
+    const seo = result.seo = (result.seo || {}) as PageCollectionItemBase['seo']
+    seo.title = seo.title || result.title as string
+    seo.description = seo.description || result.description as string
   }
 
   return result
@@ -139,11 +139,11 @@ export function createCollectionDocument(collection: CollectionInfo, id: string,
 function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: Record<string, unknown>) {
   const fields: string[] = []
   const values: Array<string | number | boolean> = []
-  const properties = (collection.schema.definitions![collection.name] as any).properties
+  const properties = (collection.schema.definitions![collection.name] as Draft07DefinitionProperty).properties
   const sortedKeys = getOrderedSchemaKeys(collection.schema)
 
   sortedKeys.forEach((key) => {
-    const value = (properties)[key]
+    const value = properties![key]
     const type = collection.fields[key]
     const defaultValue = value?.default !== undefined ? value.default : 'NULL'
     const valueToInsert = typeof data[key] !== 'undefined' ? data[key] : defaultValue
@@ -153,9 +153,9 @@ function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: 
     if (type === 'json') {
       values.push(`'${JSON.stringify(valueToInsert).replace(/'/g, '\'\'')}'`)
     }
-    else if (type === 'string' || ['string', 'enum'].includes(value.type)) {
-      if (['data', 'datetime'].includes(value.format)) {
-        values.push(valueToInsert !== 'NULL' ? `'${new Date(valueToInsert).toISOString()}'` : defaultValue)
+    else if (type === 'string' || ['string', 'enum'].includes(value!.type!)) {
+      if (['data', 'datetime'].includes(value!.format!)) {
+        values.push(valueToInsert !== 'NULL' ? `'${new Date(valueToInsert as string).toISOString()}'` : defaultValue as string)
       }
       else {
         values.push(`'${String(valueToInsert).replace(/\n/g, '\\n').replace(/'/g, '\'\'')}'`)
@@ -165,7 +165,7 @@ function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: 
       values.push(valueToInsert !== 'NULL' ? !!valueToInsert : valueToInsert)
     }
     else {
-      values.push(valueToInsert)
+      values.push(valueToInsert as string | number | boolean)
     }
   })
 
