@@ -38,9 +38,11 @@ export const useStudio = createSharedComposable(() => {
     isReady.value = true
 
     host.on.routeChange((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
-      tree.selectByRoute(to)
+      if (ui.isPanelOpen.value && ui.config.value.syncEditorAndRoute) {
+        tree.selectByRoute(to)
+      }
       // setTimeout(() => {
-      //   detectActiveDocuments()
+      //   host.document.detectActives()
       // }, 100)
     })
   })

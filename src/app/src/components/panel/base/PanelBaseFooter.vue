@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
 
 const studio = useStudio()
+const uiConfig = studio.ui.config
 
 const user = studio.host.user.get()
 
@@ -41,6 +42,15 @@ const userMenuItems = computed(() => [
     </template>
 
     <template #right>
+      <UTooltip :text="uiConfig.syncEditorAndRoute ? 'Sync editor and route' : 'Don\'t sync editor and route'">
+        <UButton
+          icon="i-lucide-arrow-left-right"
+          variant="link"
+          :color="uiConfig.syncEditorAndRoute ? 'success' : 'neutral'"
+          size="md"
+          @click="uiConfig.syncEditorAndRoute = !uiConfig.syncEditorAndRoute"
+        />
+      </UTooltip>
       <UButton
         icon="i-lucide-panel-left-close"
         variant="link"
