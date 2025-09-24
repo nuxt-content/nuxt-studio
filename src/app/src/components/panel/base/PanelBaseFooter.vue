@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
 
-const studio = useStudio()
-const uiConfig = studio.ui.config
+const { ui, host } = useStudio()
 
-const user = studio.host.user.get()
+const uiConfig = ui.config
+const user = host.user.get()
 
 const userMenuItems = computed(() => [
   {
@@ -56,7 +56,7 @@ const userMenuItems = computed(() => [
         variant="link"
         color="neutral"
         size="md"
-        @click="studio.ui.closePanels()"
+        @click="ui.closePanels()"
       />
     </template>
   </UFooter>
