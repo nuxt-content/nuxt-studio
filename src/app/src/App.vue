@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useStudio } from './composables/useStudio'
 import { useSidebar } from './composables/useSidebar'
-import { watch } from 'vue'
+import { watch, ref } from 'vue'
+import { StudioFeature } from './types'
 
 const { sidebarWidth } = useSidebar()
 const { ui, host, isReady } = useStudio()
@@ -10,29 +11,30 @@ watch(sidebarWidth, () => {
     host.ui.updateStyles()
   }
 })
-// const activeDocuments = ref<{ id: string, label: string, value: string }[]>([])
+const activeDocuments = ref<{ id: string, title: string }[]>([])
 
-// function detectActiveDocuments() {
-//   activeDocuments.value = host.document.detectActives().map((content) => {
-//     return {
-//       id: content.id,
-//       label: content.title,
-//       value: content.id,
-//       onSelect: () => {
-//         onContentSelect(content.id)
-//       },
-//     }
-//   })
-// }
+function detectActiveDocuments() {
+  activeDocuments.value = host.document.detectActives().map((content) => {
+    return {
+      id: content.id,
+      title: content.title,
+    }
+  })
+}
 
-// host.on.mounted(() => {
-//   detectActiveDocuments()
-//   host.on.routeChange(() => {
-//     setTimeout(() => {
-//       detectActiveDocuments()
-//     }, 100)
-//   })
-// })
+function onContentSelect(id: string) {
+  tree.selectItemById(id)
+  ui.openPanel(StudioFeature.Content)
+}
+
+host.on.mounted(() => {
+  detectActiveDocuments()
+  host.on.routeChange(() => {
+    setTimeout(() => {
+      detectActiveDocuments()
+    }, 100)
+  })
+})
 </script>
 
 <template>
@@ -50,14 +52,24 @@ watch(sidebarWidth, () => {
       </PanelBase>
 
       <!-- Floating Files Panel Toggle -->
-      <UButton
-        v-if="!ui.isPanelOpen.value"
-        icon="i-lucide-panel-left-open"
-        size="lg"
-        color="primary"
-        class="fixed bottom-4 left-4 z-50 shadow-lg"
-        @click="ui.panels.content = true"
-      />
+      <div v-if="!ui.isPanelOpen.value" class="fixed bottom-4 left-4 z-50 shadow-lg flex gap-2">
+        <UButton
+          icon="i-lucide-panel-left-open"
+          size="lg"
+          color="primary"
+          class="shadow-lg"
+          @click="ui.panels.content = true"
+        />
+        <UButton
+          v-if="activeDocuments.length === 1"
+          icon="i-lucide-file-text"
+          size="lg"
+          color="secondary"
+          label="Edit This Page"
+          class="shadow-lg"
+          @click="onContentSelect(activeDocuments[0].id)"
+        />
+      </div>
     </UApp>
   </Suspense>
 </template>

@@ -1,4 +1,4 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable, useStorage } from '@vueuse/core'
 import { computed, reactive, watch } from 'vue'
 import { type StudioHost, StudioFeature } from '../types'
 
@@ -7,6 +7,8 @@ export const useUi = createSharedComposable((host: StudioHost) => {
     [StudioFeature.Content]: false,
     [StudioFeature.Media]: false,
   })
+
+  const config = useStorage('studio-ui-config', { syncEditorAndRoute: true })
 
   const isPanelOpen = computed(() => Object.values(panels).some(value => value))
   watch(isPanelOpen, (value) => {
@@ -46,6 +48,7 @@ export const useUi = createSharedComposable((host: StudioHost) => {
 
   return {
     panels,
+    config,
     isPanelOpen,
     openPanel,
     closePanels,
