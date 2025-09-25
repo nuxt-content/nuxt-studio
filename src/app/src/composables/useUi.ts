@@ -6,7 +6,6 @@ export const useUi = createSharedComposable((host: StudioHost) => {
   const panels = reactive({
     [StudioFeature.Content]: false,
     [StudioFeature.Media]: false,
-    [StudioFeature.Config]: false,
   })
 
   const config = useStorage('studio-ui-config', { syncEditorAndRoute: true })

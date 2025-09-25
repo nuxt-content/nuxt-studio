@@ -1,19 +1,13 @@
-import { createStorage } from 'unstorage'
-import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { useGit } from './useGit'
 import { useUi } from './useUi'
 import { useContext } from './useContext'
-import { useDraftFiles } from './useDraftFiles'
+import { useDraftDocuments } from './useDraftDocuments'
+import { useDraftMedias } from './useDraftMedias'
 import { ref } from 'vue'
 import { useTree } from './useTree'
 import { createSharedComposable } from '@vueuse/core'
 import type { RouteLocationNormalized } from 'vue-router'
-
-const storage = createStorage({
-  driver: indexedDbDriver({
-    storeName: 'nuxt-content-preview',
-  }),
-})
+import { StudioFeature } from '../types'
 
 export const useStudio = createSharedComposable(() => {
   const host = window.useStudioHost()
@@ -28,18 +22,22 @@ export const useStudio = createSharedComposable(() => {
 
   const isReady = ref(false)
   const ui = useUi(host)
-  const draftFiles = useDraftFiles(host, git, storage)
-  const tree = useTree(host, draftFiles)
-  const context = useContext(host, ui, draftFiles, tree)
+  const draftDocuments = useDraftDocuments(host, git)
+  const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
+
+  const draftMedias = useDraftMedias(host, git)
+  const mediaTree = useTree(StudioFeature.Media, host, draftMedias)
+
+  const context = useContext(host, ui, draftDocuments, draftMedias, documentTree)
 
   host.on.mounted(async () => {
-    await draftFiles.load()
+    await draftDocuments.load()
     host.app.requestRerender()
     isReady.value = true
 
     host.on.routeChange((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
       if (ui.isPanelOpen.value && ui.config.value.syncEditorAndRoute) {
-        tree.selectByRoute(to)
+        documentTree.selectByRoute(to)
       }
       // setTimeout(() => {
       //   host.document.detectActives()
@@ -71,15 +69,17 @@ export const useStudio = createSharedComposable(() => {
     git,
     ui,
     context,
-    draftFiles,
-    tree,
+    draftDocuments,
+    draftMedias,
+    documentTree,
+    mediaTree,
     // draftMedia: {
-    //   get -> DraftMediaItem
+    //   get -> DraftItem
     //   upsert
     //   remove
     //   revert
     //   move
-    //   list -> DraftMediaItem[]
+    //   list -> DraftItem[]
     //   revertAll
     // }
     // media: {
