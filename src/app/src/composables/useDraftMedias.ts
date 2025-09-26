@@ -208,7 +208,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   }
 
   async function fileToDraftItem(directory: string, file: File): Promise<DraftItem<MediaItem>> {
-    const rawDara = await fileToDataUrl(file)
+    const rawData = await fileToDataUrl(file)
     const fsPath = directory && directory !== '/' ? joinURL(directory, file.name) : file.name
 
     return {
@@ -222,8 +222,8 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
         extension: fsPath.split('.').pop()!,
         stem: fsPath.split('.').join('.'),
         path: withLeadingSlash(fsPath),
-        preview: await resizedataURL(rawDara, 128, 128),
-        raw: rawDara,
+        preview: await resizedataURL(rawData, 128, 128),
+        raw: rawData,
       },
     }
   }
