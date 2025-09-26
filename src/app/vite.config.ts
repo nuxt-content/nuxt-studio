@@ -99,7 +99,7 @@ export default defineConfig({
     cssCodeSplit: false,
     outDir: '../../dist/app',
     lib: {
-      entry: ['./src/index.ts', './src/utils.ts'],
+      entry: ['./src/index.ts', './src/utils.ts', './src/service-worker.ts'],
       formats: ['es'],
     },
     sourcemap: false,
