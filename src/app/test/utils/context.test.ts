@@ -38,7 +38,7 @@ describe('computeActionItems', () => {
   it('should filter out actions for file items without draft status', () => {
     const fileItem: TreeItem = {
       type: 'file',
-      name: 'test.md'
+      name: 'test.md',
     } as TreeItem
 
     const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)

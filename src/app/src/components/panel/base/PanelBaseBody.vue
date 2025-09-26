@@ -18,11 +18,10 @@ const isFolderCreationInProgress = computed(() => context.actionInProgress.value
 async function onFileDrop(event: DragEvent) {
   if (event.dataTransfer?.files) {
     for (const file of event.dataTransfer.files) {
-      await draftMedias.upload(tree.value.currentItem.value.fsPath,file)
+      await draftMedias.upload(tree.value.currentItem.value.fsPath, file)
     }
   }
 }
-
 </script>
 
 <template>
@@ -33,7 +32,7 @@ async function onFileDrop(event: DragEvent) {
   <div
     v-else
     class="flex flex-col min-h-full"
-    @drop.prevent.sop="onFileDrop"
+    @drop.prevent.stop="onFileDrop"
     @dragover.prevent.stop
   >
     <PanelBaseBodyTree

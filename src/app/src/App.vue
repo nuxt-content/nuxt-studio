@@ -52,7 +52,10 @@ host.on.mounted(() => {
       </PanelBase>
 
       <!-- Floating Files Panel Toggle -->
-      <div v-if="!ui.isPanelOpen.value" class="fixed bottom-4 left-4 z-50 shadow-lg flex gap-2">
+      <div
+        v-if="!ui.isPanelOpen.value"
+        class="fixed bottom-4 left-4 z-50 shadow-lg flex gap-2"
+      >
         <UButton
           icon="i-lucide-panel-left-open"
           size="lg"

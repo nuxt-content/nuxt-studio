@@ -204,7 +204,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   // Uplaod
   async function upload(directory: string, file: File) {
     const draftItem = await fileToDraftItem(directory, file)
-    host.media.upsert(draftItem.id,  draftItem.modified!)
+    host.media.upsert(draftItem.id, draftItem.modified!)
     await create(draftItem.modified!)
   }
   async function fileToDraftItem(directory: string, file: File): Promise<DraftItem<MediaItem>> {
@@ -222,7 +222,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
         stem: fsPath.split('.').join('.'),
         path: withLeadingSlash(fsPath),
         preview: await resizedataURL(rawDara, 128, 128),
-        raw: rawDara
+        raw: rawDara,
       },
     }
   }
@@ -231,23 +231,23 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
       const reader = new FileReader()
       reader.readAsDataURL(file)
       reader.onload = () => resolve(reader.result as string)
-      reader.onerror = (error) => reject(error)
+      reader.onerror = error => reject(error)
     })
   }
 
   function resizedataURL(datas: string, wantedWidth: number, wantedHeight: number): Promise<string> {
-    return new Promise(async function(resolve) {
-      var img = document.createElement('img');
-      img.onload = function() {        
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d')!
+    return new Promise(function (resolve) {
+      const img = document.createElement('img')
+      img.onload = function () {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')!
 
-        canvas.width = wantedWidth;
-        canvas.height = wantedHeight;
+        canvas.width = wantedWidth
+        canvas.height = wantedHeight
 
         ctx.drawImage(img, 0, 0, wantedWidth, wantedHeight)
 
-        var dataURI = canvas.toDataURL()
+        const dataURI = canvas.toDataURL()
 
         resolve(dataURI)
       }
