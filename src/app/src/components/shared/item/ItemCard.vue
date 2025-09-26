@@ -57,7 +57,10 @@ const statusRingColor = computed(() => props.item.status ? `ring-${COLOR_STATUS_
           alt="Card placeholder"
           class="z-[-1] rounded-t-lg aspect-video object-cover"
         />
-        <div v-if="itemExtensionIcon" class="absolute inset-0 flex items-center justify-center">
+        <div
+          v-if="itemExtensionIcon"
+          class="absolute inset-0 flex items-center justify-center"
+        >
           <UIcon
             :name="itemExtensionIcon"
             class="w-8 h-8 text-gray-400 dark:text-gray-500"
