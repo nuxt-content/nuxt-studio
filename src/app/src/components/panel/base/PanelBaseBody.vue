@@ -17,8 +17,11 @@ const isFolderCreationInProgress = computed(() => context.actionInProgress.value
 
 async function onFileDrop(event: DragEvent) {
   if (event.dataTransfer?.files) {
-    for (const file of event.dataTransfer.files) {
-      await draftMedias.upload(tree.value.currentItem.value.fsPath, file)
+    if (context.feature.value === StudioFeature.Media) {
+      await context.itemActionHandler[StudioItemActionId.UploadMedia]({
+        directory: tree.value.currentItem.value.fsPath,
+        files: Array.from(event.dataTransfer.files),
+      })
     }
   }
 }

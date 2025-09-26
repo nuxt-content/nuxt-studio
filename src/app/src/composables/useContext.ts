@@ -1,7 +1,7 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import type { useUi } from './useUi'
-import { type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId, type ActionHandlerParams } from '../types'
+import { type UploadMediaParams, type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId, type ActionHandlerParams, StudioFeature } from '../types'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
 import type { useDraftDocuments } from './useDraftDocuments'
 import { useModal } from './useModal'
@@ -59,8 +59,20 @@ export const useContext = createSharedComposable((
       const draftItem = await draftDocuments.create(document)
       tree.selectItemById(draftItem.id)
     },
+    [StudioItemActionId.UploadMedia]: async ({ directory, files }: UploadMediaParams) => {
+      for (const file of files) {
+        await draftMedias.upload(directory, file)
+      }
+    },
     [StudioItemActionId.RevertItem]: async (id: string) => {
-      modal.openConfirmActionModal(id, StudioItemActionId.RevertItem, () => draftDocuments.revert(id))
+      modal.openConfirmActionModal(id, StudioItemActionId.RevertItem, async () => {
+        if (currentFeature.value === StudioFeature.Content) {
+          await draftDocuments.revert(id)
+        }
+        else {
+          await draftMedias.revert(id)
+        }
+      })
     },
     [StudioItemActionId.RenameItem]: async ({ path, file }: { path: string, file: TreeItem }) => {
       alert(`rename file ${path} ${file.name}`)
