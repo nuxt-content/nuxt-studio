@@ -1,5 +1,6 @@
 import { type StudioAction, StudioFeature, type TreeItem } from '../types'
 import { DraftStatus } from '../types/draft'
+import type { ActionHandlerParams } from '../types/context'
 import { StudioItemActionId } from '../types/context'
 
 export const FEATURE_DISPLAY_MAP = {
@@ -87,4 +88,13 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
   }
 
   return itemActions.filter(action => !forbiddenActions.includes(action.id))
+}
+
+export function computeActionParams(action: StudioItemActionId, { item }: { item: TreeItem }): ActionHandlerParams[typeof action] {
+  switch (action) {
+    case StudioItemActionId.RevertItem:
+      return item.id
+    default:
+      return {}
+  }
 }

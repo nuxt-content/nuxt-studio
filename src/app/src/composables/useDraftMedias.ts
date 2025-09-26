@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { createStorage } from 'unstorage'
 import indexedDbDriver from 'unstorage/drivers/indexedb'
+import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, GithubFile, MediaItem } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
@@ -10,7 +11,8 @@ import { useHooks } from './useHooks'
 
 const storage = createStorage({
   driver: indexedDbDriver({
-    storeName: 'nuxt-content-studio-medias',
+    dbName: 'nuxt-content-studio-media',
+    storeName: 'drafts',
   }),
 })
 
@@ -198,6 +200,62 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     select(draftItem)
   }
 
+  async function upload(directory: string, file: File) {
+    const draftItem = await fileToDraftItem(directory, file)
+    host.media.upsert(draftItem.id, draftItem.modified!)
+    await create(draftItem.modified!)
+  }
+
+  async function fileToDraftItem(directory: string, file: File): Promise<DraftItem<MediaItem>> {
+    const rawData = await fileToDataUrl(file)
+    const fsPath = directory && directory !== '/' ? joinURL(directory, file.name) : file.name
+
+    return {
+      id: `public-assets/${fsPath}`,
+      fsPath,
+      githubFile: undefined,
+      status: DraftStatus.Created,
+      modified: {
+        id: `public-assets/${fsPath}`,
+        fsPath,
+        extension: fsPath.split('.').pop()!,
+        stem: fsPath.split('.').join('.'),
+        path: withLeadingSlash(fsPath),
+        preview: await resizedataURL(rawData, 128, 128),
+        raw: rawData,
+      },
+    }
+  }
+
+  function fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = error => reject(error)
+    })
+  }
+
+  function resizedataURL(datas: string, wantedWidth: number, wantedHeight: number): Promise<string> {
+    return new Promise(function (resolve) {
+      const img = document.createElement('img')
+      img.onload = function () {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')!
+
+        canvas.width = wantedWidth
+        canvas.height = wantedHeight
+
+        ctx.drawImage(img, 0, 0, wantedWidth, wantedHeight)
+
+        const dataURI = canvas.toDataURL()
+
+        resolve(dataURI)
+      }
+      img.src = datas
+    })
+  }
+
   return {
     get,
     create,
@@ -210,5 +268,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     current,
     select,
     selectById,
+    upload,
   }
 })
