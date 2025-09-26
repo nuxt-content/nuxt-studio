@@ -14,6 +14,10 @@
     "./app/utils": {
       "types": "./dist/app/utils.d.ts",
       "default": "./dist/app/utils.js"
+    },
+    "./app/service-worker": {
+      "types": "./dist/app/service-worker.d.ts",
+      "default": "./dist/app/service-worker.js"
     }
   },
   "main": "./dist/module/module.mjs",

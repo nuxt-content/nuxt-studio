@@ -146,6 +146,10 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/__nuxt_content/studio',
       handler: runtime('./server/routes/admin'),
     })
+    addServerHandler({
+      route: '/sw.js',
+      handler: runtime('./server/routes/sw'),
+    })
     // addServerHandler({
     //   route: '/__nuxt_content/studio/auth/google',
     //   handler: runtime('./server/routes/auth/google.get'),

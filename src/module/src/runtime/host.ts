@@ -260,6 +260,10 @@ export function useStudioHost(user: StudioUser): StudioHost {
       .then((_localDatabaseAdapter) => {
         localDatabaseAdapter = _localDatabaseAdapter
         isMounted.value = true
+      }).then(() => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js')
+        }
       })
   })()
 
