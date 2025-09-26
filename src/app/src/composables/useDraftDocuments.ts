@@ -54,7 +54,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
 
     list.value.push(item)
 
-    await hooks.callHook('studio:draft:updated')
+    await hooks.callHook('studio:draft:document:updated')
 
     return item
   }
@@ -81,7 +81,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
 
     // Trigger hook to warn that draft list has changed
     if (existingItem.status !== oldStatus) {
-      await hooks.callHook('studio:draft:updated')
+      await hooks.callHook('studio:draft:document:updated')
     }
 
     return existingItem
@@ -150,7 +150,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       await storage.setItem(id, existingItem)
     }
 
-    await hooks.callHook('studio:draft:updated')
+    await hooks.callHook('studio:draft:document:updated')
 
     host.app.requestRerender()
   }
@@ -195,7 +195,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
 
     host.app.requestRerender()
 
-    await hooks.callHook('studio:draft:updated')
+    await hooks.callHook('studio:draft:document:updated')
   }
 
   function select(draftItem: DraftItem<DatabaseItem> | null) {
