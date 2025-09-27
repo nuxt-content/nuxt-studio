@@ -43,7 +43,11 @@ TreeItem[] {
         name: fileName,
         fsPath: dbItem.fsPath,
         type: 'file',
-        preview: EXTENSIONS_WITH_PREVIEW.has(dbItem.extension) ? dbItem.path : undefined,
+      }
+
+      // Public assets
+      if (dbItem.id.startsWith('public-assets/')) {
+        fileItem.preview = EXTENSIONS_WITH_PREVIEW.has(dbItem.extension) ? dbItem.path : undefined
       }
 
       if (itemHasPathField) {
@@ -188,13 +192,24 @@ export function findItemFromRoute(tree: TreeItem[], route: RouteLocationNormaliz
   return null
 }
 
+export function findDescendantsFromId(tree: TreeItem[], id: string): TreeItem[] {
+  const descendants: TreeItem[] = []
+  for (const item of tree) {
+    if (item.id === id) {
+      descendants.push(item)
+    }
+  }
+
+  return descendants
+}
+
 function calculateDirectoryStatuses(items: TreeItem[]) {
   for (const item of items) {
     if (item.type === 'directory' && item.children) {
       calculateDirectoryStatuses(item.children)
 
       for (const child of item.children) {
-        if (child.status) {
+        if (child.status && child.status !== DraftStatus.Opened) {
           item.status = DraftStatus.Updated
           break
         }

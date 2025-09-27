@@ -30,7 +30,7 @@ const titleMap = {
 } as Record<StudioItemActionId, string>
 
 const descriptionMap = {
-  [StudioItemActionId.RevertItem]: `Are you sure you want to revert this file back to the original version?`,
+  [StudioItemActionId.RevertItem]: `Are you sure you want to revert ${name.value} back to its original version?`,
 } as Record<StudioItemActionId, string>
 
 const successLabelMap = {

@@ -4,7 +4,7 @@ import { Image } from '@unpic/vue'
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { type StudioAction, type TreeItem, ContentFileExtension } from '../../../types'
-import { joinURL } from 'ufo'
+import { joinURL, withLeadingSlash } from 'ufo'
 import { contentFileExtensions } from '../../../utils/content'
 import { useStudio } from '../../../composables/useStudio'
 import { StudioItemActionId } from '../../../types'
@@ -51,7 +51,7 @@ const itemExtensionIcon = computed<string>(() => {
 })
 
 const routePath = computed(() => {
-  return joinURL(props.parentItem.routePath!, stripNumericPrefix(state.name))
+  return withLeadingSlash(joinURL(props.parentItem.routePath!, stripNumericPrefix(state.name)))
 })
 
 const tooltipText = computed(() => {

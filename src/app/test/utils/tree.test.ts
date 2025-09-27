@@ -55,13 +55,15 @@ describe('buildTree', () => {
     }]
     const tree = buildTree(dbItemsList, draftList)
 
-    // add status to first element of result
-    const expectedTree: TreeItem[] = [{ ...result[0], status: DraftStatus.Created }, ...result.slice(1)]
-
-    expect(tree).toStrictEqual(expectedTree)
+    expect(tree).toStrictEqual([
+      {
+        ...result[0],
+        status: DraftStatus.Created,
+      },
+      ...result.slice(1)])
   })
 
-  it('should build a tree from a list of database items and set file status for nestedfile and parent directory based on draft', () => {
+  it('should build a tree from a list of database items and set status for nested file and parent directory based on draft', () => {
     const draftList: DraftItem[] = [{
       id: dbItemsList[1].id,
       fsPath: '1.getting-started/2.introduction.md',
@@ -75,7 +77,10 @@ describe('buildTree', () => {
         ...result[1],
         status: DraftStatus.Updated,
         children: [
-          { ...result[1].children![0], status: DraftStatus.Updated },
+          {
+            ...result[1].children![0],
+            status: DraftStatus.Updated,
+          },
           ...result[1].children!.slice(1),
         ],
       },
@@ -84,12 +89,17 @@ describe('buildTree', () => {
     expect(tree).toStrictEqual(expectedTree)
   })
 
-  it('should build a tree from a list of database items and set file status for nestedfile and parent directory based on draft (status is always updated in directory)', () => {
+  it('should build a tree from a list of database items and set status for nested files. Directory status is always UPDATED if at least one child is other then OPENED', () => {
     const draftList: DraftItem[] = [{
       id: dbItemsList[1].id,
       fsPath: '1.getting-started/2.introduction.md',
       status: DraftStatus.Created,
+    }, {
+      id: dbItemsList[2].id,
+      fsPath: '1.getting-started/3.installation.md',
+      status: DraftStatus.Opened,
     }]
+
     const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree: TreeItem[] = [
@@ -99,7 +109,37 @@ describe('buildTree', () => {
         status: DraftStatus.Updated,
         children: [
           { ...result[1].children![0], status: DraftStatus.Created },
-          ...result[1].children!.slice(1),
+          { ...result[1].children![1], status: DraftStatus.Opened },
+          ...result[1].children!.slice(2),
+        ],
+      },
+    ]
+
+    expect(tree).toStrictEqual(expectedTree)
+  })
+
+  it('should build a tree from a list of database items and set OPENED status for nestedfile. Parent directory status is not set if all children are OPENED', () => {
+    const draftList: DraftItem[] = [{
+      id: dbItemsList[1].id,
+      fsPath: '1.getting-started/2.introduction.md',
+      status: DraftStatus.Opened,
+    }, {
+      id: dbItemsList[2].id,
+      fsPath: '1.getting-started/3.installation.md',
+      status: DraftStatus.Opened,
+    }]
+
+    const tree = buildTree(dbItemsList, draftList)
+
+    const expectedTree: TreeItem[] = [
+      result[0],
+      {
+        ...result[1],
+        children: [
+          {
+            ...result[1].children![0], status: DraftStatus.Opened },
+          { ...result[1].children![1], status: DraftStatus.Opened },
+          ...result[1].children!.slice(2),
         ],
       },
     ]

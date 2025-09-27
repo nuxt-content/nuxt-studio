@@ -1,5 +1,6 @@
-import { type BaseItem, type DatabasePageItem, ContentFileExtension, DraftStatus } from '../types'
+import { type BaseItem, type DatabasePageItem, ContentFileExtension, DraftStatus, type DraftItem } from '../types'
 import { stringify } from 'minimark/stringify'
+import { ROOT_ITEM } from './tree'
 
 export const COLOR_STATUS_MAP: { [key in DraftStatus]?: string } = {
   [DraftStatus.Created]: 'green',
@@ -34,6 +35,21 @@ export function getDraftStatus(modified: BaseItem, original: BaseItem | undefine
   }
 
   return DraftStatus.Opened
+}
+
+export function findDescendantsFromId(list: DraftItem[], id: string): DraftItem[] {
+  if (id === ROOT_ITEM.id) {
+    return list
+  }
+
+  const descendants: DraftItem[] = []
+  for (const item of list) {
+    if (item.id === id || item.id.startsWith(id + '/')) {
+      descendants.push(item)
+    }
+  }
+
+  return descendants
 }
 
 function isEqual(document1: DatabasePageItem, document2: DatabasePageItem) {

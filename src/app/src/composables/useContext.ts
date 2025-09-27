@@ -21,6 +21,7 @@ export const useContext = createSharedComposable((
   const currentFeature = computed<keyof typeof ui.panels | null>(() =>
     Object.keys(ui.panels).find(key => ui.panels[key as keyof typeof ui.panels]) as keyof typeof ui.panels,
   )
+  const draft = computed(() => currentFeature.value === StudioFeature.Content ? draftDocuments : draftMedias)
 
   const itemActions = computed<StudioAction[]>(() => {
     return STUDIO_ITEM_ACTION_DEFINITIONS.map(action => ({
@@ -29,7 +30,7 @@ export const useContext = createSharedComposable((
         if (actionInProgress.value === action.id) {
           // Two steps actions need to be already in progress to be executed
           if (twoStepActions.includes(action.id)) {
-            await itemActionHandler[action.id](args)
+            await itemActionHandler[action.id](args as never)
             unsetActionInProgress()
             return
           }
@@ -43,7 +44,7 @@ export const useContext = createSharedComposable((
 
         // One step actions can be executed immediately
         if (oneStepActions.includes(action.id)) {
-          await itemActionHandler[action.id](args)
+          await itemActionHandler[action.id](args as never)
           unsetActionInProgress()
         }
       },
@@ -56,22 +57,18 @@ export const useContext = createSharedComposable((
     },
     [StudioItemActionId.CreateDocument]: async ({ fsPath, routePath, content }: CreateFileParams) => {
       const document = await host.document.create(fsPath, routePath, content)
-      const draftItem = await draftDocuments.create(document)
+      const draftItem = await draft.value.create(document)
       tree.selectItemById(draftItem.id)
     },
     [StudioItemActionId.UploadMedia]: async ({ directory, files }: UploadMediaParams) => {
       for (const file of files) {
-        await draftMedias.upload(directory, file)
+        await (draft.value as ReturnType<typeof useDraftMedias>).upload(directory, file)
       }
     },
     [StudioItemActionId.RevertItem]: async (id: string) => {
+      console.log('revert item', id)
       modal.openConfirmActionModal(id, StudioItemActionId.RevertItem, async () => {
-        if (currentFeature.value === StudioFeature.Content) {
-          await draftDocuments.revert(id)
-        }
-        else {
-          await draftMedias.revert(id)
-        }
+        await draft.value.revert(id)
       })
     },
     [StudioItemActionId.RenameItem]: async ({ path, file }: { path: string, file: TreeItem }) => {

@@ -5,7 +5,7 @@ import type { DatabaseItem, DraftItem, StudioHost, GithubFile, DatabasePageItem 
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
 import { generateContentFromDocument } from '../utils/content'
-import { getDraftStatus } from '../utils/draft'
+import { getDraftStatus, findDescendantsFromId } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 
@@ -134,21 +134,27 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
   }
 
   async function revert(id: string) {
-    const existingItem = list.value.find(item => item.id === id)
-    if (!existingItem) {
-      return
-    }
+    const draftItems = findDescendantsFromId(list.value, id)
 
-    if (existingItem.status === DraftStatus.Created) {
-      await host.document.delete(id)
-      await storage.removeItem(id)
-      list.value = list.value.filter(item => item.id !== id)
-    }
-    else {
-      await host.document.upsert(id, existingItem.original!)
-      existingItem.status = DraftStatus.Opened
-      existingItem.modified = existingItem.original
-      await storage.setItem(id, existingItem)
+    console.log('draftItems', draftItems)
+
+    for (const draftItem of draftItems) {
+      const existingItem = list.value.find(item => item.id === draftItem.id)
+      if (!existingItem) {
+        return
+      }
+
+      if (existingItem.status === DraftStatus.Created) {
+        await host.document.delete(draftItem.id)
+        await storage.removeItem(draftItem.id)
+        list.value = list.value.filter(item => item.id !== draftItem.id)
+      }
+      else {
+        await host.document.upsert(draftItem.id, existingItem.original!)
+        existingItem.status = DraftStatus.Opened
+        existingItem.modified = existingItem.original
+        await storage.setItem(draftItem.id, existingItem)
+      }
     }
 
     await hooks.callHook('studio:draft:document:updated')
