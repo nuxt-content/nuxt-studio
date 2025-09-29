@@ -17,26 +17,25 @@ That's it! You can now use Content Studio in your Nuxt app ✨
   
   ```bash
   # Install dependencies
-  npm install
+  pnpm i
   
   # Generate type stubs
-  npm run dev:prepare
+  pnpm dev:prepare
+
+  # For now, build the app for service-worker
+  pnpm prepack
   
-  # Develop with the playground
-  npm run dev
-  
-  # Build the playground
-  npm run dev:build
+  # In first terminal, run docus playground
+  pnpm dev
+
+  # In second terminal, run the vite dev server for the app
+  pnpm dev:app
   
   # Run ESLint
-  npm run lint
+  pnpm lint
   
   # Run Vitest
-  npm run test
-  npm run test:watch
-  
-  # Release new version
-  npm run release
+  pnpm test
   ```
 
 </details>
