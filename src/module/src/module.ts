@@ -36,7 +36,7 @@ export default defineNuxtModule<ModuleOptions>({
       },
     }) as ModuleOptions
 
-    if (!nuxt.options.dev) {
+    if (!nuxt.options.dev && !nuxt.options._prepare) {
       if (!options.auth?.github?.clientId && !options.auth?.github?.clientSecret) {
         logger.warn([
           'Nuxt Content Studio relies on GitHub OAuth to authenticate users.',
