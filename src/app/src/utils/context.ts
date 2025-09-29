@@ -37,16 +37,16 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
     tooltip: 'Rename file',
   },
   {
-    id: StudioItemActionId.DeleteItem,
-    label: 'Delete',
-    icon: 'i-lucide-trash',
-    tooltip: 'Delete file',
-  },
-  {
     id: StudioItemActionId.DuplicateItem,
     label: 'Duplicate',
     icon: 'i-lucide-copy',
     tooltip: 'Duplicate file',
+  },
+  {
+    id: StudioItemActionId.DeleteItem,
+    label: 'Delete',
+    icon: 'i-lucide-trash',
+    tooltip: 'Delete file',
   },
 ] as const
 
@@ -93,6 +93,7 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
 export function computeActionParams(action: StudioItemActionId, { item }: { item: TreeItem }): ActionHandlerParams[typeof action] {
   switch (action) {
     case StudioItemActionId.RevertItem:
+    case StudioItemActionId.DeleteItem:
       return item.id
     default:
       return {}

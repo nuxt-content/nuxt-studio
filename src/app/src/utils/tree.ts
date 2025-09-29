@@ -21,7 +21,28 @@ TreeItem[] {
   const tree: TreeItem[] = []
   const directoryMap = new Map<string, TreeItem>()
 
-  for (const dbItem of dbItems) {
+  const deletedDraftItems = draftList?.filter(draft => draft.status === DraftStatus.Deleted) || []
+
+  function addDeletedDraftItemsInDbItems(dbItems: ((BaseItem) & { fsPath: string })[], deletedItems: DraftItem[]) {
+    dbItems = [...dbItems]
+    for (const deletedItem of deletedItems) {
+      const virtualDbItems: BaseItem & { fsPath: string } = {
+        id: deletedItem.id,
+        extension: deletedItem.id.split('.').pop()!,
+        stem: '',
+        fsPath: deletedItem.fsPath,
+        path: deletedItem.original?.path,
+      }
+
+      dbItems.push(virtualDbItems)
+    }
+
+    return dbItems
+  }
+
+  const virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
+
+  for (const dbItem of virtualDbItems) {
     const itemHasPathField = 'path' in dbItem && dbItem.path
     const fsPathSegments = dbItem.fsPath.split('/')
     const directorySegments = fsPathSegments.slice(0, -1)
@@ -192,13 +213,42 @@ export function findItemFromRoute(tree: TreeItem[], route: RouteLocationNormaliz
   return null
 }
 
-export function findDescendantsFromId(tree: TreeItem[], id: string): TreeItem[] {
+export function findDescendantsFileItemsFromId(tree: TreeItem[], id: string): TreeItem[] {
   const descendants: TreeItem[] = []
-  for (const item of tree) {
-    if (item.id === id) {
-      descendants.push(item)
+
+  function traverse(items: TreeItem[]) {
+    for (const item of items) {
+      // Check if this item matches the id or is a descendant of it
+      if (item.id === id || item.id.startsWith(id + '/')) {
+        if (item.type === 'file') {
+          descendants.push(item)
+        }
+
+        // If this item has children, add all of them as descendants
+        if (item.children) {
+          getAllDescendants(item.children, descendants)
+        }
+      }
+      else if (item.children) {
+        // Continue searching in children
+        traverse(item.children)
+      }
     }
   }
+
+  function getAllDescendants(items: TreeItem[], result: TreeItem[]) {
+    for (const item of items) {
+      if (item.type === 'file') {
+        result.push(item)
+      }
+
+      if (item.children) {
+        getAllDescendants(item.children, result)
+      }
+    }
+  }
+
+  traverse(tree)
 
   return descendants
 }
@@ -208,10 +258,19 @@ function calculateDirectoryStatuses(items: TreeItem[]) {
     if (item.type === 'directory' && item.children) {
       calculateDirectoryStatuses(item.children)
 
-      for (const child of item.children) {
-        if (child.status && child.status !== DraftStatus.Opened) {
+      const childrenWithStatus = item.children.filter(child => child.status && child.status !== DraftStatus.Opened)
+
+      if (childrenWithStatus.length > 0) {
+        // Check if ALL children with status are deleted
+        const allDeleted = childrenWithStatus.every(child => child.status === DraftStatus.Deleted)
+
+        if (allDeleted && childrenWithStatus.length === item.children.length) {
+          // If all children are deleted, mark directory as deleted
+          item.status = DraftStatus.Deleted
+        }
+        else {
+          // Otherwise, mark as updated
           item.status = DraftStatus.Updated
-          break
         }
       }
     }
