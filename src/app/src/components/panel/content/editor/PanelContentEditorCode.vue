@@ -10,6 +10,11 @@ const props = defineProps({
     type: Object as PropType<DraftItem>,
     required: true,
   },
+  readOnly: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const document = defineModel<DatabasePageItem>()
@@ -37,8 +42,21 @@ onMounted(async () => {
   const monaco = await setupMonaco()
 
   // create a Monaco editor instance
-  editor.value = monaco.createEditor(editorRef.value)
+  editor.value = monaco.createEditor(editorRef.value, {
+    readOnly: props.readOnly,
+    scrollbar: props.readOnly
+      ? {
+          vertical: 'hidden',
+          horizontal: 'hidden',
+          handleMouseWheel: false,
+        }
+      : undefined,
+  })
   editor.value.onDidChangeModelContent(() => {
+    if (props.readOnly) {
+      return
+    }
+
     // Do not trigger model updates if the document id has changed
     if (currentDocumentId.value !== document.value?.id) {
       return

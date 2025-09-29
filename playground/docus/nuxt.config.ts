@@ -16,5 +16,13 @@ export default defineNuxtConfig({
       api: 'http://localhost:3000',
     },
   },
+  contentStudio: {
+    repository: {
+      owner: 'nuxt-content',
+      repo: 'studio',
+      branch: 'edit-preview',
+      rootDir: 'playground/docus',
+    },
+  },
   compatibilityDate: '2025-08-26',
 })

@@ -2,6 +2,7 @@ import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { MediaItem } from './media'
+import type { Repository } from './repository'
 
 export * from './item'
 export * from './draft'
@@ -12,6 +13,7 @@ export * from './tree'
 export * from './github'
 export * from './context'
 export * from './content'
+export * from './repository'
 
 export interface StudioHost {
   on: {
@@ -26,6 +28,7 @@ export interface StudioHost {
     collapseSidebar: () => void
     updateStyles: () => void
   }
+  repository: Repository
   document: {
     get: (id: string) => Promise<DatabaseItem>
     getFileSystemPath: (id: string) => string
@@ -52,7 +55,7 @@ export interface StudioHost {
   }
 }
 
-export type UseStudioHost = (user: StudioUser) => StudioHost
+export type UseStudioHost = () => StudioHost
 
 declare global {
   interface Window {
