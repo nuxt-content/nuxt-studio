@@ -19,43 +19,47 @@ const userMenuItems = computed(() => [
 </script>
 
 <template>
-  <UFooter class="h-var(--ui-footer-height) sticky bottom-0 bg-white">
+  <UFooter
+    class="h-var(--ui-footer-height) sticky bottom-0 bg-white"
+    :ui="{ container: 'px-2 sm:px-2 lg:px-2', right: 'gap-0' }"
+  >
     <template #left>
       <UDropdownMenu
         :portal="false"
         :items="userMenuItems"
-        :ui="{ slots: { content: 'w-full' } }"
-        placeholder="Select a content"
+        :ui="{ content: 'w-full' }"
+        size="xs"
       >
         <UButton
           color="neutral"
           variant="ghost"
-          size="xs"
-        >
-          <UAvatar
-            :src="user?.avatar"
-            size="xs"
-          />
-          <span>{{ user?.name }}</span>
-        </UButton>
+          size="sm"
+          :avatar="{ src: user?.avatar, alt: user?.name, size: '2xs' }"
+          class="px-2 font-medium"
+          :label="user?.name"
+        />
       </UDropdownMenu>
     </template>
 
     <template #right>
-      <UTooltip :text="uiConfig.syncEditorAndRoute ? 'Disable synchronization between editor and host' : 'Enable synchronization between editor and host'">
+      <UTooltip
+        :text="uiConfig.syncEditorAndRoute ? 'Unlink editor and preview' : 'Link editor and preview'"
+        :delay-duration="0"
+      >
         <UButton
           icon="i-lucide-arrow-left-right"
-          variant="link"
-          :color="uiConfig.syncEditorAndRoute ? 'success' : 'neutral'"
-          size="md"
+          variant="ghost"
+          :color="uiConfig.syncEditorAndRoute ? 'info' : 'neutral'"
+          :class="!uiConfig.syncEditorAndRoute && 'opacity-50'"
+          size="sm"
           @click="uiConfig.syncEditorAndRoute = !uiConfig.syncEditorAndRoute"
         />
       </UTooltip>
       <UButton
         icon="i-lucide-panel-left-close"
-        variant="link"
+        variant="ghost"
         color="neutral"
-        size="md"
+        size="sm"
         @click="ui.closePanels()"
       />
     </template>
