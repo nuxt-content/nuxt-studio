@@ -90,26 +90,27 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
 
   async function remove(ids: string[]) {
     for (const id of ids) {
-      const existingItem = list.value.find(item => item.id === id)
+      const existingDraftItem = list.value.find(item => item.id === id)
       const fsPath = host.document.getFileSystemPath(id)
+      const originalDbItem = await host.document.get(id)
 
       await storage.removeItem(id)
       await host.document.delete(id)
 
       let deleteDraftItem: DraftItem<DatabaseItem> | null = null
-      if (existingItem) {
-        if (existingItem.status === DraftStatus.Deleted) return
+      if (existingDraftItem) {
+        if (existingDraftItem.status === DraftStatus.Deleted) return
 
-        if (existingItem.status === DraftStatus.Created) {
+        if (existingDraftItem.status === DraftStatus.Created) {
           list.value = list.value.filter(item => item.id !== id)
         }
         else {
           deleteDraftItem = {
             id,
-            fsPath: existingItem.fsPath,
+            fsPath: existingDraftItem.fsPath,
             status: DraftStatus.Deleted,
-            original: existingItem.original,
-            githubFile: existingItem.githubFile,
+            original: existingDraftItem.original,
+            githubFile: existingDraftItem.githubFile,
           }
 
           list.value = list.value.map(item => item.id === id ? deleteDraftItem! : item)
@@ -118,13 +119,12 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       else {
       // TODO: check if gh file has been updated
         const githubFile = await git.fetchFile(fsPath, { cached: true }) as GithubFile
-        const original = await host.document.get(id)
 
         deleteDraftItem = {
           id,
           fsPath,
           status: DraftStatus.Deleted,
-          original,
+          original: originalDbItem,
           githubFile,
         }
 

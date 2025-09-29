@@ -26,22 +26,15 @@ TreeItem[] {
   function addDeletedDraftItemsInDbItems(dbItems: ((BaseItem) & { fsPath: string })[], deletedItems: DraftItem[]) {
     dbItems = [...dbItems]
     for (const deletedItem of deletedItems) {
-      const existingItem = dbItems.find(dbItem => dbItem.id === deletedItem.id)
-      if (existingItem) {
-        console.log('should not happen', deletedItem.id)
-        continue
+      const virtualDbItems: BaseItem & { fsPath: string } = {
+        id: deletedItem.id,
+        extension: deletedItem.id.split('.').pop()!,
+        stem: '',
+        fsPath: deletedItem.fsPath,
+        path: deletedItem.original?.path,
       }
-      else {
-        const virtualDbItems: BaseItem & { fsPath: string } = {
-          id: deletedItem.id,
-          extension: deletedItem.id.split('.').pop()!,
-          stem: '',
-          fsPath: deletedItem.fsPath,
-          path: deletedItem.original?.path,
-        }
 
-        dbItems.push(virtualDbItems)
-      }
+      dbItems.push(virtualDbItems)
     }
 
     return dbItems
