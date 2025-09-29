@@ -22,9 +22,34 @@ TreeItem[] {
   const directoryMap = new Map<string, TreeItem>()
 
   const deletedDraftItems = draftList?.filter(draft => draft.status === DraftStatus.Deleted) || []
-  const updatedDraftItems = draftList?.filter(draft => draft.status !== DraftStatus.Deleted) || []
 
-  for (const dbItem of dbItems) {
+  function addDeletedDraftItemsInDbItems(dbItems: ((BaseItem) & { fsPath: string })[], deletedItems: DraftItem[]) {
+    dbItems = [...dbItems]
+    for (const deletedItem of deletedItems) {
+      const existingItem = dbItems.find(dbItem => dbItem.id === deletedItem.id)
+      if (existingItem) {
+        console.log('should not happen', deletedItem.id)
+        continue
+      }
+      else {
+        const virtualDbItems: BaseItem & { fsPath: string } = {
+          id: deletedItem.id,
+          extension: deletedItem.id.split('.').pop()!,
+          stem: '',
+          fsPath: deletedItem.fsPath,
+          path: deletedItem.original?.path,
+        }
+
+        dbItems.push(virtualDbItems)
+      }
+    }
+
+    return dbItems
+  }
+
+  const virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
+
+  for (const dbItem of virtualDbItems) {
     const itemHasPathField = 'path' in dbItem && dbItem.path
     const fsPathSegments = dbItem.fsPath.split('/')
     const directorySegments = fsPathSegments.slice(0, -1)
@@ -57,7 +82,7 @@ TreeItem[] {
         fileItem.routePath = dbItem.path as string
       }
 
-      const draftFileItem = updatedDraftItems?.find(draft => draft.id === dbItem.id)
+      const draftFileItem = draftList?.find(draft => draft.id === dbItem.id)
       if (draftFileItem) {
         fileItem.status = draftFileItem.status
       }
@@ -124,7 +149,7 @@ TreeItem[] {
       type: 'file',
     }
 
-    const draftFileItem = updatedDraftItems?.find(draft => draft.id === dbItem.id)
+    const draftFileItem = draftList?.find(draft => draft.id === dbItem.id)
     if (draftFileItem) {
       fileItem.status = draftFileItem.status
     }
@@ -135,8 +160,6 @@ TreeItem[] {
 
     directoryChildren.push(fileItem)
   }
-
-  addDeletedDraftItems(tree, deletedDraftItems)
 
   calculateDirectoryStatuses(tree)
 
@@ -255,134 +278,6 @@ function calculateDirectoryStatuses(items: TreeItem[]) {
         else {
           // Otherwise, mark as updated
           item.status = DraftStatus.Updated
-        }
-      }
-    }
-  }
-}
-
-function addDeletedDraftItems(tree: TreeItem[], deletedItems: DraftItem[]) {
-  for (const deletedItem of deletedItems) {
-    const existingItem = findItemFromId(tree, deletedItem.id)
-
-    // Update existing item status to Deleted
-    if (existingItem) {
-      existingItem.status = DraftStatus.Deleted
-    }
-    // Create new deleted item
-    else {
-      const idSegments = deletedItem.id.split('/')
-      const fsPathSegments = deletedItem.fsPath.split('/')
-      const fileName = idSegments[idSegments.length - 1]
-      const fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, '')
-
-      const parentId = idSegments.slice(0, -1).join('/')
-      const parentDir = findItemFromId(tree, parentId)
-
-      // Add to existing directory
-      if (parentDir) {
-        const deletedTreeItem: TreeItem = {
-          id: deletedItem.id,
-          name: stripNumericPrefix(fileNameWithoutExtension),
-          fsPath: deletedItem.fsPath,
-          type: 'file',
-          status: DraftStatus.Deleted,
-        }
-
-        if (parentDir.routePath) {
-          deletedTreeItem.routePath = `${parentDir.routePath}/${stripNumericPrefix(fileNameWithoutExtension)}`
-        }
-
-        parentDir.children!.push(deletedTreeItem)
-      }
-      // Create parent directories chain
-      else {
-        let existingParent: TreeItem | null = null
-        let existingParentLevel = -1
-
-        // Find the deepest existing parent directory
-        for (let i = idSegments.length - 2; i >= 0; i--) {
-          const potentialParentId = idSegments.slice(0, i + 1).join('/')
-          const potentialParent = findItemFromId(tree, potentialParentId)
-          if (potentialParent && potentialParent.type === 'directory') {
-            existingParent = potentialParent
-            existingParentLevel = i
-            break
-          }
-        }
-
-        // If we found an existing ancestor, create parent directories chain
-        if (existingParent) {
-          let currentParent = existingParent
-          let currentChildren = existingParent.children!
-
-          const idFsPathOffset = idSegments.length - fsPathSegments.length
-
-          // Create missing intermediate directories
-          for (let i = existingParentLevel + 1; i < idSegments.length - 1; i++) {
-            const dirId = idSegments.slice(0, i + 1).join('/')
-            const fsPathIndex = i - idFsPathOffset
-
-            const dirFsPath = fsPathIndex >= 0
-              ? fsPathSegments.slice(0, fsPathIndex + 1).join('/')
-              : ''
-            const dirName = fsPathIndex >= 0
-              ? stripNumericPrefix(fsPathSegments[fsPathIndex])
-              : stripNumericPrefix(idSegments[i])
-
-            const newDir: TreeItem = {
-              id: dirId,
-              name: dirName,
-              fsPath: dirFsPath,
-              type: 'directory',
-              status: DraftStatus.Deleted,
-              children: [],
-            }
-
-            if (currentParent.routePath) {
-              newDir.routePath = `${currentParent.routePath}/${dirName}`
-            }
-
-            currentChildren.push(newDir)
-            currentParent = newDir
-            currentChildren = newDir.children!
-          }
-
-          // Create the deleted file in the last directory
-          const deletedTreeItem: TreeItem = {
-            id: deletedItem.id,
-            name: stripNumericPrefix(fileNameWithoutExtension),
-            fsPath: deletedItem.fsPath,
-            type: 'file',
-            status: DraftStatus.Deleted,
-          }
-
-          if (currentParent.routePath) {
-            deletedTreeItem.routePath = `${currentParent.routePath}/${stripNumericPrefix(fileNameWithoutExtension)}`
-          }
-
-          currentChildren.push(deletedTreeItem)
-        }
-        // No existing parent found - create at root level
-        else {
-          const parentFsPath = deletedItem.fsPath.split('/').slice(0, -1).join('/')
-
-          const newDir: TreeItem = {
-            id: parentId,
-            name: stripNumericPrefix(parentFsPath.split('/').pop()!),
-            fsPath: parentFsPath,
-            type: 'directory',
-            status: DraftStatus.Deleted,
-            children: [{
-              id: deletedItem.id,
-              name: stripNumericPrefix(fileNameWithoutExtension),
-              fsPath: deletedItem.fsPath,
-              type: 'file',
-              status: DraftStatus.Deleted,
-            }],
-          }
-
-          tree.push(newDir)
         }
       }
     }

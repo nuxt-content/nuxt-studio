@@ -37,16 +37,16 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
     tooltip: 'Rename file',
   },
   {
-    id: StudioItemActionId.DeleteItem,
-    label: 'Delete',
-    icon: 'i-lucide-trash',
-    tooltip: 'Delete file',
-  },
-  {
     id: StudioItemActionId.DuplicateItem,
     label: 'Duplicate',
     icon: 'i-lucide-copy',
     tooltip: 'Duplicate file',
+  },
+  {
+    id: StudioItemActionId.DeleteItem,
+    label: 'Delete',
+    icon: 'i-lucide-trash',
+    tooltip: 'Delete file',
   },
 ] as const
 

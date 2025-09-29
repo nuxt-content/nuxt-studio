@@ -6,6 +6,7 @@ import { dbItemsList, nestedDbItemsList } from '../mocks/database'
 import type { DraftItem } from '../../src/types/draft'
 import { DraftStatus } from '../../src/types/draft'
 import type { RouteLocationNormalized } from 'vue-router'
+import type { DatabaseItem } from '../../src/types/database'
 
 describe('buildTree with one level of depth', () => {
   // Result based on dbItemsList mock
@@ -63,11 +64,14 @@ describe('buildTree with one level of depth', () => {
       ...result.slice(1)])
   })
 
-  it('Db items list with DELETED non existing file in existing directory in draft (directory status is set)', () => {
+  it('Db items list with DELETED non existing file in existing directory in draft', () => {
     const draftList: DraftItem[] = [{
       id: 'docs/1.getting-started/2.deleted.md',
       fsPath: '1.getting-started/2.deleted.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/getting-started/deleted',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(dbItemsList, draftList)
@@ -97,6 +101,9 @@ describe('buildTree with one level of depth', () => {
       id: 'docs/1.deleted-directory/2.deleted-file.md',
       fsPath: '1.deleted-directory/2.deleted-file.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/deleted-directory/deleted-file',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(dbItemsList, draftList)
@@ -107,6 +114,7 @@ describe('buildTree with one level of depth', () => {
         id: 'docs/1.deleted-directory',
         name: 'deleted-directory',
         fsPath: '1.deleted-directory',
+        routePath: '/deleted-directory',
         type: 'directory',
         status: DraftStatus.Deleted,
         children: [
@@ -114,6 +122,7 @@ describe('buildTree with one level of depth', () => {
             id: 'docs/1.deleted-directory/2.deleted-file.md',
             name: 'deleted-file',
             fsPath: '1.deleted-directory/2.deleted-file.md',
+            routePath: '/deleted-directory/deleted-file',
             type: 'file',
             status: DraftStatus.Deleted,
           },
@@ -127,10 +136,16 @@ describe('buildTree with one level of depth', () => {
       id: dbItemsList[1].id,
       fsPath: '1.getting-started/2.introduction.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/getting-started/introduction',
+      } as DatabaseItem,
     }, {
       id: dbItemsList[2].id,
       fsPath: '1.getting-started/3.installation.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/getting-started/installation',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(dbItemsList, draftList)
@@ -152,9 +167,6 @@ describe('buildTree with one level of depth', () => {
         ],
       },
     ])
-  })
-
-  it('Db items list with all DELETED existing files non in existing directory in draft (directory status is set to DELETED)', () => {
   })
 
   it('Db items list with UPDATED file in existing directory in draft (directory status is set)', () => {
@@ -335,6 +347,9 @@ describe('buildTree with two levels of depth', () => {
       id: nestedDbItemsList[0].id,
       fsPath: '1.essentials/2.configuration.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/essentials/configuration',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(nestedDbItemsList, draftList)
@@ -357,6 +372,9 @@ describe('buildTree with two levels of depth', () => {
       id: nestedDbItemsList[1].id,
       fsPath: '1.essentials/1.nested/2.advanced.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/essentials/nested/advanced',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(nestedDbItemsList, draftList)
@@ -385,6 +403,9 @@ describe('buildTree with two levels of depth', () => {
       id: 'docs/1.essentials/1.deleted.md',
       fsPath: '1.essentials/1.deleted.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/essentials/deleted',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(nestedDbItemsList, draftList)
@@ -412,6 +433,9 @@ describe('buildTree with two levels of depth', () => {
       id: 'docs/1.essentials/1.nested/1.deleted.md',
       fsPath: '1.essentials/1.nested/1.deleted.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/essentials/nested/deleted',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(nestedDbItemsList, draftList)
@@ -445,6 +469,9 @@ describe('buildTree with two levels of depth', () => {
       id: 'docs/1.essentials/1.deleted/1.deleted.md',
       fsPath: '1.essentials/1.deleted/1.deleted.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/essentials/deleted/deleted',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(nestedDbItemsList, draftList)
@@ -482,6 +509,9 @@ describe('buildTree with two levels of depth', () => {
       id: 'docs/1.essentials/1.deep/2.deeper/3.deepest/1.file.md',
       fsPath: '1.essentials/1.deep/2.deeper/3.deepest/1.file.md',
       status: DraftStatus.Deleted,
+      original: {
+        path: '/essentials/deep/deeper/deepest/file',
+      } as DatabaseItem,
     }]
 
     const tree = buildTree(nestedDbItemsList, draftList)
