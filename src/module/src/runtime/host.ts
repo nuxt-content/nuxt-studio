@@ -11,6 +11,7 @@ import { generateDocumentFromContent } from './utils/content'
 import { queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
 import { collections } from '#content/preview'
 import { publicAssetsStorage } from '#build/content-studio-public-assets'
+import { useHostMeta } from './composables/useMeta'
 
 function getSidebarWidth(): number {
   let sidebarWidth = 440
@@ -57,6 +58,7 @@ function getHostStyles(): Record<string, Record<string, string>> & { css?: strin
 export function useStudioHost(user: StudioUser): StudioHost {
   const isMounted = ref(false)
   let localDatabaseAdapter: ContentDatabaseAdapter | null = null
+  const meta = useHostMeta()
 
   function useNuxtApp() {
     return window.useNuxtApp!()
@@ -91,6 +93,9 @@ export function useStudioHost(user: StudioUser): StudioHost {
   }
 
   const host: StudioHost = {
+    meta: {
+      components: () => meta.componentsMeta.value,
+    },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
         const router = useRouter()
@@ -264,6 +269,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/sw.js')
         }
+        return meta.fetch()
       })
   })()
 
