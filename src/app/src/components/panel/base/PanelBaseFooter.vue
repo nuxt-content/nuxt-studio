@@ -16,7 +16,7 @@ const repositoryUrl = computed(() => {
 })
 
 const userMenuItems = computed(() => [
-[{
+  [{
     label: 'Open Repository',
     icon: 'i-lucide-github',
     onClick: () => {
@@ -29,7 +29,7 @@ const userMenuItems = computed(() => [
     onClick: () => {
       alert('TODO: delete cookie manually')
     },
-  }]
+  }],
 ])
 </script>
 

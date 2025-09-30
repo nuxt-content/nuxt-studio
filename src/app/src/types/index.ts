@@ -2,7 +2,7 @@ import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { MediaItem } from './media'
-import type { Repository } from './repository'
+import type { Repository } from './git'
 
 export * from './item'
 export * from './draft'
@@ -13,7 +13,6 @@ export * from './tree'
 export * from './git'
 export * from './context'
 export * from './content'
-export * from './repository'
 
 export interface StudioHost {
   on: {

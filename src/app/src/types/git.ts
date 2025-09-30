@@ -1,4 +1,12 @@
-import { DraftStatus } from "./draft"
+import type { DraftStatus } from './draft'
+
+export interface Repository {
+  provider: 'github'
+  owner: string
+  repo: string
+  branch: string
+  rootDir: string
+}
 
 export interface GitOptions {
   owner: string
@@ -16,7 +24,6 @@ export interface RawFile {
   status: DraftStatus
   encoding?: 'utf-8' | 'base64'
 }
-
 
 // GITHUB
 export interface GithubFile {

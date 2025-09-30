@@ -16,6 +16,7 @@ export default defineNuxtConfig({
       api: 'http://localhost:3000',
     },
   },
+  compatibilityDate: '2025-08-26',
   contentStudio: {
     repository: {
       owner: 'nuxt-content',
@@ -24,5 +25,4 @@ export default defineNuxtConfig({
       rootDir: 'playground/docus',
     },
   },
-  compatibilityDate: '2025-08-26',
 })
