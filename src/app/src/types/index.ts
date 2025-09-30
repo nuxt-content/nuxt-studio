@@ -3,6 +3,7 @@ import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { MediaItem } from './media'
 import type { Repository } from './git'
+import type { ComponentMeta } from './components'
 
 export * from './item'
 export * from './draft'
@@ -13,8 +14,12 @@ export * from './tree'
 export * from './git'
 export * from './context'
 export * from './content'
+export * from './components'
 
 export interface StudioHost {
+  meta: {
+    components: () => ComponentMeta[]
+  }
   on: {
     routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void
     mounted: (fn: () => void) => void

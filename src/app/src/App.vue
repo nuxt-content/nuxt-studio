@@ -23,7 +23,7 @@ function detectActiveDocuments() {
   })
 }
 
-async function onContentSelect(id: string) {
+async function editContentFile(id: string) {
   await documentTree.selectItemById(id)
   ui.openPanel(StudioFeature.Content)
 }
@@ -59,19 +59,20 @@ host.on.mounted(() => {
       >
         <UButton
           icon="i-lucide-panel-left-open"
-          size="lg"
-          color="primary"
-          class="shadow-lg"
+          size="sm"
+          color="neutral"
+          class="shadow"
           @click="ui.panels.content = true"
         />
         <UButton
           v-if="activeDocuments.length === 1"
-          icon="i-lucide-file-text"
-          size="lg"
+          icon="i-lucide-pen"
+          size="sm"
+          color="neutral"
           variant="outline"
-          label="Edit This Page"
-          class="shadow-lg bg-white hover:bg-gray-100"
-          @click="onContentSelect(activeDocuments[0].id)"
+          label="Edit this page"
+          class="shadow"
+          @click="editContentFile(activeDocuments[0].id)"
         />
       </div>
     </UApp>
