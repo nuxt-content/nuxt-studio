@@ -2,7 +2,8 @@ import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { MediaItem } from './media'
-import { ComponentMeta } from './components'
+import type { Repository } from './git'
+import type { ComponentMeta } from './components'
 
 export * from './item'
 export * from './draft'
@@ -10,7 +11,7 @@ export * from './database'
 export * from './media'
 export * from './user'
 export * from './tree'
-export * from './github'
+export * from './git'
 export * from './context'
 export * from './content'
 export * from './components'
@@ -31,6 +32,7 @@ export interface StudioHost {
     collapseSidebar: () => void
     updateStyles: () => void
   }
+  repository: Repository
   document: {
     get: (id: string) => Promise<DatabaseItem>
     getFileSystemPath: (id: string) => string

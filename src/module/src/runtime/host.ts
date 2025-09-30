@@ -4,7 +4,7 @@ import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
 import { kebabCase } from 'lodash'
-import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem, MediaItem } from 'nuxt-studio/app'
+import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
 import { generateDocumentFromContent } from './utils/content'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
@@ -55,7 +55,7 @@ function getHostStyles(): Record<string, Record<string, string>> & { css?: strin
   }
 }
 
-export function useStudioHost(user: StudioUser): StudioHost {
+export function useStudioHost(user: StudioUser, repository: Repository): StudioHost {
   const isMounted = ref(false)
   let localDatabaseAdapter: ContentDatabaseAdapter | null = null
   const meta = useHostMeta()
@@ -144,6 +144,7 @@ export function useStudioHost(user: StudioUser): StudioHost {
         styleElement.textContent = styles
       },
     },
+    repository,
     // New API
     user: {
       get: () => user,

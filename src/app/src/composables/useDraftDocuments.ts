@@ -1,17 +1,18 @@
 import { createStorage } from 'unstorage'
 import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { ref } from 'vue'
-import type { DatabaseItem, DraftItem, StudioHost, GithubFile, DatabasePageItem } from '../types'
+import type { DatabaseItem, DraftItem, StudioHost, GithubFile, DatabasePageItem, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
 import { generateContentFromDocument } from '../utils/content'
 import { getDraftStatus, findDescendantsFromId } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
+import { joinURL } from 'ufo'
 
 const storage = createStorage({
   driver: indexedDbDriver({
-    dbName: 'nuxt-content-studio-document',
+    dbName: 'content-studio-document',
     storeName: 'drafts',
   }),
 })
@@ -40,7 +41,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     }
 
     const fsPath = host.document.getFileSystemPath(document.id)
-    const githubFile = await git.fetchFile(fsPath, { cached: true }) as GithubFile
+    const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
 
     const item: DraftItem<DatabaseItem> = {
       id: document.id,
@@ -118,7 +119,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       }
       else {
       // TODO: check if gh file has been updated
-        const githubFile = await git.fetchFile(fsPath, { cached: true }) as GithubFile
+        const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
 
         deleteDraftItem = {
           id,
@@ -236,6 +237,21 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     select(draftItem)
   }
 
+  async function generateRawFiles(): Promise<RawFile[]> {
+    const files = [] as RawFile[]
+    for (const draftItem of list.value) {
+      if (draftItem.status === DraftStatus.Deleted) {
+        files.push({ path: joinURL('content', draftItem.fsPath), content: null, status: draftItem.status, encoding: 'utf-8' })
+        continue
+      }
+
+      const content = await generateContentFromDocument(draftItem.modified!)
+      files.push({ path: joinURL('content', draftItem.fsPath), content: content!, status: draftItem.status, encoding: 'utf-8' })
+    }
+
+    return files
+  }
+
   return {
     get,
     create,
@@ -248,5 +264,6 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     current,
     select,
     selectById,
+    generateRawFiles,
   }
 })
