@@ -17,11 +17,10 @@ const repositoryUrl = computed(() => {
 
 const userMenuItems = computed(() => [
   [{
-    label: 'Open Repository',
-    icon: 'i-lucide-github',
-    onClick: () => {
-      window.open(repositoryUrl.value, '_blank')
-    },
+    label: `${host.repository.owner}/${host.repository.repo}`,
+    icon: 'i-simple-icons:github',
+    to: repositoryUrl.value,
+    target: '_blank',
   }],
   [{
     label: 'Sign out',
@@ -43,7 +42,6 @@ const userMenuItems = computed(() => [
       :portal="false"
       :items="userMenuItems"
       :ui="{ content: 'w-full' }"
-      size="xs"
     >
       <UButton
         color="neutral"

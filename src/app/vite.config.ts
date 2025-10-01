@@ -41,17 +41,7 @@ export default defineConfig({
           slots: {
             link: 'cursor-pointer',
           },
-        },
-        button: {
-          variants: {
-            size: {
-              xs: {
-                leadingIcon: 'size-3',
-                trailingIcon: 'size-3',
-              },
-            },
-          },
-        },
+        }
       },
     }),
     libCss(),

@@ -64,6 +64,7 @@
   },
   "packageManager": "pnpm@10.17.1",
   "dependencies": {
+    "@iconify-json/simple-icons": "^1.2.53",
     "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@61af819",
     "@nuxtlabs/monarch-mdc": "^0.8.1",
     "@unhead/vue": "^2.0.17",
