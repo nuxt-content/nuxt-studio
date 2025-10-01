@@ -1,12 +1,7 @@
-import { type StudioAction, StudioFeature, type TreeItem } from '../types'
+import { type StudioAction, type TreeItem } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { ActionHandlerParams } from '../types/context'
 import { StudioItemActionId } from '../types/context'
-
-export const FEATURE_DISPLAY_MAP = {
-  [StudioFeature.Content]: '/',
-  [StudioFeature.Media]: '/',
-} as const
 
 export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
 export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder, StudioItemActionId.RenameItem]
