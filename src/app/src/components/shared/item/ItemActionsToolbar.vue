@@ -12,7 +12,7 @@ const actions = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center">
+  <div class="flex items-center -mr-1">
     <UTooltip
       v-for="action in actions"
       :key="action.id"
