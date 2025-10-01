@@ -19,7 +19,8 @@ export async function defineStudioActivationPlugin(onStudioActivation: (user: St
   }
   else if (mounted) {
     window.location.reload()
-  } else {
+  }
+  else {
     // Listen to CMD + . to toggle the studio or redirect to the login page
     document.addEventListener('keydown', (event) => {
       if (event.metaKey && event.key === '.') {

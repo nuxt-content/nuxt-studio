@@ -18,8 +18,8 @@ export default defineConfig({
     ui({
       theme: {
         defaultVariants: {
-          size: 'sm'
-        }
+          size: 'sm',
+        },
       },
       ui: {
         colors: {

@@ -93,7 +93,8 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     hooks.hook('studio:draft:document:updated', async () => {
       await handleDraftUpdate()
     })
-  } else {
+  }
+  else {
     hooks.hook('studio:draft:media:updated', async () => {
       await handleDraftUpdate()
     })
@@ -109,6 +110,6 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     selectItemById,
     selectParentById,
     type,
-    draft
+    draft,
   }
 }

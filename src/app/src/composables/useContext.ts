@@ -1,12 +1,12 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { type UploadMediaParams, type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId, type ActionHandlerParams, StudioFeature } from '../types'
+import { type UploadMediaParams, type CreateFileParams, type StudioHost, type StudioAction, type TreeItem, StudioItemActionId, type ActionHandlerParams } from '../types'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
 import { useModal } from './useModal'
 import type { useTree } from './useTree'
 import { useRoute } from 'vue-router'
 import { findDescendantsFileItemsFromId } from '../utils/tree'
-import { useDraftMedias } from './useDraftMedias'
+import type { useDraftMedias } from './useDraftMedias'
 
 export const useContext = createSharedComposable((
   host: StudioHost,

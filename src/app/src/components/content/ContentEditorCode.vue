@@ -99,7 +99,9 @@ function setContent(document: DatabasePageItem) {
       const position = editor.value.getPosition()
       editor.value.getModel()?.setValue(md || '')
       // Restore the cursor position
-      position && editor.value.setPosition(position)
+      if (position) {
+        editor.value.setPosition(position)
+      }
     }
 
     currentDocumentId.value = document.id

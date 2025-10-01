@@ -48,7 +48,6 @@ export const useStudio = createSharedComposable(() => {
     })
   })
 
-
   return {
     isReady,
     host,

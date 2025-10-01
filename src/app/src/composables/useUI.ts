@@ -18,13 +18,12 @@ export const useUI = createSharedComposable((host: StudioHost) => {
     }
   })
 
-
   return {
     config,
     sidebar,
     isOpen,
     currentPanel,
-    open(panel?: StudioFeature){
+    open(panel?: StudioFeature) {
       currentPanel.value = panel || currentPanel.value || StudioFeature.Content
       isOpen.value = true
     },
