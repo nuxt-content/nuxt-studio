@@ -6,9 +6,24 @@ const { ui, host } = useStudio()
 
 const uiConfig = ui.config
 const user = host.user.get()
+const repositoryUrl = computed(() => {
+  switch (host.repository.provider) {
+    case 'github':
+      return `https://github.com/${host.repository.owner}/${host.repository.repo}/tree/${host.repository.branch}`
+    default:
+      return ''
+  }
+})
 
 const userMenuItems = computed(() => [
-  {
+  [{
+    label: 'Open Repository',
+    icon: 'i-lucide-github',
+    onClick: () => {
+      window.open(repositoryUrl.value, '_blank')
+    },
+  }],
+  [{
     label: 'Sign out',
     icon: 'i-lucide-log-out',
     onClick: () => {
@@ -16,7 +31,7 @@ const userMenuItems = computed(() => [
         document.location.reload()
       })
     },
-  },
+  }],
 ])
 </script>
 
