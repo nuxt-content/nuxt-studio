@@ -54,7 +54,10 @@ router.beforeEach((to, from) => {
 
 <template>
   <div :class="ui.colorMode.value">
-    <UApp :toaster="{ portal: false }">
+    <UApp
+      :toaster="{ portal: false }"
+      :modal="{ portal: false }"
+    >
       <AppLayout :open="ui.isOpen.value">
         <RouterView v-slot="{ Component }">
           <Transition
