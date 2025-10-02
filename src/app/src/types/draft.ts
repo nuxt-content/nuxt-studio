@@ -6,7 +6,7 @@ export enum DraftStatus {
   Deleted = 'deleted',
   Created = 'created',
   Updated = 'updated',
-  Opened = 'opened',
+  Pristine = 'pristine',
 }
 
 export interface DraftItem<T = DatabaseItem | MediaItem> {

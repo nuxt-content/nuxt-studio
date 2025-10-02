@@ -33,33 +33,6 @@ export const COLOR_UI_STATUS_MAP: { [key in TreeStatus]?: string } = {
   [TreeStatus.Opened]: 'neutral',
 } as const
 
-export function getTreeStatus(modified: BaseItem, original: BaseItem | undefined): TreeStatus {
-  if (!original) {
-    return TreeStatus.Created
-  }
-
-  if (!modified) {
-    return TreeStatus.Deleted
-  }
-
-  if (modified.id !== original.id) {
-    return TreeStatus.Renamed
-  }
-
-  if (original.extension === ContentFileExtension.Markdown) {
-    if (!isEqual(original as DatabasePageItem, modified as DatabasePageItem)) {
-      return TreeStatus.Updated
-    }
-  }
-  else {
-    if (JSON.stringify(original) !== JSON.stringify(modified)) {
-      return TreeStatus.Updated
-    }
-  }
-
-  return TreeStatus.Opened
-}
-
 export function buildTree(dbItems: ((BaseItem) & { fsPath: string })[], draftList: DraftItem[] | null):
 TreeItem[] {
   const tree: TreeItem[] = []
@@ -209,6 +182,37 @@ TreeItem[] {
   calculateDirectoryStatuses(tree)
 
   return tree
+}
+
+export function getTreeStatus(modified?: BaseItem, original?: BaseItem): TreeStatus {
+  if (!original && !modified) {
+    throw new Error('Unconsistent state: both modified and original are undefined')
+  }
+
+  if (!original) {
+    return TreeStatus.Created
+  }
+
+  if (!modified) {
+    return TreeStatus.Deleted
+  }
+
+  if (modified.id !== original.id) {
+    return TreeStatus.Renamed
+  }
+
+  if (original.extension === ContentFileExtension.Markdown) {
+    if (!isEqual(original as DatabasePageItem, modified as DatabasePageItem)) {
+      return TreeStatus.Updated
+    }
+  }
+  else {
+    if (JSON.stringify(original) !== JSON.stringify(modified)) {
+      return TreeStatus.Updated
+    }
+  }
+
+  return TreeStatus.Opened
 }
 
 export function findItemFromId(tree: TreeItem[], id: string): TreeItem | null {

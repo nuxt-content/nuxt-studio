@@ -5,7 +5,7 @@ import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, GithubFile, MediaItem, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
-import { getUpdatedDraftStatus } from '../utils/draft'
+import { getDraftStatus } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 
@@ -27,8 +27,8 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     return item
   }
 
-  async function create(media: MediaItem, status: DraftStatus = DraftStatus.Created) {
-    const existingItem = list.value.find(item => item.id === media.id)
+  async function create(media: MediaItem) {
+    const existingItem = list.value.find(item => item.id === media.id) as DraftItem<MediaItem>
     if (existingItem) {
       throw new Error(`Draft file already exists for document ${media.id}`)
     }
@@ -41,7 +41,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
       fsPath,
       original: media,
       githubFile,
-      status,
+      status: getDraftStatus(media),
       modified: media,
     }
 
@@ -61,7 +61,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     }
 
     const oldStatus = existingItem.status
-    existingItem.status = getUpdatedDraftStatus(media, existingItem.original)
+    existingItem.status = getDraftStatus(media, existingItem.original)
     existingItem.modified = media
 
     await storage.setItem(id, existingItem)
@@ -129,7 +129,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     }
     else {
       await host.media.upsert(id, existingItem.original!)
-      existingItem.status = DraftStatus.Opened
+      existingItem.status = getDraftStatus(existingItem.original!, existingItem.original)
       existingItem.modified = existingItem.original
       await storage.setItem(id, existingItem)
     }
@@ -211,7 +211,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     const storedList = await storage.getKeys().then(async (keys) => {
       return Promise.all(keys.map(async (key) => {
         const item = await storage.getItem(key) as DraftItem
-        if (item.status === DraftStatus.Opened) {
+        if (item.status === DraftStatus.Pristine) {
           await storage.removeItem(key)
           return null
         }
@@ -252,7 +252,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
       throw new Error(`Cannot select item: no corresponding database entry found for id ${id}`)
     }
 
-    const draftItem = await create(dbItem, DraftStatus.Opened)
+    const draftItem = await create(dbItem)
     select(draftItem)
   }
 

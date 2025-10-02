@@ -3,8 +3,16 @@ import { DraftStatus } from '../types'
 import { ROOT_ITEM } from './tree'
 import { isEqual } from './database'
 
-export function getUpdatedDraftStatus(modified: BaseItem, original: BaseItem | undefined): DraftStatus {
-  if (!original) {
+export function getDraftStatus(modified?: BaseItem, original?: BaseItem): DraftStatus {
+  if (!modified && !original) {
+    throw new Error('Unconsistent state: both modified and original are undefined')
+  }
+
+  if (!modified) {
+    return DraftStatus.Deleted
+  }
+
+  if (!original || original.id !== modified.id) {
     return DraftStatus.Created
   }
 
@@ -19,7 +27,7 @@ export function getUpdatedDraftStatus(modified: BaseItem, original: BaseItem | u
     }
   }
 
-  return DraftStatus.Opened
+  return DraftStatus.Pristine
 }
 
 export function findDescendantsFromId(list: DraftItem[], id: string): DraftItem[] {
