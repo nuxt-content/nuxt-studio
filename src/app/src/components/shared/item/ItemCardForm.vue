@@ -3,7 +3,7 @@ import { computed, reactive, type PropType } from 'vue'
 import { Image } from '@unpic/vue'
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { type StudioAction, type TreeItem, ContentFileExtension } from '../../../types'
+import { type CreateFileParams, type CreateFolderParams, type RenameFileParams, type StudioAction, type TreeItem, ContentFileExtension } from '../../../types'
 import { joinURL, withLeadingSlash } from 'ufo'
 import { contentFileExtensions } from '../../../utils/content'
 import { useStudio } from '../../../composables/useStudio'
@@ -14,14 +14,21 @@ const { context } = useStudio()
 
 const props = defineProps({
   actionId: {
-    type: String as PropType<StudioItemActionId>,
+    type: String as PropType<StudioItemActionId.CreateDocument | StudioItemActionId.CreateFolder | StudioItemActionId.RenameItem>,
     required: true,
   },
   parentItem: {
     type: Object as PropType<TreeItem>,
     required: true,
   },
+  renamedItem: {
+    type: Object as PropType<TreeItem>,
+    default: null,
+  },
 })
+
+const originalName = computed(() => props.renamedItem?.name || '')
+const originalExtension = computed(() => props.renamedItem?.id.split('.').pop() as ContentFileExtension || ContentFileExtension.Markdown)
 
 const schema = z.object({
   name: z.string()
@@ -33,8 +40,8 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 const state = reactive<Schema>({
-  name: '',
-  extension: ContentFileExtension.Markdown,
+  name: originalName.value,
+  extension: originalExtension.value,
 })
 
 const action = computed<StudioAction>(() => {
@@ -69,11 +76,29 @@ const tooltipText = computed(() => {
 function onSubmit(_event: FormSubmitEvent<Schema>) {
   const fsPath = joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`)
 
-  action.value.handler!({
-    routePath: routePath.value,
-    fsPath,
-    content: `New ${state.name} file`,
-  })
+  let params: CreateFileParams | CreateFolderParams | RenameFileParams
+  switch (props.actionId) {
+    case StudioItemActionId.CreateDocument:
+      params = {
+        routePath: routePath.value,
+        fsPath,
+        content: `New ${state.name} file`,
+      }
+      break
+    case StudioItemActionId.CreateFolder:
+      params = {
+        fsPath,
+      }
+      break
+    case StudioItemActionId.RenameItem:
+      params = {
+        id: props.renamedItem.id,
+        newFsPath: joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`),
+      }
+      break
+  }
+
+  action.value.handler!(params)
 }
 </script>
 

@@ -151,8 +151,6 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
   } as unknown as DatabaseItem
 }
 
-// MARK: - Generate Content
-
 export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
   const [id, _hash] = document.id.split('#')
   const extension = id!.split('.').pop()

@@ -5,7 +5,7 @@ import { useStudio } from '../../../composables/useStudio'
 
 const { context } = useStudio()
 
-const item = computed(() => context.featureTree.value.currentItem.value)
+const item = computed(() => context.activeTree.value.currentItem.value)
 const actions = computed(() => {
   return computeActionItems(context.itemActions.value, item.value)
 })
@@ -24,7 +24,7 @@ const actions = computed(() => {
         size="sm"
         color="neutral"
         variant="ghost"
-        @click="action.handler!(item.id)"
+        @click="action.handler!(item)"
       />
     </UTooltip>
   </div>

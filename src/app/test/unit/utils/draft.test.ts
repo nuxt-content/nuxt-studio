@@ -1,50 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import type { DatabaseItem } from '../../src/types/database'
-import { getDraftStatus, findDescendantsFromId } from '../../src/utils/draft'
-import { DraftStatus } from '../../src/types/draft'
-import { dbItemsList } from '../mocks/database'
-import { draftItemsList } from '../mocks/draft'
-import { ROOT_ITEM } from '../../src/utils/tree'
-
-describe('getDraftStatus', () => {
-  it('draft is CREATED if originalDatabaseItem is not defined', () => {
-    const originalDatabaseItem: DatabaseItem = undefined as never
-    const draft: DatabaseItem = {
-      id: 'landing/index.md',
-      title: 'Home',
-      body: {
-        type: 'minimark',
-        value: [],
-      },
-      description: 'Home page',
-      extension: 'md',
-      stem: 'index',
-      meta: {},
-    }
-
-    const status = getDraftStatus(draft, originalDatabaseItem)
-    expect(status).toBe(DraftStatus.Created)
-  })
-
-  it('draft is OPENED if originalDatabaseItem is defined and is the same as draftedDocument', () => {
-    const originalDatabaseItem: DatabaseItem = dbItemsList[0]
-    const draft: DatabaseItem = originalDatabaseItem
-
-    const status = getDraftStatus(draft, originalDatabaseItem)
-    expect(status).toBe(DraftStatus.Opened)
-  })
-
-  it('draft is UPDATED if originalDatabaseItem is defined and is different from draftedDocument', () => {
-    const originalDatabaseItem: DatabaseItem = dbItemsList[0]
-    const draft: DatabaseItem = {
-      ...originalDatabaseItem,
-      title: 'New title',
-    }
-
-    const status = getDraftStatus(draft, originalDatabaseItem)
-    expect(status).toBe(DraftStatus.Updated)
-  })
-})
+import { findDescendantsFromId, getDraftStatus } from '../../../src/utils/draft'
+import { draftItemsList } from '../../../test/mocks/draft'
+import { dbItemsList } from '../../../test/mocks/database'
+import { ROOT_ITEM } from '../../../src/utils/tree'
+import { DraftStatus } from '../../../src/types'
 
 describe('findDescendantsFromId', () => {
   it('returns exact match for a root level file', () => {
@@ -91,5 +50,45 @@ describe('findDescendantsFromId', () => {
 
     expect(descendants).toHaveLength(1)
     expect(descendants[0].id).toBe('docs/1.getting-started/1.advanced/1.studio.md')
+  })
+})
+
+describe('getDraftStatus', () => {
+  it('returns Deleted status when modified item is undefined', () => {
+    const original = dbItemsList[0] // landing/index.md
+
+    expect(getDraftStatus(undefined, original)).toBe(DraftStatus.Deleted)
+  })
+
+  it('returns Created status when original is undefined', () => {
+    const modified = dbItemsList[1] // docs/1.getting-started/2.introduction.md
+
+    expect(getDraftStatus(modified, undefined)).toBe(DraftStatus.Created)
+  })
+
+  it('returns Created status when original has different id', () => {
+    const original = dbItemsList[0] // landing/index.md
+    const modified = dbItemsList[1] // docs/1.getting-started/2.introduction.md
+
+    expect(getDraftStatus(modified, original)).toBe(DraftStatus.Created)
+  })
+
+  it('returns Updated status when markdown content is different', () => {
+    const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
+    const modified = {
+      ...original,
+      body: {
+        type: 'minimark',
+        value: ['text', 'Modified'],
+      },
+    }
+
+    expect(getDraftStatus(modified, original)).toBe(DraftStatus.Updated)
+  })
+
+  it('returns Pristine status when markdown content is identical', () => {
+    const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
+
+    expect(getDraftStatus(original, original)).toBe(DraftStatus.Pristine)
   })
 })

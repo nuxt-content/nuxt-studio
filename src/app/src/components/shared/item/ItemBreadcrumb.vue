@@ -2,22 +2,21 @@
 import type { BreadcrumbItem } from '@nuxt/ui/components/Breadcrumb.vue.d.ts'
 import type { DropdownMenuItem } from '@nuxt/ui/components/DropdownMenu.vue.d.ts'
 import { computed, unref } from 'vue'
-import type { TreeItem } from '../../../types'
+import { type TreeItem, TreeStatus } from '../../../types'
 import { useStudio } from '../../../composables/useStudio'
 import { findParentFromId, ROOT_ITEM } from '../../../utils/tree'
-import { DraftStatus } from '../../../types/draft'
 
 const { context } = useStudio()
 
-const currentItem = computed(() => context.featureTree.value.currentItem.value)
-const tree = computed(() => context.featureTree.value.root.value)
+const currentItem = computed(() => context.activeTree.value.currentItem.value)
+const tree = computed(() => context.activeTree.value.root.value)
 
 const items = computed<BreadcrumbItem[]>(() => {
   const rootItem = {
     icon: 'i-lucide-folder-git',
     onClick: () => {
       // TODO: update for ROOT_DOCUMENT_ITEM and ROOT_MEDIA_ITEM
-      context.featureTree.value.select(ROOT_ITEM)
+      context.activeTree.value.select(ROOT_ITEM)
     },
   }
 
@@ -33,7 +32,7 @@ const items = computed<BreadcrumbItem[]>(() => {
     breadcrumbItems.unshift({
       label: currentTreeItem.name,
       onClick: async () => {
-        await context.featureTree.value.select(itemToSelect)
+        await context.activeTree.value.select(itemToSelect)
       },
     })
 
@@ -87,7 +86,7 @@ const items = computed<BreadcrumbItem[]>(() => {
       </template>
     </UBreadcrumb>
     <ItemBadge
-      v-if="currentItem.status && currentItem.status !== DraftStatus.Opened"
+      v-if="currentItem.status && currentItem.status !== TreeStatus.Opened"
       :status="currentItem.status"
     />
   </div>

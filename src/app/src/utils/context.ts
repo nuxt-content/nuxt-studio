@@ -1,7 +1,4 @@
-import { type StudioAction, type TreeItem } from '../types'
-import { DraftStatus } from '../types/draft'
-import type { ActionHandlerParams } from '../types/context'
-import { StudioItemActionId } from '../types/context'
+import { type StudioAction, type TreeItem, TreeStatus, StudioItemActionId } from '../types'
 
 export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
 export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder, StudioItemActionId.RenameItem]
@@ -68,13 +65,13 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
 
   // Draft status filtering
   switch (item.status) {
-    case DraftStatus.Updated:
-    case DraftStatus.Created:
+    case TreeStatus.Updated:
+    case TreeStatus.Created:
       break
-    case DraftStatus.Deleted:
+    case TreeStatus.Deleted:
       forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem)
       break
-    case DraftStatus.Renamed:
+    case TreeStatus.Renamed:
       forbiddenActions.push(StudioItemActionId.RenameItem)
       break
     default:
@@ -83,14 +80,4 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
   }
 
   return itemActions.filter(action => !forbiddenActions.includes(action.id))
-}
-
-export function computeActionParams(action: StudioItemActionId, { item }: { item: TreeItem }): ActionHandlerParams[typeof action] {
-  switch (action) {
-    case StudioItemActionId.RevertItem:
-    case StudioItemActionId.DeleteItem:
-      return item.id
-    default:
-      return {}
-  }
 }

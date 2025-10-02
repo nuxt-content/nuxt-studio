@@ -1,13 +1,14 @@
 import { createStorage } from 'unstorage'
 import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { ref } from 'vue'
-import type { DatabaseItem, DraftItem, StudioHost, GithubFile, DatabasePageItem, RawFile } from '../types'
+import type { DatabaseItem, DraftItem, StudioHost, GithubFile, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
 import { generateContentFromDocument } from '../utils/content'
-import { getDraftStatus, findDescendantsFromId } from '../utils/draft'
+import { findDescendantsFromId, getDraftStatus } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
+import { stripNumericPrefix } from '../utils/string'
 import { joinURL } from 'ufo'
 
 const storage = createStorage({
@@ -23,18 +24,18 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
 
   const hooks = useHooks()
 
-  async function get(id: string, { generateContent = false }: { generateContent?: boolean } = {}) {
-    const item = list.value.find(item => item.id === id)
-    if (item && generateContent) {
-      return {
-        ...item,
-        content: await generateContentFromDocument(item!.modified as DatabasePageItem) || '',
-      }
-    }
-    return item
+  async function get(id: string): Promise<DraftItem<DatabaseItem> | undefined> {
+    return list.value.find(item => item.id === id)
+    // if (item && generateContent) {
+    //   return {
+    //     ...item,
+    //     content: await generateContentFromDocument(item!.modified as DatabasePageItem) || '',
+    //   }
+    // }
+    // return item
   }
 
-  async function create(document: DatabaseItem, status: DraftStatus = DraftStatus.Created) {
+  async function create(document: DatabaseItem, original?: DatabaseItem) {
     const existingItem = list.value.find(item => item.id === document.id)
     if (existingItem) {
       throw new Error(`Draft file already exists for document ${document.id}`)
@@ -46,9 +47,9 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     const item: DraftItem<DatabaseItem> = {
       id: document.id,
       fsPath,
-      original: document,
       githubFile,
-      status,
+      status: getDraftStatus(document, original),
+      original,
       modified: document,
     }
 
@@ -63,7 +64,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     return item
   }
 
-  async function update(id: string, document: DatabaseItem) {
+  async function update(id: string, document: DatabaseItem): Promise<DraftItem<DatabaseItem>> {
     const existingItem = list.value.find(item => item.id === id)
     if (!existingItem) {
       throw new Error(`Draft file not found for document ${id}`)
@@ -160,7 +161,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       }
       else {
         await host.document.upsert(draftItem.id, existingItem.original!)
-        existingItem.status = DraftStatus.Opened
+        existingItem.status = getDraftStatus(existingItem.original!, existingItem.original)
         existingItem.modified = existingItem.original
         await storage.setItem(draftItem.id, existingItem)
       }
@@ -171,25 +172,55 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     host.app.requestRerender()
   }
 
-  async function revertAll() {
-    await storage.clear()
-    for (const item of list.value) {
-      if (item.original) {
-        await host.document.upsert(item.id, item.original)
-      }
-      else if (item.status === DraftStatus.Created) {
-        await host.document.delete(item.id)
-      }
+  async function rename(id: string, newFsPath: string) {
+    const currentDbItem: DatabaseItem = await host.document.get(id)
+    if (!currentDbItem) {
+      throw new Error(`Database item not found for document ${id}`)
     }
-    list.value = []
-    host.app.requestRerender()
+
+    const nameWithoutExtension = newFsPath.split('/').pop()!.split('.').slice(0, -1).join('.')
+    const newRoutePath = `${currentDbItem.path!.split('/').slice(0, -1).join('/')}/${nameWithoutExtension}`
+    const content = await generateContentFromDocument(currentDbItem)
+
+    // Delete renamed draft item
+    await remove([id])
+
+    // Create new draft item
+    const newDbItem = await host.document.create(newFsPath, newRoutePath, content!)
+    return await create(newDbItem, currentDbItem)
+  }
+
+  async function duplicate(id: string): Promise<DraftItem<DatabaseItem>> {
+    let currentDbItem = await host.document.get(id)
+    if (!currentDbItem) {
+      throw new Error(`Database item not found for document ${id}`)
+    }
+
+    const currentDraftItem = list.value.find(item => item.id === id)
+    if (currentDraftItem) {
+      currentDbItem = currentDraftItem.modified!
+    }
+
+    const currentFsPath = currentDraftItem?.fsPath || host.document.getFileSystemPath(id)
+    const currentRoutePath = currentDbItem.path!
+    const currentContent = await generateContentFromDocument(currentDbItem) || ''
+    const currentName = currentFsPath.split('/').pop()!
+    const currentExtension = currentName.split('.').pop()!
+    const currentNameWithoutExtension = currentName.split('.').slice(0, -1).join('.')
+
+    const newFsPath = `${currentFsPath.split('/').slice(0, -1).join('/')}/${currentNameWithoutExtension}-copy.${currentExtension}`
+    const newRoutePath = `${currentRoutePath.split('/').slice(0, -1).join('/')}/${stripNumericPrefix(currentNameWithoutExtension)}-copy`
+
+    const newDbItem = await host.document.create(newFsPath, newRoutePath, currentContent)
+
+    return await create(newDbItem)
   }
 
   async function load() {
     const storedList = await storage.getKeys().then(async (keys) => {
       return Promise.all(keys.map(async (key) => {
         const item = await storage.getItem(key) as DraftItem
-        if (item.status === DraftStatus.Opened) {
+        if (item.status === DraftStatus.Pristine) {
           await storage.removeItem(key)
           return null
         }
@@ -215,11 +246,6 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
   }
 
   function select(draftItem: DraftItem<DatabaseItem> | null) {
-    // TODO: Handle editor with deleted file
-    if (draftItem?.status === DraftStatus.Deleted) {
-      return
-    }
-
     current.value = draftItem
   }
 
@@ -235,7 +261,8 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       throw new Error(`Cannot select item: no corresponding database entry found for id ${id}`)
     }
 
-    const draftItem = await create(dbItem, DraftStatus.Opened)
+    const draftItem = await create(dbItem, dbItem)
+
     select(draftItem)
   }
 
@@ -260,7 +287,8 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     update,
     remove,
     revert,
-    revertAll,
+    rename,
+    duplicate,
     list,
     load,
     current,

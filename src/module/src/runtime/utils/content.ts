@@ -36,7 +36,7 @@ export async function generateDocumentFromContent(id: string, fsPath: string, ro
   // TODO expose document creation logic from content module and use it there
   const stem = generateStemFromFsPath(fsPath)
 
-  const parsed = await parseMarkdown(content).then(res => {
+  const parsed = await parseMarkdown(content).then((res) => {
     if (res.body.type === 'root') {
       return {
         ...res,

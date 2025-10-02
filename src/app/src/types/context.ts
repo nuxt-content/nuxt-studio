@@ -15,14 +15,22 @@ export enum StudioItemActionId {
   DuplicateItem = 'duplicate-item',
 }
 
-export interface StudioAction {
+export interface StudioActionInProgress {
   id: StudioItemActionId
+  item?: TreeItem
+}
+
+export interface StudioAction<K extends StudioItemActionId = StudioItemActionId> {
+  id: K
   label: string
   icon: string
   tooltip: string
-  handler?: (args: ActionHandlerParams[StudioItemActionId]) => void
+  handler?: (args: ActionHandlerParams[K]) => void
 }
 
+export interface CreateFolderParams {
+  fsPath: string
+}
 export interface CreateFileParams {
   fsPath: string
   routePath: string
@@ -30,8 +38,8 @@ export interface CreateFileParams {
 }
 
 export interface RenameFileParams {
-  path: string
-  file: TreeItem
+  id: string
+  newFsPath: string
 }
 
 export interface UploadMediaParams {
@@ -40,11 +48,11 @@ export interface UploadMediaParams {
 }
 
 export type ActionHandlerParams = {
-  [StudioItemActionId.CreateFolder]: string
+  [StudioItemActionId.CreateFolder]: CreateFolderParams
   [StudioItemActionId.CreateDocument]: CreateFileParams
   [StudioItemActionId.UploadMedia]: UploadMediaParams
-  [StudioItemActionId.RevertItem]: string
-  [StudioItemActionId.RenameItem]: RenameFileParams
-  [StudioItemActionId.DeleteItem]: string
-  [StudioItemActionId.DuplicateItem]: string
+  [StudioItemActionId.RevertItem]: TreeItem
+  [StudioItemActionId.RenameItem]: TreeItem | RenameFileParams // Two steps actions (item to rename first then rename params)
+  [StudioItemActionId.DeleteItem]: TreeItem
+  [StudioItemActionId.DuplicateItem]: TreeItem
 }

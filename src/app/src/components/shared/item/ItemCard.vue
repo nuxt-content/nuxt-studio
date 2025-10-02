@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../types'
+import { TreeStatus, type TreeItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { titleCase } from 'scule'
-import { COLOR_UI_STATUS_MAP } from '../../../utils/draft'
+import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
 import { DraftStatus } from '../../../types/draft'
 
 const props = defineProps({
