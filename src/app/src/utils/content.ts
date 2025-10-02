@@ -63,8 +63,6 @@ export function removeReservedKeysFromDocument(document: DatabaseItem) {
   return result
 }
 
-// MARK: - Generate Document - Parse Content
-
 export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
   const extension = _id!.split('.').pop()

@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { ensure } from './utils/ensure'
 import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
-import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
+import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collection'
 import { kebabCase } from 'lodash'
 import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -183,7 +183,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
         return contents.flat()
       },
-      create: async (fsPath: string, routePath: string, content: string) => {
+      create: async (fsPath: string, content: string) => {
         const collections = useContentCollections()
 
         const collectionInfo = getCollectionByFilePath(fsPath, collections)
@@ -195,11 +195,11 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           throw new Error(`Cannot create document with id "${id}": document already exists.`)
         }
 
-        const document = await generateDocumentFromContent(id, fsPath, routePath, content)
+        const document = await generateDocumentFromContent(id, content)
 
-        await host.document.upsert(id, document)
+        await host.document.upsert(id, document!)
 
-        return document
+        return document!
       },
       upsert: async (id: string, upsertedDocument: CollectionItemBase) => {
         id = id.replace(/:/g, '/')

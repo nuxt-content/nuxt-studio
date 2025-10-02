@@ -3,7 +3,7 @@ import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { MediaItem } from './media'
 import type { Repository } from './git'
-import type { ComponentMeta } from './components'
+import type { ComponentMeta } from './component'
 
 export * from './item'
 export * from './draft'
@@ -14,7 +14,7 @@ export * from './tree'
 export * from './git'
 export * from './context'
 export * from './content'
-export * from './components'
+export * from './component'
 
 export interface StudioHost {
   meta: {
@@ -40,7 +40,7 @@ export interface StudioHost {
     getFileSystemPath: (id: string) => string
     list: () => Promise<DatabaseItem[]>
     upsert: (id: string, upsertedDocument: DatabaseItem) => Promise<void>
-    create: (fsPath: string, routePath: string, content: string) => Promise<DatabaseItem>
+    create: (fsPath: string, content: string) => Promise<DatabaseItem>
     delete: (id: string) => Promise<void>
     detectActives: () => Array<{ id: string, title: string }>
   }

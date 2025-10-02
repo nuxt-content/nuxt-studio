@@ -38,12 +38,12 @@ watch(() => props.draftItem.status, (newStatus) => {
 const language = computed(() => {
   switch (document.value?.extension) {
     case ContentFileExtension.Markdown:
-      return 'mdc';
+      return 'mdc'
     case ContentFileExtension.YAML:
     case ContentFileExtension.YML:
-      return 'yaml';
+      return 'yaml'
     case ContentFileExtension.JSON:
-      return 'javascript';
+      return 'javascript'
     default:
       return 'text'
   }
