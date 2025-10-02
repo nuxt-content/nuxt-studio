@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { buildTree, findParentFromId, findItemFromRoute, findItemFromId, findDescendantsFileItemsFromId, getTreeStatus } from '../../src/utils/tree'
-import { tree } from '../mocks/tree'
-import type { TreeItem } from '../../src/types/tree'
-import { dbItemsList, nestedDbItemsList } from '../mocks/database'
-import type { DraftItem } from '../../src/types/draft'
-import { DraftStatus, TreeStatus } from '../../src/types'
+import { buildTree, findParentFromId, findItemFromRoute, findItemFromId, findDescendantsFileItemsFromId, getTreeStatus } from '../../../src/utils/tree'
+import { tree } from '../../../test/mocks/tree'
+import type { TreeItem } from '../../../src/types/tree'
+import { dbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
+import type { DraftItem } from '../../../src/types/draft'
+import { DraftStatus, TreeStatus } from '../../../src/types'
 import type { RouteLocationNormalized } from 'vue-router'
-import type { DatabaseItem } from '../../src/types/database'
+import type { DatabaseItem } from '../../../src/types/database'
 
 describe('buildTree with one level of depth', () => {
   // Result based on dbItemsList mock

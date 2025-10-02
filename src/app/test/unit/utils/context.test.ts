@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { computeActionItems, STUDIO_ITEM_ACTION_DEFINITIONS } from '../../src/utils/context'
-import { StudioItemActionId, type TreeItem } from '../../src/types'
-import { TreeStatus } from '../../src/types'
+import { computeActionItems, STUDIO_ITEM_ACTION_DEFINITIONS } from '../../../src/utils/context'
+import { StudioItemActionId, type TreeItem } from '../../../src/types'
+import { TreeStatus } from '../../../src/types'
 
 describe('computeActionItems', () => {
   it('should return all actions when item is undefined', () => {
