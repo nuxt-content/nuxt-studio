@@ -51,7 +51,7 @@ export async function generateDocumentFromContent(id: string, fsPath: string, ro
     stem,
     path: routePath,
     meta: {},
-    extension: 'md',
+    extension: id.split('.').pop()!,
     seo: {
       title: parsed.data.title,
       description: parsed.data.description,

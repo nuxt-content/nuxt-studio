@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, watch } from 'vue'
-import { type DatabasePageItem, type DraftItem, DraftStatus } from '../../types'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus } from '../../types'
 import type { PropType } from 'vue'
 import { generateContentFromDocument, generateDocumentFromContent, pickReservedKeysFromDocument } from '../../utils/content'
 import { setupMonaco, setupSuggestion, type Editor } from '../../utils/monaco'
@@ -32,6 +32,21 @@ watch(() => props.draftItem.status, (newStatus) => {
   if (editor.value && newStatus !== localStatus.value) {
     localStatus.value = newStatus
     setContent(props.draftItem.modified as DatabasePageItem)
+  }
+})
+
+const language = computed(() => {
+  console.log(document.value?.extension)
+  switch (document.value?.extension) {
+    case ContentFileExtension.Markdown:
+      return 'mdc';
+    case ContentFileExtension.YAML:
+    case ContentFileExtension.YML:
+      return 'yaml';
+    case ContentFileExtension.JSON:
+      return 'javascript';
+    default:
+      return 'text'
   }
 })
 
@@ -89,7 +104,7 @@ onMounted(async () => {
   })
 
   // create and attach a model to the editor
-  editor.value.setModel(monaco.editor.createModel(content.value, 'mdc'))
+  editor.value.setModel(monaco.editor.createModel(content.value, language.value))
 
   // Set the theme based on the color mode
   watch(ui.colorMode, () => {
