@@ -85,6 +85,7 @@ const items = computed(() => {
       <UTree
         :items="items"
         color="neutral"
+        :ui="{ linkTrailingIcon: 'text-dimmed' }"
       />
     </div>
   </div>
