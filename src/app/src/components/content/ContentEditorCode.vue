@@ -38,12 +38,12 @@ watch(() => props.draftItem.status, (newStatus) => {
 const language = computed(() => {
   switch (document.value?.extension) {
     case ContentFileExtension.Markdown:
-      return 'mdc';
+      return 'mdc'
     case ContentFileExtension.YAML:
     case ContentFileExtension.YML:
-      return 'yaml';
+      return 'yaml'
     case ContentFileExtension.JSON:
-      return 'javascript';
+      return 'javascript'
     default:
       return 'text'
   }
@@ -135,6 +135,6 @@ function setContent(document: DatabasePageItem) {
 <template>
   <div
     ref="editorRef"
-    class="h-full -ml-3"
+    class="h-full -ml-3 py-2"
   />
 </template>
