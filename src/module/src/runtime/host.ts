@@ -8,7 +8,7 @@ import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem, MediaItem, Re
 import type { RouteLocationNormalized, Router } from 'vue-router'
 import { generateDocumentFromContent } from './utils/content'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
-import { queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
+import { clearError, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
 import { collections } from '#content/preview'
 import { publicAssetsStorage } from '#build/content-studio-public-assets'
 import { useHostMeta } from './composables/useMeta'
@@ -265,7 +265,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     },
 
     app: {
-      requestRerender: () => {
+      requestRerender: async () => {
+        if (useNuxtApp().payload.error) {
+          await clearError({ redirect: `?t=${Date.now()}` })
+        }
         useNuxtApp().hooks.callHookParallel('app:data:refresh')
       },
       navigateTo: (path: string) => {
