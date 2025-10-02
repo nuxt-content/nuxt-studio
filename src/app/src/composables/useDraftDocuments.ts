@@ -58,6 +58,8 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     list.value.push(item)
 
     await hooks.callHook('studio:draft:document:updated')
+    // Rerender host app
+    host.app.requestRerender()
 
     return item
   }
