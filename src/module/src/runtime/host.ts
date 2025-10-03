@@ -1,9 +1,9 @@
 import { ref } from 'vue'
 import { ensure } from './utils/ensure'
-import type { CollectionItemBase, DatabaseAdapter } from '@nuxt/content'
+import type { CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
-import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collection'
-import { kebabCase } from 'lodash'
+import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument, generateRecordDeletion, generateRecordInsert, getCollectionInfo } from './utils/collections'
+import { kebabCase } from 'scule'
 import type { UseStudioHost, StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
 import { generateDocumentFromContent } from './utils/content'
@@ -91,7 +91,14 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
   }
 
   function useContentCollections() {
-    return useContent().collections
+    return Object.fromEntries(
+      Object.entries(useContent().collections).filter(([, collection]) => {
+        if (!collection.source.length || collection.source.some((source: CollectionSource) => source.repository || (source as unknown as { _custom: boolean })._custom)) {
+          return false
+        }
+        return true
+      }),
+    )
   }
 
   function useContentCollectionQuery(collection: string) {
