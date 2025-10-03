@@ -31,20 +31,20 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
       }
       return ghFile
     }
-    catch (error: any) {
+    catch (error) {
       // Handle different types of errors gracefully
-      if (error.status === 404) {
+      if ((error as { status?: number }).status === 404) {
         console.warn(`File not found on GitHub: ${path}`)
         return null
       }
-      
+
       console.error(`Failed to fetch file from GitHub: ${path}`, error)
-      
+
       // For development, show alert. In production, you might want to use a toast notification
       if (process.env.NODE_ENV === 'development') {
-        alert(`Failed to fetch file: ${path}\n${error.message || error}`)
+        alert(`Failed to fetch file: ${path}\n${(error as { message?: string }).message || error}`)
       }
-      
+
       return null
     }
   }
@@ -83,7 +83,8 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
           type: 'blob',
           sha: null,
         })
-      } else {
+      }
+      else {
         // For new/modified files, create blob and use its sha
         const blobData = await $api(`/git/blobs`, {
           method: 'POST',
