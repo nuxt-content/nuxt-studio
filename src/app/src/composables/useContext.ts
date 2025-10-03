@@ -16,7 +16,7 @@ import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '
 import { useModal } from './useModal'
 import type { useTree } from './useTree'
 import { useRoute } from 'vue-router'
-import { findDescendantsFileItemsFromId } from '../utils/tree'
+import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
 import type { useDraftMedias } from './useDraftMedias'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
@@ -109,7 +109,16 @@ export const useContext = createSharedComposable((
     },
     [StudioItemActionId.RenameItem]: async (params: TreeItem | RenameFileParams) => {
       const { id, newFsPath } = params as RenameFileParams
-      await activeTree.value.draft.rename(id, newFsPath)
+
+      const descendants = findDescendantsFileItemsFromId(activeTree.value.root.value, id)
+      if (descendants.length > 0) {
+        const parent = findItemFromId(activeTree.value.root.value, id)!
+        const itemsToRename = descendants.map(item => ({ id: item.id, newFsPath: item.fsPath.replace(parent.fsPath, newFsPath) }))
+        await activeTree.value.draft.rename(itemsToRename)
+      }
+      else {
+        await activeTree.value.draft.rename([{ id, newFsPath }])
+      }
     },
     [StudioItemActionId.DeleteItem]: async (item: TreeItem) => {
       modal.openConfirmActionModal(item.id, StudioItemActionId.DeleteItem, async () => {

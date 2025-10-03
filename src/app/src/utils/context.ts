@@ -72,7 +72,6 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
       forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem)
       break
     case TreeStatus.Renamed:
-      forbiddenActions.push(StudioItemActionId.RenameItem)
       break
     default:
       forbiddenActions.push(StudioItemActionId.RevertItem)

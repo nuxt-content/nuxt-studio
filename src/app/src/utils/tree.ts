@@ -317,15 +317,20 @@ function calculateDirectoryStatuses(items: TreeItem[]) {
       const childrenWithStatus = item.children.filter(child => child.status && child.status !== TreeStatus.Opened)
 
       if (childrenWithStatus.length > 0) {
-        // Check if ALL children with status are deleted
-        const allDeleted = childrenWithStatus.every(child => child.status === TreeStatus.Deleted)
+        const allChildrenHaveStatus = childrenWithStatus.length === item.children.length
 
-        if (allDeleted && childrenWithStatus.length === item.children.length) {
-          // If all children are deleted, mark directory as deleted
-          item.status = TreeStatus.Deleted
+        if (allChildrenHaveStatus) {
+          if (childrenWithStatus.every(child => child.status === TreeStatus.Deleted)) {
+            item.status = TreeStatus.Created
+          }
+          else if (childrenWithStatus.every(child => child.status === TreeStatus.Renamed)) {
+            item.status = TreeStatus.Renamed
+          }
+          else if (childrenWithStatus.every(child => child.status === TreeStatus.Created)) {
+            item.status = TreeStatus.Created
+          }
         }
         else {
-          // Otherwise, mark as updated
           item.status = TreeStatus.Updated
         }
       }

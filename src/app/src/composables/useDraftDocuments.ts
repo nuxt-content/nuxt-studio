@@ -171,20 +171,24 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     host.app.requestRerender()
   }
 
-  async function rename(id: string, newFsPath: string) {
-    const currentDbItem: DatabaseItem = await host.document.get(id)
-    if (!currentDbItem) {
-      throw new Error(`Database item not found for document ${id}`)
+  async function rename(items: { id: string, newFsPath: string }[]) {
+    for (const item of items) {
+      const { id, newFsPath } = item
+
+      const currentDbItem: DatabaseItem = await host.document.get(id)
+      if (!currentDbItem) {
+        throw new Error(`Database item not found for document ${id}`)
+      }
+
+      const content = await generateContentFromDocument(currentDbItem)
+
+      // Delete renamed draft item
+      await remove([id])
+
+      // Create new draft item
+      const newDbItem = await host.document.create(newFsPath, content!)
+      await create(newDbItem, currentDbItem)
     }
-
-    const content = await generateContentFromDocument(currentDbItem)
-
-    // Delete renamed draft item
-    await remove([id])
-
-    // Create new draft item
-    const newDbItem = await host.document.create(newFsPath, content!)
-    return await create(newDbItem, currentDbItem)
   }
 
   async function duplicate(id: string): Promise<DraftItem<DatabaseItem>> {
