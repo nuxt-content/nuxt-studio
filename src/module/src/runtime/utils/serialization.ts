@@ -6,7 +6,7 @@ export const yamlToJson = (data: string) => {
       new yaml.Type('tag:yaml.org,2002:timestamp', {
         kind: 'scalar',
         resolve: () => false,
-        construct: data => data,
+        construct: (data: unknown) => data,
       }),
     ],
   })
