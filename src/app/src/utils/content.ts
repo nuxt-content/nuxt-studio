@@ -146,7 +146,10 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
   return {
     id,
     meta: {},
-    body,
+    body: {
+      ...body,
+      toc: document.toc,
+    },
     ...document.data,
   } as unknown as DatabaseItem
 }
