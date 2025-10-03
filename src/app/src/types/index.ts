@@ -15,6 +15,7 @@ export * from './git'
 export * from './context'
 export * from './content'
 export * from './component'
+export * from './ui'
 
 export interface StudioHost {
   meta: {
