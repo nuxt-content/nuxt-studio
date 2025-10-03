@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TreeStatus, type TreeItem } from '../../../types'
+import type { TreeItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
@@ -60,7 +60,10 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
           alt="Card placeholder"
           class="z-[-1] rounded-t-lg aspect-video object-cover"
         />
-        <div v-else class="z-[-1] aspect-video bg-muted" />
+        <div
+          v-else
+          class="z-[-1] aspect-video bg-muted"
+        />
         <div
           v-if="itemExtensionIcon"
           class="absolute inset-0 flex items-center justify-center"

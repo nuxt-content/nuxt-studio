@@ -1,7 +1,6 @@
 // import type { ParsedContentFile } from '@nuxt/content'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 import { generateStemFromFsPath } from './collections'
-import type { MarkdownRoot } from '@nuxt/content'
 import { omit } from './object'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import { compressTree } from '@nuxt/content/runtime'

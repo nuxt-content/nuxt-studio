@@ -2,7 +2,7 @@
   "name": "nuxt-studio",
   "version": "0.0.1",
   "description": "Nuxt Studio for Nuxt Content",
-  "repository": "@nuxtlabs/nuxt-studio",
+  "repository": "@nuxt-content/studio",
   "license": "MIT",
   "type": "module",
   "exports": {
