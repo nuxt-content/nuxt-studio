@@ -1,12 +1,15 @@
+import { compressTree } from '@nuxt/content/runtime'
 import { type DatabasePageItem, ContentFileExtension } from '../types'
 import { stringify } from 'minimark/stringify'
+import { MDCRoot } from '@nuxtjs/mdc'
+import { MarkdownRoot } from '@nuxt/content'
 
 export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem) {
-  function removeLastStyle(document: DatabasePageItem) {
-    if (document.body?.value[document.body?.value.length - 1]?.[0] === 'style') {
-      return { ...document, body: { ...document.body, value: document.body?.value.slice(0, -1) } }
+  function withoutLastStyles(body: MarkdownRoot) {
+    if (body.value[body.value.length - 1]?.[0] === 'style') {
+      return { ...body, value: body.value.slice(0, -1) }
     }
-    return document
+    return body
   }
 
   const { body: body1, meta: meta1, ...documentData1 } = document1
@@ -14,15 +17,14 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
 
   // Compare body first
   if (document1.extension === ContentFileExtension.Markdown) {
-    if (document1.body?.type === 'minimark') {
-      document1 = removeLastStyle(document1)
-    }
+    const minifiedBody1 = withoutLastStyles(
+      document1.body.type === 'minimark' ?  document1.body : compressTree(document1.body as unknown as MDCRoot)
+    )
+    const minifiedBody2 = withoutLastStyles(
+      document2.body.type === 'minimark' ?  document2.body : compressTree(document2.body as unknown as MDCRoot)
+    )
 
-    if (document2.body?.type === 'minimark') {
-      document2 = removeLastStyle(document2)
-    }
-
-    if (stringify(body1) !== stringify(body2)) {
+    if (stringify(minifiedBody1) !== stringify(minifiedBody2)) {
       return false
     }
   }
