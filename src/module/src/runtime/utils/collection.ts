@@ -17,7 +17,7 @@ export const getCollectionByFilePath = (path: string, collections: Record<string
     const paths = path === '/' ? ['index.yml', 'index.yaml', 'index.md', 'index.json'] : [path]
     return paths.some((p) => {
       matchedSource = collection.source.find((source) => {
-        const include = minimatch(p, source.include)
+        const include = minimatch(p, source.include, { dot: true })
         const exclude = source.exclude?.some(exclude => minimatch(p, exclude))
 
         return include && !exclude

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../types'
+import { type TreeItem, TreeStatus } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { titleCase } from 'scule'
 import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
-import { DraftStatus } from '../../../types/draft'
 
 const props = defineProps({
   item: {
@@ -62,7 +61,7 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
         />
         <div
           v-else
-          class="z-[-1] aspect-video bg-muted"
+          class="z-[-1] aspect-video bg-elevated"
         />
         <div
           v-if="itemExtensionIcon"
@@ -75,7 +74,7 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
         </div>
       </div>
       <ItemBadge
-        v-if="item.status && item.status !== DraftStatus.Opened"
+        v-if="item.status && item.status !== TreeStatus.Opened"
         :status="item.status"
         class="absolute top-2 right-2"
       />

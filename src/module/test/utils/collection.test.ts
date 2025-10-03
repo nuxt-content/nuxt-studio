@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { getCollectionByFilePath, generateIdFromFsPath } from '../../src/runtime/utils/collections'
+import { getCollectionByFilePath, generateIdFromFsPath } from '../../src/runtime/utils/collection'
 import type { CollectionInfo, ResolvedCollectionSource } from '@nuxt/content'
-import { collections } from '../mocks/collections'
+import { collections } from '../mocks/collection'
 
 describe('getCollectionByFilePath', () => {
   it('should return landing collection for index.md', () => {
@@ -13,9 +13,12 @@ describe('getCollectionByFilePath', () => {
 
   it('should return docs collection for any non-index file', () => {
     const result = getCollectionByFilePath('1.getting-started/2.introduction.md', collections)
-
     expect(result).toBeDefined()
     expect(result?.name).toBe('docs')
+
+    const result2 = getCollectionByFilePath('.navigation.yml', collections)
+    expect(result2).toBeDefined()
+    expect(result2?.name).toBe('docs')
   })
 
   it('should return docs collection for nested files', () => {
@@ -31,6 +34,7 @@ describe('getCollectionByFilePath', () => {
     expect(result).toBeDefined()
     expect(result?.name).toBe('landing')
   })
+
   it('should return undefined for files not matching any pattern', () => {
     const emptyCollections: Record<string, CollectionInfo> = {}
     const result = getCollectionByFilePath('test.txt', emptyCollections)

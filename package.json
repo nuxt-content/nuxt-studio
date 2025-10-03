@@ -50,6 +50,7 @@
     "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@5111",
     "@octokit/types": "^15.0.0",
     "@tailwindcss/typography": "latest",
+    "@types/js-yaml": "^4.0.9",
     "@vitejs/plugin-vue": "^6.0.1",
     "eslint": "^9.36.0",
     "modern-monaco": "^0.2.2",
@@ -79,6 +80,7 @@
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "idb-keyval": "^6.2.2",
+    "js-yaml": "^4.1.0",
     "minimark": "^0.2.0",
     "ofetch": "^1.4.1",
     "unstorage": "^1.17.1"

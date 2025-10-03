@@ -2,7 +2,7 @@ import { useStudioHost as useStudioHostBase } from './host'
 import type { StudioUser, DatabaseItem, Repository } from 'nuxt-studio/app'
 // TODO: use `nuxt-studio/app/utils` instead of `../../../app/src/utils`
 import { generateContentFromDocument } from '../../../app/src/utils'
-import { createCollectionDocument, getCollectionInfo } from './utils/collections'
+import { createCollectionDocument, getCollectionInfo } from './utils/collection'
 import { createStorage } from 'unstorage'
 import httpDriver from 'unstorage/drivers/http'
 import { useRuntimeConfig } from '#imports'

@@ -63,8 +63,6 @@ export function removeReservedKeysFromDocument(document: DatabaseItem) {
   return result
 }
 
-// MARK: - Generate Document - Parse Content
-
 export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
   const extension = _id!.split('.').pop()
@@ -84,7 +82,7 @@ export async function generateDocumentFromContent(id: string, content: string): 
   return null
 }
 
-async function generateDocumentFromYAMLContent(id: string, content: string): Promise<DatabaseItem | null> {
+async function generateDocumentFromYAMLContent(id: string, content: string): Promise<DatabaseItem> {
   const { data } = parseFrontMatter(`---\n${content}\n---`)
 
   // Keep array contents under `body` key
@@ -95,14 +93,16 @@ async function generateDocumentFromYAMLContent(id: string, content: string): Pro
   }
 
   return {
+    id,
+    extension: ContentFileExtension.YAML,
+    stem: id.split('.').slice(0, -1).join('.'),
     meta: {},
     ...parsed,
     body: parsed.body || parsed,
-    id,
-  } as unknown as DatabaseItem
+  } as DatabaseItem
 }
 
-async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem | null> {
+async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
   let parsed: Record<string, unknown> = destr(content)
 
   // Keep array contents under `body` key
@@ -114,14 +114,16 @@ async function generateDocumentFromJSONContent(id: string, content: string): Pro
   }
 
   return {
+    id,
+    extension: ContentFileExtension.JSON,
+    stem: id.split('.').slice(0, -1).join('.'),
     meta: {},
     ...parsed,
     body: parsed.body || parsed,
-    id,
-  } as unknown as DatabaseItem
+  } as DatabaseItem
 }
 
-async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem | null> {
+async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem> {
   const document = await parseMarkdown(content, {
     remark: {
       plugins: {
@@ -146,12 +148,14 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
   return {
     id,
     meta: {},
+    extension: ContentFileExtension.Markdown,
+    stem: id.split('.').slice(0, -1).join('.'),
     body: {
       ...body,
       toc: document.toc,
     },
     ...document.data,
-  } as unknown as DatabaseItem
+  } as DatabaseItem
 }
 
 export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
