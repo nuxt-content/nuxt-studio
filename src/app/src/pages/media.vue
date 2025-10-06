@@ -3,22 +3,26 @@ import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { StudioItemActionId } from '../types'
 
-const { mediaTree, context } = useStudio()
+const { context } = useStudio()
 
-const folderTree = computed(() => (mediaTree.current.value || []).filter(f => f.type === 'directory'))
-const fileTree = computed(() => (mediaTree.current.value || []).filter(f => f.type === 'file'))
+const folderTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'directory'))
+const fileTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'file'))
 
 const isFileCreationInProgress = computed(() => context.actionInProgress.value?.id === StudioItemActionId.CreateDocument)
 const isFolderCreationInProgress = computed(() => context.actionInProgress.value?.id === StudioItemActionId.CreateFolder)
 
+const currentTreeItem = computed(() => context.activeTree.value.currentItem.value)
+const currentDraftItem = computed(() => context.activeTree.value.draft.current.value)
+
 async function onFileDrop(event: DragEvent) {
-  if (mediaTree.draft.current.value) {
+  console.log('onFileDrop')
+  if (currentDraftItem.value) {
     return
   }
 
   if (event.dataTransfer?.files) {
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
-      directory: mediaTree.currentItem.value.fsPath,
+      directory: currentTreeItem.value.fsPath,
       files: Array.from(event.dataTransfer.files),
     })
   }
@@ -27,7 +31,7 @@ async function onFileDrop(event: DragEvent) {
 
 <template>
   <div
-    class="flex flex-col"
+    class="flex flex-col h-full"
     @drop.prevent.stop="onFileDrop"
     @dragover.prevent.stop
   >
@@ -36,12 +40,12 @@ async function onFileDrop(event: DragEvent) {
       <ItemActionsToolbar />
     </div>
     <MediaEditor
-      v-if="mediaTree.currentItem.value.type === 'file' && mediaTree.draft.current.value"
-      :draft-item="mediaTree.draft.current.value"
+      v-if="currentTreeItem.type === 'file' && currentDraftItem"
+      :draft-item="currentDraftItem!"
     />
     <div
       v-else
-      class="flex flex-col p-4 min-h-[200px]"
+      class="flex flex-col p-4 h-full"
     >
       <ItemTree
         v-if="folderTree?.length > 0 || isFolderCreationInProgress"

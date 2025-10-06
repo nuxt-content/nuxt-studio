@@ -5,10 +5,9 @@ import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, GithubFile, MediaItem, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
-import { getDraftStatus } from '../utils/draft'
+import { getDraftStatus, findDescendantsFromId } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
-import { TreeRootId } from '../utils/tree'
 
 const storage = createStorage({
   driver: indexedDbDriver({
@@ -55,104 +54,112 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     return item
   }
 
-  async function update(id: string, media: MediaItem) {
-    const existingItem = list.value.find(item => item.id === id)
-    if (!existingItem) {
-      throw new Error(`Draft file not found for document ${id}`)
+  async function upload(directory: string, file: File) {
+    const draftItem = await fileToDraftItem(directory, file)
+    host.media.upsert(draftItem.id, draftItem.modified!)
+    await create(draftItem.modified!)
+  }
+
+  async function fileToDraftItem(directory: string, file: File): Promise<DraftItem<MediaItem>> {
+    const rawData = await fileToDataUrl(file)
+    const fsPath = directory && directory !== '/' ? joinURL(directory, file.name) : file.name
+
+    return {
+      id: `public-assets/${fsPath}`,
+      fsPath,
+      githubFile: undefined,
+      status: DraftStatus.Created,
+      modified: {
+        id: `public-assets/${fsPath}`,
+        fsPath,
+        extension: fsPath.split('.').pop()!,
+        stem: fsPath.split('.').join('.'),
+        path: withLeadingSlash(fsPath),
+        preview: await resizedataURL(rawData, 128, 128),
+        raw: rawData,
+      },
     }
-
-    const oldStatus = existingItem.status
-    existingItem.status = getDraftStatus(media, existingItem.original)
-    existingItem.modified = media
-
-    await storage.setItem(id, existingItem)
-
-    list.value = list.value.map(item => item.id === id ? existingItem : item)
-
-    // Upsert document in database
-    await host.media.upsert(id, existingItem.modified!)
-
-    // Rerender host app
-    host.app.requestRerender()
-
-    // Trigger hook to warn that draft list has changed
-    if (existingItem.status !== oldStatus) {
-      await hooks.callHook('studio:draft:media:updated')
-    }
-
-    return existingItem
   }
 
   async function remove(ids: string[]) {
     for (const id of ids) {
-      const item = await storage.getItem(id) as DraftItem
-      const fsPath = host.media.getFileSystemPath(id)
+      const existingDraftItem = list.value.find(item => item.id === id)
+      const fsPath = host.document.getFileSystemPath(id)
+      const originalDbItem = await host.document.get(id)
 
-      if (item) {
-        if (item.status === DraftStatus.Deleted) return
+      await storage.removeItem(id)
+      await host.document.delete(id)
 
-        await storage.removeItem(id)
-        await host.media.delete(id)
+      let deleteDraftItem: DraftItem<MediaItem> | null = null
+      if (existingDraftItem) {
+        if (existingDraftItem.status === DraftStatus.Deleted) return
+
+        if (existingDraftItem.status === DraftStatus.Created) {
+          list.value = list.value.filter(item => item.id !== id)
+        }
+        else {
+          deleteDraftItem = {
+            id,
+            fsPath: existingDraftItem.fsPath,
+            status: DraftStatus.Deleted,
+            original: existingDraftItem.original,
+            githubFile: existingDraftItem.githubFile,
+          }
+
+          list.value = list.value.map(item => item.id === id ? deleteDraftItem! : item)
+        }
       }
       else {
-      // Fetch github file before creating draft to detect non deployed changes
-        const githubFile = await git.fetchFile(joinURL('public', fsPath), { cached: true }) as GithubFile
-        const original = await host.media.get(id)
+      // TODO: check if gh file has been updated
+        const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
 
-        const deleteItem: DraftItem = {
+        deleteDraftItem = {
           id,
           fsPath,
           status: DraftStatus.Deleted,
-          original,
+          original: originalDbItem,
           githubFile,
         }
 
-        await storage.setItem(id, deleteItem)
-
-        await host.media.delete(id)
+        list.value.push(deleteDraftItem)
       }
 
-      list.value = list.value.filter(item => item.id !== id)
+      if (deleteDraftItem) {
+        await storage.setItem(id, deleteDraftItem)
+      }
+
       host.app.requestRerender()
+
+      await hooks.callHook('studio:draft:document:updated')
     }
   }
 
   async function revert(id: string) {
-    const existingItem = list.value.find(item => item.id === id)
-    if (!existingItem) {
-      return
+    const draftItems = findDescendantsFromId(list.value, id)
+
+    for (const draftItem of draftItems) {
+      const existingItem = list.value.find(item => item.id === draftItem.id)
+      if (!existingItem) {
+        return
+      }
+
+      if (existingItem.status === DraftStatus.Created) {
+        await host.document.delete(draftItem.id)
+        await storage.removeItem(draftItem.id)
+        list.value = list.value.filter(item => item.id !== draftItem.id)
+      }
+      else {
+        await host.media.upsert(draftItem.id, existingItem.original!)
+        existingItem.status = getDraftStatus(existingItem.original!, existingItem.original)
+        existingItem.modified = existingItem.original
+        await storage.setItem(draftItem.id, existingItem)
+      }
     }
 
-    if (existingItem.status === DraftStatus.Created) {
-      await host.media.delete(id)
-      await storage.removeItem(id)
-      list.value = list.value.filter(item => item.id !== id)
-    }
-    else {
-      await host.media.upsert(id, existingItem.original!)
-      existingItem.status = getDraftStatus(existingItem.original!, existingItem.original)
-      existingItem.modified = existingItem.original
-      await storage.setItem(id, existingItem)
-    }
-
-    await hooks.callHook('studio:draft:media:updated')
+    await hooks.callHook('studio:draft:document:updated')
 
     host.app.requestRerender()
   }
-
-  // async function revertAll() {
-  //   await storage.clear()
-  //   for (const item of list.value) {
-  //     if (item.original) {
-  //       await host.media.upsert(item.id, item.original)
-  //     }
-  //     else if (item.status === DraftStatus.Created) {
-  //       await host.media.delete(item.id)
-  //     }
-  //   }
-  //   list.value = []
-  //   host.app.requestRerender()
-  // }
 
   async function rename(_items: { id: string, newFsPath: string }[]) {
     // let currentDbItem: MediaItem = await host.document.get(id)
@@ -257,33 +264,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     select(draftItem)
   }
 
-  async function upload(directory: string, file: File) {
-    const draftItem = await fileToDraftItem(directory, file)
-    host.media.upsert(draftItem.id, draftItem.modified!)
-    await create(draftItem.modified!)
-  }
-
-  async function fileToDraftItem(directory: string, file: File): Promise<DraftItem<MediaItem>> {
-    const rawData = await fileToDataUrl(file)
-    const fsPath = directory && directory !== '/' ? joinURL(directory, file.name) : file.name
-
-    return {
-      id: `${TreeRootId.Media}/${fsPath}`,
-      fsPath,
-      githubFile: undefined,
-      status: DraftStatus.Created,
-      modified: {
-        id: `${TreeRootId.Media}/${fsPath}`,
-        fsPath,
-        extension: fsPath.split('.').pop()!,
-        stem: fsPath.split('.').join('.'),
-        path: withLeadingSlash(fsPath),
-        preview: await resizedataURL(rawData, 128, 128),
-        raw: rawData,
-      },
-    }
-  }
-
   function fileToDataUrl(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -331,7 +311,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   return {
     get,
     create,
-    update,
+    update: () => {},
     remove,
     revert,
     rename,

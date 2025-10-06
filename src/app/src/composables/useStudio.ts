@@ -58,7 +58,5 @@ export const useStudio = createSharedComposable(() => {
     git,
     ui,
     context,
-    documentTree,
-    mediaTree,
   }
 })
