@@ -2,7 +2,6 @@
 @import "@nuxt/ui";
 @plugin "@tailwindcss/typography";
 
-@source "@farnabaz/mdc-editor";
 @source "../../**";
 
 @source inline('ring-orange-200 hover:ring-orange-300 hover:dark:ring-orange-700');

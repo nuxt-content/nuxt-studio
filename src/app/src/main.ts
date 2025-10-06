@@ -7,6 +7,7 @@ import styles from './assets/css/main.css?inline'
 
 import { createHead } from '@unhead/vue/client'
 import { generateColors, tailwindColors } from './utils/colors'
+import { refineTailwindStyles } from './utils/styles.ts'
 
 import App from './app.vue'
 import Content from './pages/content.vue'
@@ -53,9 +54,7 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
       styles: [
         tailwindColors,
         generateColors(),
-        styles.replace(/:root/g, ':host')
-          .replace(/([^-])html/g, '$1:host')
-          .replace(/([^-])body/g, '$1:host'),
+        refineTailwindStyles(styles),
       ],
     },
   ) as VueElementConstructor
