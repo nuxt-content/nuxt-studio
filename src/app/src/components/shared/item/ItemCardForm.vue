@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, type PropType } from 'vue'
 import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
 import { type CreateFileParams, type CreateFolderParams, type RenameFileParams, type StudioAction, type TreeItem, ContentFileExtension } from '../../../types'
 import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { contentFileExtensions } from '../../../utils/content'
@@ -35,14 +34,21 @@ const props = defineProps({
 })
 
 const originalName = computed(() => props.renamedItem?.name || '')
-const originalExtension = computed(() => props.renamedItem?.id.split('.').pop() as ContentFileExtension || ContentFileExtension.Markdown)
+const originalExtension = computed(() => {
+  const ext = props.renamedItem?.id.split('.').pop()
+  if (ext && contentFileExtensions.includes(ext as ContentFileExtension)) {
+    return ext as ContentFileExtension
+  }
+
+  return ContentFileExtension.Markdown
+})
 
 const schema = z.object({
   name: z.string()
     .min(1, 'Name cannot be empty')
     .refine((name: string) => !name.endsWith('.'), 'Name cannot end with "."')
     .refine((name: string) => !name.startsWith('/'), 'Name cannot start with "/"'),
-  extension: z.enum(ContentFileExtension),
+  extension: z.optional(z.enum(ContentFileExtension)),
 })
 
 type Schema = z.output<typeof schema>
@@ -88,23 +94,27 @@ const tooltipText = computed(() => {
   }
 })
 
-function onSubmit(_event: FormSubmitEvent<Schema>) {
+function onSubmit() {
   let params: CreateFileParams | CreateFolderParams | RenameFileParams
+  const newFsPath = isFolderAction.value
+    ? joinURL(props.parentItem.fsPath, state.name)
+    : joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`)
+
   switch (props.actionId) {
     case StudioItemActionId.CreateDocument:
       params = {
-        fsPath: withoutLeadingSlash(joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`)),
+        fsPath: withoutLeadingSlash(newFsPath),
         content: `# ${upperFirst(state.name)} file`,
       }
       break
     case StudioItemActionId.CreateFolder:
       params = {
-        fsPath: withoutLeadingSlash(joinURL(props.parentItem.fsPath, state.name)),
+        fsPath: withoutLeadingSlash(newFsPath),
       }
       break
     case StudioItemActionId.RenameItem:
       params = {
-        newFsPath: withoutLeadingSlash(joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`)),
+        newFsPath: withoutLeadingSlash(newFsPath),
         id: props.renamedItem.id,
       }
       break
@@ -126,7 +136,7 @@ function onSubmit(_event: FormSubmitEvent<Schema>) {
         class="hover:bg-white relative w-full min-w-0"
       >
         <div
-          v-if="!isFolderAction"
+          v-show="!isFolderAction"
           class="relative"
         >
           <div class="z-[-1] aspect-video rounded-lg bg-elevated" />

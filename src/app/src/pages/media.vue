@@ -12,6 +12,10 @@ const isFileCreationInProgress = computed(() => context.actionInProgress.value?.
 const isFolderCreationInProgress = computed(() => context.actionInProgress.value?.id === StudioItemActionId.CreateFolder)
 
 async function onFileDrop(event: DragEvent) {
+  if (mediaTree.draft.current.value) {
+    return
+  }
+
   if (event.dataTransfer?.files) {
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
       directory: mediaTree.currentItem.value.fsPath,
@@ -22,7 +26,11 @@ async function onFileDrop(event: DragEvent) {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div
+    class="flex flex-col"
+    @drop.prevent.stop="onFileDrop"
+    @dragover.prevent.stop
+  >
     <div class="flex items-center justify-between gap-2 px-4 py-1 border-b-[0.5px] border-default bg-muted/70">
       <ItemBreadcrumb />
       <ItemActionsToolbar />
@@ -33,9 +41,7 @@ async function onFileDrop(event: DragEvent) {
     />
     <div
       v-else
-      class="flex flex-col p-4"
-      @drop.prevent.stop="onFileDrop"
-      @dragover.prevent.stop
+      class="flex flex-col p-4 min-h-[200px]"
     >
       <ItemTree
         v-if="folderTree?.length > 0 || isFolderCreationInProgress"

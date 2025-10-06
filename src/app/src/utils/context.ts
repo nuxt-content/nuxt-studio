@@ -1,4 +1,5 @@
 import { type StudioAction, type TreeItem, TreeStatus, StudioItemActionId } from '../types'
+import { TreeRootId } from './tree'
 
 export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
 export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder, StudioItemActionId.RenameItem]
@@ -15,6 +16,12 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
     label: 'Create file',
     icon: 'i-lucide-file-plus',
     tooltip: 'Create a new file',
+  },
+  {
+    id: StudioItemActionId.UploadMedia,
+    label: 'Upload media',
+    icon: 'i-lucide-upload',
+    tooltip: 'Upload media',
   },
   {
     id: StudioItemActionId.CreateFolder,
@@ -49,14 +56,18 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
 
   const forbiddenActions: StudioItemActionId[] = []
 
-  if (item.type === 'root') {
-    return itemActions.filter(action => ![StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem].includes(action.id))
+  // Upload only available for medias
+  if (!item.id.startsWith(TreeRootId.Media)) {
+    forbiddenActions.push(StudioItemActionId.UploadMedia)
   }
 
   // Item type filtering
   switch (item.type) {
+    case 'root':
+      forbiddenActions.push(StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem)
+      break
     case 'file':
-      forbiddenActions.push(StudioItemActionId.CreateFolder, StudioItemActionId.CreateDocument)
+      forbiddenActions.push(StudioItemActionId.CreateFolder, StudioItemActionId.CreateDocument, StudioItemActionId.UploadMedia)
       break
     case 'directory':
       forbiddenActions.push(StudioItemActionId.DuplicateItem)
@@ -72,7 +83,6 @@ export function computeActionItems(itemActions: StudioAction[], item?: TreeItem 
       forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem)
       break
     case TreeStatus.Renamed:
-      forbiddenActions.push(StudioItemActionId.RenameItem)
       break
     default:
       forbiddenActions.push(StudioItemActionId.RevertItem)

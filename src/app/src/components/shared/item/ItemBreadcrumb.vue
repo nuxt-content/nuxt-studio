@@ -4,7 +4,7 @@ import type { DropdownMenuItem } from '@nuxt/ui/components/DropdownMenu.vue.d.ts
 import { computed, unref } from 'vue'
 import { type TreeItem, TreeStatus } from '../../../types'
 import { useStudio } from '../../../composables/useStudio'
-import { findParentFromId, ROOT_ITEM } from '../../../utils/tree'
+import { findParentFromId } from '../../../utils/tree'
 
 const { context } = useStudio()
 
@@ -12,16 +12,18 @@ const currentItem = computed(() => context.activeTree.value.currentItem.value)
 const tree = computed(() => context.activeTree.value.root.value)
 
 const items = computed<BreadcrumbItem[]>(() => {
-  const rootItem = {
+  const rootTreeItem = context.activeTree.value.rootItem.value
+  const rootBreadcrumbItem = {
     icon: 'i-lucide-folder-git',
+    label: rootTreeItem.name,
     onClick: () => {
       // TODO: update for ROOT_DOCUMENT_ITEM and ROOT_MEDIA_ITEM
-      context.activeTree.value.select(ROOT_ITEM)
+      context.activeTree.value.select(rootTreeItem)
     },
   }
 
-  if (currentItem.value.id === ROOT_ITEM.id) {
-    return [rootItem]
+  if (currentItem.value.id === rootTreeItem.id) {
+    return [rootBreadcrumbItem]
   }
 
   const breadcrumbItems: BreadcrumbItem[] = []
@@ -39,7 +41,7 @@ const items = computed<BreadcrumbItem[]>(() => {
     currentTreeItem = findParentFromId(tree.value, currentTreeItem.id)
   }
 
-  const allItems = [rootItem, ...breadcrumbItems]
+  const allItems = [rootBreadcrumbItem, ...breadcrumbItems]
 
   // Handle ellipsis dropdown
   if (allItems.length > 3) {

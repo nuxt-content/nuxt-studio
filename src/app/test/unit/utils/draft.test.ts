@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { findDescendantsFromId, getDraftStatus } from '../../../src/utils/draft'
 import { draftItemsList } from '../../../test/mocks/draft'
 import { dbItemsList } from '../../../test/mocks/database'
-import { ROOT_ITEM } from '../../../src/utils/tree'
 import { DraftStatus } from '../../../src/types'
+import { TreeRootId } from '../../../src/utils/tree'
 
 describe('findDescendantsFromId', () => {
   it('returns exact match for a root level file', () => {
@@ -40,7 +40,7 @@ describe('findDescendantsFromId', () => {
   })
 
   it('returns all descendants for root item', () => {
-    const descendants = findDescendantsFromId(draftItemsList, ROOT_ITEM.id)
+    const descendants = findDescendantsFromId(draftItemsList, TreeRootId.Content)
 
     expect(descendants).toHaveLength(draftItemsList.length)
   })

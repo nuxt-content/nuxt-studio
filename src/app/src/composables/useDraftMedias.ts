@@ -8,6 +8,7 @@ import type { useGit } from './useGit'
 import { getDraftStatus } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
+import { TreeRootId } from '../utils/tree'
 
 const storage = createStorage({
   driver: indexedDbDriver({
@@ -153,7 +154,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   //   host.app.requestRerender()
   // }
 
-  async function rename(_id: string, _newFsPath: string) {
+  async function rename(_items: { id: string, newFsPath: string }[]) {
     // let currentDbItem: MediaItem = await host.document.get(id)
     // if (!currentDbItem) {
     //   throw new Error(`Database item not found for document ${id}`)
@@ -267,12 +268,12 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     const fsPath = directory && directory !== '/' ? joinURL(directory, file.name) : file.name
 
     return {
-      id: `public-assets/${fsPath}`,
+      id: `${TreeRootId.Media}/${fsPath}`,
       fsPath,
       githubFile: undefined,
       status: DraftStatus.Created,
       modified: {
-        id: `public-assets/${fsPath}`,
+        id: `${TreeRootId.Media}/${fsPath}`,
         fsPath,
         extension: fsPath.split('.').pop()!,
         stem: fsPath.split('.').join('.'),

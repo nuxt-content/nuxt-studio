@@ -60,7 +60,7 @@ const userMenuItems = computed(() => [
         >
           <USwitch
             v-model="showTechnicalMode"
-            label="Technical view"
+            label="Developer view"
             size="xs"
             :ui="{ root: 'w-full flex-row-reverse justify-between', wrapper: 'ms-0' }"
           />

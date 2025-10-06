@@ -111,8 +111,6 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
     },
   })
 
-  console.log('document =>', document)
-
   // Remove nofollow from links
   visit(document.body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
     if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
