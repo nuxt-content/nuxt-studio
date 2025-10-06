@@ -6,6 +6,14 @@ const { ui, host } = useStudio()
 
 const uiConfig = ui.config
 const user = host.user.get()
+
+const showTechnicalMode = computed({
+  get: () => uiConfig.value.showTechnicalMode,
+  set: (value) => {
+    uiConfig.value.showTechnicalMode = value
+  },
+})
+
 const repositoryUrl = computed(() => {
   switch (host.repository.provider) {
     case 'github':
@@ -18,14 +26,17 @@ const repositoryUrl = computed(() => {
 })
 
 const userMenuItems = computed(() => [
-  repositoryUrl.value
-    ? [{
+  [{
+    slot: 'view-mode' as const,
+  }, repositoryUrl.value
+    ? {
         label: `${host.repository.owner}/${host.repository.repo}`,
         icon: 'i-simple-icons:github',
         to: repositoryUrl.value,
         target: '_blank',
-      }]
-    : [],
+      }
+    : undefined
+  ].filter(Boolean),
   [{
     label: 'Sign out',
     icon: 'i-lucide-log-out',
@@ -35,7 +46,7 @@ const userMenuItems = computed(() => [
       })
     },
   }],
-].filter(group => group.length > 0))
+])
 </script>
 
 <template>
@@ -47,6 +58,19 @@ const userMenuItems = computed(() => [
       :items="userMenuItems"
       :ui="{ content: 'w-full' }"
     >
+      <template #view-mode>
+        <div
+          class="w-full"
+          @click.stop
+        >
+          <USwitch
+            v-model="showTechnicalMode"
+            label="Technical view"
+            size="xs"
+            :ui="{ root: 'w-full flex-row-reverse justify-between', wrapper: 'ms-0' }"
+          />
+        </div>
+      </template>
       <UButton
         color="neutral"
         variant="ghost"

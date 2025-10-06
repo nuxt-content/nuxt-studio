@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { StudioItemActionId, TreeStatus } from '../types'
 
-const { documentTree, context } = useStudio()
+const { documentTree, context, ui } = useStudio()
 
 const folderTree = computed(() => (documentTree.current.value || []).filter(f => f.type === 'directory'))
 const fileTree = computed(() => (documentTree.current.value || []).filter(f => f.type === 'file'))
@@ -35,6 +35,12 @@ const showFileForm = computed(() => {
       :draft-item="documentTree.draft.current.value!"
       :read-only="documentTree.currentItem.value.status === TreeStatus.Deleted"
     />
+    <div
+      v-else-if="ui.config.value.showTechnicalMode"
+      class="flex flex-col p-4"
+    >
+      Developer tree
+    </div>
     <div
       v-else
       class="flex flex-col p-4"
