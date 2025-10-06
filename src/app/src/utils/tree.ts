@@ -5,7 +5,10 @@ import type { RouteLocationNormalized } from 'vue-router'
 import type { BaseItem } from '../types/item'
 import { isEqual } from './database'
 
-export const ROOT_ITEM: TreeItem = { id: 'root', name: 'content', fsPath: '/', type: 'root' }
+export enum TreeRootId {
+  Content = 'content',
+  Media = 'public-assets',
+}
 
 export const EXTENSIONS_WITH_PREVIEW = new Set([
   'jpg',
@@ -317,11 +320,13 @@ function calculateDirectoryStatuses(items: TreeItem[]) {
       const childrenWithStatus = item.children.filter(child => child.status && child.status !== TreeStatus.Opened)
 
       if (childrenWithStatus.length > 0) {
+        item.status = TreeStatus.Updated
+
         const allChildrenHaveStatus = childrenWithStatus.length === item.children.length
 
         if (allChildrenHaveStatus) {
           if (childrenWithStatus.every(child => child.status === TreeStatus.Deleted)) {
-            item.status = TreeStatus.Created
+            item.status = TreeStatus.Deleted
           }
           else if (childrenWithStatus.every(child => child.status === TreeStatus.Renamed)) {
             item.status = TreeStatus.Renamed
@@ -329,9 +334,6 @@ function calculateDirectoryStatuses(items: TreeItem[]) {
           else if (childrenWithStatus.every(child => child.status === TreeStatus.Created)) {
             item.status = TreeStatus.Created
           }
-        }
-        else {
-          item.status = TreeStatus.Updated
         }
       }
     }

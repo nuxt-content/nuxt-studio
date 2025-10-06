@@ -249,7 +249,13 @@ describe('buildTree with one level of depth', () => {
 
   it('With same id DELETED and CREATED draft file resulting in RENAMED', () => {
     const deletedDbItem: DatabaseItem & { fsPath: string } = dbItemsList[1] // 2.introduction.md
-    const createdDbItem: DatabaseItem & { fsPath: string } = dbItemsList[2] // 3.installation.md
+    const createdDbItem: DatabaseItem & { fsPath: string } = {
+      ...dbItemsList[1],
+      id: 'docs/1.getting-started/2.renamed.md',
+      path: '/getting-started/renamed',
+      stem: '1.getting-started/2.renamed',
+      fsPath: '1.getting-started/2.renamed.md',
+    }
 
     const draftList: DraftItem[] = [{
       id: deletedDbItem.id,
@@ -265,9 +271,11 @@ describe('buildTree with one level of depth', () => {
       original: deletedDbItem,
     }]
 
-    const dbItemsListWithoutDeletedDbItem = dbItemsList.filter(item => item.id !== deletedDbItem.id)
+    // Remove deleted item and replace with created item
+    const dbItemsWithoutDeletedWithCreated = dbItemsList.filter(item => item.id !== deletedDbItem.id)
+    dbItemsWithoutDeletedWithCreated.push(createdDbItem)
 
-    const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList)
+    const tree = buildTree(dbItemsWithoutDeletedWithCreated, draftList)
 
     expect(tree).toStrictEqual([
       result[0],
@@ -275,11 +283,12 @@ describe('buildTree with one level of depth', () => {
         ...result[1],
         status: TreeStatus.Updated,
         children: [
+          ...result[1].children!.slice(1),
           {
             id: createdDbItem.id,
             fsPath: createdDbItem.fsPath,
-            routePath: '/getting-started/installation',
-            name: 'installation',
+            routePath: createdDbItem.path,
+            name: createdDbItem.path!.split('/').pop()!,
             type: 'file',
             status: TreeStatus.Renamed,
           },

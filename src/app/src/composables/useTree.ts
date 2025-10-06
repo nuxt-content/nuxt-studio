@@ -2,7 +2,7 @@ import { StudioFeature, type StudioHost, type TreeItem } from '../types'
 import { ref, computed } from 'vue'
 import type { useDraftDocuments } from './useDraftDocuments'
 import type { useDraftMedias } from './useDraftMedias'
-import { buildTree, findItemFromId, findItemFromRoute, ROOT_ITEM, findParentFromId } from '../utils/tree'
+import { buildTree, findItemFromId, findItemFromRoute, findParentFromId, TreeRootId } from '../utils/tree'
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
 import type { useUI } from './useUI'
@@ -10,11 +10,20 @@ import type { useUI } from './useUI'
 export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<typeof useUI>, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
 
+  const rootItem = computed<TreeItem>(() => {
+    return {
+      id: type === StudioFeature.Content ? TreeRootId.Content : TreeRootId.Media,
+      name: type === StudioFeature.Content ? 'content' : 'media',
+      type: 'root',
+      fsPath: '/',
+    } as TreeItem
+  })
+
   const tree = ref<TreeItem[]>([])
-  const currentItem = ref<TreeItem>(ROOT_ITEM)
+  const currentItem = ref<TreeItem>(rootItem.value)
 
   const currentTree = computed<TreeItem[]>(() => {
-    if (currentItem.value.id === ROOT_ITEM.id) {
+    if (currentItem.value.id === rootItem.value.id) {
       return tree.value
     }
 
@@ -31,15 +40,8 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
     return subTree
   })
 
-  // const parentItem = computed<TreeItem | null>(() => {
-  //   if (currentItem.value.id === ROOT_ITEM.id) return null
-
-  //   const parent = findParentFromId(tree.value, currentItem.value.id)
-  //   return parent || ROOT_ITEM
-  // })
-
   async function select(item: TreeItem) {
-    currentItem.value = item || ROOT_ITEM
+    currentItem.value = item || rootItem.value
     if (item?.type === 'file') {
       if (type === StudioFeature.Content && ui.config.value.syncEditorAndRoute) {
         host.app.navigateTo(item.routePath!)
@@ -103,6 +105,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
 
   return {
     root: tree,
+    rootItem,
     current: currentTree,
     currentItem,
     // parentItem,
