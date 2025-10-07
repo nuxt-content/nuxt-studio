@@ -76,9 +76,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
 
   async function selectParentById(id: string) {
     const parent = findParentFromId(tree.value, id)
-    if (parent) {
-      await select(parent)
-    }
+    await select(parent || rootItem.value)
   }
 
   async function handleDraftUpdate() {
