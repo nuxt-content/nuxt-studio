@@ -12,8 +12,8 @@ export interface ContentProvide {
 export type ContentDatabaseAdapter = (collection: string) => DatabaseAdapter
 
 export enum ContentFileExtension {
-  Markdown = "md",
-  YAML = "yaml",
-  YML = "yml",
-  JSON = "json"
+  Markdown = 'md',
+  YAML = 'yaml',
+  YML = 'yml',
+  JSON = 'json',
 }

@@ -7,7 +7,7 @@ import { joinURL } from 'ufo'
 
 export const useDevelopmentGit = (_options: GitOptions) => {
   return {
-    fetchFile: (_path: string, _options: { cached?: boolean } = {}):  Promise<GithubFile | null> => Promise.resolve(null),
+    fetchFile: (_path: string, _options: { cached?: boolean } = {}): Promise<GithubFile | null> => Promise.resolve(null),
     commitFiles: (_files: RawFile[], _message: string): Promise<{ success: boolean, commitSha: string, url: string } | null> => Promise.resolve(null),
   }
 }

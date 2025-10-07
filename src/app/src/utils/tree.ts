@@ -190,8 +190,8 @@ TreeItem[] {
 
 export function getTreeStatus(modified?: BaseItem, original?: BaseItem): TreeStatus {
   if (studioFlags.dev) {
-      return TreeStatus.Opened
-    }
+    return TreeStatus.Opened
+  }
 
   if (!original && !modified) {
     throw new Error('Unconsistent state: both modified and original are undefined')

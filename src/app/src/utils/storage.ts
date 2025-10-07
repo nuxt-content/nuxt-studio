@@ -1,6 +1,6 @@
-import { createStorage } from "unstorage"
-import indexedDbDriver from "unstorage/drivers/indexedb"
-import nullDriver from "unstorage/drivers/null"
+import { createStorage } from 'unstorage'
+import indexedDbDriver from 'unstorage/drivers/indexedb'
+import nullDriver from 'unstorage/drivers/null'
 
 export const nullStorageDriver = nullDriver()
 

@@ -143,7 +143,7 @@ export default defineNuxtModule<ModuleOptions>({
       filename: 'content-studio-public-assets.mjs',
       getContents: () => nuxt.options.dev
         ? getAssetsStorageDevTemplate(assetsStorage, nuxt)
-        : getAssetsStorageTemplate(assetsStorage, nuxt)
+        : getAssetsStorageTemplate(assetsStorage, nuxt),
     })
 
     addVitePlugin({
@@ -156,7 +156,7 @@ export default defineNuxtModule<ModuleOptions>({
             data: { type, id: `public-assets/${file}` },
           })
         })
-      }, 
+      },
       closeWatcher: () => { assetsStorage.unwatch() },
     })
 

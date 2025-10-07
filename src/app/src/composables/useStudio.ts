@@ -7,7 +7,8 @@ import { useDraftMedias } from './useDraftMedias'
 import { ref } from 'vue'
 import { useTree } from './useTree'
 import type { RouteLocationNormalized } from 'vue-router'
-import { StudioFeature, StudioHost } from '../types'
+import type { StudioHost } from '../types'
+import { StudioFeature } from '../types'
 import { documentStorage, mediaStorage, nullStorageDriver } from '../utils/storage'
 import { useHooks } from './useHooks'
 import { getDraftStatus } from '../utils/draft'
@@ -90,7 +91,8 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
       if (item) {
         await draftDocuments.remove([id])
       }
-    } else if (item) {
+    }
+    else if (item) {
       // Update draft if the document is not focused or the current item is not the one that was updated
       if (!window.document.hasFocus() || documentTree.currentItem.value?.id !== id) {
         const document = await host.document.get(id)
@@ -111,7 +113,8 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
       if (item) {
         await draftMedias.remove([id])
       }
-    } else if (item) {
+    }
+    else if (item) {
       if (!window.document.hasFocus() || mediaTree.currentItem.value?.id !== id) {
         const media = await host.media.get(id)
         item.modified = media

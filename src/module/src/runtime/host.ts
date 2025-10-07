@@ -128,10 +128,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           attributeFilter: ['class'],
         })
       },
-      documentUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => {
+      documentUpdate: (_fn: (id: string, type: 'remove' | 'update') => void) => {
         // no operation
       },
-      mediaUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => {
+      mediaUpdate: (_fn: (id: string, type: 'remove' | 'update') => void) => {
         // no operation
       },
     },

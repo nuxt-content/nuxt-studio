@@ -1,7 +1,7 @@
 import type { Storage } from 'unstorage'
 import type { Nuxt } from '@nuxt/schema'
 
-export async function getAssetsStorageDevTemplate(_assetsStorage: Storage, nuxt: Nuxt) {
+export async function getAssetsStorageDevTemplate(_assetsStorage: Storage, _nuxt: Nuxt) {
   return [
     'import { createStorage } from \'unstorage\'',
     'import httpDriver from \'unstorage/drivers/http\'',

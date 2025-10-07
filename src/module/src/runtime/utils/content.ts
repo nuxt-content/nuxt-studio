@@ -9,7 +9,6 @@ import { visit } from 'unist-util-visit'
 import type { Node } from 'unist'
 import type { MDCElement } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
-import { ContentFileExtension } from '../../types/content'
 
 export function removeReservedKeysFromDocument(document: DatabaseItem) {
   const result = omit(document, ['id', 'stem', 'extension', '__hash__', 'path', 'body', 'meta'])
