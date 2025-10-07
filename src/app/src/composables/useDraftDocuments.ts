@@ -48,8 +48,11 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       fsPath,
       githubFile,
       status: getDraftStatus(document, original),
-      original,
       modified: document,
+    }
+
+    if (original) {
+      item.original = original
     }
 
     await storage.setItem(document.id, item)

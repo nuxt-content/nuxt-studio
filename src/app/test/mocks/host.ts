@@ -23,13 +23,14 @@ export const createMockHost = (): StudioHost => ({
   },
   media: {
     get: vi.fn().mockImplementation(async (id: string) => createMockMedia(id)),
-    create: vi.fn().mockImplementation(async (fsPath: string, _content: string) => {
+    create: vi.fn().mockImplementation(async (fsPath: string, _routePath: string, _content: string) => {
       const id = joinURL(TreeRootId.Media, fsPath)
-      return createMockDocument(id)
+      return createMockMedia(id)
     }),
     upsert: vi.fn().mockResolvedValue(undefined),
     delete: vi.fn().mockResolvedValue(undefined),
     getFileSystemPath,
+    list: vi.fn().mockResolvedValue([]),
   },
   app: {
     requestRerender: vi.fn(),

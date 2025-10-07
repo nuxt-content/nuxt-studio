@@ -329,4 +329,63 @@ describe('Media draft - Action Chains Integration Tests', () => {
     // Memory
     expect(list.value).toHaveLength(0)
   })
+
+  it('Select > Delete > Revert', async () => {
+    const draftMedias = useDraftMedias(mockHost, mockGit as never)
+    const { remove, revert, list } = draftMedias
+
+    /* STEP 1: SELECT */
+    await draftMedias.selectById(mediaId)
+
+    // Storage
+    expect(mockStorage.size).toEqual(1)
+    let storedDraft: DraftItem<MediaItem> = JSON.parse(mockStorage.get(normalizeKey(mediaId))!)
+    expect(storedDraft).toHaveProperty('status', DraftStatus.Pristine)
+    expect(storedDraft).toHaveProperty('id', mediaId)
+    expect(storedDraft.original).toHaveProperty('id', mediaId)
+    expect(storedDraft.modified).toHaveProperty('id', mediaId)
+
+    // In memory
+    expect(list.value).toHaveLength(1)
+    expect(list.value[0]).toHaveProperty('status', DraftStatus.Pristine)
+    expect(list.value[0]).toHaveProperty('id', mediaId)
+    expect(list.value[0].modified).toHaveProperty('id', mediaId)
+    expect(list.value[0].original).toHaveProperty('id', mediaId)
+
+    /* STEP 2: DELETE */
+    await remove([mediaId])
+
+    // Storage
+    expect(mockStorage.size).toEqual(1)
+    storedDraft = JSON.parse(mockStorage.get(normalizeKey(mediaId))!)
+    expect(storedDraft).toHaveProperty('status', DraftStatus.Deleted)
+    expect(storedDraft).toHaveProperty('id', mediaId)
+    expect(storedDraft.modified).toBeUndefined()
+    expect(storedDraft.original).toBeDefined()
+
+    // Memory
+    expect(list.value).toHaveLength(1)
+    expect(list.value[0]).toHaveProperty('status', DraftStatus.Deleted)
+    expect(list.value[0]).toHaveProperty('id', mediaId)
+    expect(list.value[0].modified).toBeUndefined()
+    expect(list.value[0].original).toBeDefined()
+
+    /* STEP 3: REVERT */
+    await revert(mediaId)
+
+    // Storage
+    expect(mockStorage.size).toEqual(1)
+    storedDraft = JSON.parse(mockStorage.get(normalizeKey(mediaId))!)
+    expect(storedDraft).toHaveProperty('status', DraftStatus.Pristine)
+    expect(storedDraft).toHaveProperty('id', mediaId)
+    expect(storedDraft.modified).toBeDefined()
+    expect(storedDraft.original).toBeDefined()
+
+    // Memory
+    expect(list.value).toHaveLength(1)
+    expect(list.value[0]).toHaveProperty('status', DraftStatus.Pristine)
+    expect(list.value[0]).toHaveProperty('id', mediaId)
+    expect(list.value[0].modified).toBeDefined()
+    expect(list.value[0].original).toBeDefined()
+  })
 })
