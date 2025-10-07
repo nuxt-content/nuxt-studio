@@ -141,10 +141,6 @@ describe('useDraftDocuments - Action Chains Integration Tests', () => {
     const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
     const { selectById, update, revert, list } = draftDocuments
 
-    const mockDocument = createMockDocument(documentId)
-    const fsPath = mockHost.document.getFileSystemPath(documentId)
-    await mockHost.document.create(fsPath, mockDocument.path, '')
-
     /*
       STEP 1: SELECT
     */
@@ -198,9 +194,7 @@ describe('useDraftDocuments - Action Chains Integration Tests', () => {
     const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
     const { selectById, rename, update, list } = draftDocuments
 
-    const mockDocument = createMockDocument(documentId)
-    const fsPath = mockHost.document.getFileSystemPath(documentId)
-    const createdDocument = await mockHost.document.create(fsPath, mockDocument.path, '')
+    const createdDocument = createMockDocument(documentId)
 
     /*
       STEP 1: SELECT
@@ -220,12 +214,13 @@ describe('useDraftDocuments - Action Chains Integration Tests', () => {
       STEP 2: RENAME
     */
     const newId = generateUniqueDocumentId()
-    const renamedDraftItem = await rename(documentId, newId)
+    const newFsPath = mockHost.document.getFileSystemPath(newId)
+    await rename([{ id: documentId, newFsPath }])
 
     // Storage
     expect(mockStorage.size).toEqual(2)
 
-    const renamedDraftStorage = JSON.parse(mockStorage.get(normalizeKey(renamedDraftItem.id))!)
+    const renamedDraftStorage = JSON.parse(mockStorage.get(normalizeKey(newId))!)
     expect(renamedDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(renamedDraftStorage).toHaveProperty('id', newId)
     expect(renamedDraftStorage).toHaveProperty('original', createdDocument)

@@ -1,8 +1,8 @@
 import { type DatabasePageItem, type DraftItem, type BaseItem, ContentFileExtension } from '../types'
 import { DraftStatus } from '../types'
-import { ROOT_ITEM } from './tree'
 import { isEqual } from './database'
 import { studioFlags } from '../composables/useStudio'
+import { TreeRootId } from './tree'
 
 export function getDraftStatus(modified?: BaseItem, original?: BaseItem): DraftStatus {
   if (studioFlags.dev) {
@@ -36,7 +36,7 @@ export function getDraftStatus(modified?: BaseItem, original?: BaseItem): DraftS
 }
 
 export function findDescendantsFromId(list: DraftItem[], id: string): DraftItem[] {
-  if (id === ROOT_ITEM.id) {
+  if ([TreeRootId.Content, TreeRootId.Media].includes(id as TreeRootId)) {
     return list
   }
 

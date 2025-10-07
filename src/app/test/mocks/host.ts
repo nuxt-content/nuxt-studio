@@ -10,16 +10,9 @@ const getFileSystemPath = (id: string) => {
 export const createMockHost = (): StudioHost => ({
   document: {
     get: vi.fn().mockImplementation(async (id: string) => createMockDocument(id)),
-    create: vi.fn().mockImplementation(async (fsPath: string, routePath: string, content: string) => {
+    create: vi.fn().mockImplementation(async (fsPath: string, _content: string) => {
       const id = fsPath.startsWith('docs/') ? fsPath : `docs${fsPath}`
-      return createMockDocument(id, {
-        path: routePath,
-        stem: fsPath.split('/').pop()?.replace('.md', ''),
-        body: {
-          type: 'minimark',
-          value: [content || 'Test content'],
-        },
-      })
+      return createMockDocument(id)
     }),
     upsert: vi.fn().mockResolvedValue(undefined),
     delete: vi.fn().mockResolvedValue(undefined),

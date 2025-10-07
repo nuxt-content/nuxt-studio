@@ -42,15 +42,15 @@ export async function generateDocumentFromContent(id: string, content: string): 
   const [_id, _hash] = id.split('#')
   const extension = _id!.split('.').pop()
 
-  if (extension === ContentFileExtension.Markdown) {
+  if (extension === 'md') {
     return await generateDocumentFromMarkdownContent(id, content)
   }
 
-  if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
+  if (extension === 'yaml' || extension === 'YML') {
     return await generateDocumentFromYAMLContent(id, content)
   }
 
-  if (extension === ContentFileExtension.JSON) {
+  if (extension === 'json') {
     return await generateDocumentFromJSONContent(id, content)
   }
 
@@ -69,7 +69,7 @@ async function generateDocumentFromYAMLContent(id: string, content: string): Pro
 
   return {
     id,
-    extension: ContentFileExtension.YAML,
+    extension: 'yaml',
     stem: id.split('.').slice(0, -1).join('.'),
     meta: {},
     ...parsed,
@@ -90,7 +90,7 @@ async function generateDocumentFromJSONContent(id: string, content: string): Pro
 
   return {
     id,
-    extension: ContentFileExtension.JSON,
+    extension: 'json',
     stem: id.split('.').slice(0, -1).join('.'),
     meta: {},
     ...parsed,
@@ -111,8 +111,6 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
     },
   })
 
-  console.log('document =>', document)
-
   // Remove nofollow from links
   visit(document.body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
     if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
@@ -125,7 +123,7 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
   return {
     id,
     meta: {},
-    extension: ContentFileExtension.Markdown,
+    extension: 'md',
     stem: id.split('.').slice(0, -1).join('.'),
     body: {
       ...body,
