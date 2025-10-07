@@ -94,6 +94,9 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
 
     // Reselect current item to update status
     select(findItemFromId(tree.value, currentItem.value.id)!)
+
+    // Rerender host app
+    host.app.requestRerender()
   }
 
   if (type === StudioFeature.Content) {
