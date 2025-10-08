@@ -31,9 +31,9 @@ export interface StudioAction<K extends StudioItemActionId = StudioItemActionId>
 export interface CreateFolderParams {
   fsPath: string
 }
+
 export interface CreateFileParams {
   fsPath: string
-  routePath: string
   content: string
 }
 

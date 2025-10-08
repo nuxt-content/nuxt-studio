@@ -4,7 +4,7 @@ import { useStudio } from '../composables/useStudio'
 import type { TreeItem } from '../types'
 import { StudioItemActionId, TreeStatus } from '../types'
 
-const { documentTree, context } = useStudio()
+const { documentTree, context, ui } = useStudio()
 
 const folderTree = computed(() => (documentTree.current.value || []).filter(f => f.type === 'directory'))
 const fileTree = computed(() => (documentTree.current.value || []).filter(f => f.type === 'file'))
@@ -68,7 +68,7 @@ const items = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div>
     <div class="flex items-center justify-between gap-2 px-4 py-1 border-b-[0.5px] border-default bg-muted/70">
       <ItemBreadcrumb />
       <ItemActionsToolbar />
@@ -79,13 +79,31 @@ const items = computed(() => {
       :read-only="documentTree.currentItem.value.status === TreeStatus.Deleted"
     />
     <div
-      v-show="documentTree.currentItem.value.type !== 'file'"
-      class="flex flex-col p-1.5 text-default"
+      v-else-if="ui.config.value.showTechnicalMode"
+      class="flex flex-col p-4 text-white"
     >
       <UTree
         :items="items"
         color="neutral"
         :ui="{ linkTrailingIcon: 'text-dimmed' }"
+      />
+    </div>
+    <div
+      v-else
+      class="flex flex-col p-4"
+    >
+      <ItemTree
+        v-if="folderTree?.length > 0 || showFolderForm"
+        class="mb-2"
+        :tree="folderTree"
+        :show-form="showFolderForm"
+        type="directory"
+      />
+      <ItemTree
+        v-if="fileTree?.length > 0 || showFileForm"
+        :tree="fileTree"
+        :show-form="showFileForm"
+        type="file"
       />
     </div>
   </div>

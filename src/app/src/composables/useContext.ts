@@ -16,8 +16,10 @@ import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '
 import { useModal } from './useModal'
 import type { useTree } from './useTree'
 import { useRoute } from 'vue-router'
-import { findDescendantsFileItemsFromId } from '../utils/tree'
+import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
 import type { useDraftMedias } from './useDraftMedias'
+import { joinURL } from 'ufo'
+import { upperFirst } from 'scule'
 
 export const useContext = createSharedComposable((
   host: StudioHost,
@@ -73,11 +75,25 @@ export const useContext = createSharedComposable((
 
   const itemActionHandler: { [K in StudioItemActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
     [StudioItemActionId.CreateFolder]: async (params: CreateFolderParams) => {
-      alert(`create folder in ${params.fsPath}`)
+      const { fsPath } = params
+      const folderName = fsPath.split('/').pop()!
+      const rootDocumentFsPath = joinURL(fsPath, 'index.md')
+      const navigationDocumentFsPath = joinURL(fsPath, '.navigation.yml')
+
+      const navigationDocument = await host.document.create(navigationDocumentFsPath, `title: ${folderName}`)
+      const rootDocument = await host.document.create(rootDocumentFsPath, `# ${upperFirst(folderName)} root file`)
+
+      await activeTree.value.draft.create(navigationDocument)
+
+      unsetActionInProgress()
+
+      const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocument)
+
+      await activeTree.value.selectItemById(rootDocumentDraftItem.id)
     },
     [StudioItemActionId.CreateDocument]: async (params: CreateFileParams) => {
-      const { fsPath, routePath, content } = params
-      const document = await host.document.create(fsPath, routePath, content)
+      const { fsPath, content } = params
+      const document = await host.document.create(fsPath, content)
       const draftItem = await activeTree.value.draft.create(document)
       await activeTree.value.selectItemById(draftItem.id)
     },
@@ -93,7 +109,16 @@ export const useContext = createSharedComposable((
     },
     [StudioItemActionId.RenameItem]: async (params: TreeItem | RenameFileParams) => {
       const { id, newFsPath } = params as RenameFileParams
-      await activeTree.value.draft.rename(id, newFsPath)
+
+      const descendants = findDescendantsFileItemsFromId(activeTree.value.root.value, id)
+      if (descendants.length > 0) {
+        const parent = findItemFromId(activeTree.value.root.value, id)!
+        const itemsToRename = descendants.map(item => ({ id: item.id, newFsPath: item.fsPath.replace(parent.fsPath, newFsPath) }))
+        await activeTree.value.draft.rename(itemsToRename)
+      }
+      else {
+        await activeTree.value.draft.rename([{ id, newFsPath }])
+      }
     },
     [StudioItemActionId.DeleteItem]: async (item: TreeItem) => {
       modal.openConfirmActionModal(item.id, StudioItemActionId.DeleteItem, async () => {

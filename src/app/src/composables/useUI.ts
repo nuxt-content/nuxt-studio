@@ -1,10 +1,10 @@
 import { createSharedComposable, useStorage } from '@vueuse/core'
 import { ref, watch } from 'vue'
-import { type StudioHost, StudioFeature } from '../types'
+import { type StudioHost, StudioFeature, type UIConfig } from '../types'
 import { useSidebar } from './useSidebar'
 
 export const useUI = createSharedComposable((host: StudioHost) => {
-  const config = useStorage('studio-ui-config', { syncEditorAndRoute: true })
+  const config = useStorage<UIConfig>('studio-ui-config', { syncEditorAndRoute: true, showTechnicalMode: false })
   const sidebar = useSidebar()
   const isOpen = ref(false)
   const currentPanel = ref<StudioFeature | null>(null)
