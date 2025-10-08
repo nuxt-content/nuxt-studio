@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { titleCase } from 'scule'
 import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
+import { getFileIcon } from '../../../utils/file'
 
 const props = defineProps({
   item: {
@@ -16,25 +17,9 @@ const props = defineProps({
 const isFolder = computed(() => props.item.type === 'directory')
 const name = computed(() => titleCase(props.item.name))
 
-const itemExtensionIcon = computed(() => {
-  if (props.item.preview) {
-    return ''
-  }
-  const ext = props.item.id.split('.').pop()?.toLowerCase() || ''
-  return {
-    md: 'i-ph-markdown-logo',
-    yaml: 'i-fluent-document-yml-20-regular',
-    yml: 'i-fluent-document-yml-20-regular',
-    json: 'i-lucide-file-json',
-  }[ext] || 'i-mdi-file'
-})
+const itemExtensionIcon = computed(() => props.item.preview ? '' : getFileIcon(props.item.id))
 
-const imageSrc = computed(() => {
-  if (props.item.preview) {
-    return props.item.preview
-  }
-  return ''
-})
+const imageSrc = computed(() => props.item.preview || '')
 
 // ring-(--ui-success) ring-(--ui-info) ring-(--ui-warning) ring-(--ui-error) ring-(--ui-neutral)
 const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_UI_STATUS_MAP[props.item.status]})` : 'ring-(--ui-border) hover:ring-(--ui-border-accented)')
