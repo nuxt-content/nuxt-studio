@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, MediaItem, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'

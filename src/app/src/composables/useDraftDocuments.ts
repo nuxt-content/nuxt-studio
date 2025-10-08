@@ -1,7 +1,4 @@
-import { ref } from 'vue'
-import { createStorage } from 'unstorage'
-import indexedDbDriver from 'unstorage/drivers/indexedb'
-import type { DatabaseItem, DraftItem, StudioHost, GithubFile, RawFile } from '../types'
+import type { DatabaseItem, DraftItem, StudioHost, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
 import { generateContentFromDocument } from '../utils/content'
@@ -11,6 +8,7 @@ import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
 import { documentStorage as storage } from '../utils/storage'
 import { getFileExtension } from '../utils/file'
+import { useBaseDraft } from './useDraftBase'
 
 export const useDraftDocuments = createSharedComposable((host: StudioHost, git: ReturnType<typeof useGit>) => {
   const {

@@ -18,7 +18,7 @@ const isMedia = computed(() => props.item.id.startsWith(TreeRootId.Media))
 const isFolder = computed(() => props.item.type === 'directory')
 const name = computed(() => titleCase(props.item.name))
 
-const itemExtensionIcon = computed(() => props.item.preview ? '' : getFileIcon(props.item.id))
+const itemExtensionIcon = computed(() => isMedia.value ? '' : getFileIcon(props.item.id))
 
 const imageSrc = computed(() => props.item.routePath || '')
 
