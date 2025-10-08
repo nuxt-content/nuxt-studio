@@ -16,6 +16,7 @@ export * from './context'
 export * from './content'
 export * from './component'
 export * from './ui'
+export * from './media'
 
 export interface StudioHost {
   meta: {
@@ -40,7 +41,7 @@ export interface StudioHost {
     get: (id: string) => Promise<DatabaseItem>
     getFileSystemPath: (id: string) => string
     list: () => Promise<DatabaseItem[]>
-    upsert: (id: string, upsertedDocument: DatabaseItem) => Promise<void>
+    upsert: (id: string, document: DatabaseItem) => Promise<void>
     create: (fsPath: string, content: string) => Promise<DatabaseItem>
     delete: (id: string) => Promise<void>
     detectActives: () => Array<{ id: string, title: string }>
@@ -49,8 +50,7 @@ export interface StudioHost {
     get: (id: string) => Promise<MediaItem>
     getFileSystemPath: (id: string) => string
     list: () => Promise<MediaItem[]>
-    upsert: (id: string, upsertedDocument: MediaItem) => Promise<void>
-    create: (fsPath: string, routePath: string, content: string) => Promise<MediaItem>
+    upsert: (id: string, media: MediaItem) => Promise<void>
     delete: (id: string) => Promise<void>
   }
   user: {

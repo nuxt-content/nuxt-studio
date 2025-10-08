@@ -4,7 +4,7 @@ import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { titleCase } from 'scule'
-import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
+import { COLOR_UI_STATUS_MAP, TreeRootId } from '../../../utils/tree'
 
 const props = defineProps({
   item: {
@@ -13,13 +13,15 @@ const props = defineProps({
   },
 })
 
+const isMedia = computed(() => props.item.id.startsWith(TreeRootId.Media))
 const isFolder = computed(() => props.item.type === 'directory')
 const name = computed(() => titleCase(props.item.name))
 
 const itemExtensionIcon = computed(() => {
-  if (props.item.preview) {
-    return ''
+  if (isMedia.value) {
+    return null
   }
+
   const ext = props.item.id.split('.').pop()?.toLowerCase() || ''
   return {
     md: 'i-ph-markdown-logo',
@@ -30,10 +32,11 @@ const itemExtensionIcon = computed(() => {
 })
 
 const imageSrc = computed(() => {
-  if (props.item.preview) {
-    return props.item.preview
+  if (!isMedia.value) {
+    return null
   }
-  return ''
+
+  return props.item.routePath
 })
 
 // ring-(--ui-success) ring-(--ui-info) ring-(--ui-warning) ring-(--ui-error) ring-(--ui-neutral)
