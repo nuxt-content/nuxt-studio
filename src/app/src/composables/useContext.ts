@@ -11,6 +11,7 @@ import {
   type StudioActionInProgress,
   type CreateFolderParams,
   StudioItemActionId,
+  type DatabaseItem,
 } from '../types'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
 import { useModal } from './useModal'
@@ -94,7 +95,7 @@ export const useContext = createSharedComposable((
     [StudioItemActionId.CreateDocument]: async (params: CreateFileParams) => {
       const { fsPath, content } = params
       const document = await host.document.create(fsPath, content)
-      const draftItem = await activeTree.value.draft.create(document)
+      const draftItem = await activeTree.value.draft.create(document as DatabaseItem)
       await activeTree.value.selectItemById(draftItem.id)
     },
     [StudioItemActionId.UploadMedia]: async ({ parentFsPath, files }: UploadMediaParams) => {
@@ -128,7 +129,7 @@ export const useContext = createSharedComposable((
     },
     [StudioItemActionId.DuplicateItem]: async (item: TreeItem) => {
       const draftItem = await activeTree.value.draft.duplicate(item.id)
-      await activeTree.value.selectItemById(draftItem.id)
+      await activeTree.value.selectItemById(draftItem!.id)
     },
   }
 

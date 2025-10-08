@@ -7,6 +7,7 @@ import type { useGit } from './useGit'
 import { createSharedComposable } from '@vueuse/core'
 import { useBaseDraft } from './useDraftBase'
 import { TreeRootId } from '../utils/tree'
+import { generateStemFromFsPath } from '../../../module/src/runtime/utils/media'
 
 const storage = createStorage<DraftItem<MediaItem>>({
   driver: indexedDbDriver({
@@ -68,9 +69,11 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
 
       console.log('Rename currentDbItem', currentDbItem)
 
-      const newDbItem = {
+      const newDbItem: MediaItem = {
         ...currentDbItem,
         id: joinURL(TreeRootId.Media, newFsPath),
+        stem: generateStemFromFsPath(newFsPath),
+        path: withLeadingSlash(newFsPath),
       }
 
       await host.media.upsert(newDbItem.id, newDbItem)
@@ -126,6 +129,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     get,
     create,
     update: () => {},
+    duplicate: () => {},
     remove,
     revert,
     rename,
