@@ -271,7 +271,7 @@ describe('Document draft - Action Chains Integration Tests', () => {
     expect(updatedDraftMemory).toHaveProperty('original', createdDocument)
   })
 
-  it.only('Select > Rename > Revert', async () => {
+  it('Select > Rename > Revert', async () => {
     const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
     const { selectById, rename, revert, list } = draftDocuments
 
