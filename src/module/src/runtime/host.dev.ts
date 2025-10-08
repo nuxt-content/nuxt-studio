@@ -11,7 +11,7 @@ import { debounce } from 'perfect-debounce'
 export function useStudioHost(user: StudioUser, repository: Repository) {
   const host = useStudioHostBase(user, repository)
 
-  if (!useRuntimeConfig().public.contentStudio.studioDevStorage) {
+  if (!useRuntimeConfig().public.contentStudio.development.sync) {
     return host
   }
   // enable dev mode

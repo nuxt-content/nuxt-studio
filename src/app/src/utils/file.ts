@@ -6,13 +6,9 @@ const FILE_ICONS = {
   yaml: 'i-fluent-document-yml-20-regular',
   yml: 'i-fluent-document-yml-20-regular',
   json: 'i-lucide-file-json',
-  mp3: 'i-lucide-file-audio',
-  mp4: 'i-lucide-file-video',
-  wav: 'i-lucide-file-audio',
-  ogg: 'i-lucide-file-audio',
-  m4a: 'i-lucide-file-audio',
-  aac: 'i-lucide-file-audio',
-  flac: 'i-lucide-file-audio',
+  ...IMAGE_EXTENSIONS.reduce((acc, ext) => ({ ...acc, [ext]: 'i-lucide-file-image' }), {}),
+  ...VIDEO_EXTENSIONS.reduce((acc, ext) => ({ ...acc, [ext]: 'i-lucide-file-video' }), {}),
+  ...AUDIO_EXTENSIONS.reduce((acc, ext) => ({ ...acc, [ext]: 'i-lucide-file-audio' }), {}),
 }
 
 export function getFileExtension(path: string) {
