@@ -8,6 +8,7 @@ import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
 import { documentStorage as storage } from '../utils/storage'
+import { getFileExtension } from '../utils/file'
 
 export const useDraftDocuments = createSharedComposable((host: StudioHost, git: ReturnType<typeof useGit>) => {
   const list = ref<DraftItem<DatabaseItem>[]>([])
@@ -197,7 +198,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     const currentFsPath = currentDraftItem?.fsPath || host.document.getFileSystemPath(id)
     const currentContent = await generateContentFromDocument(currentDbItem) || ''
     const currentName = currentFsPath.split('/').pop()!
-    const currentExtension = currentName.split('.').pop()!
+    const currentExtension = getFileExtension(currentName)
     const currentNameWithoutExtension = currentName.split('.').slice(0, -1).join('.')
 
     const newFsPath = `${currentFsPath.split('/').slice(0, -1).join('/')}/${currentNameWithoutExtension}-copy.${currentExtension}`

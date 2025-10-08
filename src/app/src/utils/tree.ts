@@ -5,6 +5,7 @@ import type { RouteLocationNormalized } from 'vue-router'
 import type { BaseItem } from '../types/item'
 import { isEqual } from './database'
 import { studioFlags } from '../composables/useStudio'
+import { getFileExtension } from './file'
 
 export enum TreeRootId {
   Content = 'content',
@@ -57,7 +58,7 @@ TreeItem[] {
 
       const virtualDbItems: BaseItem & { fsPath: string } = {
         id: deletedItem.id,
-        extension: deletedItem.id.split('.').pop()!,
+        extension: getFileExtension(deletedItem.id),
         stem: '',
         fsPath: deletedItem.fsPath,
         path: deletedItem.original?.path,

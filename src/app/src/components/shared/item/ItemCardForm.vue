@@ -9,6 +9,7 @@ import { StudioItemActionId } from '../../../types'
 import { stripNumericPrefix } from '../../../utils/string'
 import { defineShortcuts } from '#imports'
 import { upperFirst } from 'scule'
+import { getFileExtension } from '../../../utils/file'
 
 const { context } = useStudio()
 
@@ -35,7 +36,7 @@ const props = defineProps({
 
 const originalName = computed(() => props.renamedItem?.name || '')
 const originalExtension = computed(() => {
-  const ext = props.renamedItem?.id.split('.').pop()
+  const ext = getFileExtension(props.renamedItem?.id || '')
   if (ext && contentFileExtensions.includes(ext as ContentFileExtension)) {
     return ext as ContentFileExtension
   }

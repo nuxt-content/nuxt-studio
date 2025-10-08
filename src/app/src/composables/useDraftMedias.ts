@@ -8,6 +8,7 @@ import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 import { TreeRootId } from '../utils/tree'
 import { mediaStorage as storage } from '../utils/storage'
+import { getFileExtension } from '../utils/file'
 
 export const useDraftMedias = createSharedComposable((host: StudioHost, git: ReturnType<typeof useGit>) => {
   const list = ref<DraftItem[]>([])
@@ -161,7 +162,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     // const newId = `${currentDbItem.id.split('/').slice(0, -1).join('/')}/${newFsPath}`
     // const newPath = `${currentDbItem.path!.split('/').slice(0, -1).join('/')}/${newFsPath}`
     // const newStem = `${currentDbItem.stem.split('/').slice(0, -1).join('/')}/${newNameWithoutExtension}`
-    // const newExtension = newFsPath.split('.').pop()!
+    // const newExtension = getFileExtension(newFsPath)
 
     // const newDbItem = {
     //   ...currentDbItem,
@@ -190,7 +191,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     // const currentRoutePath = currentDbItem.path!
     // const currentContent = ''
     // const currentName = currentFsPath.split('/').pop()!
-    // const currentExtension = currentName.split('.').pop()!
+    // const currentExtension = getFileExtension(currentName)
     // const currentNameWithoutExtension = currentName.split('.').slice(0, -1).join('.')
 
     // const newFsPath = `${currentFsPath.split('/').slice(0, -1).join('/')}/${currentNameWithoutExtension}-copy.${currentExtension}`
@@ -267,7 +268,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
       modified: {
         id: `${TreeRootId.Media}/${fsPath}`,
         fsPath,
-        extension: fsPath.split('.').pop()!,
+        extension: getFileExtension(fsPath),
         stem: fsPath.split('.').join('.'),
         path: withLeadingSlash(fsPath),
         raw: rawData,
