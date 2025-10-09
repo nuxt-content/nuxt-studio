@@ -40,9 +40,27 @@ const props = defineProps({
   },
 })
 
+const action = computed<StudioAction>(() => context.itemActions.value.find(action => action.id === props.actionId)!)
+const isFolderAction = computed(() => {
+  return props.actionId === StudioItemActionId.CreateFolder
+    || (
+      props.actionId === StudioItemActionId.RenameItem
+      && props.renamedItem.type === 'directory'
+    )
+})
 const originalName = computed(() => props.renamedItem?.name || '')
 const isMedia = computed(() => props.renamedItem && isMediaFile(props.renamedItem?.fsPath))
-const originalExtension = computed(() => props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : ContentFileExtension.Markdown)
+const originalExtension = computed(() => {
+  if (isFolderAction.value) {
+    return null
+  }
+
+  if (isMedia.value) {
+    return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : null
+  }
+
+  return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : ContentFileExtension.Markdown
+})
 
 const schema = z.object({
   name: z.string()
@@ -55,19 +73,7 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 const state = reactive<Schema>({
   name: originalName.value,
-  extension: originalExtension.value! as MediaFileExtension | ContentFileExtension,
-})
-
-const action = computed<StudioAction>(() => {
-  return context.itemActions.value.find(action => action.id === props.actionId)!
-})
-
-const isFolderAction = computed(() => {
-  return props.actionId === StudioItemActionId.CreateFolder
-    || (
-      props.actionId === StudioItemActionId.RenameItem
-      && props.renamedItem.type === 'directory'
-    )
+  extension: originalExtension.value! as MediaFileExtension | ContentFileExtension | null,
 })
 
 const itemExtensionIcon = computed<string>(() => {

@@ -17,9 +17,7 @@ const props = defineProps({
 const isMedia = computed(() => isMediaFile(props.item.fsPath))
 const isFolder = computed(() => props.item.type === 'directory')
 const name = computed(() => titleCase(props.item.name))
-
 const itemExtensionIcon = computed(() => getFileIcon(props.item.fsPath))
-
 const imageSrc = computed(() => isMedia.value ? props.item.routePath : '')
 
 // ring-(--ui-success) ring-(--ui-info) ring-(--ui-warning) ring-(--ui-error) ring-(--ui-neutral)
