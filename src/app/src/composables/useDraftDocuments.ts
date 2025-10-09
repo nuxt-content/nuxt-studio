@@ -1,5 +1,3 @@
-import { createStorage } from 'unstorage'
-import indexedDbDriver from 'unstorage/drivers/indexedb'
 import type { DatabaseItem, DraftItem, StudioHost, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
@@ -8,14 +6,9 @@ import { getDraftStatus } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
+import { documentStorage as storage } from '../utils/storage'
+import { getFileExtension } from '../utils/file'
 import { useBaseDraft } from './useDraftBase'
-
-const storage = createStorage<DraftItem<DatabaseItem>>({
-  driver: indexedDbDriver({
-    dbName: 'content-studio-document',
-    storeName: 'drafts',
-  }),
-})
 
 export const useDraftDocuments = createSharedComposable((host: StudioHost, git: ReturnType<typeof useGit>) => {
   const {
@@ -98,7 +91,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     const currentFsPath = currentDraftItem?.fsPath || host.document.getFileSystemPath(id)
     const currentContent = await generateContentFromDocument(currentDbItem) || ''
     const currentName = currentFsPath.split('/').pop()!
-    const currentExtension = currentName.split('.').pop()!
+    const currentExtension = getFileExtension(currentName)
     const currentNameWithoutExtension = currentName.split('.').slice(0, -1).join('.')
 
     const newFsPath = `${currentFsPath.split('/').slice(0, -1).join('/')}/${currentNameWithoutExtension}-copy.${currentExtension}`

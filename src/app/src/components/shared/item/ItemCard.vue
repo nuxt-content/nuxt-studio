@@ -4,7 +4,8 @@ import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { titleCase } from 'scule'
-import { COLOR_UI_STATUS_MAP, TreeRootId } from '../../../utils/tree'
+import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
+import { getFileIcon, isMediaFile } from '../../../utils/file'
 
 const props = defineProps({
   item: {
@@ -13,31 +14,11 @@ const props = defineProps({
   },
 })
 
-const isMedia = computed(() => props.item.id.startsWith(TreeRootId.Media))
+const isMedia = computed(() => isMediaFile(props.item.fsPath))
 const isFolder = computed(() => props.item.type === 'directory')
 const name = computed(() => titleCase(props.item.name))
-
-const itemExtensionIcon = computed(() => {
-  if (isMedia.value) {
-    return null
-  }
-
-  const ext = props.item.id.split('.').pop()?.toLowerCase() || ''
-  return {
-    md: 'i-ph-markdown-logo',
-    yaml: 'i-fluent-document-yml-20-regular',
-    yml: 'i-fluent-document-yml-20-regular',
-    json: 'i-lucide-file-json',
-  }[ext] || 'i-mdi-file'
-})
-
-const imageSrc = computed(() => {
-  if (!isMedia.value) {
-    return null
-  }
-
-  return props.item.routePath
-})
+const itemExtensionIcon = computed(() => getFileIcon(props.item.fsPath))
+const imageSrc = computed(() => isMedia.value ? props.item.routePath : '')
 
 // ring-(--ui-success) ring-(--ui-info) ring-(--ui-warning) ring-(--ui-error) ring-(--ui-neutral)
 const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_UI_STATUS_MAP[props.item.status]})` : 'ring-(--ui-border) hover:ring-(--ui-border-accented)')
@@ -48,6 +29,7 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
     reverse
     class="cursor-pointer hover:bg-muted relative w-full min-w-0 overflow-hidden"
     :class="statusRingColor"
+    :ui="{ container: 'overflow-hidden' }"
   >
     <div
       v-if="item.type === 'file'"
@@ -62,18 +44,14 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
           alt="Card placeholder"
           class="z-[-1] rounded-t-lg aspect-video object-cover"
         />
-        <div
-          v-else
-          class="z-[-1] aspect-video bg-elevated"
-        />
-        <div
-          v-if="itemExtensionIcon"
-          class="absolute inset-0 flex items-center justify-center"
-        >
-          <UIcon
-            :name="itemExtensionIcon"
-            class="w-8 h-8 text-muted"
-          />
+        <div v-else>
+          <div class="z-[-1] aspect-video bg-elevated" />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <UIcon
+              :name="itemExtensionIcon"
+              class="w-8 h-8 text-muted"
+            />
+          </div>
         </div>
       </div>
       <ItemBadge
@@ -98,7 +76,7 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
               class="h-4 w-4 shrink-0 text-muted"
             />
             <h3
-              class="text-sm font-semibold truncate text-default"
+              class="text-sm font-semibold truncate text-default overflow-hidden"
               :class="props.item.status === 'deleted' && 'line-through'"
             >
               {{ name }}
@@ -108,9 +86,9 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
         </div>
 
         <UTooltip :text="item.routePath">
-          <span class="truncate leading-relaxed text-xs text-dimmed block w-full">
+          <div class="truncate leading-relaxed text-xs text-dimmed block w-full">
             {{ item.routePath || item.fsPath }}
-          </span>
+          </div>
         </UTooltip>
       </div>
     </template>

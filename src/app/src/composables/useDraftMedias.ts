@@ -1,5 +1,3 @@
-import { createStorage } from 'unstorage'
-import indexedDbDriver from 'unstorage/drivers/indexedb'
 import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, MediaItem, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
@@ -7,15 +5,10 @@ import type { useGit } from './useGit'
 import { createSharedComposable } from '@vueuse/core'
 import { useBaseDraft } from './useDraftBase'
 import { TreeRootId } from '../utils/tree'
+import { mediaStorage as storage } from '../utils/storage'
+import { getFileExtension } from '../utils/file'
 import { generateStemFromFsPath } from '../../../module/src/runtime/utils/media'
 import { useHooks } from './useHooks'
-
-const storage = createStorage<DraftItem<MediaItem>>({
-  driver: indexedDbDriver({
-    dbName: 'content-studio-media',
-    storeName: 'drafts',
-  }),
-})
 
 const hooks = useHooks()
 
@@ -50,7 +43,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
       modified: {
         id: joinURL(TreeRootId.Media, fsPath),
         fsPath,
-        extension: fsPath.split('.').pop()!,
+        extension: getFileExtension(fsPath),
         stem: fsPath.split('.').join('.'),
         path: withLeadingSlash(fsPath),
         raw: rawData,

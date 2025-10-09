@@ -9,13 +9,7 @@ import { visit } from 'unist-util-visit'
 import type { Node } from 'unist'
 import type { MarkdownRoot } from '@nuxt/content'
 import { destr } from 'destr'
-
-export const contentFileExtensions = [
-  ContentFileExtension.Markdown,
-  ContentFileExtension.YAML,
-  ContentFileExtension.YML,
-  ContentFileExtension.JSON,
-] as const
+import { getFileExtension } from './file'
 
 const reservedKeys = ['id', 'stem', 'extension', '__hash__', 'path', 'body', 'meta', 'rawbody']
 
@@ -65,7 +59,7 @@ export function removeReservedKeysFromDocument(document: DatabaseItem) {
 
 export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
-  const extension = _id!.split('.').pop()
+  const extension = getFileExtension(id)
 
   if (extension === ContentFileExtension.Markdown) {
     return await generateDocumentFromMarkdownContent(id, content)
@@ -160,7 +154,7 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
 
 export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
   const [id, _hash] = document.id.split('#')
-  const extension = id!.split('.').pop()
+  const extension = getFileExtension(id)
 
   if (extension === ContentFileExtension.Markdown) {
     return await generateContentFromMarkdownDocument(document as DatabasePageItem)

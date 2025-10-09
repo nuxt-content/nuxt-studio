@@ -5,21 +5,21 @@ import type { MediaItem } from './media'
 import type { Repository } from './git'
 import type { ComponentMeta } from './component'
 
+export * from './file'
 export * from './item'
 export * from './draft'
 export * from './database'
-export * from './media'
 export * from './user'
 export * from './tree'
 export * from './git'
 export * from './context'
-export * from './content'
 export * from './component'
 export * from './ui'
 export * from './media'
 
 export interface StudioHost {
   meta: {
+    dev: boolean
     components: () => ComponentMeta[]
   }
   on: {
@@ -27,6 +27,8 @@ export interface StudioHost {
     mounted: (fn: () => void) => void
     beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => void
     colorModeChange: (fn: (colorMode: 'light' | 'dark') => void) => void
+    documentUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => void
+    mediaUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => void
   }
   ui: {
     colorMode: 'light' | 'dark'

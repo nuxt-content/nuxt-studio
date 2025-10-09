@@ -61,7 +61,7 @@ export const setupSuggestion = (monaco: typeof import('modern-monaco/editor-core
       return {
         suggestions: [
           ...getGlobalCompletionItems(monaco, range, trigger),
-          ...getProjectCompletionItems(monaco, range, trigger, projectComponents.value),
+          ...getProjectCompletionItems(monaco, range, trigger, projectComponents.value as ComponentMeta[]),
           ...getMediasCompletionItems(monaco, range, trigger, projectMedias.value),
         ].filter(item => completionType === 'all' || item.type === completionType),
       }
@@ -118,7 +118,7 @@ export const setupSuggestion = (monaco: typeof import('modern-monaco/editor-core
           endColumn: word.endColumn,
         }
 
-        const componentProps = findComponentProps(componentName, projectComponents.value)
+        const componentProps = findComponentProps(componentName, projectComponents.value as ComponentMeta[])
         const suggestions = componentProps.filter(prop => typeof attributes[prop.name] === 'undefined').map((prop) => {
           const insertText = `${prop.name}="\${1:${unwrapQuotes(prop.default || 'value')}}"`
           return {

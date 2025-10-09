@@ -1,32 +1,37 @@
 import type { H3Event } from 'h3'
 import { createError, eventHandler, getRequestHeader, readRawBody, setResponseHeader } from 'h3'
-import type { StorageMeta } from 'unstorage'
-import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
-import { decompressTree } from '@nuxt/content/runtime'
-import { removeReservedKeysFromDocument } from '../../../../utils/content'
+import type { Storage, StorageMeta } from 'unstorage'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
 
 export default eventHandler(async (event) => {
-  const path = event.path.replace('/__nuxt_content/studio/dev/fs/', '')
-  const key = path.replace(/\//g, ':').replace(/^content:/, '')
-  const storage = useStorage('nuxt_content_studio')
+  const path = event.path.replace('/__nuxt_content/studio/dev/public/', '')
+  const key = path.replace(/\//g, ':').replace(/^public-assets:/, '')
+  const storage = useStorage('nuxt_studio_public_assets') as Storage
 
   // GET => getItem / getKeys
   if (event.method === 'GET') {
-    const isRaw
-      = getRequestHeader(event, 'accept') === 'application/octet-stream'
-    const driverValue = await (isRaw
-      ? storage.getItemRaw(key)
-      : storage.getItem(key))
-    if (driverValue === null) {
+    const lastChar = key[key.length - 1];
+    const isBaseKey = lastChar === "/" || lastChar === ":";
+    if (isBaseKey) {
+      const keys = await storage.getKeys(key);
+      return keys.map((key) => key.replace(/:/g, "/"));
+    }
+
+    const item = await storage.getMeta(key)
+    if (!item) {
       throw createError({
         statusCode: 404,
         statusMessage: 'KV value not found',
       })
     }
-    setMetaHeaders(event, await storage.getMeta(key))
-    return isRaw ? driverValue : String(driverValue)
+    return {
+      id: `public-assets/${key.replace(/:/g, '/')}`,
+      extension: key.split('.').pop(),
+      stem: key.split('.').join('.'),
+      path: '/' + key.replace(/:/g, '/'),
+      version: new Date(item.mtime || new Date()).getTime(),
+    }
   }
 
   if (event.method === 'PUT') {
@@ -36,17 +41,14 @@ export default eventHandler(async (event) => {
     }
     else if (getRequestHeader(event, 'content-type') === 'text/plain') {
       const value = await readRawBody(event, 'utf8')
-      await storage.setItem(key, value)
+      await storage.setItem(key, value!)
     }
     else {
       const value = await readRawBody(event, 'utf8')
       const json = JSON.parse(value || '{}')
-      const content = await stringifyMarkdown(
-        json.body.type === 'minimark' ? decompressTree(json.body) : json.body,
-        removeReservedKeysFromDocument(json),
-      )
-
-      await storage.setItem(key, content)
+      
+      const data = json.raw.split(';base64,')[1]
+      await storage.setItemRaw(key, Buffer.from(data, 'base64'))
     }
 
     return 'OK'
