@@ -14,7 +14,6 @@ import {
   type DatabaseItem,
 } from '../types'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
-import { useModal } from './useModal'
 import type { useTree } from './useTree'
 import { useRoute } from 'vue-router'
 import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
@@ -27,7 +26,6 @@ export const useContext = createSharedComposable((
   documentTree: ReturnType<typeof useTree>,
   mediaTree: ReturnType<typeof useTree>,
 ) => {
-  const modal = useModal()
   const route = useRoute()
 
   const actionInProgress = ref<StudioActionInProgress | null>(null)
@@ -104,9 +102,7 @@ export const useContext = createSharedComposable((
       }
     },
     [StudioItemActionId.RevertItem]: async (item: TreeItem) => {
-      modal.openConfirmActionModal(item.id, StudioItemActionId.RevertItem, async () => {
-        await activeTree.value.draft.revert(item.id)
-      })
+      await activeTree.value.draft.revert(item.id)
     },
     [StudioItemActionId.RenameItem]: async (params: TreeItem | RenameFileParams) => {
       const { id, newFsPath } = params as RenameFileParams
@@ -122,10 +118,8 @@ export const useContext = createSharedComposable((
       }
     },
     [StudioItemActionId.DeleteItem]: async (item: TreeItem) => {
-      modal.openConfirmActionModal(item.id, StudioItemActionId.DeleteItem, async () => {
-        const ids: string[] = findDescendantsFileItemsFromId(activeTree.value.root.value, item.id).map(item => item.id)
-        await activeTree.value.draft.remove(ids)
-      })
+      const ids: string[] = findDescendantsFileItemsFromId(activeTree.value.root.value, item.id).map(item => item.id)
+      await activeTree.value.draft.remove(ids)
     },
     [StudioItemActionId.DuplicateItem]: async (item: TreeItem) => {
       const draftItem = await activeTree.value.draft.duplicate(item.id)

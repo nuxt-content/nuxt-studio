@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computeActionItems } from '../../../utils/context'
-import { computed, type PropType } from 'vue'
-import type { TreeItem } from '../../../types'
+import { computeActionItems, oneStepActions } from '../../../utils/context'
+import { computed, ref, watch, type PropType } from 'vue'
+import { StudioItemActionId } from '../../../types'
+import type { StudioItemActionId as StudioItemActionIdType, TreeItem } from '../../../types'
 import { useStudio } from '../../../composables/useStudio'
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.js'
 
@@ -14,18 +15,70 @@ const props = defineProps({
   },
 })
 
+const isOpen = ref(false)
+const pendingActionId = ref<StudioItemActionIdType | null>(null)
+
+// Reset pending action when menu closes
+watch(isOpen, (newValue) => {
+  if (!newValue) {
+    setTimeout(() => {
+      pendingActionId.value = null
+    }, 300)
+  }
+})
+
 const actions = computed<DropdownMenuItem[]>(() => {
-  return computeActionItems(context.itemActions.value, props.item).map(action => ({
-    ...action,
-    onSelect: () => action.handler!(props.item),
-  }))
+  const hasPendingAction = pendingActionId.value !== null
+
+  return computeActionItems(context.itemActions.value, props.item).map((action) => {
+    const isOneStepAction = oneStepActions.includes(action.id)
+    const isPending = pendingActionId.value === action.id
+    const isDeleteAction = action.id === StudioItemActionId.DeleteItem
+
+    return {
+      ...action,
+      icon: isPending ? (isDeleteAction ? 'i-ph-x' : 'i-ph-check') : action.icon,
+      color: isPending ? (isDeleteAction ? 'error' : 'secondary') : 'neutral',
+      slot: isPending ? 'pending-action' : undefined,
+      disabled: hasPendingAction && !isPending,
+      onSelect: (e: Event) => {
+        // For non-one-step actions, execute immediately
+        if (!isOneStepAction) {
+          action.handler!(props.item)
+          return
+        }
+
+        // Second click on pending action - execute it
+        if (isPending) {
+          action.handler!(props.item)
+          pendingActionId.value = null
+        }
+        // Click on different action while one is pending - cancel pending state
+        else if (pendingActionId.value !== null) {
+          e.preventDefault()
+          pendingActionId.value = null
+        }
+        // First click - enter confirmation state
+        else {
+          e.preventDefault()
+          pendingActionId.value = action.id
+        }
+      },
+    }
+  })
+})
+
+const pendingActionLabel = computed(() => {
+  return `Click again to ${pendingActionId.value?.split('-')[0]}`
 })
 </script>
 
 <template>
   <UDropdownMenu
+    v-model:open="isOpen"
     :items="actions"
     :content="{ side: 'bottom' }"
+    :ui="{ content: 'w-42' }"
   >
     <UButton
       color="neutral"
@@ -37,5 +90,11 @@ const actions = computed<DropdownMenuItem[]>(() => {
       class="cursor-pointer"
       @click="$event.stopPropagation()"
     />
+
+    <template #pending-action-label>
+      <UTooltip :text="pendingActionLabel">
+        <span class="truncate">{{ pendingActionLabel }}</span>
+      </UTooltip>
+    </template>
   </UDropdownMenu>
 </template>

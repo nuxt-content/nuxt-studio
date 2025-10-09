@@ -106,7 +106,7 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
       }
 
       if (rerender) {
-        await hooks.callHook('studio:draft:media:updated', { caller: 'useBaseDraft.remove' })
+        await hooks.callHook(hookName, { caller: 'useBaseDraft.remove' })
       }
     }
   }
