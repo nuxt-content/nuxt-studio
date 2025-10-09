@@ -47,18 +47,16 @@ const showFileForm = computed(() => {
       v-else
       class="flex flex-col p-4"
     >
-      <ItemTree
+      <ItemTreeFolder
         v-if="folderTree?.length > 0 || showFolderForm"
-        class="mb-2"
+        class="mb-4"
         :tree="folderTree"
         :show-form="showFolderForm"
-        type="directory"
       />
-      <ItemTree
+      <ItemTreeFile
         v-if="fileTree?.length > 0 || showFileForm"
         :tree="fileTree"
         :show-form="showFileForm"
-        type="file"
       />
     </div>
   </div>

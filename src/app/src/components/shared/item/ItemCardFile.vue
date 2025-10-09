@@ -15,7 +15,6 @@ const props = defineProps({
 })
 
 const isMedia = computed(() => isMediaFile(props.item.fsPath))
-const isFolder = computed(() => props.item.type === 'directory')
 const name = computed(() => titleCase(props.item.name))
 const itemExtensionIcon = computed(() => getFileIcon(props.item.fsPath))
 const imageSrc = computed(() => isMedia.value ? props.item.routePath : '')
@@ -31,47 +30,34 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
     :class="statusRingColor"
     :ui="{ container: 'overflow-hidden' }"
   >
-    <div
-      v-if="item.type === 'file'"
-      class="relative"
-    >
-      <div class="bg-default bg-[linear-gradient(45deg,#e6e9ea_25%,transparent_0),linear-gradient(-45deg,#e6e9ea_25%,transparent_0),linear-gradient(45deg,transparent_75%,#e6e9ea_0),linear-gradient(-45deg,transparent_75%,#e6e9ea_0)] bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0]">
-        <Image
-          v-if="imageSrc"
-          :src="imageSrc"
-          width="426"
-          height="240"
-          alt="Card placeholder"
-          class="z-[-1] rounded-t-lg aspect-video object-cover"
-        />
-        <div v-else>
-          <div class="z-[-1] aspect-video bg-elevated" />
-          <div class="absolute inset-0 flex items-center justify-center">
-            <UIcon
-              :name="itemExtensionIcon"
-              class="w-8 h-8 text-muted"
+    <template #body>
+      <div class="flex items-start gap-3">
+        <div class="relative flex-shrink-0 w-12 h-12">
+          <div class="w-full h-full bg-default bg-[linear-gradient(45deg,#e6e9ea_25%,transparent_0),linear-gradient(-45deg,#e6e9ea_25%,transparent_0),linear-gradient(45deg,transparent_75%,#e6e9ea_0),linear-gradient(-45deg,transparent_75%,#e6e9ea_0)] bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden">
+            <Image
+              v-if="imageSrc"
+              :src="imageSrc"
+              width="96"
+              height="96"
+              alt="File preview"
+              class="w-full h-full object-cover"
             />
+            <div
+              v-else
+              class="w-full h-full bg-elevated flex items-center justify-center"
+            >
+              <UIcon
+                :name="itemExtensionIcon"
+                class="w-6 h-6 text-muted"
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <ItemBadge
-        v-if="item.status && item.status !== TreeStatus.Opened"
-        :status="item.status"
-        class="absolute top-2 right-2"
-      />
-    </div>
 
-    <template #body>
-      <div class="flex flex-col gap-1">
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-col gap-1 flex-1 min-w-0">
           <div class="flex items-center gap-1 min-w-0">
             <UIcon
-              v-if="isFolder"
-              name="i-lucide-folder"
-              class="h-4 w-4 shrink-0 text-muted"
-            />
-            <UIcon
-              v-else-if="name === 'Home'"
+              v-if="name === 'Home'"
               name="i-lucide-house"
               class="h-4 w-4 shrink-0 text-muted"
             />
@@ -82,14 +68,21 @@ const statusRingColor = computed(() => props.item.status ? `ring-(--ui-${COLOR_U
               {{ name }}
             </h3>
           </div>
-          <ItemActionsDropdown :item="item" />
+
+          <UTooltip :text="item.routePath">
+            <div class="truncate leading-relaxed text-xs text-dimmed">
+              {{ item.routePath || item.fsPath }}
+            </div>
+          </UTooltip>
         </div>
 
-        <UTooltip :text="item.routePath">
-          <div class="truncate leading-relaxed text-xs text-dimmed block w-full">
-            {{ item.routePath || item.fsPath }}
-          </div>
-        </UTooltip>
+        <div class="flex-shrink-0 flex flex-col gap-1 items-end">
+          <ItemActionsDropdown :item="item" />
+          <ItemBadge
+            v-if="item.status && item.status !== TreeStatus.Opened"
+            :status="item.status"
+          />
+        </div>
       </div>
     </template>
   </UPageCard>
