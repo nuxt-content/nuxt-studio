@@ -43,7 +43,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: {
     development: {
-      sync: true,
+      sync: false,
     },
   },
   async setup(options, nuxt) {

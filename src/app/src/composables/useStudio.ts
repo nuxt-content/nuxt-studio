@@ -103,7 +103,7 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
       }
     }
 
-    await hooks.callHook('studio:draft:document:updated')
+    await hooks.callHook('studio:draft:document:updated', { caller: 'useStudio.on.documentUpdate' })
   })
 
   host.on.mediaUpdate(async (id: string, type: 'remove' | 'update') => {
@@ -124,6 +124,6 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
       }
     }
 
-    await hooks.callHook('studio:draft:media:updated')
+    await hooks.callHook('studio:draft:media:updated', { caller: 'useStudio.on.mediaUpdate' })
   })
 }

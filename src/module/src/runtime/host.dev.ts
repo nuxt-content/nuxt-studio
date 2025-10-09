@@ -14,6 +14,7 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
   if (!useRuntimeConfig().public.contentStudio.development.sync) {
     return host
   }
+
   // enable dev mode
   host.meta.dev = true
 
