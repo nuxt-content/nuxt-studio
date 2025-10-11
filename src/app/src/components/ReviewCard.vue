@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import type { DraftItem } from '../types'
+import type { DraftItem, DatabaseItem, DatabasePageItem } from '../types'
 import type { PropType } from 'vue'
-import { ref, computed } from 'vue'
-import { DraftStatus } from '../types'
-import { getFileIcon } from '../utils/file'
+import { ref, computed, watch, nextTick } from 'vue'
+import { DraftStatus, ContentFileExtension } from '../types'
+import { getFileIcon, getFileExtension } from '../utils/file'
+import { generateContentFromDocument } from '../utils/content'
+import { useMonacoDiff } from '../composables/useMonacoDiff'
+import { useMonaco } from '../composables/useMonaco'
+import { useStudio } from '../composables/useStudio'
+
+const { ui } = useStudio()
 
 const props = defineProps({
   draftItem: {
@@ -12,7 +18,57 @@ const props = defineProps({
   },
 })
 
+const diffEditorRef = ref<HTMLDivElement>()
+const editorRef = ref<HTMLDivElement>()
+
 const isOpen = ref(false)
+const isLoadingContent = ref(false)
+
+const language = computed(() => {
+  const ext = getFileExtension(props.draftItem.fsPath)
+  switch (ext) {
+    case ContentFileExtension.Markdown:
+      return 'markdown'
+    case ContentFileExtension.YAML:
+    case ContentFileExtension.YML:
+      return 'yaml'
+    case ContentFileExtension.JSON:
+      return 'json'
+    default:
+      return 'plaintext'
+  }
+})
+
+watch(isOpen, async () => {
+  if (isOpen.value && !isLoadingContent.value) {
+    isLoadingContent.value = true
+
+    const original = props.draftItem.original ? await generateContentFromDocument(props.draftItem.original as DatabaseItem) : null
+    const modified = props.draftItem.modified ? await generateContentFromDocument(props.draftItem.modified as DatabasePageItem) : null
+
+    isLoadingContent.value = false
+
+    // Wait for DOM to update before initializing Monaco
+    await nextTick()
+
+    if (props.draftItem.status === DraftStatus.Updated) {
+      useMonacoDiff(diffEditorRef, {
+        original: original!,
+        modified: modified!,
+        language: language.value,
+        colorMode: ui.colorMode.value,
+      })
+    }
+    else if (props.draftItem.status === DraftStatus.Created) {
+      useMonaco(editorRef, {
+        language,
+        initialContent: modified!,
+        readOnly: true,
+        colorMode: ui.colorMode,
+      })
+    }
+  }
+})
 
 const statusConfig = computed(() => {
   switch (props.draftItem.status) {
@@ -108,36 +164,44 @@ const filePath = computed(() => props.draftItem.fsPath)
 
       <div
         v-else-if="draftItem.status === DraftStatus.Created"
-        class="p-4 bg-success/5"
+        class="bg-elevated"
       >
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-2 text-sm text-success mb-2">
-            <UIcon
-              name="i-lucide-plus"
-              class="w-4 h-4"
-            />
-            <span>New file</span>
-          </div>
-          <div class="text-xs font-mono bg-elevated p-3 rounded-lg overflow-auto max-h-64">
-            <pre class="text-default whitespace-pre-wrap break-words">{{ draftItem.modified!.raw || 'Empty file' }}</pre>
-          </div>
+        <div
+          v-if="isLoadingContent"
+          class="p-4 flex items-center justify-center"
+        >
+          <UIcon
+            name="i-lucide-loader-2"
+            class="w-5 h-5 animate-spin text-muted"
+          />
         </div>
+        <div
+          v-else
+          ref="editorRef"
+          class="w-full"
+          style="height: 400px;"
+        />
       </div>
 
       <div
         v-else-if="draftItem.status === DraftStatus.Updated"
-        class="p-4"
+        class="bg-elevated"
       >
-        <div class="flex flex-col gap-3">
-          <div class="text-xs font-mono bg-elevated p-3 rounded-lg overflow-auto max-h-96">
-            <div class="flex flex-col gap-1">
-              <div class="text-dimmed mb-2">
-                Modified content:
-              </div>
-              <pre class="text-default whitespace-pre-wrap break-words">{{ draftItem.modified!.raw || 'No preview available' }}</pre>
-            </div>
-          </div>
+        <div
+          v-if="isLoadingContent"
+          class="p-4 flex items-center justify-center"
+        >
+          <UIcon
+            name="i-lucide-loader-2"
+            class="w-5 h-5 animate-spin text-muted"
+          />
         </div>
+        <div
+          v-else
+          ref="diffEditorRef"
+          class="w-full"
+          style="height: 400px;"
+        />
       </div>
     </div>
   </UCard>
