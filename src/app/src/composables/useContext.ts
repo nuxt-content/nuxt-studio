@@ -1,29 +1,32 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import {
-  type RenameFileParams,
-  type TreeItem,
-  type UploadMediaParams,
-  type CreateFileParams,
-  type StudioHost,
-  type StudioAction,
-  type ActionHandlerParams,
-  type StudioActionInProgress,
-  type CreateFolderParams,
-  StudioItemActionId,
-  type DatabaseItem,
-  DraftStatus,
+import { StudioItemActionId, DraftStatus, StudioBranchActionId } from '../types'
+import type {
+  PublishBranchParams,
+  RenameFileParams,
+  TreeItem,
+  UploadMediaParams,
+  CreateFileParams,
+  StudioHost,
+  StudioAction,
+  ActionHandlerParams,
+  StudioActionInProgress,
+  CreateFolderParams,
+  DatabaseItem,
+
 } from '../types'
-import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
+import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions, STUDIO_BRANCH_ACTION_DEFINITIONS } from '../utils/context'
 import type { useTree } from './useTree'
+import type { useGit } from './useGit'
+import type { useDraftMedias } from './useDraftMedias'
 import { useRoute } from 'vue-router'
 import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
-import type { useDraftMedias } from './useDraftMedias'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
 
 export const useContext = createSharedComposable((
   host: StudioHost,
+  git: ReturnType<typeof useGit>,
   documentTree: ReturnType<typeof useTree>,
   mediaTree: ReturnType<typeof useTree>,
 ) => {
@@ -46,7 +49,7 @@ export const useContext = createSharedComposable((
     return documentTree
   })
 
-  const itemActions = computed<StudioAction[]>(() => {
+  const itemActions = computed<StudioAction<StudioItemActionId>[]>(() => {
     return STUDIO_ITEM_ACTION_DEFINITIONS.map(<K extends StudioItemActionId>(action: StudioAction<K>) => ({
       ...action,
       handler: async (args: ActionHandlerParams[K]) => {
@@ -137,6 +140,26 @@ export const useContext = createSharedComposable((
     },
   }
 
+  const branchActions = computed<StudioAction<StudioBranchActionId>[]>(() => {
+    return STUDIO_BRANCH_ACTION_DEFINITIONS.map(<K extends StudioBranchActionId>(action: StudioAction<K>) => ({
+      ...action,
+      handler: async (args: ActionHandlerParams[K]) => {
+        actionInProgress.value = { id: action.id }
+        await branchActionHandler[action.id](args)
+        unsetActionInProgress()
+      },
+    }))
+  })
+
+  const branchActionHandler: { [K in StudioBranchActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
+    [StudioBranchActionId.PublishBranch]: async (params: PublishBranchParams) => {
+      const { commitMessage } = params
+      const documentFiles = await documentTree.draft.listAsRawFiles()
+      const mediaFiles = await mediaTree.draft.listAsRawFiles()
+      await git.commitFiles([...documentFiles, ...mediaFiles], commitMessage)
+    },
+  }
+
   function unsetActionInProgress() {
     actionInProgress.value = null
   }
@@ -144,10 +167,12 @@ export const useContext = createSharedComposable((
   return {
     activeTree,
     itemActions,
-    actionInProgress,
-    unsetActionInProgress,
     itemActionHandler,
+    branchActions,
+    branchActionHandler,
+    actionInProgress,
     draftCount,
     isDraftInProgress,
+    unsetActionInProgress,
   }
 })

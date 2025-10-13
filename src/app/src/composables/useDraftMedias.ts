@@ -85,7 +85,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     })
   }
 
-  async function getDraftAsRawFiles(): Promise<RawFile[]> {
+  async function listAsRawFiles(): Promise<RawFile[]> {
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
       if (draftItem.status === DraftStatus.Deleted) {
@@ -114,6 +114,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     select,
     selectById,
     upload,
-    getDraftAsRawFiles,
+    listAsRawFiles,
   }
 })

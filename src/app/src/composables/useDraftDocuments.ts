@@ -101,7 +101,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     return await create(newDbItem)
   }
 
-  async function getDraftAsRawFiles(): Promise<RawFile[]> {
+  async function listAsRawFiles(): Promise<RawFile[]> {
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
       if (draftItem.status === DraftStatus.Deleted) {
@@ -130,10 +130,10 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     rename,
     duplicate,
     list,
+    listAsRawFiles,
     load,
     current,
     select,
     selectById,
-    getDraftAsRawFiles,
   }
 })

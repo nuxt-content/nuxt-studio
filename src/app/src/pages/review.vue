@@ -25,39 +25,35 @@ const groupedDrafts = computed(() => {
 
 <template>
   <div class="flex flex-col h-full">
-    <div class="flex items-center justify-between gap-2 px-4 py-1 border-b-[0.5px] border-default bg-muted/70">
-      <div class="flex items-center gap-2">
-        <h2 class="text-xs font-semibold">
-          Review changes
-        </h2>
-        <UBadge
-          v-if="context.draftCount.value > 0"
-          :label="context.draftCount.value.toString()"
-          color="primary"
-          variant="soft"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <UButton
-          label="Cancel"
-          color="neutral"
-          variant="ghost"
-          to="/content"
-        />
-      </div>
+    <div class="flex items-center gap-2 px-4 py-1 border-b-[0.5px] border-default bg-muted/70">
+      <h2 class="text-xs font-semibold">
+        Review changes
+      </h2>
+      <UBadge
+        v-if="context.draftCount.value > 0"
+        :label="context.draftCount.value.toString()"
+        color="primary"
+        variant="soft"
+      />
     </div>
 
     <div class="flex-1 overflow-auto p-4">
       <div class="flex flex-col gap-2 mx-auto">
-        <div v-if="groupedDrafts.created.length > 0">
+        <div
+          v-if="groupedDrafts.created.length > 0"
+          class="mb-4"
+        >
           <div class="flex items-center gap-2 mb-2">
             <UIcon
-              name="i-lucide-plus-circle"
+              name="i-lucide-file-plus-2"
               class="w-4 h-4 text-success"
             />
-            <span class="text-xs font-medium">
-              Created ({{ groupedDrafts.created.length }})
-            </span>
+            <span class="text-sm font-semibold">Created</span>
+            <UBadge
+              :label="groupedDrafts.created.length.toString()"
+              color="success"
+              variant="soft"
+            />
           </div>
           <div class="flex flex-col gap-2">
             <ReviewCard
@@ -68,15 +64,21 @@ const groupedDrafts = computed(() => {
           </div>
         </div>
 
-        <div v-if="groupedDrafts.updated.length > 0">
-          <div class="flex items-center gap-2 mb-2 mt-4">
+        <div
+          v-if="groupedDrafts.updated.length > 0"
+          class="mb-4"
+        >
+          <div class="flex items-center gap-2 mb-2">
             <UIcon
               name="i-lucide-file-edit"
               class="w-4 h-4 text-warning"
             />
-            <span class="text-xs font-medium">
-              Modified ({{ groupedDrafts.updated.length }})
-            </span>
+            <span class="text-sm font-semibold">Updated</span>
+            <UBadge
+              :label="groupedDrafts.updated.length.toString()"
+              color="warning"
+              variant="soft"
+            />
           </div>
           <div class="flex flex-col gap-2">
             <ReviewCard
@@ -88,14 +90,17 @@ const groupedDrafts = computed(() => {
         </div>
 
         <div v-if="groupedDrafts.deleted.length > 0">
-          <div class="flex items-center gap-2 mb-2 mt-4">
+          <div class="flex items-center gap-2 mb-2">
             <UIcon
-              name="i-lucide-trash-2"
+              name="i-lucide-file-x-2"
               class="w-4 h-4 text-error"
             />
-            <span class="text-xs font-medium">
-              Deleted ({{ groupedDrafts.deleted.length }})
-            </span>
+            <span class="text-sm font-semibold">Deleted</span>
+            <UBadge
+              :label="groupedDrafts.deleted.length.toString()"
+              color="error"
+              variant="soft"
+            />
           </div>
           <div class="flex flex-col gap-2">
             <ReviewCard

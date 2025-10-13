@@ -8,14 +8,22 @@ export interface Repository {
   rootDir: string
 }
 
-export interface GitOptions {
+export interface GitBaseOptions {
   owner: string
   repo: string
   branch: string
-  rootDir: string
-  token: string
   authorName: string
   authorEmail: string
+}
+
+export interface GitOptions extends GitBaseOptions {
+  rootDir: string
+  token: string
+}
+
+export interface CommitFilesOptions extends GitBaseOptions {
+  files: RawFile[]
+  message: string
 }
 
 export interface RawFile {

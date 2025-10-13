@@ -14,7 +14,7 @@ const props = defineProps({
 
 const name = computed(() => titleCase(props.item.name))
 
-const statusRingColor = computed(() => props.item.status && props.item.status !== TreeStatus.Opened ? `ring-(--ui-${COLOR_UI_STATUS_MAP[props.item.status]})` : '')
+const statusRingColor = computed(() => props.item.status && props.item.status !== TreeStatus.Opened ? `ring-(--ui-${COLOR_UI_STATUS_MAP[props.item.status]})/25` : '')
 </script>
 
 <template>
@@ -33,10 +33,15 @@ const statusRingColor = computed(() => props.item.status && props.item.status !=
               class="h-4 w-4 shrink-0 text-muted"
             />
             <h3
-              class="text-sm font-semibold truncate text-default overflow-hidden"
+              class="flex items-center gap-1 text-sm font-semibold truncate text-default overflow-hidden"
               :class="props.item.status === 'deleted' && 'line-through'"
             >
               {{ name }}
+              <ItemBadge
+                v-if="item.status && item.status !== TreeStatus.Opened"
+                :status="item.status"
+                size="xs"
+              />
             </h3>
           </div>
           <ItemActionsDropdown :item="item" />
@@ -48,10 +53,6 @@ const statusRingColor = computed(() => props.item.status && props.item.status !=
               {{ item.routePath || item.fsPath }}
             </div>
           </UTooltip>
-          <ItemBadge
-            v-if="item.status && item.status !== TreeStatus.Opened"
-            :status="item.status"
-          />
         </div>
       </div>
     </template>

@@ -28,7 +28,7 @@ const filteredTree = computed(() => {
   <div class="flex flex-col @container">
     <ul
       ref="container"
-      class="grid grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-4 @7xl:grid-cols-6 gap-2"
+      class="grid grid-cols-2 gap-2"
     >
       <li v-if="showForm">
         <ItemCardFolderForm

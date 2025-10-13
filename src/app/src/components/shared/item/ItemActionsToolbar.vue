@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { computeActionItems, oneStepActions } from '../../../utils/context'
+import { computeItemActions, oneStepActions } from '../../../utils/context'
 import { useStudio } from '../../../composables/useStudio'
 import type { StudioAction, StudioItemActionId as StudioItemActionIdType } from '../../../types'
 import { MEDIA_EXTENSIONS } from '../../../utils/file'
@@ -15,7 +15,7 @@ const item = computed(() => context.activeTree.value.currentItem.value)
 const actions = computed(() => {
   const hasPendingAction = pendingActionId.value !== null
 
-  return computeActionItems(context.itemActions.value, item.value).map((action) => {
+  return computeItemActions(context.itemActions.value, item.value).map((action) => {
     const isOneStepAction = oneStepActions.includes(action.id)
     const isPending = pendingActionId.value === action.id
     const isDeleteAction = action.id === StudioItemActionId.DeleteItem
@@ -45,7 +45,7 @@ const handleFileSelection = (event: Event) => {
   }
 }
 
-const actionHandler = (action: StudioAction & { isPending?: boolean, isOneStepAction?: boolean }, event: Event) => {
+const actionHandler = (action: StudioAction<StudioItemActionId> & { isPending?: boolean, isOneStepAction?: boolean }, event: Event) => {
   // Stop propagation to prevent click outside handler from triggering
   event.stopPropagation()
 

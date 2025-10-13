@@ -106,8 +106,9 @@ async function onSubmit() {
             </template>
             <div class="flex items-center gap-1">
               <UIcon
-                name="i-lucide-folder"
+                :name="isLoading ? 'i-lucide-loader-circle' : 'i-lucide-folder'"
                 class="h-4 w-4 shrink-0 text-muted"
+                :class="{ 'animate-spin': isLoading }"
               />
               <UInput
                 v-model="state.name"
@@ -115,7 +116,7 @@ async function onSubmit() {
                 autofocus
                 placeholder="Folder name"
                 class="w-full h-7"
-                :loading="isLoading"
+                :disabled="isLoading"
                 @keydown.esc="context.unsetActionInProgress"
               />
             </div>

@@ -46,8 +46,6 @@ watch(isOpen, async () => {
     const original = props.draftItem.original ? await generateContentFromDocument(props.draftItem.original as DatabaseItem) : null
     const modified = props.draftItem.modified ? await generateContentFromDocument(props.draftItem.modified as DatabasePageItem) : null
 
-    isLoadingContent.value = false
-
     // Wait for DOM to update before initializing Monaco
     await nextTick()
 
@@ -67,6 +65,8 @@ watch(isOpen, async () => {
         colorMode: ui.colorMode,
       })
     }
+
+    isLoadingContent.value = false
   }
 })
 
@@ -82,7 +82,7 @@ const statusConfig = computed(() => {
       return {
         color: 'warning',
         icon: 'i-lucide-file-edit',
-        label: 'Modified',
+        label: 'Updated',
       }
     case DraftStatus.Deleted:
       return {
@@ -110,7 +110,7 @@ const filePath = computed(() => props.draftItem.fsPath)
     :ui="{ body: 'p-0 sm:p-0' }"
   >
     <div
-      class="flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+      class="flex items-center justify-between gap-3 px-4 py-2 cursor-pointer hover:bg-muted/50 transition-colors"
       @click="isOpen = !isOpen"
     >
       <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -119,7 +119,7 @@ const filePath = computed(() => props.draftItem.fsPath)
           class="w-5 h-5 flex-shrink-0 text-muted"
         />
 
-        <div class="flex flex-col gap-1 flex-1 min-w-0">
+        <div class="flex flex-col flex-1 min-w-0">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium truncate">
               {{ fileName }}
@@ -168,18 +168,17 @@ const filePath = computed(() => props.draftItem.fsPath)
       >
         <div
           v-if="isLoadingContent"
-          class="p-4 flex items-center justify-center"
+          class="p-4 flex items-center justify-center h-[300px]"
         >
           <UIcon
-            name="i-lucide-loader-2"
+            name="i-lucide-loader-circle"
             class="w-5 h-5 animate-spin text-muted"
           />
         </div>
         <div
           v-else
           ref="editorRef"
-          class="w-full"
-          style="height: 400px;"
+          class="w-full h-[300px]"
         />
       </div>
 
@@ -189,18 +188,17 @@ const filePath = computed(() => props.draftItem.fsPath)
       >
         <div
           v-if="isLoadingContent"
-          class="p-4 flex items-center justify-center"
+          class="p-4 flex items-center justify-center h-[300px]"
         >
           <UIcon
-            name="i-lucide-loader-2"
+            name="i-lucide-loader-circle"
             class="w-5 h-5 animate-spin text-muted"
           />
         </div>
         <div
           v-else
           ref="diffEditorRef"
-          class="w-full"
-          style="height: 400px;"
+          class="w-full h-[300px]"
         />
       </div>
     </div>

@@ -1,10 +1,10 @@
-import { type StudioAction, type TreeItem, TreeStatus, StudioItemActionId } from '../types'
+import { type StudioAction, type TreeItem, TreeStatus, StudioItemActionId, StudioBranchActionId } from '../types'
 import { TreeRootId } from './tree'
 
 export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
 export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder, StudioItemActionId.RenameItem]
 
-export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
+export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction<StudioItemActionId>[] = [
   {
     id: StudioItemActionId.RevertItem,
     label: 'Revert changes',
@@ -49,7 +49,14 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction[] = [
   },
 ] as const
 
-export function computeActionItems(itemActions: StudioAction[], item?: TreeItem | null): StudioAction[] {
+export const STUDIO_BRANCH_ACTION_DEFINITIONS: StudioAction<StudioBranchActionId>[] = [{
+  id: StudioBranchActionId.PublishBranch,
+  label: 'Publish branch',
+  icon: 'i-lucide-rocket',
+  tooltip: 'Publish branch',
+}] as const
+
+export function computeItemActions(itemActions: StudioAction<StudioItemActionId>[], item?: TreeItem | null): StudioAction<StudioItemActionId>[] {
   if (!item) {
     return itemActions
   }

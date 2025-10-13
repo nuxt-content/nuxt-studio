@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { computeActionItems, STUDIO_ITEM_ACTION_DEFINITIONS } from '../../../src/utils/context'
+import { computeItemActions, STUDIO_ITEM_ACTION_DEFINITIONS } from '../../../src/utils/context'
 import { StudioItemActionId, type TreeItem } from '../../../src/types'
 import { TreeStatus } from '../../../src/types'
 import { TreeRootId } from '../../../src/utils/tree'
 
-describe('computeActionItems', () => {
+describe('computeItemActions', () => {
   it('should return all actions when item is undefined', () => {
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, undefined)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, undefined)
     expect(result).toEqual(STUDIO_ITEM_ACTION_DEFINITIONS)
   })
 
@@ -20,7 +20,7 @@ describe('computeActionItems', () => {
       name: 'content',
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.RenameItem
@@ -39,7 +39,7 @@ describe('computeActionItems', () => {
       name: 'media',
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.RevertItem
@@ -63,7 +63,7 @@ describe('computeActionItems', () => {
       name: 'test.md',
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.CreateFolder
@@ -82,7 +82,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Opened,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.CreateFolder
@@ -101,7 +101,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Updated,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.CreateFolder
@@ -119,7 +119,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Created,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.CreateFolder
@@ -137,7 +137,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Deleted,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.CreateFolder
@@ -158,7 +158,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Renamed,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.CreateFolder
@@ -179,7 +179,7 @@ describe('computeActionItems', () => {
       name: 'folder',
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
@@ -198,7 +198,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Opened,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
@@ -216,7 +216,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Updated,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
@@ -233,7 +233,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Created,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
@@ -250,7 +250,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Deleted,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
@@ -269,7 +269,7 @@ describe('computeActionItems', () => {
       status: TreeStatus.Renamed,
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
@@ -284,7 +284,7 @@ describe('computeActionItems', () => {
       type: 'directory',
     } as TreeItem
 
-    const result = computeActionItems(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.RevertItem
