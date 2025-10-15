@@ -2,10 +2,8 @@
 import { type TreeItem, TreeStatus } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
-import { Image } from '@unpic/vue'
 import { titleCase } from 'scule'
 import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
-import { getFileIcon, isMediaFile } from '../../../utils/file'
 
 const props = defineProps({
   item: {
@@ -14,14 +12,10 @@ const props = defineProps({
   },
 })
 
-const isMedia = computed(() => isMediaFile(props.item.fsPath))
 const name = computed(() => titleCase(props.item.name))
-const itemExtensionIcon = computed(() => getFileIcon(props.item.fsPath))
-const imageSrc = computed(() => isMedia.value ? props.item.routePath : null)
 
 // ring-(--ui-success)/25 ring-(--ui-info)/25 ring-(--ui-warning)/25 ring-(--ui-error)/25 ring-(--ui-neutral)/25
 const statusRingColor = computed(() => props.item.status && props.item.status !== TreeStatus.Opened ? `ring-(--ui-${COLOR_UI_STATUS_MAP[props.item.status]})/25` : '')
-const thumbnailBg = computed(() => isMedia.value ? 'bg-[linear-gradient(45deg,#e6e9ea_25%,transparent_0),linear-gradient(-45deg,#e6e9ea_25%,transparent_0),linear-gradient(45deg,transparent_75%,#e6e9ea_0),linear-gradient(-45deg,transparent_75%,#e6e9ea_0)]' : 'bg-elevated')
 </script>
 
 <template>
@@ -34,27 +28,8 @@ const thumbnailBg = computed(() => isMedia.value ? 'bg-[linear-gradient(45deg,#e
     <template #body>
       <div class="flex items-start gap-3">
         <div class="relative flex-shrink-0 w-12 h-12">
-          <div
-            class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden"
-            :class="thumbnailBg"
-          >
-            <Image
-              v-if="imageSrc"
-              :src="imageSrc"
-              width="96"
-              height="96"
-              alt="File preview"
-              class="w-full h-full object-cover"
-            />
-            <div
-              v-else
-              class="w-full h-full flex items-center justify-center"
-            >
-              <UIcon
-                :name="itemExtensionIcon"
-                class="w-6 h-6 text-muted"
-              />
-            </div>
+          <div class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden bg-elevated">
+            <slot name="thumbnail" />
           </div>
         </div>
 

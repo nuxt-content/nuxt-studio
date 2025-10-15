@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../types'
+import { type TreeItem, StudioFeature } from '../../../types'
 import type { PropType } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
 import { computed } from 'vue'
+import MediaCard from '../../media/MediaCard.vue'
+import ContentCard from '../../content/ContentCard.vue'
 
 const { context } = useStudio()
 
@@ -15,12 +17,24 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  feature: {
+    type: String as PropType<StudioFeature>,
+    required: true,
+  },
 })
 
 const filteredTree = computed(() => {
   if (!context.actionInProgress.value?.item) return props.tree
 
   return props.tree.filter(item => item.id !== context.actionInProgress.value!.item?.id)
+})
+
+const component = computed(() => {
+  if (props.feature === StudioFeature.Media) {
+    return MediaCard
+  }
+
+  return ContentCard
 })
 </script>
 
@@ -38,7 +52,8 @@ const filteredTree = computed(() => {
         v-for="(item, index) in filteredTree"
         :key="`${item.id}-${index}`"
       >
-        <ItemCardFile
+        <component
+          :is="component"
           :item="item"
           @click="context.activeTree.value.select(item)"
         />

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
-import { StudioItemActionId } from '../types'
+import { StudioItemActionId, StudioFeature } from '../types'
 
 const { context } = useStudio()
 
@@ -68,6 +68,7 @@ async function onFileDrop(event: DragEvent) {
         v-if="fileTree?.length > 0 || showFileForm"
         :tree="fileTree"
         :show-form="showFileForm"
+        :feature="StudioFeature.Media"
       />
     </div>
   </div>
