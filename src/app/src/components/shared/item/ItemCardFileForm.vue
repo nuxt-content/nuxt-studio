@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, type PropType } from 'vue'
 import * as z from 'zod'
+import { Image } from '@unpic/vue'
 import type {
   MediaFileExtension,
   CreateFileParams,
@@ -13,7 +14,7 @@ import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { stripNumericPrefix } from '../../../utils/string'
 import { upperFirst } from 'scule'
-import { getFileExtension, CONTENT_EXTENSIONS, isMediaFile, MEDIA_EXTENSIONS } from '../../../utils/file'
+import { getFileExtension, CONTENT_EXTENSIONS, isMediaFile, isImageFile, MEDIA_EXTENSIONS } from '../../../utils/file'
 
 const { context } = useStudio()
 
@@ -37,6 +38,7 @@ const props = defineProps({
 const action = computed<StudioAction<StudioItemActionId>>(() => context.itemActions.value.find(action => action.id === props.actionId)!)
 const originalName = computed(() => props.renamedItem?.name === 'home' ? 'index' : props.renamedItem?.name || '')
 const isMedia = computed(() => props.renamedItem && isMediaFile(props.renamedItem?.fsPath))
+const isImage = computed(() => props.renamedItem && isImageFile(props.renamedItem?.fsPath))
 const originalExtension = computed(() => {
   if (isMedia.value) {
     return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : null
@@ -67,6 +69,8 @@ const itemExtensionIcon = computed<string>(() => {
     json: 'i-lucide-file-json',
   }[state.extension as string] || 'i-mdi-file'
 })
+
+const thumbnailBg = computed(() => isMedia.value ? 'bg-[linear-gradient(45deg,#e6e9ea_25%,transparent_0),linear-gradient(-45deg,#e6e9ea_25%,transparent_0),linear-gradient(45deg,transparent_75%,#e6e9ea_0),linear-gradient(-45deg,transparent_75%,#e6e9ea_0)]' : 'bg-elevated')
 
 const routePath = computed(() => {
   const name = state.name === 'index' ? '/' : state.name
@@ -131,8 +135,22 @@ async function onSubmit() {
         <template #body>
           <div class="flex items-start gap-3">
             <div class="relative flex-shrink-0 w-12 h-12">
-              <div class="w-full h-full bg-default bg-[linear-gradient(45deg,#e6e9ea_25%,transparent_0),linear-gradient(-45deg,#e6e9ea_25%,transparent_0),linear-gradient(45deg,transparent_75%,#e6e9ea_0),linear-gradient(-45deg,transparent_75%,#e6e9ea_0)] bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden">
-                <div class="w-full h-full bg-elevated flex items-center justify-center">
+              <div
+                class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden"
+                :class="thumbnailBg"
+              >
+                <Image
+                  v-if="isImage"
+                  :src="renamedItem.routePath!"
+                  width="48"
+                  height="48"
+                  alt="File preview"
+                  class="w-full h-full object-cover"
+                />
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center"
+                >
                   <UIcon
                     :name="itemExtensionIcon"
                     class="w-6 h-6 text-muted"

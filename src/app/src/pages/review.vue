@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { DraftStatus } from '../types'
+import { isMediaFile } from '../utils/file'
+import { COLOR_UI_STATUS_MAP } from '../utils/tree'
 
 const { context } = useStudio()
 
@@ -12,6 +14,27 @@ const groupedDrafts = computed(() => {
     deleted: context.allDrafts.value.filter(d => d.status === DraftStatus.Deleted),
   }
 })
+
+const statusConfig = {
+  created: {
+    icon: 'i-lucide-file-plus-2',
+    label: 'Created',
+    color: COLOR_UI_STATUS_MAP[DraftStatus.Created],
+    iconClass: 'text-success',
+  },
+  updated: {
+    icon: 'i-lucide-file-edit',
+    label: 'Updated',
+    color: COLOR_UI_STATUS_MAP[DraftStatus.Updated],
+    iconClass: 'text-warning',
+  },
+  deleted: {
+    icon: 'i-lucide-file-x-2',
+    label: 'Deleted',
+    color: COLOR_UI_STATUS_MAP[DraftStatus.Deleted],
+    iconClass: 'text-error',
+  },
+} as const
 </script>
 
 <template>
@@ -30,77 +53,44 @@ const groupedDrafts = computed(() => {
 
     <div class="flex-1 overflow-auto p-4">
       <div class="flex flex-col gap-2 mx-auto">
-        <div
-          v-if="groupedDrafts.created.length > 0"
-          class="mb-4"
+        <template
+          v-for="(drafts, status) in groupedDrafts"
+          :key="status"
         >
-          <div class="flex items-center gap-2 mb-2">
-            <UIcon
-              name="i-lucide-file-plus-2"
-              class="w-4 h-4 text-success"
-            />
-            <span class="text-sm font-semibold">Created</span>
-            <UBadge
-              :label="groupedDrafts.created.length.toString()"
-              color="success"
-              variant="soft"
-            />
+          <div
+            v-if="drafts.length > 0"
+            class="mb-4"
+          >
+            <div class="flex items-center gap-2 mb-2">
+              <UIcon
+                :name="statusConfig[status].icon"
+                :class="statusConfig[status].iconClass"
+                class="w-4 h-4"
+              />
+              <span class="text-sm font-semibold">{{ statusConfig[status].label }}</span>
+              <UBadge
+                :label="drafts.length.toString()"
+                :color="statusConfig[status].color"
+                variant="soft"
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <template
+                v-for="draft in drafts"
+                :key="draft.id"
+              >
+                <MediaCardReview
+                  v-if="isMediaFile(draft.fsPath)"
+                  :draft-item="draft"
+                />
+                <ContentCardReview
+                  v-else
+                  :draft-item="draft"
+                />
+              </template>
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <ReviewCard
-              v-for="draft in groupedDrafts.created"
-              :key="draft.id"
-              :draft-item="draft"
-            />
-          </div>
-        </div>
-
-        <div
-          v-if="groupedDrafts.updated.length > 0"
-          class="mb-4"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <UIcon
-              name="i-lucide-file-edit"
-              class="w-4 h-4 text-warning"
-            />
-            <span class="text-sm font-semibold">Updated</span>
-            <UBadge
-              :label="groupedDrafts.updated.length.toString()"
-              color="warning"
-              variant="soft"
-            />
-          </div>
-          <div class="flex flex-col gap-2">
-            <ReviewCard
-              v-for="draft in groupedDrafts.updated"
-              :key="draft.id"
-              :draft-item="draft"
-            />
-          </div>
-        </div>
-
-        <div v-if="groupedDrafts.deleted.length > 0">
-          <div class="flex items-center gap-2 mb-2">
-            <UIcon
-              name="i-lucide-file-x-2"
-              class="w-4 h-4 text-error"
-            />
-            <span class="text-sm font-semibold">Deleted</span>
-            <UBadge
-              :label="groupedDrafts.deleted.length.toString()"
-              color="error"
-              variant="soft"
-            />
-          </div>
-          <div class="flex flex-col gap-2">
-            <ReviewCard
-              v-for="draft in groupedDrafts.deleted"
-              :key="draft.id"
-              :draft-item="draft"
-            />
-          </div>
-        </div>
+        </template>
       </div>
     </div>
   </div>

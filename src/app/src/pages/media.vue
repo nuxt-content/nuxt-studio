@@ -51,7 +51,8 @@ async function onFileDrop(event: DragEvent) {
     </div>
     <MediaEditor
       v-if="currentTreeItem.type === 'file' && currentDraftItem"
-      :draft-item="currentDraftItem!"
+      :media-item="currentDraftItem.modified || currentDraftItem.original!"
+      :status="currentDraftItem.status"
     />
     <div
       v-else
