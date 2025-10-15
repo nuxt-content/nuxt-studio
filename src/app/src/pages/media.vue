@@ -58,13 +58,14 @@ async function onFileDrop(event: DragEvent) {
       v-else
       class="flex flex-col p-4"
     >
-      <ItemTreeFolder
+      <ItemTree
         v-if="folderTree?.length > 0 || showFolderForm"
         class="mb-4"
         :tree="folderTree"
         :show-form="showFolderForm"
+        :feature="StudioFeature.Media"
       />
-      <ItemTreeFile
+      <ItemTree
         v-if="fileTree?.length > 0 || showFileForm"
         :tree="fileTree"
         :show-form="showFileForm"

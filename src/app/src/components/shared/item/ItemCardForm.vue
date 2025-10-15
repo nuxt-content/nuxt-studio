@@ -35,11 +35,16 @@ const props = defineProps({
   },
 })
 
+const isDirectory = computed(() => props.renamedItem?.type === 'directory')
 const action = computed<StudioAction<StudioItemActionId>>(() => context.itemActions.value.find(action => action.id === props.actionId)!)
 const originalName = computed(() => props.renamedItem?.name === 'home' ? 'index' : props.renamedItem?.name || '')
 const isMedia = computed(() => props.renamedItem && isMediaFile(props.renamedItem?.fsPath))
 const isImage = computed(() => props.renamedItem && isImageFile(props.renamedItem?.fsPath))
 const originalExtension = computed(() => {
+  if (isDirectory.value) {
+    return null
+  }
+
   if (isMedia.value) {
     return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : null
   }
@@ -134,7 +139,10 @@ async function onSubmit() {
       >
         <template #body>
           <div class="flex items-start gap-3">
-            <div class="relative flex-shrink-0 w-12 h-12">
+            <div
+              v-if="!isDirectory"
+              class="relative flex-shrink-0 w-12 h-12"
+            >
               <div
                 class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden"
                 :class="thumbnailBg"
@@ -161,6 +169,11 @@ async function onSubmit() {
 
             <div class="flex flex-col gap-1 flex-1 min-w-0">
               <div class="flex items-center gap-1">
+                <UIcon
+                  v-if="isDirectory"
+                  name="i-lucide-folder"
+                  class="h-4 w-4 shrink-0 text-muted"
+                />
                 <UFormField
                   name="name"
                   :ui="{ error: 'hidden' }"
@@ -182,6 +195,7 @@ async function onSubmit() {
                   />
                 </UFormField>
                 <UFormField
+                  v-if="!isDirectory"
                   name="extension"
                   :ui="{ error: 'hidden' }"
                 >
