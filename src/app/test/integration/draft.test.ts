@@ -35,10 +35,6 @@ vi.mock('../../../src/composables/useHooks', () => ({
   useHooks: () => mockHooks,
 }))
 
-vi.mock('../../../src/utils/content', () => ({
-  generateContentFromDocument: vi.fn().mockResolvedValue('Generated content'),
-}))
-
 // Mock createSharedComposable to return function directly (no sharing)
 vi.mock('@vueuse/core', () => ({
   createSharedComposable: <T extends (...args: unknown[]) => unknown>(fn: T): T => fn,
@@ -178,6 +174,61 @@ describe('Document draft - Action Chains Integration Tests', () => {
     expect(list.value[0].status).toEqual(DraftStatus.Pristine)
   })
 
+  it('Select > Update > Rename', async () => {
+    const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
+    const { selectById, update, rename, list } = draftDocuments
+
+    /* STEP 1: SELECT */
+    await selectById(documentId)
+
+    /* STEP 2: UPDATE */
+    const updatedDocument = createMockDocument(documentId, {
+      body: {
+        type: 'minimark',
+        value: ['Updated content'],
+      },
+    })
+
+    await update(documentId, updatedDocument)
+
+    /* STEP 3: RENAME */
+    const newId = generateUniqueDocumentId()
+    const newFsPath = mockHost.document.getFileSystemPath(newId)
+    await rename([{ id: documentId, newFsPath }])
+
+    // Storage
+    expect(mockStorage.size).toEqual(2)
+
+    // Created renamed draft
+    const createdDraftStorage = JSON.parse(mockStorage.get(normalizeKey(newId))!)
+    expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftStorage).toHaveProperty('id', newId)
+    expect(createdDraftStorage.original).toHaveProperty('id', documentId)
+    expect(createdDraftStorage.modified).toHaveProperty('id', newId)
+    expect(createdDraftStorage.modified).toHaveProperty('body', updatedDocument.body)
+
+    // Deleted original draft
+    const deletedDraftStorage = JSON.parse(mockStorage.get(normalizeKey(documentId))!)
+    expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
+    expect(deletedDraftStorage).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.modified).toBeUndefined()
+
+    // In memory
+    expect(list.value).toHaveLength(2)
+
+    expect(list.value[0].status).toEqual(DraftStatus.Deleted)
+    expect(list.value[0].id).toEqual(documentId)
+    expect(list.value[0].original).toHaveProperty('id', documentId)
+    expect(list.value[0].modified).toBeUndefined()
+
+    expect(list.value[1].status).toEqual(DraftStatus.Created)
+    expect(list.value[1].id).toEqual(newId)
+    expect(list.value[1].original).toHaveProperty('id', documentId)
+    expect(list.value[1].modified).toHaveProperty('id', newId)
+    expect(list.value[1].modified).toHaveProperty('body', updatedDocument.body)
+  })
+
   it('Select > Rename > Update', async () => {
     const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
     const { selectById, rename, update, list } = draftDocuments
@@ -277,51 +328,12 @@ describe('Document draft - Action Chains Integration Tests', () => {
     /* STEP 1: SELECT */
     await selectById(documentId)
 
-    // Storage
-    expect(mockStorage.size).toEqual(1)
-    const initialDraft = JSON.parse(mockStorage.get(normalizeKey(documentId))!)
-    expect(initialDraft).toHaveProperty('status', DraftStatus.Pristine)
-
     /* STEP 2: RENAME */
     const newId = generateUniqueDocumentId()
     const newFsPath = mockHost.document.getFileSystemPath(newId)
     await rename([{ id: documentId, newFsPath }])
 
-    // Storage
-    expect(mockStorage.size).toEqual(2)
-
-    // Created renamed draft
-    const createdDraftStorage = JSON.parse(mockStorage.get(normalizeKey(newId))!)
-    expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
-    expect(createdDraftStorage).toHaveProperty('id', newId)
-    expect(createdDraftStorage.original).toHaveProperty('id', documentId)
-    expect(createdDraftStorage.modified).toHaveProperty('id', newId)
-
-    // Deleted original draft
-    const deletedDraftStorage = JSON.parse(mockStorage.get(normalizeKey(documentId))!)
-    expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
-    expect(deletedDraftStorage).toHaveProperty('id', documentId)
-    expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
-    expect(deletedDraftStorage.modified).toBeUndefined()
-
-    // In memory
-    expect(list.value).toHaveLength(2)
-
-    // Created renamed draft
-    const createdDraftMemory = list.value.find(item => item.id === newId)!
-    expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
-    expect(createdDraftMemory).toHaveProperty('id', newId)
-    expect(createdDraftMemory.original).toHaveProperty('id', documentId)
-    expect(createdDraftMemory.modified).toHaveProperty('id', newId)
-
-    // Deleted original draft
-    const deletedDraftMemory = list.value.find(item => item.id === documentId)!
-    expect(deletedDraftMemory).toHaveProperty('status', DraftStatus.Deleted)
-    expect(deletedDraftMemory).toHaveProperty('id', documentId)
-    expect(deletedDraftMemory.original).toHaveProperty('id', documentId)
-    expect(deletedDraftMemory.modified).toBeUndefined()
-
-    /* STEP 2: REVERT */
+    /* STEP 3: REVERT */
     await revert(newId)
 
     // Storage
@@ -338,6 +350,58 @@ describe('Document draft - Action Chains Integration Tests', () => {
     expect(list.value[0]).toHaveProperty('id', documentId)
     expect(list.value[0].modified).toHaveProperty('id', documentId)
     expect(list.value[0].original).toHaveProperty('id', documentId)
+  })
+
+  it('Select > Rename > Rename', async () => {
+    const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
+    const { selectById, rename, list } = draftDocuments
+
+    /* STEP 1: SELECT */
+    await selectById(documentId)
+
+    /* STEP 2: RENAME */
+    const newId = generateUniqueDocumentId()
+    const newFsPath = mockHost.document.getFileSystemPath(newId)
+    await rename([{ id: documentId, newFsPath }])
+
+    /* STEP 3: RENAME */
+    const newId2 = generateUniqueDocumentId()
+    const newFsPath2 = mockHost.document.getFileSystemPath(newId2)
+    await rename([{ id: newId, newFsPath: newFsPath2 }])
+
+    // Storage
+    expect(mockStorage.size).toEqual(2)
+
+    // Created renamed draft (newId2)
+    const createdDraftStorage = JSON.parse(mockStorage.get(normalizeKey(newId2))!)
+    expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftStorage).toHaveProperty('id', newId2)
+    expect(createdDraftStorage.original).toHaveProperty('id', documentId)
+    expect(createdDraftStorage.modified).toHaveProperty('id', newId2)
+
+    // Deleted original draft (documentId)
+    const deletedDraftStorage = JSON.parse(mockStorage.get(normalizeKey(documentId))!)
+    expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
+    expect(deletedDraftStorage).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.modified).toBeUndefined()
+
+    // In memory
+    expect(list.value).toHaveLength(2)
+
+    // Created renamed draft (newId2)
+    const createdDraftMemory = list.value.find(item => item.id === newId2)!
+    expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftMemory).toHaveProperty('id', newId2)
+    expect(createdDraftMemory.original).toHaveProperty('id', documentId)
+    expect(createdDraftMemory.modified).toHaveProperty('id', newId2)
+
+    // Deleted original draft (documentId)
+    const deletedDraftMemory = list.value.find(item => item.id === documentId)!
+    expect(deletedDraftMemory).toHaveProperty('status', DraftStatus.Deleted)
+    expect(deletedDraftMemory).toHaveProperty('id', documentId)
+    expect(deletedDraftMemory.original).toHaveProperty('id', documentId)
+    expect(deletedDraftMemory.modified).toBeUndefined()
   })
 })
 

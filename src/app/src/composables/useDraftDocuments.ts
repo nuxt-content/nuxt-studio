@@ -59,20 +59,22 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     for (const item of items) {
       const { id, newFsPath } = item
 
-      const currentDbItem: DatabaseItem = await host.document.get(id)
-      if (!currentDbItem) {
+      const existingDraftToRename = list.value.find(draftItem => draftItem.id === id) as DraftItem<DatabaseItem>
+      const dbItemToRename: DatabaseItem = await host.document.get(id)
+      if (!dbItemToRename) {
         throw new Error(`Database item not found for document ${id}`)
       }
 
-      const content = await generateContentFromDocument(currentDbItem)
+      const modifiedDbItem = existingDraftToRename?.modified || dbItemToRename
+      const originalDbItem = existingDraftToRename?.original || dbItemToRename
 
-      // Delete renamed draft item
+      const content = await generateContentFromDocument(modifiedDbItem)
+
       await remove([id], { rerender: false })
 
-      // Create new draft item
       const newDbItem = await host.document.create(newFsPath, content!)
 
-      await create(newDbItem, currentDbItem, { rerender: false })
+      await create(newDbItem, originalDbItem, { rerender: false })
     }
 
     await hooks.callHook('studio:draft:document:updated', { caller: 'useDraftDocuments.rename' })

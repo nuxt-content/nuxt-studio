@@ -93,7 +93,7 @@ async function publishChanges() {
         variant="link"
         size="md"
         color="neutral"
-        :ui="{ trigger: 'py-1 px-2', list: 'p-2' }"
+        :ui="{ trigger: 'py-1 px-2', list: 'py-2 px-0' }"
       />
 
       <UButton
