@@ -2,7 +2,7 @@
 // @nuxt/ui/runtime/plugins/colors
 export function generateColors() {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore defineShortcuts is auto-imported
+  // @ts-ignore useAppConfig is auto-imported
   const appConfig = useAppConfig()
   console.log('appConfig', appConfig)
   const shades = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]

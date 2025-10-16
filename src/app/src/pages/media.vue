@@ -58,19 +58,55 @@ async function onFileDrop(event: DragEvent) {
       v-else
       class="flex flex-col p-4"
     >
-      <ItemTree
-        v-if="folderTree?.length > 0 || showFolderForm"
-        class="mb-4"
-        :tree="folderTree"
-        :show-form="showFolderForm"
-        :feature="StudioFeature.Media"
-      />
-      <ItemTree
-        v-if="fileTree?.length > 0 || showFileForm"
-        :tree="fileTree"
-        :show-form="showFileForm"
-        :feature="StudioFeature.Media"
-      />
+      <div v-if="folderTree?.length > 0 || showFolderForm">
+        <div class="flex items-center gap-2 mb-3">
+          <UIcon
+            name="i-lucide-folder"
+            class="w-4 h-4 text-muted"
+          />
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+            Directories
+          </h3>
+          <UBadge
+            v-if="folderTree?.length > 0"
+            :label="folderTree.length.toString()"
+            color="neutral"
+            variant="soft"
+            size="xs"
+          />
+          <div class="flex-1 h-px bg-border ml-2" />
+        </div>
+        <ItemTree
+          class="mb-6"
+          :tree="folderTree"
+          :show-form="showFolderForm"
+          :feature="StudioFeature.Media"
+        />
+      </div>
+      <div v-if="fileTree?.length > 0 || showFileForm">
+        <div class="flex items-center gap-2 mb-3">
+          <UIcon
+            name="i-lucide-image"
+            class="w-4 h-4 text-muted"
+          />
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+            Media
+          </h3>
+          <UBadge
+            v-if="fileTree?.length > 0"
+            :label="fileTree.length.toString()"
+            color="neutral"
+            variant="soft"
+            size="xs"
+          />
+          <div class="flex-1 h-px bg-border ml-2" />
+        </div>
+        <ItemTree
+          :tree="fileTree"
+          :show-form="showFileForm"
+          :feature="StudioFeature.Media"
+        />
+      </div>
     </div>
   </div>
 </template>

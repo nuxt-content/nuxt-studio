@@ -75,7 +75,7 @@ router.beforeEach((to, from) => {
             enter-to-class="translate-y-0"
             leave-active-class="transition-translate duration-200 absolute"
             leave-from-class="translate-y-0"
-            leave-to-class="translate-y-full"
+            leave-to-class="-translate-y-full"
           >
             <KeepAlive>
               <component

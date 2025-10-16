@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { computed, ref } from 'vue'
+import { computed, reactive } from 'vue'
+import * as z from 'zod'
 import { useStudio } from '../composables/useStudio'
 import { StudioBranchActionId } from '../types'
 import { useToast } from '@nuxt/ui/composables/useToast'
@@ -9,8 +10,26 @@ const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
 
-const commitMessage = ref('')
-const isPublishing = ref(false)
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore defineShortcuts is auto-imported
+defineShortcuts({
+  escape: () => {
+    state.commitMessage = ''
+    router.push('/content')
+  },
+})
+
+const schema = z.object({
+  commitMessage: z.string().nonempty('Commit message is required'),
+})
+
+type Schema = z.output<typeof schema>
+
+const state = reactive<Schema>({
+  commitMessage: '',
+})
+
+let isPublishing = false
 
 const items = [
   {
@@ -34,15 +53,19 @@ const toast = useToast()
 const isReviewPage = computed(() => route.name === 'review')
 
 async function publishChanges() {
-  isPublishing.value = true
+  if (isPublishing) return
+
+  isPublishing = true
   try {
-    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: commitMessage.value })
+    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: state.commitMessage })
 
     toast.add({
       title: 'Changes published',
       description: 'Changes have been successfully pushed to the remote repository.',
       color: 'success',
     })
+
+    state.commitMessage = ''
   }
   catch (error) {
     toast.add({
@@ -52,7 +75,7 @@ async function publishChanges() {
     })
   }
   finally {
-    isPublishing.value = false
+    isPublishing = false
   }
 }
 </script>
@@ -79,9 +102,12 @@ async function publishChanges() {
         variant="solid"
         :disabled="context.draftCount.value === 0"
         to="/review"
+        class="w-20"
       >
         <div class="flex items-center gap-2">
-          Review
+          <span class="w-10">
+            Review
+          </span>
           <UBadge
             v-if="context.draftCount.value > 0"
             :label="context.draftCount.value.toString()"
@@ -93,33 +119,67 @@ async function publishChanges() {
       </UButton>
     </div>
 
-    <div
+    <UForm
       v-else
-      class="flex-1 flex items-center gap-2 py-2"
+      :schema="schema"
+      :state="state"
+      class="py-2 w-full"
+      @submit="publishChanges"
     >
-      <UButton
-        icon="i-ph-arrow-left"
-        color="neutral"
-        variant="soft"
-        size="sm"
-        aria-label="Back"
-        to="/content"
-      />
-      <UInput
-        v-model="commitMessage"
-        placeholder="Commit message"
-        size="sm"
-        :loading="isPublishing"
-        class="flex-1"
-      />
-      <UButton
-        label="Publish"
-        color="neutral"
-        variant="solid"
-        :loading="isPublishing"
-        :disabled="isReviewPage && !commitMessage?.trim()"
-        @click="publishChanges"
-      />
-    </div>
+      <template #default="{ errors }">
+        <div class="w-full flex items-center gap-2">
+          <UButton
+            icon="i-ph-arrow-left"
+            color="neutral"
+            variant="soft"
+            size="sm"
+            aria-label="Back"
+            to="/content"
+          />
+
+          <UFormField
+            name="commitMessage"
+            class="w-full"
+            :ui="{ error: 'hidden' }"
+          >
+            <template #error>
+              <span />
+            </template>
+
+            <UInput
+              v-model="state.commitMessage"
+              placeholder="Commit message"
+              size="sm"
+              :disabled="isPublishing"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UTooltip :text="(errors?.length > 0 && errors[0]?.message) || 'Publish changes'">
+            <UButton
+              type="submit"
+              color="neutral"
+              variant="solid"
+              :loading="isPublishing"
+              :disabled="errors.length > 0 || isPublishing"
+            >
+              <div class="flex items-center gap-2">
+                <span class="w-10">
+                  Publish
+                </span>
+
+                <UBadge
+                  v-if="context.draftCount.value > 0"
+                  :label="context.draftCount.value.toString()"
+                  size="xs"
+                  color="warning"
+                  variant="soft"
+                />
+              </div>
+            </UButton>
+          </UTooltip>
+        </div>
+      </template>
+    </UForm>
   </div>
 </template>

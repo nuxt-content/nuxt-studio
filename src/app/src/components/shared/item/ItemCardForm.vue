@@ -39,7 +39,7 @@ const props = defineProps({
   },
 })
 
-const isDirectory = computed(() => props.renamedItem?.type === 'directory')
+const isDirectory = computed(() => props.renamedItem?.type === 'directory' || props.actionId === StudioItemActionId.CreateFolder)
 const action = computed<StudioAction<StudioItemActionId>>(() => context.itemActions.value.find(action => action.id === props.actionId)!)
 const originalName = computed(() => props.renamedItem?.name === 'home' ? 'index' : props.renamedItem?.name || '')
 const originalExtension = computed(() => {
@@ -143,11 +143,6 @@ async function onSubmit() {
 
             <div class="flex flex-col gap-1 flex-1 min-w-0">
               <div class="flex items-center gap-1">
-                <UIcon
-                  v-if="isDirectory"
-                  name="i-lucide-folder"
-                  class="h-4 w-4 shrink-0 text-muted"
-                />
                 <UFormField
                   name="name"
                   :ui="{ error: 'hidden' }"

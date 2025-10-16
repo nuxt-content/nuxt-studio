@@ -41,12 +41,7 @@ const statusRingColor = computed(() => props.item.status && props.item.status !=
         <div class="flex flex-col gap-1 flex-1 min-w-0">
           <div class="flex items-center gap-1 min-w-0">
             <UIcon
-              v-if="isDirectory"
-              name="i-lucide-folder"
-              class="h-4 w-4 shrink-0 text-muted"
-            />
-            <UIcon
-              v-else-if="name === 'Home'"
+              v-if="name === 'Home'"
               name="i-lucide-house"
               class="h-4 w-4 shrink-0 text-muted"
             />
