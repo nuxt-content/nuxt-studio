@@ -47,11 +47,17 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
   async function select(item: TreeItem) {
     currentItem.value = item || rootItem.value
     if (item?.type === 'file') {
-      if (type === StudioFeature.Content && ui.config.value.syncEditorAndRoute) {
-        host.app.navigateTo(item.routePath!)
+      await draft.selectById(item.id)
+
+      if (
+        !ui.config.value.syncEditorAndRoute
+        || type === StudioFeature.Media
+        || item.name === '.navigation'
+      ) {
+        return
       }
 
-      await draft.selectById(item.id)
+      host.app.navigateTo(item.routePath!)
     }
     else {
       draft.select(null)
