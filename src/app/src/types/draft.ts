@@ -18,8 +18,7 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
   original?: T
   modified?: T
   /**
-   * - String: Markdown for documents
-   * - Buffer: Media content
+   * - Buffer media content
    */
   raw?: string | Buffer
   /**
@@ -29,28 +28,3 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    */
   version?: number
 }
-
-// export interface DraftItem extends DraftItem {
-//   originalDatabaseItem?: DatabaseItem // original collection document saved in db
-//   originalGithubFile?: GithubFile // file fetched on gh
-//   content?: string // Drafted raw markdown content
-//   document?: DatabaseItem // Drafted parsed AST (body, frontmatter...)
-// }
-
-// export interface DraftItem extends DraftItem {
-//   originalMediaItem?: MediaItem // original collection document saved in db
-//   originalGithubFile?: GithubFile // file fetched on gh
-//   content?: Buffer // Drafted raw media content
-//   media?: MediaItem // Drafted parsed AST (body, frontmatter...)
-
-//   //
-//   oldPath?: string // Old path in public directory (used for revert a renamed file)
-//   // content?: string // Base64 value
-//   url?: string // Public gh url
-
-//   // Image metas
-//   width?: number
-//   height?: number
-//   size?: number
-//   mimeType?: string
-// }

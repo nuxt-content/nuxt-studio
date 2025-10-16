@@ -1,5 +1,4 @@
 import { createSingletonPromise } from '@vueuse/core'
-import type { editor as Editor } from 'modern-monaco/editor-core'
 import themeLight from './theme-light'
 import themeDark from './theme-dark'
 
@@ -40,6 +39,16 @@ export const setupMonaco = createSingletonPromise(async () => {
 
       return monaco.editor.create(domElement, options, override)
     }) as Monaco['editor']['create'],
+    createDiffEditor: ((domElement, options, override) => {
+      // Inject the CSS bundle into the DOM
+      const styleEl = window.document.createElement('style')
+      styleEl.id = 'monaco-editor-core-css'
+      styleEl.media = 'screen'
+      styleEl.textContent = cssBundle
+      domElement.parentNode!.appendChild(styleEl)
+
+      return monaco.editor.createDiffEditor(domElement, options, override)
+    }) as Monaco['editor']['createDiffEditor'],
   }
   // await Promise.all([
   //   // load workers
@@ -122,19 +131,4 @@ export function setupTheme(monaco: Monaco) {
       'editor.lineHighlightBackground': '#e2e8f0', // slate-200
     },
   })
-}
-
-export const baseEditorOptions: Editor.IEditorOptions & { theme: { light: string, dark: string } } = {
-  folding: false,
-  glyphMargin: false,
-  lineNumbersMinChars: 3,
-  overviewRulerLanes: 0,
-  automaticLayout: true,
-  theme: { light: 'studio-light', dark: 'studio-dark' },
-  minimap: {
-    enabled: false,
-  },
-  padding: {
-    top: 16,
-  },
 }

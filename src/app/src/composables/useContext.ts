@@ -1,33 +1,48 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import {
-  type RenameFileParams,
-  type TreeItem,
-  type UploadMediaParams,
-  type CreateFileParams,
-  type StudioHost,
-  type StudioAction,
-  type ActionHandlerParams,
-  type StudioActionInProgress,
-  type CreateFolderParams,
-  StudioItemActionId,
-  type DatabaseItem,
+import { StudioItemActionId, DraftStatus, StudioBranchActionId } from '../types'
+import type {
+  PublishBranchParams,
+  RenameFileParams,
+  TreeItem,
+  UploadMediaParams,
+  CreateFileParams,
+  StudioHost,
+  StudioAction,
+  ActionHandlerParams,
+  StudioActionInProgress,
+  CreateFolderParams,
+  DatabaseItem,
+
 } from '../types'
-import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions } from '../utils/context'
+import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions, STUDIO_BRANCH_ACTION_DEFINITIONS } from '../utils/context'
 import type { useTree } from './useTree'
-import { useRoute } from 'vue-router'
-import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
+import type { useGit } from './useGit'
 import type { useDraftMedias } from './useDraftMedias'
+import { useRoute, useRouter } from 'vue-router'
+import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
 
 export const useContext = createSharedComposable((
   host: StudioHost,
+  git: ReturnType<typeof useGit>,
   documentTree: ReturnType<typeof useTree>,
   mediaTree: ReturnType<typeof useTree>,
 ) => {
   const route = useRoute()
+  const router = useRouter()
 
+  /**
+   * Drafts
+   */
+  const allDrafts = computed(() => [...documentTree.draft.list.value, ...mediaTree.draft.list.value].filter(draft => draft.status !== DraftStatus.Pristine))
+  const isDraftInProgress = computed(() => allDrafts.value.some(draft => draft.status !== DraftStatus.Pristine))
+  const draftCount = computed(() => allDrafts.value.length)
+
+  /**
+   * Actions
+   */
   const actionInProgress = ref<StudioActionInProgress | null>(null)
   const activeTree = computed(() => {
     if (route.name === 'media') {
@@ -36,7 +51,7 @@ export const useContext = createSharedComposable((
     return documentTree
   })
 
-  const itemActions = computed<StudioAction[]>(() => {
+  const itemActions = computed<StudioAction<StudioItemActionId>[]>(() => {
     return STUDIO_ITEM_ACTION_DEFINITIONS.map(<K extends StudioItemActionId>(action: StudioAction<K>) => ({
       ...action,
       handler: async (args: ActionHandlerParams[K]) => {
@@ -125,6 +140,35 @@ export const useContext = createSharedComposable((
       const draftItem = await activeTree.value.draft.duplicate(item.id)
       await activeTree.value.selectItemById(draftItem!.id)
     },
+    [StudioItemActionId.RevertAllItems]: async () => {
+      await documentTree.draft.revertAll()
+      await mediaTree.draft.revertAll()
+    },
+  }
+
+  const branchActions = computed<StudioAction<StudioBranchActionId>[]>(() => {
+    return STUDIO_BRANCH_ACTION_DEFINITIONS.map(<K extends StudioBranchActionId>(action: StudioAction<K>) => ({
+      ...action,
+      handler: async (args: ActionHandlerParams[K]) => {
+        actionInProgress.value = { id: action.id }
+        await branchActionHandler[action.id](args)
+        unsetActionInProgress()
+      },
+    }))
+  })
+
+  const branchActionHandler: { [K in StudioBranchActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
+    [StudioBranchActionId.PublishBranch]: async (params: PublishBranchParams) => {
+      const { commitMessage } = params
+      const documentFiles = await documentTree.draft.listAsRawFiles()
+      const mediaFiles = await mediaTree.draft.listAsRawFiles()
+      await git.commitFiles([...documentFiles, ...mediaFiles], commitMessage)
+
+      // @ts-expect-error params is null
+      await itemActionHandler[StudioItemActionId.RevertAllItems]()
+
+      router.push('/content')
+    },
   }
 
   function unsetActionInProgress() {
@@ -134,8 +178,13 @@ export const useContext = createSharedComposable((
   return {
     activeTree,
     itemActions,
-    actionInProgress,
-    unsetActionInProgress,
     itemActionHandler,
+    branchActions,
+    branchActionHandler,
+    actionInProgress,
+    allDrafts,
+    draftCount,
+    isDraftInProgress,
+    unsetActionInProgress,
   }
 })
