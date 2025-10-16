@@ -5,6 +5,8 @@ import { useStudio } from '../../../composables/useStudio'
 import { computed } from 'vue'
 import MediaCard from '../../media/MediaCard.vue'
 import ContentCard from '../../content/ContentCard.vue'
+import MediaCardForm from '../../media/MediaCardForm.vue'
+import ContentCardForm from '../../content/ContentCardForm.vue'
 
 const { context } = useStudio()
 
@@ -29,12 +31,20 @@ const filteredTree = computed(() => {
   return props.tree.filter(item => item.id !== context.actionInProgress.value!.item?.id)
 })
 
-const component = computed(() => {
+const cardComponent = computed(() => {
   if (props.feature === StudioFeature.Media) {
     return MediaCard
   }
 
   return ContentCard
+})
+
+const formComponent = computed(() => {
+  if (props.feature === StudioFeature.Media) {
+    return MediaCardForm
+  }
+
+  return ContentCardForm
 })
 </script>
 
@@ -42,9 +52,10 @@ const component = computed(() => {
   <div class="flex flex-col @container">
     <ul class="flex flex-col gap-2">
       <li v-if="showForm">
-        <ItemCardForm
+        <component
+          :is="formComponent"
           :parent-item="context.activeTree.value.currentItem.value"
-          :action-id="context.actionInProgress.value!.id"
+          :action-id="context.actionInProgress.value!.id as never"
           :renamed-item="context.actionInProgress.value!.item"
         />
       </li>
@@ -53,7 +64,7 @@ const component = computed(() => {
         :key="`${item.id}-${index}`"
       >
         <component
-          :is="component"
+          :is="cardComponent"
           :item="item"
           @click="context.activeTree.value.select(item)"
         />

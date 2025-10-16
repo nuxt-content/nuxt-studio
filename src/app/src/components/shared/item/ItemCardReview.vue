@@ -16,7 +16,7 @@ const props = defineProps({
   },
 })
 
-const isOpen = defineModel<boolean>('isOpen', { default: false })
+const isOpen = defineModel<boolean>({ default: false })
 
 const fileIcon = computed(() => getFileIcon(props.draftItem.fsPath))
 const fileName = computed(() => props.draftItem.fsPath.split('/').pop() || props.draftItem.fsPath)

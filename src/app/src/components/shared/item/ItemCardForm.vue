@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { computed, reactive, ref, type PropType } from 'vue'
 import * as z from 'zod'
-import { Image } from '@unpic/vue'
 import type {
-  MediaFileExtension,
   CreateFileParams,
   RenameFileParams,
   StudioAction,
   TreeItem,
+  ExtensionConfig,
+  CreateFolderParams,
 } from '../../../types'
-import { ContentFileExtension, StudioItemActionId } from '../../../types'
+import { StudioItemActionId } from '../../../types'
 import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { stripNumericPrefix } from '../../../utils/string'
 import { upperFirst } from 'scule'
-import { getFileExtension, CONTENT_EXTENSIONS, isMediaFile, isImageFile, MEDIA_EXTENSIONS } from '../../../utils/file'
+import { getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../../utils/file'
 
 const { context } = useStudio()
 
@@ -22,7 +22,7 @@ const isLoading = ref(false)
 
 const props = defineProps({
   actionId: {
-    type: String as PropType<StudioItemActionId.CreateDocument | StudioItemActionId.RenameItem>,
+    type: String as PropType<StudioItemActionId.CreateDocument | StudioItemActionId.RenameItem | StudioItemActionId.CreateFolder>,
     required: true,
   },
   parentItem: {
@@ -33,23 +33,21 @@ const props = defineProps({
     type: Object as PropType<TreeItem>,
     default: null,
   },
+  config: {
+    type: Object as PropType<ExtensionConfig>,
+    required: true,
+  },
 })
 
 const isDirectory = computed(() => props.renamedItem?.type === 'directory')
 const action = computed<StudioAction<StudioItemActionId>>(() => context.itemActions.value.find(action => action.id === props.actionId)!)
 const originalName = computed(() => props.renamedItem?.name === 'home' ? 'index' : props.renamedItem?.name || '')
-const isMedia = computed(() => props.renamedItem && isMediaFile(props.renamedItem?.fsPath))
-const isImage = computed(() => props.renamedItem && isImageFile(props.renamedItem?.fsPath))
 const originalExtension = computed(() => {
   if (isDirectory.value) {
     return null
   }
 
-  if (isMedia.value) {
-    return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : null
-  }
-
-  return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : ContentFileExtension.Markdown
+  return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : props.config.default
 })
 
 const schema = z.object({
@@ -57,29 +55,18 @@ const schema = z.object({
     .min(1, 'Name cannot be empty')
     .refine((name: string) => !name.endsWith('.'), 'Name cannot end with "."')
     .refine((name: string) => !name.startsWith('/'), 'Name cannot start with "/"'),
-  extension: z.enum([...CONTENT_EXTENSIONS, ...MEDIA_EXTENSIONS]).nullish(),
+  extension: z.enum([...CONTENT_EXTENSIONS, ...MEDIA_EXTENSIONS] as [string, ...string[]]).nullish(),
 })
 
 type Schema = z.output<typeof schema>
 const state = reactive<Schema>({
   name: originalName.value,
-  extension: originalExtension.value! as MediaFileExtension | ContentFileExtension | null,
+  extension: originalExtension.value,
 })
-
-const itemExtensionIcon = computed<string>(() => {
-  return {
-    md: 'i-ph-markdown-logo',
-    yaml: 'i-fluent-document-yml-20-regular',
-    yml: 'i-fluent-document-yml-20-regular',
-    json: 'i-lucide-file-json',
-  }[state.extension as string] || 'i-mdi-file'
-})
-
-const thumbnailBg = computed(() => isMedia.value ? 'bg-[linear-gradient(45deg,#e6e9ea_25%,transparent_0),linear-gradient(-45deg,#e6e9ea_25%,transparent_0),linear-gradient(45deg,transparent_75%,#e6e9ea_0),linear-gradient(-45deg,transparent_75%,#e6e9ea_0)]' : 'bg-elevated')
 
 const routePath = computed(() => {
   const name = state.name === 'index' ? '/' : state.name
-  const routePath = isMedia.value ? `${name}.${state.extension}` : name
+  const routePath = props.config.editable ? name : `${name}.${state.extension}`
   return withLeadingSlash(joinURL(props.parentItem.routePath!, stripNumericPrefix(routePath)))
 })
 
@@ -97,8 +84,9 @@ async function onSubmit() {
 
   isLoading.value = true
 
-  let params: CreateFileParams | RenameFileParams
-  const newFsPath = joinURL(props.parentItem.fsPath, `${state.name}.${state.extension}`)
+  let params: CreateFileParams | RenameFileParams | CreateFolderParams
+  const name = isDirectory.value ? state.name : `${state.name}.${state.extension}`
+  const newFsPath = joinURL(props.parentItem.fsPath, name)
 
   switch (props.actionId) {
     case StudioItemActionId.CreateDocument:
@@ -111,6 +99,11 @@ async function onSubmit() {
       params = {
         newFsPath: withoutLeadingSlash(newFsPath),
         id: props.renamedItem.id,
+      }
+      break
+    case StudioItemActionId.CreateFolder:
+      params = {
+        fsPath: withoutLeadingSlash(newFsPath),
       }
       break
   }
@@ -143,27 +136,8 @@ async function onSubmit() {
               v-if="!isDirectory"
               class="relative flex-shrink-0 w-12 h-12"
             >
-              <div
-                class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden"
-                :class="thumbnailBg"
-              >
-                <Image
-                  v-if="isImage"
-                  :src="renamedItem.routePath!"
-                  width="48"
-                  height="48"
-                  alt="File preview"
-                  class="w-full h-full object-cover"
-                />
-                <div
-                  v-else
-                  class="w-full h-full flex items-center justify-center"
-                >
-                  <UIcon
-                    :name="itemExtensionIcon"
-                    class="w-6 h-6 text-muted"
-                  />
-                </div>
+              <div class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden bg-elevated">
+                <slot name="thumbnail" />
               </div>
             </div>
 
@@ -205,8 +179,8 @@ async function onSubmit() {
                   </template>
                   <USelect
                     v-model="state.extension"
-                    :items="isMedia ? MEDIA_EXTENSIONS : CONTENT_EXTENSIONS"
-                    :disabled="isMedia || isLoading"
+                    :items="config.allowed"
+                    :disabled="!config.editable || isLoading"
                     variant="soft"
                     class="w-18 h-5"
                     size="xs"

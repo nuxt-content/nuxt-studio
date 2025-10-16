@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DraftItem, DatabaseItem, DatabasePageItem } from '../../types'
 import type { PropType } from 'vue'
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { DraftStatus, ContentFileExtension } from '../../types'
 import { getFileExtension } from '../../utils/file'
 import { generateContentFromDocument } from '../../utils/content'
@@ -21,6 +21,7 @@ const props = defineProps({
 const diffEditorRef = ref<HTMLDivElement>()
 const editorRef = ref<HTMLDivElement>()
 const isLoadingContent = ref(false)
+const isOpen = ref(false)
 
 const language = computed(() => {
   const ext = getFileExtension(props.draftItem.fsPath)
@@ -37,11 +38,11 @@ const language = computed(() => {
   }
 })
 
-function watchIsOpen(isOpenValue: boolean) {
-  if (isOpenValue && !isLoadingContent.value) {
+watch(isOpen, () => {
+  if (isOpen.value && !isLoadingContent.value) {
     initializeEditor()
   }
-}
+})
 
 async function initializeEditor() {
   isLoadingContent.value = true
@@ -75,8 +76,8 @@ async function initializeEditor() {
 
 <template>
   <ItemCardReview
+    v-model="isOpen"
     :draft-item="draftItem"
-    @update:is-open="watchIsOpen"
   >
     <template #open>
       <div class="bg-elevated h-[300px]">
