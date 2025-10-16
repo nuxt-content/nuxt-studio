@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus } from '../../types'
 import type { PropType } from 'vue'
 import { generateContentFromDocument, generateDocumentFromContent, pickReservedKeysFromDocument } from '../../utils/content'
-import { setupMonaco, setupSuggestion, type Editor } from '../../utils/monaco'
+import { setupSuggestion } from '../../utils/monaco'
 import { useStudio } from '../../composables/useStudio'
+import { useMonaco } from '../../composables/useMonaco'
 
 const props = defineProps({
   draftItem: {
@@ -21,19 +22,10 @@ const props = defineProps({
 const document = defineModel<DatabasePageItem>()
 const { mediaTree, host, ui } = useStudio()
 
-const editor = shallowRef<Editor.IStandaloneCodeEditor | null>(null)
-const editorRef = ref()
+const editorRef = ref<HTMLElement>()
 const content = ref<string>('')
 const currentDocumentId = ref<string | null>(null)
 const localStatus = ref<DraftStatus>(props.draftItem.status)
-
-// Trigger on action events
-watch(() => props.draftItem.status, (newStatus) => {
-  if (editor.value && newStatus !== localStatus.value) {
-    localStatus.value = newStatus
-    setContent(props.draftItem.modified as DatabasePageItem)
-  }
-})
 
 const language = computed(() => {
   switch (document.value?.extension) {
@@ -49,31 +41,14 @@ const language = computed(() => {
   }
 })
 
-// Trigger on document changes
-watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
-  if (document.value?.body) {
-    setContent(document.value)
-  }
-}, { immediate: true })
-
-onMounted(async () => {
-  const monaco = await setupMonaco()
-  setupSuggestion(monaco.monaco, host.meta.components(), mediaTree.root.value)
-
-  // create a Monaco editor instance
-  editor.value = monaco.createEditor(editorRef.value, {
-    theme: ui.colorMode.value === 'light' ? 'vitesse-light' : 'vitesse-dark',
-    lineNumbers: 'off',
-    readOnly: props.readOnly,
-    scrollbar: props.readOnly
-      ? {
-          vertical: 'hidden',
-          horizontal: 'hidden',
-          handleMouseWheel: false,
-        }
-      : undefined,
-  })
-  editor.value.onDidChangeModelContent(() => {
+const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
+  language,
+  readOnly: props.readOnly,
+  colorMode: ui.colorMode,
+  onSetup: async (monaco) => {
+    setupSuggestion(monaco.monaco, host.meta.components(), mediaTree.root.value)
+  },
+  onChange: (newContent) => {
     if (props.readOnly) {
       return
     }
@@ -83,7 +58,6 @@ onMounted(async () => {
       return
     }
 
-    const newContent = editor.value!.getModel()!.getValue() || ''
     if (content.value === newContent) {
       return
     }
@@ -91,42 +65,35 @@ onMounted(async () => {
     content.value = newContent
 
     generateDocumentFromContent(document.value!.id, content.value).then((doc) => {
-      // Update local status
       localStatus.value = DraftStatus.Updated
 
-      // Update document
       document.value = {
         ...pickReservedKeysFromDocument(props.draftItem.original as DatabasePageItem || document.value!),
         ...doc,
       } as DatabasePageItem
     })
-  })
-
-  // create and attach a model to the editor
-  editor.value.setModel(monaco.editor.createModel(content.value, language.value))
-
-  // Set the theme based on the color mode
-  watch(ui.colorMode, () => {
-    editor.value?.updateOptions({
-      theme: ui.colorMode.value === 'light' ? 'vitesse-light' : 'vitesse-dark',
-    })
-  })
+  },
 })
+
+// Trigger on action events
+watch(() => props.draftItem.status, (newStatus) => {
+  if (editor.value && newStatus !== localStatus.value) {
+    localStatus.value = newStatus
+    setContent(props.draftItem.modified as DatabasePageItem)
+  }
+})
+
+// Trigger on document changes
+watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
+  if (document.value?.body) {
+    setContent(document.value)
+  }
+}, { immediate: true })
 
 function setContent(document: DatabasePageItem) {
   generateContentFromDocument(document).then((md) => {
     content.value = md || ''
-
-    if (editor.value && editor.value.getModel()?.getValue() !== md) {
-      // Keep the cursor position
-      const position = editor.value.getPosition()
-      editor.value.getModel()?.setValue(md || '')
-      // Restore the cursor position
-      if (position) {
-        editor.value.setPosition(position)
-      }
-    }
-
+    setEditorContent(md || '', true)
     currentDocumentId.value = document.id
   })
 }

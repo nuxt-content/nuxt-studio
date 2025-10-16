@@ -1,60 +1,69 @@
-// import { computed, watch, unref } from 'vue'
-// import type { Ref } from 'vue'
-// import type { editor as Editor } from 'modern-monaco/editor-core'
-// import { setupMonaco, setupTheme, baseEditorOptions } from '../utils/monaco/index'
+import { watch, unref, type Ref } from 'vue'
+import type { editor as Editor } from 'modern-monaco/editor-core'
+import { setupMonaco } from '../utils/monaco/index'
 
-// export function useMonacoDiff(target: Ref, options: { original: string, modified: string, language: string, renderSideBySide?: boolean }) {
-//   let monaco: Awaited<ReturnType<typeof setupMonaco>>
-//   let editor: Editor.IStandaloneDiffEditor
+export interface UseMonacoDiffOptions {
+  original: string
+  modified: string
+  language: string
+  colorMode?: 'light' | 'dark'
+}
 
-//   // const colorMode = useColorMode()
+export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
+  let editor: Editor.IStandaloneDiffEditor | null = null
+  let isInitialized = false
 
-//   const resolvedTheme = computed(() => baseEditorOptions.theme.dark)// colorMode.value === 'dark' ? baseEditorOptions.theme.dark : baseEditorOptions.theme.light)
+  const getTheme = (mode: 'light' | 'dark' = 'dark') => {
+    return mode === 'light' ? 'vitesse-light' : 'vitesse-dark'
+  }
 
-//   // watch(() => colorMode.value, () => setOptions({ theme: resolvedTheme.value }))
+  const init = async () => {
+    const el = unref(target)
+    if (!el || isInitialized) return
 
-//   const init = async () => {
-//     monaco = await setupMonaco()
+    const monaco = await setupMonaco()
 
-//     watch(
-//       target,
-//       () => {
-//         const el = unref(target)
+    editor = monaco.createDiffEditor(el, {
+      theme: getTheme(options.colorMode),
+      lineNumbers: 'off',
+      readOnly: true,
+      renderSideBySide: true,
+      renderSideBySideInlineBreakpoint: 0,
+      wordWrap: 'on',
+      scrollBeyondLastLine: false,
+    })
 
-//         if (!el) return
+    editor.setModel({
+      original: monaco.editor.createModel(options.original, options.language),
+      modified: monaco.editor.createModel(options.modified, options.language),
+    })
 
-//         setupTheme(monaco)
+    isInitialized = true
+  }
 
-//         editor = monaco.editor.createDiffEditor(el, {
-//           ...baseEditorOptions,
-//           theme: resolvedTheme.value,
-//           readOnly: true,
-//           renderSideBySide: options.renderSideBySide ?? false,
-//           // disable the fallback to inline with a `0` width breakpoint
-//           renderSideBySideInlineBreakpoint: 0,
-//           wordWrap: 'on',
-//           scrollBeyondLastLine: false,
-//         })
+  // Watch target to initialize when it becomes available
+  watch(
+    target,
+    () => {
+      const el = unref(target)
+      if (el && !isInitialized) {
+        init()
+      }
+      else if (!el && isInitialized) {
+        isInitialized = false
+        editor?.dispose()
+        editor = null
+      }
+    },
+    { immediate: true, flush: 'post' },
+  )
 
-//         editor.setModel({
-//           original: monaco.editor.createModel(options.original, options.language),
-//           modified: monaco.editor.createModel(options.modified, options.language),
-//         })
-//       },
-//       {
-//         flush: 'post',
-//         immediate: true,
-//       },
-//     )
-//   }
+  const setOptions = (opts: Editor.IStandaloneDiffEditorConstructionOptions) => {
+    editor?.updateOptions(opts)
+  }
 
-//   init()
-
-//   const setOptions = (opts: Editor.IStandaloneDiffEditorConstructionOptions) => {
-//     editor?.updateOptions(opts)
-//   }
-
-//   return {
-//     setOptions,
-//   }
-// }
+  return {
+    editor,
+    setOptions,
+  }
+}

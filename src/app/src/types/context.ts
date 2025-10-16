@@ -13,14 +13,19 @@ export enum StudioItemActionId {
   RenameItem = 'rename-item',
   DeleteItem = 'delete-item',
   DuplicateItem = 'duplicate-item',
+  RevertAllItems = 'revert-all-items',
+}
+
+export enum StudioBranchActionId {
+  PublishBranch = 'publish-branch',
 }
 
 export interface StudioActionInProgress {
-  id: StudioItemActionId
+  id: StudioItemActionId | StudioBranchActionId
   item?: TreeItem
 }
 
-export interface StudioAction<K extends StudioItemActionId = StudioItemActionId> {
+export interface StudioAction<K extends StudioItemActionId | StudioBranchActionId> {
   id: K
   label: string
   icon: string
@@ -47,12 +52,21 @@ export interface UploadMediaParams {
   files: File[]
 }
 
+export interface PublishBranchParams {
+  commitMessage: string
+}
+
 export type ActionHandlerParams = {
+  // Items
   [StudioItemActionId.CreateFolder]: CreateFolderParams
   [StudioItemActionId.CreateDocument]: CreateFileParams
   [StudioItemActionId.UploadMedia]: UploadMediaParams
   [StudioItemActionId.RevertItem]: TreeItem
-  [StudioItemActionId.RenameItem]: TreeItem | RenameFileParams // Two steps actions (item to rename first then rename params)
+  [StudioItemActionId.RenameItem]: TreeItem | RenameFileParams
   [StudioItemActionId.DeleteItem]: TreeItem
   [StudioItemActionId.DuplicateItem]: TreeItem
+  [StudioItemActionId.RevertAllItems]: never
+
+  // Branches
+  [StudioBranchActionId.PublishBranch]: PublishBranchParams
 }

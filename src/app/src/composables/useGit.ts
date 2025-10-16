@@ -1,6 +1,6 @@
 import { ofetch } from 'ofetch'
 import { createSharedComposable } from '@vueuse/core'
-import type { RawFile, GithubFile, GitOptions } from '../types'
+import type { RawFile, GithubFile, GitOptions, CommitFilesOptions } from '../types'
 import { DraftStatus } from '../types/draft'
 
 import { joinURL } from 'ufo'
@@ -14,10 +14,14 @@ export const useDevelopmentGit = (_options: GitOptions) => {
 
 export const useGit = createSharedComposable(({ owner, repo, token, branch, rootDir, authorName, authorEmail }: GitOptions) => {
   const gitFiles: Record<string, GithubFile> = {}
+
+  // Support both token formats: "token {token}" for classic PATs, "Bearer {token}" for OAuth/fine-grained PATs
+  const authHeader = token.startsWith('ghp_') ? `token ${token}` : `Bearer ${token}`
+
   const $api = ofetch.create({
     baseURL: `https://api.github.com/repos/${owner}/${repo}`,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: authHeader,
       Accept: 'application/vnd.github.v3+json',
     },
   })
@@ -60,9 +64,18 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     if (!token) {
       return Promise.resolve(null)
     }
+
     files = files.map(file => ({ ...file, path: joinURL(rootDir, file.path) }))
 
-    return commitFilesToGitHub({ owner, repo, branch, files, message, authorName, authorEmail })
+    return commitFilesToGitHub({
+      owner,
+      repo,
+      branch,
+      files,
+      message,
+      authorName,
+      authorEmail,
+    })
   }
 
   return {
@@ -70,9 +83,9 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     commitFiles,
   }
 
-  async function commitFilesToGitHub({ owner, repo, branch, files, message, authorName, authorEmail }: { owner: string, repo: string, branch: string, files: RawFile[], message: string, authorName: string, authorEmail: string }) {
+  async function commitFilesToGitHub({ owner, repo, branch, files, message, authorName, authorEmail }: CommitFilesOptions) {
     // Get latest commit SHA
-    const refData = await $api(`/git/ref/heads/${branch}?ref=${branch}`)
+    const refData = await $api(`/git/refs/heads/${branch}`)
     const latestCommitSha = refData.object.sha
 
     // Get base tree SHA

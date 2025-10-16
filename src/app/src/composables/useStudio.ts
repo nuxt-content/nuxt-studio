@@ -7,7 +7,7 @@ import { useDraftMedias } from './useDraftMedias'
 import { ref } from 'vue'
 import { useTree } from './useTree'
 import type { RouteLocationNormalized } from 'vue-router'
-import type { StudioHost } from '../types'
+import type { StudioHost, GitOptions } from '../types'
 import { StudioFeature } from '../types'
 import { documentStorage, mediaStorage, nullStorageDriver } from '../utils/storage'
 import { useHooks } from './useHooks'
@@ -18,10 +18,11 @@ export const studioFlags = {
 }
 
 export const useStudio = createSharedComposable(() => {
+  const isReady = ref(false)
   const host = window.useStudioHost()
   studioFlags.dev = host.meta.dev
 
-  const gitOptions = {
+  const gitOptions: GitOptions = {
     owner: host.repository.owner,
     repo: host.repository.repo,
     branch: host.repository.branch,
@@ -31,21 +32,18 @@ export const useStudio = createSharedComposable(() => {
     authorEmail: host.user.get().email,
   }
   const git = studioFlags.dev ? useDevelopmentGit(gitOptions) : useGit(gitOptions)
-
-  const isReady = ref(false)
   const ui = useUI(host)
   const draftDocuments = useDraftDocuments(host, git)
   const documentTree = useTree(StudioFeature.Content, host, ui, draftDocuments)
-
   const draftMedias = useDraftMedias(host, git)
   const mediaTree = useTree(StudioFeature.Media, host, ui, draftMedias)
-
-  const context = useContext(host, documentTree, mediaTree)
+  const context = useContext(host, git, documentTree, mediaTree)
 
   host.on.mounted(async () => {
     if (studioFlags.dev) {
       initDevelopmentMode(host, draftDocuments, draftMedias, documentTree, mediaTree)
     }
+
     await draftDocuments.load()
     await draftMedias.load()
 
@@ -60,9 +58,6 @@ export const useStudio = createSharedComposable(() => {
 
         await documentTree.selectByRoute(to)
       }
-      // setTimeout(() => {
-      //   host.document.detectActives()
-      // }, 100)
     })
   })
 

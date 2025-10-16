@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computeActionItems, oneStepActions } from '../../../utils/context'
+import { computeItemActions, oneStepActions } from '../../../utils/context'
 import { computed, ref, watch, type PropType } from 'vue'
 import { StudioItemActionId } from '../../../types'
 import type { StudioItemActionId as StudioItemActionIdType, TreeItem } from '../../../types'
@@ -30,7 +30,7 @@ watch(isOpen, (newValue) => {
 const actions = computed<DropdownMenuItem[]>(() => {
   const hasPendingAction = pendingActionId.value !== null
 
-  return computeActionItems(context.itemActions.value, props.item).map((action) => {
+  return computeItemActions(context.itemActions.value, props.item).map((action) => {
     const isOneStepAction = oneStepActions.includes(action.id)
     const isPending = pendingActionId.value === action.id
     const isDeleteAction = action.id === StudioItemActionId.DeleteItem
@@ -79,6 +79,7 @@ const pendingActionLabel = computed(() => {
     :items="actions"
     :content="{ side: 'bottom' }"
     :ui="{ content: 'w-42' }"
+    size="xs"
   >
     <UButton
       color="neutral"

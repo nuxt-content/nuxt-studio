@@ -1,10 +1,10 @@
 import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, MediaItem, RawFile } from '../types'
+import { TreeRootId } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
 import { createSharedComposable } from '@vueuse/core'
 import { useBaseDraft } from './useDraftBase'
-import { TreeRootId } from '../utils/tree'
 import { mediaStorage as storage } from '../utils/storage'
 import { getFileExtension } from '../utils/file'
 import { generateStemFromFsPath } from '../../../module/src/runtime/utils/media'
@@ -20,6 +20,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     create,
     remove,
     revert,
+    revertAll,
     select,
     selectById,
     load,
@@ -85,7 +86,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     })
   }
 
-  async function generateRawFiles(): Promise<RawFile[]> {
+  async function listAsRawFiles(): Promise<RawFile[]> {
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
       if (draftItem.status === DraftStatus.Deleted) {
@@ -107,6 +108,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     duplicate: () => {},
     remove,
     revert,
+    revertAll,
     rename,
     list,
     load,
@@ -114,6 +116,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     select,
     selectById,
     upload,
-    generateRawFiles,
+    listAsRawFiles,
   }
 })

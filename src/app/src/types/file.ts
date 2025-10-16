@@ -33,3 +33,9 @@ export enum VideoFileExtension {
   MKV = 'mkv',
   WEBM = 'webm',
 }
+
+export interface ExtensionConfig {
+  allowed: string[]
+  default?: string
+  editable: boolean
+}

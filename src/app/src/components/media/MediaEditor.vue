@@ -1,33 +1,38 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
-import type { DraftItem } from '../../types'
+import { type MediaItem, DraftStatus } from '../../types'
 import { isImageFile, isVideoFile, isAudioFile } from '../../utils/file'
 
 const props = defineProps({
-  draftItem: {
-    type: Object as PropType<DraftItem>,
+  mediaItem: {
+    type: Object as PropType<MediaItem>,
+    required: true,
+  },
+  status: {
+    type: String as PropType<DraftStatus>,
     required: true,
   },
 })
 
-const isImage = computed(() => isImageFile(props.draftItem.modified?.path || ''))
-const isVideo = computed(() => isVideoFile(props.draftItem.modified?.path || ''))
-const isAudio = computed(() => isAudioFile(props.draftItem.modified?.path || ''))
+const isImage = computed(() => isImageFile(props.mediaItem?.path || ''))
+const isVideo = computed(() => isVideoFile(props.mediaItem?.path || ''))
+const isAudio = computed(() => isAudioFile(props.mediaItem?.path || ''))
 </script>
 
 <template>
-  <div class="bg-neutral-800">
+  <div class="bg-elevated">
     <img
       v-if="isImage"
-      :src="draftItem.modified!.path!"
+      :src="mediaItem.path!"
+      :class="{ 'opacity-50': status === DraftStatus.Deleted }"
     >
     <MediaVideoEditor
       v-else-if="isVideo"
-      :src="draftItem.modified!.path!"
+      :src="mediaItem.path!"
     />
     <MediaAudioEditor
       v-else-if="isAudio"
-      :src="draftItem.modified!.path!"
+      :src="mediaItem.path!"
     />
     <div v-else>
       <UIcon

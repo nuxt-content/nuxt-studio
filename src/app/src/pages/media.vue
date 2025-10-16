@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
-import { StudioItemActionId } from '../types'
+import { StudioItemActionId, StudioFeature } from '../types'
 
 const { context } = useStudio()
 
@@ -51,22 +51,25 @@ async function onFileDrop(event: DragEvent) {
     </div>
     <MediaEditor
       v-if="currentTreeItem.type === 'file' && currentDraftItem"
-      :draft-item="currentDraftItem!"
+      :media-item="currentDraftItem.modified || currentDraftItem.original!"
+      :status="currentDraftItem.status"
     />
     <div
       v-else
       class="flex flex-col p-4"
     >
-      <ItemTreeFolder
+      <ItemTree
         v-if="folderTree?.length > 0 || showFolderForm"
         class="mb-4"
         :tree="folderTree"
         :show-form="showFolderForm"
+        :feature="StudioFeature.Media"
       />
-      <ItemTreeFile
+      <ItemTree
         v-if="fileTree?.length > 0 || showFileForm"
         :tree="fileTree"
         :show-form="showFileForm"
+        :feature="StudioFeature.Media"
       />
     </div>
   </div>
