@@ -2,12 +2,13 @@
 import { useStudio } from './composables/useStudio'
 import { watch, ref } from 'vue'
 import { StudioFeature } from './types'
-import { defineShortcuts } from '#imports'
 import { useRouter } from 'vue-router'
 
 const { host, ui, isReady, context } = useStudio()
 const router = useRouter()
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore defineShortcuts is auto-imported
 defineShortcuts({
   'meta_.': () => {
     ui.toggle()

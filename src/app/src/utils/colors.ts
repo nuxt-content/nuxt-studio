@@ -1,9 +1,10 @@
-import { useAppConfig } from '#imports'
-
 // Inline nuxt ui colors plugin to avoid breaking document.head
 // @nuxt/ui/runtime/plugins/colors
 export function generateColors() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore defineShortcuts is auto-imported
   const appConfig = useAppConfig()
+  console.log('appConfig', appConfig)
   const shades = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
   function generateShades(key: string, value: string) {
     return `${shades.map(shade => `--ui-color-${key}-${shade}: var(--color-${value === 'neutral' ? 'old-neutral' : value}-${shade});`).join('\n  ')}`

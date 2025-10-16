@@ -2,6 +2,17 @@ import { defineBuildConfig } from 'unbuild'
 
 export default defineBuildConfig({
   outDir: '../../dist/module',
+  externals: [
+    'defu',
+    'destr',
+    'unstorage',
+    'unstorage/drivers/fs',
+    'chokidar',
+    'anymatch',
+    'readdirp',
+    'picomatch',
+    'normalize-path',
+  ],
   entries: [
     './src/module',
     {

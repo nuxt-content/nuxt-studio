@@ -3,7 +3,7 @@ import { createError, eventHandler, getRequestHeader, readRawBody, setResponseHe
 import type { StorageMeta } from 'unstorage'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { decompressTree } from '@nuxt/content/runtime'
-import { removeReservedKeysFromDocument } from '../../../../utils/content'
+import { removeReservedKeysFromDocument } from 'nuxt-studio/app/utils'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
 

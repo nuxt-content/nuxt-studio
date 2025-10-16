@@ -6,7 +6,7 @@ import { getCollectionByFilePath, generateIdFromFsPath, createCollectionDocument
 import { kebabCase } from 'scule'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
-import { generateDocumentFromContent } from './utils/content'
+import { generateDocumentFromContent } from 'nuxt-studio/app/utils'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
 import { clearError, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
 import { collections } from '#content/preview'
