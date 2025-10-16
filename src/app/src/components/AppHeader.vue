@@ -111,9 +111,14 @@ async function publishChanges() {
           <UBadge
             v-if="context.draftCount.value > 0"
             :label="context.draftCount.value.toString()"
+            class="bg-[var(--ui-color-neutral-400)]"
             size="xs"
-            color="warning"
             variant="soft"
+          />
+          <UIcon
+            v-else
+            name="i-lucide-eye"
+            class="w-3 h-3"
           />
         </div>
       </UButton>
@@ -128,14 +133,19 @@ async function publishChanges() {
     >
       <template #default="{ errors }">
         <div class="w-full flex items-center gap-2">
-          <UButton
-            icon="i-ph-arrow-left"
-            color="neutral"
-            variant="soft"
-            size="sm"
-            aria-label="Back"
-            to="/content"
-          />
+          <UTooltip
+            text="Back to content"
+            :kbds="['esc']"
+          >
+            <UButton
+              icon="i-ph-arrow-left"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              aria-label="Back"
+              to="/content"
+            />
+          </UTooltip>
 
           <UFormField
             name="commitMessage"
@@ -152,6 +162,7 @@ async function publishChanges() {
               size="sm"
               :disabled="isPublishing"
               class="w-full"
+              :ui="{ base: 'focus-visible:ring-1' }"
             />
           </UFormField>
 
@@ -168,12 +179,9 @@ async function publishChanges() {
                   Publish
                 </span>
 
-                <UBadge
-                  v-if="context.draftCount.value > 0"
-                  :label="context.draftCount.value.toString()"
-                  size="xs"
-                  color="warning"
-                  variant="soft"
+                <UIcon
+                  name="i-lucide-save"
+                  class="w-3 h-3"
                 />
               </div>
             </UButton>
