@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type TreeItem, StudioFeature } from '../../../types'
+import { type TreeItem, StudioFeature, StudioItemActionId } from '../../../types'
 import type { PropType } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
 import { computed } from 'vue'
@@ -25,11 +25,7 @@ const props = defineProps({
   },
 })
 
-const filteredTree = computed(() => {
-  if (!context.actionInProgress.value?.item) return props.tree
-
-  return props.tree.filter(item => item.id !== context.actionInProgress.value!.item?.id)
-})
+const showCreationForm = computed(() => props.showForm && context.actionInProgress.value?.id !== StudioItemActionId.RenameItem)
 
 const cardComponent = computed(() => {
   if (props.feature === StudioFeature.Media) {
@@ -38,6 +34,12 @@ const cardComponent = computed(() => {
 
   return ContentCard
 })
+
+const isItemBeingRenamed = (item: TreeItem) => {
+  if (context.actionInProgress.value?.id !== StudioItemActionId.RenameItem) return false
+
+  return context.actionInProgress.value?.item?.id === item.id
+}
 
 const formComponent = computed(() => {
   if (props.feature === StudioFeature.Media) {
@@ -51,21 +53,21 @@ const formComponent = computed(() => {
 <template>
   <div class="flex flex-col @container">
     <ul class="flex flex-col gap-2">
-      <li v-if="showForm">
+      <li v-if="showCreationForm">
         <component
           :is="formComponent"
           :parent-item="context.activeTree.value.currentItem.value"
           :action-id="context.actionInProgress.value!.id as never"
-          :renamed-item="context.actionInProgress.value!.item"
         />
       </li>
       <li
-        v-for="(item, index) in filteredTree"
+        v-for="(item, index) in tree"
         :key="`${item.id}-${index}`"
       >
         <component
           :is="cardComponent"
           :item="item"
+          :show-rename-form="isItemBeingRenamed(item)"
           @click="context.activeTree.value.select(item)"
         />
       </li>
