@@ -53,7 +53,7 @@ const showFileForm = computed(() => {
             name="i-lucide-folder"
             class="w-4 h-4 text-muted"
           />
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+          <h3 class="text-xs uppercase tracking-wider text-muted">
             Directories
           </h3>
           <UBadge
@@ -78,7 +78,7 @@ const showFileForm = computed(() => {
             name="i-lucide-file"
             class="w-4 h-4 text-muted"
           />
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+          <h3 class="text-xs uppercase tracking-wider text-muted">
             Files
           </h3>
           <UBadge

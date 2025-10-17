@@ -74,7 +74,7 @@ const items = computed<BreadcrumbItem[]>(() => {
     <UBreadcrumb
       :items="items"
       color="neutral"
-      :ui="{ link: 'text-xs', list: 'gap-0.5', separatorIcon: 'size-3', linkLeadingIcon: 'size-4' }"
+      :ui="{ link: 'text-sm', list: 'gap-0.5', separatorIcon: 'size-3', linkLeadingIcon: 'size-4' }"
     >
       <template #ellipsis="{ item }">
         <UDropdownMenu :items="item.children">

@@ -71,6 +71,13 @@ const routePath = computed(() => {
   return withLeadingSlash(joinURL(props.parentItem.routePath!, stripNumericPrefix(routePath)))
 })
 
+const displayInfo = computed(() => {
+  if (isDirectory.value) {
+    return `${props.renamedItem?.children?.length || 0} items`
+  }
+  return routePath.value
+})
+
 const tooltipText = computed(() => {
   if (props.actionId === StudioItemActionId.RenameItem) {
     return 'Rename'
@@ -204,9 +211,9 @@ async function onSubmit() {
                   </UFormField>
                 </div>
 
-                <UTooltip :text="routePath">
+                <UTooltip :text="displayInfo">
                   <span class="truncate leading-relaxed text-xs text-dimmed block w-full">
-                    {{ routePath }}
+                    {{ displayInfo }}
                   </span>
                 </UTooltip>
               </div>

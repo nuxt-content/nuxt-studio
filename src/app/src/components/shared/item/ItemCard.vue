@@ -18,6 +18,14 @@ const isDirectory = computed(() => props.item.type === 'directory')
 
 // ring-(--ui-success)/25 ring-(--ui-info)/25 ring-(--ui-warning)/25 ring-(--ui-error)/25 ring-(--ui-neutral)/25
 const statusRingColor = computed(() => props.item.status && props.item.status !== TreeStatus.Opened ? `ring-(--ui-${COLOR_UI_STATUS_MAP[props.item.status]})/25` : '')
+
+const displayInfo = computed(() => {
+  if (isDirectory.value) {
+    const count = props.item.children?.length || 0
+    return `${count} ${count === 1 ? 'item' : 'items'}`
+  }
+  return props.item.routePath || props.item.fsPath
+})
 </script>
 
 <template>
@@ -58,9 +66,9 @@ const statusRingColor = computed(() => props.item.status && props.item.status !=
             </h3>
           </div>
 
-          <UTooltip :text="item.routePath">
+          <UTooltip :text="displayInfo">
             <div class="truncate leading-relaxed text-xs text-dimmed">
-              {{ item.routePath || item.fsPath }}
+              {{ displayInfo }}
             </div>
           </UTooltip>
         </div>
