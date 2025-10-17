@@ -56,6 +56,8 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     for (const item of items) {
       const { id, newFsPath } = item
 
+      const existingDraftToRename = list.value.find(draftItem => draftItem.id === id) as DraftItem<MediaItem>
+
       const currentDbItem = await host.media.get(id)
       if (!currentDbItem) {
         throw new Error(`Database item not found for document ${id}`)
@@ -71,7 +73,10 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
       }
 
       await host.media.upsert(newDbItem.id, newDbItem)
-      await create(newDbItem, currentDbItem, { rerender: false })
+
+      const originalDbItem = existingDraftToRename?.original || currentDbItem
+
+      await create(newDbItem, originalDbItem, { rerender: false })
     }
 
     await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.rename' })
