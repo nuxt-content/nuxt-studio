@@ -74,7 +74,10 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
 
       await host.media.upsert(newDbItem.id, newDbItem)
 
-      const originalDbItem = existingDraftToRename?.original || currentDbItem
+      let originalDbItem: MediaItem | undefined = currentDbItem
+      if (existingDraftToRename) {
+        originalDbItem = existingDraftToRename.original
+      }
 
       await create(newDbItem, originalDbItem, { rerender: false })
     }

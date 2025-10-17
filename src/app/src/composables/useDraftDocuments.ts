@@ -66,7 +66,10 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
       }
 
       const modifiedDbItem = existingDraftToRename?.modified || dbItemToRename
-      const originalDbItem = existingDraftToRename?.original || dbItemToRename
+      let originalDbItem: DatabaseItem | undefined = dbItemToRename
+      if (existingDraftToRename) {
+        originalDbItem = existingDraftToRename.original
+      }
 
       const content = await generateContentFromDocument(modifiedDbItem)
 

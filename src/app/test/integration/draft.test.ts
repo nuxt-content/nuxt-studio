@@ -87,6 +87,36 @@ describe('Document draft - Action Chains Integration Tests', () => {
     expect(list.value).toHaveLength(0)
   })
 
+  it('Create > Rename', async () => {
+    const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
+    const { create, rename, list } = draftDocuments
+
+    const mockDocument = createMockDocument(documentId)
+
+    /* STEP 1: CREATE */
+    await create(mockDocument)
+
+    /* STEP 2: RENAME */
+    const newId = generateUniqueDocumentId()
+    const newFsPath = mockHost.document.getFileSystemPath(newId)
+    await rename([{ id: documentId, newFsPath }])
+
+    // Storage
+    expect(mockStorage.size).toEqual(1)
+    const createdDraftStorage = JSON.parse(mockStorage.get(normalizeKey(newId))!)
+    expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftStorage).toHaveProperty('id', newId)
+    expect(createdDraftStorage.original).toBeUndefined()
+    expect(createdDraftStorage.modified).toHaveProperty('id', newId)
+
+    // In memory
+    expect(list.value).toHaveLength(1)
+    expect(list.value[0].status).toEqual(DraftStatus.Created)
+    expect(list.value[0].id).toEqual(newId)
+    expect(list.value[0].original).toBeUndefined()
+    expect(list.value[0].modified).toHaveProperty('id', newId)
+  })
+
   it('Create > Update > Revert', async () => {
     const draftDocuments = useDraftDocuments(mockHost, mockGit as never)
     const { create, update, revert, list } = draftDocuments
@@ -464,6 +494,41 @@ describe('Media draft - Action Chains Integration Tests', () => {
     expect(list.value).toHaveLength(0)
   })
 
+  it('Upload > Rename', async () => {
+    const draftMedias = useDraftMedias(mockHost, mockGit as never)
+    const { upload, rename, list } = draftMedias
+
+    const file = createMockFile(mediaName)
+
+    /* STEP 1: UPLOAD */
+    await upload(parentPath, file)
+
+    /* STEP 2: RENAME */
+    const newId = generateUniqueMediaId()
+    const newFsPath = mockHost.media.getFileSystemPath(newId)
+    await rename([{ id: mediaId, newFsPath }])
+
+    // Storage
+    expect(mockStorage.size).toEqual(1)
+
+    // Created renamed draft
+    const createdDraftStorage = JSON.parse(mockStorage.get(normalizeKey(newId))!)
+    expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftStorage).toHaveProperty('id', newId)
+    expect(createdDraftStorage.original).toBeUndefined()
+    expect(createdDraftStorage.modified).toHaveProperty('id', newId)
+
+    // In memory
+    expect(list.value).toHaveLength(1)
+
+    // Created renamed draft
+    const createdDraftMemory = list.value.find(item => item.id === newId)!
+    expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftMemory).toHaveProperty('id', newId)
+    expect(createdDraftMemory.original).toBeUndefined()
+    expect(createdDraftMemory.modified).toHaveProperty('id', newId)
+  })
+
   it('Select > Delete > Revert', async () => {
     const draftMedias = useDraftMedias(mockHost, mockGit as never)
     const { remove, revert, list } = draftMedias
@@ -596,7 +661,6 @@ describe('Media draft - Action Chains Integration Tests', () => {
 
     /* STEP 1: RENAME */
     await rename([{ id: mediaId, newFsPath }])
-
     /* STEP 2: RENAME */
     const newId2 = generateUniqueMediaId()
     const newFsPath2 = mockHost.media.getFileSystemPath(newId2)
