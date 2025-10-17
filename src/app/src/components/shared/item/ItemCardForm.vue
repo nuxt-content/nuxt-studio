@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, type PropType } from 'vue'
+import { computed, reactive, ref, type PropType, onMounted, onUnmounted } from 'vue'
 import * as z from 'zod'
 import type {
   CreateFileParams,
@@ -19,6 +19,7 @@ import { getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../..
 const { context } = useStudio()
 
 const isLoading = ref(false)
+const formRef = ref<HTMLDivElement>()
 
 const props = defineProps({
   actionId: {
@@ -79,6 +80,22 @@ const tooltipText = computed(() => {
   }
 })
 
+const handleClickOutside = (event: MouseEvent) => {
+  if (formRef.value && !formRef.value.contains(event.target as Node)) {
+    context.unsetActionInProgress()
+  }
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    document.addEventListener('click', handleClickOutside)
+  }, 0)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 async function onSubmit() {
   if (isLoading.value) return
 
@@ -124,109 +141,114 @@ async function onSubmit() {
     @submit="onSubmit"
   >
     <template #default="{ errors }">
-      <UPageCard
-        reverse
-        class="hover:bg-white relative w-full min-w-0 overflow-hidden"
-        :class="{ 'animate-pulse': isLoading }"
-        :ui="{ container: 'overflow-hidden' }"
+      <div
+        ref="formRef"
+        @click.stop
       >
-        <template #body>
-          <div class="flex items-start gap-3">
-            <div
-              v-if="!isDirectory"
-              class="relative flex-shrink-0 w-12 h-12"
-            >
-              <div class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden bg-elevated">
-                <slot name="thumbnail" />
-              </div>
-            </div>
-
-            <div class="flex flex-col gap-1 flex-1 min-w-0">
-              <div class="flex items-center gap-1">
-                <UFormField
-                  name="name"
-                  :ui="{ error: 'hidden' }"
-                  class="flex-1 min-w-0"
-                >
-                  <!-- TODO: should use :error="false" when fixed -->
-                  <template #error>
-                    <span />
-                  </template>
-                  <UInput
-                    v-model="state.name"
-                    variant="soft"
-                    autofocus
-                    placeholder="File name"
-                    class="w-full h-5"
-                    size="xs"
-                    :disabled="isLoading"
-                    @keydown.esc="context.unsetActionInProgress"
-                  />
-                </UFormField>
-                <UFormField
-                  v-if="!isDirectory"
-                  name="extension"
-                  :ui="{ error: 'hidden' }"
-                >
-                  <!-- TODO: should use :error="false" when fixed -->
-                  <template #error>
-                    <span />
-                  </template>
-                  <USelect
-                    v-model="state.extension"
-                    :items="config.allowed"
-                    :disabled="!config.editable || isLoading"
-                    variant="soft"
-                    class="w-18 h-5"
-                    size="xs"
-                  />
-                </UFormField>
-              </div>
-
-              <UTooltip :text="routePath">
-                <span class="truncate leading-relaxed text-xs text-dimmed block w-full">
-                  {{ routePath }}
-                </span>
-              </UTooltip>
-            </div>
-
-            <div class="flex-shrink-0 flex gap-1">
-              <UButton
-                color="neutral"
-                variant="ghost"
-                icon="i-ph-x"
-                aria-label="Cancel"
-                size="xs"
-                square
-                :disabled="isLoading"
-                @click="context.unsetActionInProgress"
-              />
-
-              <UTooltip
-                :text="errors.length > 0 ? errors[0]?.message : tooltipText"
-                :popper="{ strategy: 'absolute' }"
+        <UPageCard
+          reverse
+          :class="{ 'animate-pulse': isLoading }"
+          class="hover:bg-white relative w-full min-w-0 overflow-hidden"
+          :ui="{ container: 'overflow-hidden' }"
+        >
+          <template #body>
+            <div class="flex items-start gap-3">
+              <div
+                v-if="!isDirectory"
+                class="relative flex-shrink-0 w-12 h-12"
               >
+                <div class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden bg-elevated">
+                  <slot name="thumbnail" />
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1 flex-1 min-w-0">
+                <div class="flex items-center gap-1">
+                  <UFormField
+                    name="name"
+                    :ui="{ error: 'hidden' }"
+                    class="flex-1 min-w-0"
+                  >
+                    <!-- TODO: should use :error="false" when fixed -->
+                    <template #error>
+                      <span />
+                    </template>
+                    <UInput
+                      v-model="state.name"
+                      variant="soft"
+                      autofocus
+                      placeholder="File name"
+                      class="w-full h-5"
+                      size="xs"
+                      :disabled="isLoading"
+                      @keydown.esc="context.unsetActionInProgress"
+                    />
+                  </UFormField>
+                  <UFormField
+                    v-if="!isDirectory"
+                    name="extension"
+                    :ui="{ error: 'hidden' }"
+                  >
+                    <!-- TODO: should use :error="false" when fixed -->
+                    <template #error>
+                      <span />
+                    </template>
+                    <USelect
+                      v-model="state.extension"
+                      :items="config.allowed"
+                      :disabled="!config.editable || isLoading"
+                      variant="soft"
+                      class="w-18 h-5"
+                      size="xs"
+                    />
+                  </UFormField>
+                </div>
+
+                <UTooltip :text="routePath">
+                  <span class="truncate leading-relaxed text-xs text-dimmed block w-full">
+                    {{ routePath }}
+                  </span>
+                </UTooltip>
+              </div>
+
+              <div class="flex-shrink-0 flex gap-1">
                 <UButton
-                  type="submit"
-                  variant="soft"
-                  :color="errors.length > 0 ? 'error' : 'secondary'"
-                  aria-label="Submit button"
-                  :disabled="errors.length > 0 || isLoading"
-                  :loading="isLoading"
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-ph-x"
+                  aria-label="Cancel"
                   size="xs"
                   square
+                  :disabled="isLoading"
+                  @click="context.unsetActionInProgress"
+                />
+
+                <UTooltip
+                  :text="errors.length > 0 ? errors[0]?.message : tooltipText"
+                  :popper="{ strategy: 'absolute' }"
                 >
-                  <UIcon
-                    v-if="!isLoading"
-                    name="i-ph-check"
-                    class="size-4"
-                  />
-                </UButton>
-              </UTooltip>
+                  <UButton
+                    type="submit"
+                    variant="soft"
+                    :color="errors.length > 0 ? 'error' : 'secondary'"
+                    aria-label="Submit button"
+                    :disabled="errors.length > 0 || isLoading"
+                    :loading="isLoading"
+                    size="xs"
+                    square
+                  >
+                    <UIcon
+                      v-if="!isLoading"
+                      name="i-ph-check"
+                      class="size-4"
+                    />
+                  </UButton>
+                </UTooltip>
+              </div>
             </div>
-          </div>
-        </template>
-      </UPageCard>
+          </template>
+        </UPageCard>
+      </div>
     </template>
   </UForm>
 </template>
