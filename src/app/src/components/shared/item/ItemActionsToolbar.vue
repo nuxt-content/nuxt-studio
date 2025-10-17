@@ -54,15 +54,22 @@ const actionHandler = (action: StudioAction<StudioItemActionId> & { isPending?: 
     return
   }
 
-  // For non-one-step actions, execute immediately
+  const targetItem = item.value
+
+  // For two-steps actions, execute without confirmation
   if (!action.isOneStepAction) {
-    action.handler!(item.value)
+    if (action.id === StudioItemActionId.RenameItem) {
+      // Navigate to parent since rename form is displayed in the parent tree
+      context.activeTree.value.selectParentById(targetItem.id)
+    }
+
+    action.handler!(targetItem)
     return
   }
 
   // Second click on pending action - execute it
   if (action.isPending) {
-    action.handler!(item.value)
+    action.handler!(targetItem)
     pendingActionId.value = null
   }
   // Click on different action while one is pending - cancel pending state

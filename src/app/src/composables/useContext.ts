@@ -71,11 +71,7 @@ export const useContext = createSharedComposable((
         actionInProgress.value = { id: action.id }
 
         if (action.id === StudioItemActionId.RenameItem) {
-          if (activeTree.value.currentItem.value) {
-            const itemToRename = args as TreeItem
-            await activeTree.value.selectParentById(itemToRename.id)
-            actionInProgress.value.item = itemToRename
-          }
+          actionInProgress.value.item = args as TreeItem
         }
 
         // One step actions can be executed immediately

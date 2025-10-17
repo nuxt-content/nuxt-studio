@@ -42,8 +42,13 @@ const actions = computed<DropdownMenuItem[]>(() => {
       slot: isPending ? 'pending-action' : undefined,
       disabled: hasPendingAction && !isPending,
       onSelect: (e: Event) => {
-        // For non-one-step actions, execute immediately
+        // For two-step actions, execute it without confirmation
         if (!isOneStepAction) {
+          if (props.item.type === 'directory' && [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder].includes(action.id)) {
+            // Navigate into folder before adding form creation
+            context.activeTree.value.selectItemById(props.item.id)
+          }
+
           action.handler!(props.item)
           return
         }
