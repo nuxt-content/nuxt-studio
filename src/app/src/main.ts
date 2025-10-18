@@ -13,6 +13,7 @@ import App from './app.vue'
 import Content from './pages/content.vue'
 import Media from './pages/media.vue'
 import Review from './pages/review.vue'
+import Success from './pages/success.vue'
 
 if (typeof window !== 'undefined' && 'customElements' in window) {
   const NuxtStudio = defineCustomElement(
@@ -37,6 +38,11 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
               name: 'review',
               path: '/review',
               component: Review,
+            },
+            {
+              name: 'success',
+              path: '/success',
+              component: Success,
             },
           ],
           history: createMemoryHistory(),
