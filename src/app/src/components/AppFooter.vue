@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 
-const { ui, host } = useStudio()
+const { ui, host, git } = useStudio()
 
 const uiConfig = ui.config
 const user = host.user.get()
@@ -14,16 +14,7 @@ const showTechnicalMode = computed({
   },
 })
 
-const repositoryUrl = computed(() => {
-  switch (host.repository.provider) {
-    case 'github':
-      return host.repository?.owner
-        ? `https://github.com/${host.repository.owner}/${host.repository.repo}/tree/${host.repository.branch}`
-        : ''
-    default:
-      return ''
-  }
-})
+const repositoryUrl = computed(() => git.getBranchUrl())
 
 const userMenuItems = computed(() => [
   [

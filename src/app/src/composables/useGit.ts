@@ -9,6 +9,9 @@ export const useDevelopmentGit = (_options: GitOptions) => {
   return {
     fetchFile: (_path: string, _options: { cached?: boolean } = {}): Promise<GithubFile | null> => Promise.resolve(null),
     commitFiles: (_files: RawFile[], _message: string): Promise<{ success: boolean, commitSha: string, url: string } | null> => Promise.resolve(null),
+    getRepositoryUrl: () => '',
+    getBranchUrl: () => '',
+    getRepositoryInfo: () => ({ owner: '', repo: '', branch: '' }),
   }
 }
 
@@ -76,11 +79,6 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
       authorName,
       authorEmail,
     })
-  }
-
-  return {
-    fetchFile,
-    commitFiles,
   }
 
   async function commitFilesToGitHub({ owner, repo, branch, files, message, authorName, authorEmail }: CommitFilesOptions) {
@@ -157,5 +155,29 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
       commitSha: newCommit.sha,
       url: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}`,
     }
+  }
+
+  function getRepositoryUrl() {
+    return `https://github.com/${owner}/${repo}`
+  }
+
+  function getBranchUrl() {
+    return `https://github.com/${owner}/${repo}/tree/${branch}`
+  }
+
+  function getRepositoryInfo() {
+    return {
+      owner,
+      repo,
+      branch,
+    }
+  }
+
+  return {
+    fetchFile,
+    commitFiles,
+    getRepositoryUrl,
+    getBranchUrl,
+    getRepositoryInfo,
   }
 })
