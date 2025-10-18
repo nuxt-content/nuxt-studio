@@ -8,7 +8,7 @@ seo:
 
 ::u-page-hero
 #title
-Write beautiful docs with up
+Write beautiful docs with me
 
 #description
 Ship fast, flexible, and SEO-optimized documentation with beautiful design out of the box.
