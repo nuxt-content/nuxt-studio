@@ -57,7 +57,10 @@ const schema = z.object({
     .refine((name: string) => !name.endsWith('.'), 'Name cannot end with "."')
     .refine((name: string) => !name.startsWith('/'), 'Name cannot start with "/"'),
   extension: z.enum([...CONTENT_EXTENSIONS, ...MEDIA_EXTENSIONS] as [string, ...string[]]).nullish(),
-  prefix: z.number().int().positive().nullish(),
+  prefix: z.preprocess(
+    val => val === '' ? null : val,
+    z.number().int().positive().nullish(),
+  ),
 })
 
 type Schema = z.output<typeof schema>
@@ -193,7 +196,7 @@ async function onSubmit() {
                       v-model.number="state.prefix"
                       type="number"
                       variant="soft"
-                      placeholder="No."
+                      placeholder="N°"
                       min="1"
                       class="h-5"
                       size="xs"
