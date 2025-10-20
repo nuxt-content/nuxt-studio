@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStudio } from '../composables/useStudio'
 
-const router = useRouter()
 const route = useRoute()
 const { git } = useStudio()
 
