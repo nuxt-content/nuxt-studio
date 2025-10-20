@@ -17,6 +17,7 @@ describe('buildTree with one level of depth', () => {
       fsPath: 'index.md',
       type: 'file',
       routePath: '/',
+      prefix: null,
     },
     {
       id: 'docs/1.getting-started',
@@ -24,6 +25,7 @@ describe('buildTree with one level of depth', () => {
       fsPath: '1.getting-started',
       routePath: '/getting-started',
       type: 'directory',
+      prefix: 1,
       children: [
         {
           id: 'docs/1.getting-started/2.introduction.md',
@@ -31,6 +33,7 @@ describe('buildTree with one level of depth', () => {
           fsPath: '1.getting-started/2.introduction.md',
           type: 'file',
           routePath: '/getting-started/introduction',
+          prefix: 2,
         },
         {
           id: 'docs/1.getting-started/3.installation.md',
@@ -38,6 +41,7 @@ describe('buildTree with one level of depth', () => {
           fsPath: '1.getting-started/3.installation.md',
           type: 'file',
           routePath: '/getting-started/installation',
+          prefix: 3,
         },
       ],
     },
@@ -98,6 +102,7 @@ describe('buildTree with one level of depth', () => {
             type: 'file',
             routePath: deletedDbItem.path,
             status: TreeStatus.Deleted,
+            prefix: 2,
           },
         ],
       },
@@ -133,6 +138,7 @@ describe('buildTree with one level of depth', () => {
             type: 'file',
             routePath: deletedDbItem.path,
             status: TreeStatus.Deleted,
+            prefix: 3,
           },
         ],
       },
@@ -291,6 +297,7 @@ describe('buildTree with one level of depth', () => {
             name: createdDbItem.path!.split('/').pop()!,
             type: 'file',
             status: TreeStatus.Renamed,
+            prefix: 2,
           },
         ],
       },
@@ -306,6 +313,7 @@ describe('buildTree with two levels of depth', () => {
       fsPath: '1.essentials',
       routePath: '/essentials',
       type: 'directory',
+      prefix: 1,
       children: [
         {
           id: 'docs/1.essentials/2.configuration.md',
@@ -313,6 +321,7 @@ describe('buildTree with two levels of depth', () => {
           fsPath: '1.essentials/2.configuration.md',
           type: 'file',
           routePath: '/essentials/configuration',
+          prefix: 2,
         },
         {
           id: 'docs/1.essentials/1.nested',
@@ -320,6 +329,7 @@ describe('buildTree with two levels of depth', () => {
           fsPath: '1.essentials/1.nested',
           routePath: '/essentials/nested',
           type: 'directory',
+          prefix: 1,
           children: [
             {
               id: 'docs/1.essentials/1.nested/2.advanced.md',
@@ -327,6 +337,7 @@ describe('buildTree with two levels of depth', () => {
               fsPath: '1.essentials/1.nested/2.advanced.md',
               type: 'file',
               routePath: '/essentials/nested/advanced',
+              prefix: 2,
             },
           ],
         },
@@ -438,6 +449,7 @@ describe('buildTree with two levels of depth', () => {
               routePath: deletedDbItem.path,
               type: 'file',
               status: TreeStatus.Deleted,
+              prefix: 2,
             },
           ],
         },
