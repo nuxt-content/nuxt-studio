@@ -29,12 +29,12 @@ function goBack() {
 }
 
 onMounted(() => {
-  // Simulate deployment check - will be implemented with actual logic later
   deploymentCheckStarted.value = true
 
+  // TODO: implemented manifest detection logic
   setTimeout(() => {
     isWaitingForDeployment.value = false
-  }, 3000)
+  }, 10000)
 })
 </script>
 
