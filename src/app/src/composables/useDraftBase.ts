@@ -7,7 +7,7 @@ import type { useGit } from './useGit'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
 
-export function useBaseDraft<T extends DatabaseItem | MediaItem>(
+export function useDraftBase<T extends DatabaseItem | MediaItem>(
   type: 'media' | 'document',
   host: StudioHost,
   git: ReturnType<typeof useGit>,
@@ -52,7 +52,7 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
     list.value.push(draftItem)
 
     if (rerender) {
-      await hooks.callHook(hookName, { caller: 'useBaseDraft.create' })
+      await hooks.callHook(hookName, { caller: 'useDraftBase.create' })
     }
 
     return draftItem
@@ -106,7 +106,7 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
       }
 
       if (rerender) {
-        await hooks.callHook(hookName, { caller: 'useBaseDraft.remove' })
+        await hooks.callHook(hookName, { caller: 'useDraftBase.remove' })
       }
     }
   }
@@ -127,7 +127,7 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
 
         // Renamed draft
         if (existingItem.original) {
-          revert(existingItem.original.id, { rerender })
+          await revert(existingItem.original.id, { rerender: false })
         }
       }
       else {
@@ -139,7 +139,9 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
       }
     }
 
-    await hooks.callHook(hookName, { caller: 'useBaseDraft.revert' })
+    if (rerender) {
+      await hooks.callHook(hookName, { caller: 'useDraftBase.revert' })
+    }
   }
 
   async function revertAll() {
@@ -149,7 +151,7 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
       await revert(draftItem.id, { rerender: false })
     }
 
-    await hooks.callHook(hookName, { caller: 'useBaseDraft.revertAll' })
+    await hooks.callHook(hookName, { caller: 'useDraftBase.revertAll' })
   }
 
   function select(draftItem: DraftItem<T> | null) {
@@ -197,7 +199,7 @@ export function useBaseDraft<T extends DatabaseItem | MediaItem>(
       }
     }))
 
-    await hooks.callHook(hookName, { caller: 'useBaseDraft.load' })
+    await hooks.callHook(hookName, { caller: 'useDraftBase.load' })
   }
 
   return {
