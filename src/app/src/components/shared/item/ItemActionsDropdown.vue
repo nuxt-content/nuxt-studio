@@ -44,7 +44,7 @@ const actions = computed<DropdownMenuItem[]>(() => {
       onSelect: (e: Event) => {
         // For two-step actions, execute it without confirmation
         if (!isOneStepAction) {
-          if (props.item.type === 'directory' && [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder].includes(action.id)) {
+          if (props.item.type === 'directory' && [StudioItemActionId.CreateDocument, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder].includes(action.id)) {
             // Navigate into folder before adding form creation
             context.activeTree.value.selectItemById(props.item.id)
           }

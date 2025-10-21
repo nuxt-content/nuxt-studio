@@ -22,7 +22,7 @@ const formRef = ref<HTMLDivElement>()
 
 const props = defineProps({
   actionId: {
-    type: String as PropType<StudioItemActionId.CreateDocument | StudioItemActionId.RenameItem | StudioItemActionId.CreateFolder>,
+    type: String as PropType<StudioItemActionId.CreateDocument | StudioItemActionId.RenameItem | StudioItemActionId.CreateDocumentFolder | StudioItemActionId.CreateMediaFolder>,
     required: true,
   },
   parentItem: {
@@ -39,7 +39,7 @@ const props = defineProps({
   },
 })
 
-const isDirectory = computed(() => props.renamedItem?.type === 'directory' || props.actionId === StudioItemActionId.CreateFolder)
+const isDirectory = computed(() => props.renamedItem?.type === 'directory' || [StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder].includes(props.actionId))
 const action = computed<StudioAction<StudioItemActionId>>(() => context.itemActions.value.find(action => action.id === props.actionId)!)
 const originalName = computed(() => props.renamedItem?.name === 'home' ? 'index' : props.renamedItem?.name || '')
 const originalExtension = computed(() => {
@@ -138,7 +138,12 @@ async function onSubmit() {
         id: props.renamedItem.id,
       }
       break
-    case StudioItemActionId.CreateFolder:
+    case StudioItemActionId.CreateDocumentFolder:
+      params = {
+        fsPath: newFsPath,
+      }
+      break
+    case StudioItemActionId.CreateMediaFolder:
       params = {
         fsPath: newFsPath,
       }

@@ -60,3 +60,4 @@ components.d.ts
 
 # VSC plugins
 .history
+.cursor

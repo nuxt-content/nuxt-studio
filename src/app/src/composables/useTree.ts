@@ -13,7 +13,9 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
   const tree = ref<TreeItem[]>([])
 
   const rootItem = computed<TreeItem>(() => {
-    const draftedTreeItems = draft.list.value.filter(draft => draft.status !== DraftStatus.Pristine)
+    const draftedTreeItems = draft.list.value.filter(draft =>
+      draft.status !== DraftStatus.Pristine && !draft.fsPath.endsWith('.gitkeep'),
+    )
     return {
       id: type === StudioFeature.Content ? TreeRootId.Content : TreeRootId.Media,
       name: type === StudioFeature.Content ? 'content' : 'public',

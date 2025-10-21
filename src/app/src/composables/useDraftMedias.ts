@@ -7,7 +7,7 @@ import { createSharedComposable } from '@vueuse/core'
 import { useDraftBase } from './useDraftBase'
 import { mediaStorage as storage } from '../utils/storage'
 import { getFileExtension } from '../utils/file'
-import { generateStemFromFsPath } from '../../../module/src/runtime/utils/media'
+import { generateStemFromFsPath } from '../utils/media'
 import { useHooks } from './useHooks'
 
 const hooks = useHooks()
@@ -37,7 +37,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     const fsPath = parentFsPath !== '/' ? joinURL(parentFsPath, file.name) : file.name
 
     return {
-      id: `${TreeRootId.Media}/${fsPath}`,
+      id: joinURL(TreeRootId.Media, fsPath),
       fsPath,
       githubFile: undefined,
       status: DraftStatus.Created,
@@ -97,6 +97,11 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   async function listAsRawFiles(): Promise<RawFile[]> {
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
+      // Skip .gitkeep files
+      if (draftItem.fsPath.endsWith('.gitkeep')) {
+        continue
+      }
+
       if (draftItem.status === DraftStatus.Deleted) {
         files.push({ path: joinURL('public', draftItem.fsPath), content: null, status: draftItem.status, encoding: 'base64' })
         continue

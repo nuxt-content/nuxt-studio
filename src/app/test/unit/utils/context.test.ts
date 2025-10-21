@@ -26,7 +26,8 @@ describe('computeItemActions', () => {
       && action.id !== StudioItemActionId.DeleteItem
       && action.id !== StudioItemActionId.DuplicateItem
       && action.id !== StudioItemActionId.UploadMedia
-      && action.id !== StudioItemActionId.RevertItem,
+      && action.id !== StudioItemActionId.RevertItem
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
     expect(result).toEqual(expectedActions)
   })
@@ -45,7 +46,7 @@ describe('computeItemActions', () => {
       && action.id !== StudioItemActionId.DeleteItem
       && action.id !== StudioItemActionId.DuplicateItem
       && action.id !== StudioItemActionId.RenameItem
-      && action.id !== StudioItemActionId.CreateFolder
+      && action.id !== StudioItemActionId.CreateDocumentFolder
       && action.id !== StudioItemActionId.CreateDocument,
     )
 
@@ -65,7 +66,8 @@ describe('computeItemActions', () => {
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
-      action.id !== StudioItemActionId.CreateFolder
+      action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateMediaFolder
       && action.id !== StudioItemActionId.CreateDocument
       && action.id !== StudioItemActionId.RevertItem
       && action.id !== StudioItemActionId.UploadMedia,
@@ -84,7 +86,8 @@ describe('computeItemActions', () => {
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
-      action.id !== StudioItemActionId.CreateFolder
+      action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateMediaFolder
       && action.id !== StudioItemActionId.CreateDocument
       && action.id !== StudioItemActionId.RevertItem
       && action.id !== StudioItemActionId.UploadMedia,
@@ -103,7 +106,8 @@ describe('computeItemActions', () => {
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
-      action.id !== StudioItemActionId.CreateFolder
+      action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateMediaFolder
       && action.id !== StudioItemActionId.CreateDocument
       && action.id !== StudioItemActionId.UploadMedia,
     )
@@ -121,7 +125,8 @@ describe('computeItemActions', () => {
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
-      action.id !== StudioItemActionId.CreateFolder
+      action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateMediaFolder
       && action.id !== StudioItemActionId.CreateDocument
       && action.id !== StudioItemActionId.UploadMedia,
     )
@@ -139,7 +144,8 @@ describe('computeItemActions', () => {
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
-      action.id !== StudioItemActionId.CreateFolder
+      action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateMediaFolder
       && action.id !== StudioItemActionId.CreateDocument
       && action.id !== StudioItemActionId.DuplicateItem
       && action.id !== StudioItemActionId.RenameItem
@@ -160,7 +166,8 @@ describe('computeItemActions', () => {
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
-      action.id !== StudioItemActionId.CreateFolder
+      action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateMediaFolder
       && action.id !== StudioItemActionId.CreateDocument
       && action.id !== StudioItemActionId.UploadMedia,
     )
@@ -183,7 +190,8 @@ describe('computeItemActions', () => {
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
       && action.id !== StudioItemActionId.RevertItem
-      && action.id !== StudioItemActionId.UploadMedia,
+      && action.id !== StudioItemActionId.UploadMedia
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
 
     expect(result).toEqual(expectedActions)
@@ -202,7 +210,8 @@ describe('computeItemActions', () => {
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
       && action.id !== StudioItemActionId.RevertItem
-      && action.id !== StudioItemActionId.UploadMedia,
+      && action.id !== StudioItemActionId.UploadMedia
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
     expect(result).toEqual(expectedActions)
   })
@@ -219,7 +228,8 @@ describe('computeItemActions', () => {
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
-      && action.id !== StudioItemActionId.UploadMedia,
+      && action.id !== StudioItemActionId.UploadMedia
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
     expect(result).toEqual(expectedActions)
   })
@@ -236,7 +246,8 @@ describe('computeItemActions', () => {
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
-      && action.id !== StudioItemActionId.UploadMedia,
+      && action.id !== StudioItemActionId.UploadMedia
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
     expect(result).toEqual(expectedActions)
   })
@@ -255,7 +266,8 @@ describe('computeItemActions', () => {
       action.id !== StudioItemActionId.DuplicateItem
       && action.id !== StudioItemActionId.RenameItem
       && action.id !== StudioItemActionId.DeleteItem
-      && action.id !== StudioItemActionId.UploadMedia,
+      && action.id !== StudioItemActionId.UploadMedia
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
     expect(result).toEqual(expectedActions)
   })
@@ -272,7 +284,8 @@ describe('computeItemActions', () => {
 
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.DuplicateItem
-      && action.id !== StudioItemActionId.UploadMedia,
+      && action.id !== StudioItemActionId.UploadMedia
+      && action.id !== StudioItemActionId.CreateMediaFolder,
     )
     expect(result).toEqual(expectedActions)
   })
@@ -288,7 +301,7 @@ describe('computeItemActions', () => {
     const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
       action.id !== StudioItemActionId.RevertItem
       && action.id !== StudioItemActionId.DuplicateItem
-      && action.id !== StudioItemActionId.CreateFolder
+      && action.id !== StudioItemActionId.CreateDocumentFolder
       && action.id !== StudioItemActionId.CreateDocument,
     )
     expect(result).toEqual(expectedActions)
