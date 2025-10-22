@@ -83,7 +83,7 @@ async function onFileDrop(event: DragEvent) {
           :feature="StudioFeature.Media"
         />
       </div>
-      <div v-if="fileTree?.length > 0 || showFileForm">
+      <div>
         <div class="flex items-center gap-1 mb-3">
           <UIcon
             name="i-lucide-image"
@@ -93,7 +93,6 @@ async function onFileDrop(event: DragEvent) {
             Media
           </h3>
           <UBadge
-            v-if="fileTree?.length > 0"
             :label="fileTree.length.toString()"
             color="neutral"
             variant="soft"

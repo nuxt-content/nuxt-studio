@@ -14,7 +14,7 @@ export * from './tree'
 export * from './git'
 export * from './context'
 export * from './component'
-export * from './ui'
+export * from './config'
 export * from './media'
 
 export interface StudioHost {

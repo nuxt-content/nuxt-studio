@@ -6,13 +6,11 @@ import { createMockHost, clearMockHost } from '../mocks/host'
 import { createMockGit } from '../mocks/git'
 import { createMockFile, createMockMedia, setupMediaMocks } from '../mocks/media'
 import { createMockDocument } from '../mocks/document'
-import { createMockStorage, createMockUI } from '../mocks/composables'
-import type { useUI } from '../../src/composables/useUI'
+import { createMockStorage } from '../mocks/composables'
 import type { useGit } from '../../src/composables/useGit'
 import { findItemFromId } from '../../src/utils/tree'
 
 const mockStorageDraft = createMockStorage()
-const mockUI = createMockUI()
 const mockHost = createMockHost()
 const mockGit = createMockGit()
 
@@ -46,7 +44,7 @@ vi.mock('vue-router', () => ({
   }),
 }))
 
-const cleanAndSetupContext = async (mockedHost: StudioHost, mockedGit: ReturnType<typeof useGit>, mockedUI: ReturnType<typeof useUI>) => {
+const cleanAndSetupContext = async (mockedHost: StudioHost, mockedGit: ReturnType<typeof useGit>) => {
   // Reset mocks
   vi.clearAllMocks()
   mockStorageDraft.clear()
@@ -63,11 +61,11 @@ const cleanAndSetupContext = async (mockedHost: StudioHost, mockedGit: ReturnTyp
 
   // Initialize document tree
   const draftDocuments = useDraftDocuments(mockedHost, mockedGit)
-  const documentTree = useTree(StudioFeature.Content, mockedHost, mockedUI, draftDocuments)
+  const documentTree = useTree(StudioFeature.Content, mockedHost, draftDocuments)
 
   // Initialize media tree
   const draftMedias = useDraftMedias(mockedHost, mockedGit)
-  const mediaTree = useTree(StudioFeature.Media, mockedHost, mockedUI, draftMedias)
+  const mediaTree = useTree(StudioFeature.Media, mockedHost, draftMedias)
 
   // Initialize context
   return useContext(mockedHost, mockedGit, documentTree, mediaTree)
@@ -80,7 +78,7 @@ describe('Document - Action Chains Integration Tests', () => {
   beforeEach(async () => {
     currentRouteName = 'content'
     documentId = generateUniqueDocumentId()
-    context = await cleanAndSetupContext(mockHost, mockGit, mockUI)
+    context = await cleanAndSetupContext(mockHost, mockGit)
   })
 
   it('Create > Revert', async () => {
@@ -659,7 +657,7 @@ describe('Media - Action Chains Integration Tests', () => {
     currentRouteName = 'media'
     mediaName = generateUniqueMediaName()
     mediaId = joinURL(TreeRootId.Media, mediaName)
-    context = await cleanAndSetupContext(mockHost, mockGit, mockUI)
+    context = await cleanAndSetupContext(mockHost, mockGit)
   })
 
   it('Upload > Revert', async () => {

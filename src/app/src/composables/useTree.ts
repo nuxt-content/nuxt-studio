@@ -5,10 +5,11 @@ import type { useDraftMedias } from './useDraftMedias'
 import { buildTree, findItemFromId, findItemFromRoute, findParentFromId } from '../utils/tree'
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
-import type { useUI } from './useUI'
+import { useState } from './useState'
 
-export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<typeof useUI>, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
+export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
+  const { config } = useState()
 
   const tree = ref<TreeItem[]>([])
 
@@ -50,7 +51,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, ui: ReturnType<ty
       await draft.selectById(item.id)
 
       if (
-        !ui.config.value.syncEditorAndRoute
+        !config.value.syncEditorAndRoute
         || type === StudioFeature.Media
         || item.name === '.navigation'
       ) {
