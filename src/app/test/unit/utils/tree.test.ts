@@ -4,11 +4,13 @@ import { tree } from '../../../test/mocks/tree'
 import type { TreeItem } from '../../../src/types/tree'
 import { dbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
 import type { DraftItem } from '../../../src/types/draft'
-import { DraftStatus, TreeStatus } from '../../../src/types'
+import type { MediaItem } from '../../../src/types'
+import { DraftStatus, TreeRootId, TreeStatus } from '../../../src/types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { DatabaseItem } from '../../../src/types/database'
+import { joinURL, withLeadingSlash } from 'ufo'
 
-describe('buildTree with one level of depth', () => {
+describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock
   const result: TreeItem[] = [
     {
@@ -305,7 +307,7 @@ describe('buildTree with one level of depth', () => {
   })
 })
 
-describe('buildTree with two levels of depth', () => {
+describe('buildTree of documents with two levels of depth', () => {
   const result: TreeItem[] = [
     {
       id: 'docs/1.essentials',
@@ -455,6 +457,51 @@ describe('buildTree with two levels of depth', () => {
         },
       ],
     }])
+  })
+})
+
+describe('buildTree od medias', () => {
+  it('With .gitkeep file in directory (file is marked as hidden)', () => {
+    const mediaFolderName = 'media-folder'
+    const gitKeepId = joinURL(TreeRootId.Media, mediaFolderName, '.gitkeep')
+    const mediaId = joinURL(TreeRootId.Media, mediaFolderName, 'image.jpg')
+
+    const gitkeepDbItem: MediaItem & { fsPath: string } = {
+      id: gitKeepId,
+      fsPath: joinURL(mediaFolderName, '.gitkeep'),
+      stem: '.gitkeep',
+      extension: 'gitkeep',
+      path: withLeadingSlash(joinURL(mediaFolderName, '.gitkeep')),
+    }
+
+    const mediaDbItem: MediaItem & { fsPath: string } = {
+      id: mediaId,
+      fsPath: joinURL(mediaFolderName, 'image.jpg'),
+      stem: 'image',
+      extension: 'jpg',
+      path: withLeadingSlash(joinURL(mediaFolderName, 'image.jpg')),
+    }
+
+    const draftList: DraftItem[] = [{
+      id: gitkeepDbItem.id,
+      fsPath: gitkeepDbItem.fsPath,
+      status: DraftStatus.Created,
+      original: undefined,
+      modified: gitkeepDbItem,
+    }]
+
+    const tree = buildTree([gitkeepDbItem, mediaDbItem], draftList)
+
+    expect(tree).toHaveLength(1)
+    expect(tree[0]).toHaveProperty('id', joinURL(TreeRootId.Media, mediaFolderName))
+    expect(tree[0].children).toHaveLength(2)
+
+    const gitkeepFile = tree[0].children!.find(item => item.id === gitKeepId)
+    const imageFile = tree[0].children!.find(item => item.id === mediaId)
+
+    expect(gitkeepFile).toHaveProperty('hide', true)
+    expect(imageFile).toBeDefined()
+    expect(imageFile!.hide).toBeUndefined()
   })
 })
 

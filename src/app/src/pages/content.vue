@@ -12,7 +12,7 @@ const currentTreeItem = computed(() => context.activeTree.value.currentItem.valu
 const currentDraftItem = computed(() => context.activeTree.value.draft.current.value)
 
 const showFolderForm = computed(() => {
-  return context.actionInProgress.value?.id === StudioItemActionId.CreateFolder
+  return context.actionInProgress.value?.id === StudioItemActionId.CreateDocumentFolder
     || (
       context.actionInProgress.value?.id === StudioItemActionId.RenameItem
       && context.actionInProgress.value?.item?.type === 'directory'

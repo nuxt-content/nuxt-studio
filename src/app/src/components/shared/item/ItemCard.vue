@@ -21,7 +21,7 @@ const statusRingColor = computed(() => props.item.status && props.item.status !=
 
 const displayInfo = computed(() => {
   if (isDirectory.value) {
-    const count = props.item.children?.length || 0
+    const count = props.item.children?.filter(child => !child.hide).length || 0
     return `${count} ${count === 1 ? 'item' : 'items'}`
   }
   return props.item.routePath || props.item.fsPath

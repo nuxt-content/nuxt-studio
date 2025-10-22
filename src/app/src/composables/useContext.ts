@@ -13,7 +13,7 @@ import type {
   StudioActionInProgress,
   CreateFolderParams,
   DatabaseItem,
-
+  MediaItem,
 } from '../types'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions, STUDIO_BRANCH_ACTION_DEFINITIONS } from '../utils/context'
 import type { useTree } from './useTree'
@@ -23,6 +23,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
+import { generateIdFromFsPath, generateStemFromFsPath } from '../utils/media'
 
 export const useContext = createSharedComposable((
   host: StudioHost,
@@ -84,7 +85,7 @@ export const useContext = createSharedComposable((
   })
 
   const itemActionHandler: { [K in StudioItemActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
-    [StudioItemActionId.CreateFolder]: async (params: CreateFolderParams) => {
+    [StudioItemActionId.CreateDocumentFolder]: async (params: CreateFolderParams) => {
       const { fsPath } = params
       const folderName = fsPath.split('/').pop()!
       const rootDocumentFsPath = joinURL(fsPath, 'index.md')
@@ -101,6 +102,23 @@ export const useContext = createSharedComposable((
 
       await activeTree.value.selectItemById(rootDocumentDraftItem.id)
     },
+    [StudioItemActionId.CreateMediaFolder]: async (params: CreateFolderParams) => {
+      const { fsPath } = params
+      const gitkeepFsPath = joinURL(fsPath, '.gitkeep')
+      const gitKeepMedia: MediaItem = {
+        id: generateIdFromFsPath(gitkeepFsPath),
+        fsPath: gitkeepFsPath,
+        stem: generateStemFromFsPath(gitkeepFsPath),
+        extension: '',
+      }
+
+      await host.media.upsert(gitKeepMedia.id, gitKeepMedia)
+      await (activeTree.value.draft as ReturnType<typeof useDraftMedias>).create(gitKeepMedia)
+
+      unsetActionInProgress()
+
+      await activeTree.value.selectParentById(gitKeepMedia.id)
+    },
     [StudioItemActionId.CreateDocument]: async (params: CreateFileParams) => {
       const { fsPath, content } = params
       const document = await host.document.create(fsPath, content)
@@ -108,6 +126,14 @@ export const useContext = createSharedComposable((
       await activeTree.value.selectItemById(draftItem.id)
     },
     [StudioItemActionId.UploadMedia]: async ({ parentFsPath, files }: UploadMediaParams) => {
+      // Remove .gitkeep draft in folder if exists
+      const gitkeepFsPath = parentFsPath === '/' ? '.gitkeep' : joinURL(parentFsPath, '.gitkeep')
+      const gitkeepId = generateIdFromFsPath(gitkeepFsPath)
+      const gitkeepDraft = await activeTree.value.draft.get(generateIdFromFsPath(gitkeepFsPath))
+      if (gitkeepDraft) {
+        await activeTree.value.draft.remove([gitkeepId], { rerender: false })
+      }
+
       for (const file of files) {
         await (activeTree.value.draft as ReturnType<typeof useDraftMedias>).upload(parentFsPath, file)
       }

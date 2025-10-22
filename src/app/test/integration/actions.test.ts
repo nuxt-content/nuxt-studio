@@ -1003,4 +1003,129 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
   })
+
+  it('CreateFolder > Upload > Revert Media', async () => {
+    const consoleInfoSpy = vi.spyOn(console, 'info')
+    const folderName = 'media-folder'
+    const folderPath = `/${folderName}`
+    const gitkeepId = joinURL(TreeRootId.Media, folderPath, '.gitkeep')
+
+    /* STEP 1: CREATE FOLDER */
+    await context.itemActionHandler[StudioItemActionId.CreateMediaFolder]({
+      fsPath: folderPath,
+    })
+
+    // Storage
+    expect(mockStorageDraft.size).toEqual(1)
+    const gitkeepDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(gitkeepId))!)
+    expect(gitkeepDraftStorage).toHaveProperty('status', DraftStatus.Created)
+    expect(gitkeepDraftStorage).toHaveProperty('id', gitkeepId)
+    expect(gitkeepDraftStorage.modified).toHaveProperty('id', gitkeepId)
+    expect(gitkeepDraftStorage.original).toBeUndefined()
+
+    // Memory
+    expect(context.activeTree.value.draft.list.value).toHaveLength(1)
+    const gitkeepDraftMemory = context.activeTree.value.draft.list.value[0]
+    expect(gitkeepDraftMemory).toHaveProperty('status', DraftStatus.Created)
+    expect(gitkeepDraftMemory).toHaveProperty('id', gitkeepId)
+    expect(gitkeepDraftMemory.modified).toHaveProperty('id', gitkeepId)
+    expect(gitkeepDraftMemory.original).toBeUndefined()
+
+    // Tree - .gitkeep file exists but is hidden
+    let rootTree = context.activeTree.value.root.value
+    expect(rootTree).toHaveLength(1)
+    expect(rootTree[0]).toHaveProperty('type', 'directory')
+    expect(rootTree[0]).toHaveProperty('name', folderName)
+    expect(rootTree[0].children).toHaveLength(1)
+    expect(rootTree[0].children![0]).toHaveProperty('id', gitkeepId)
+    expect(rootTree[0].children![0]).toHaveProperty('hide', true)
+
+    /* STEP 2: UPLOAD MEDIA IN FOLDER */
+    const file = createMockFile(mediaName)
+    const uploadedMediaId = joinURL(TreeRootId.Media, folderPath, mediaName)
+    await context.itemActionHandler[StudioItemActionId.UploadMedia]({
+      parentFsPath: folderPath,
+      files: [file],
+    })
+
+    // Storage - .gitkeep has been removed
+    expect(mockStorageDraft.size).toEqual(1)
+    const createdDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(uploadedMediaId))!)
+    expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftStorage).toHaveProperty('id', uploadedMediaId)
+    expect(createdDraftStorage.original).toBeUndefined()
+    expect(createdDraftStorage.modified).toHaveProperty('id', uploadedMediaId)
+
+    // Memory - .gitkeep has been removed
+    expect(context.activeTree.value.draft.list.value).toHaveLength(1)
+    const createdDraftMemory = context.activeTree.value.draft.list.value.find(item => item.id === uploadedMediaId)!
+    expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
+    expect(createdDraftMemory).toHaveProperty('id', uploadedMediaId)
+    expect(createdDraftMemory.modified).toHaveProperty('id', uploadedMediaId)
+    expect(createdDraftMemory.original).toBeUndefined()
+
+    // Tree - .gitkeep has been removed
+    rootTree = context.activeTree.value.root.value
+    expect(rootTree).toHaveLength(1)
+    expect(rootTree[0]).toHaveProperty('type', 'directory')
+    expect(rootTree[0]).toHaveProperty('name', folderName)
+    expect(rootTree[0].children).toHaveLength(1)
+    expect(rootTree[0].children![0]).toHaveProperty('id', uploadedMediaId)
+
+    /* STEP 3: REVERT UPLOADED MEDIA */
+    const uploadedMediaTreeItem = context.activeTree.value.root.value[0].children!.find(item => item.id === uploadedMediaId)!
+    await context.itemActionHandler[StudioItemActionId.RevertItem](uploadedMediaTreeItem!)
+
+    // Storage
+    expect(mockStorageDraft.size).toEqual(0)
+
+    // Memory
+    expect(context.activeTree.value.draft.list.value).toHaveLength(0)
+
+    // Tree
+    expect(context.activeTree.value.root.value).toHaveLength(0)
+
+    // Hooks
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
+  })
+
+  it('CreateMediaFolder > Upload > Revert Media', async () => {
+    const consoleInfoSpy = vi.spyOn(console, 'info')
+    const folderName = 'media-folder'
+    const folderPath = `/${folderName}`
+
+    /* STEP 1: CREATE MEDIA FOLDER */
+    await context.itemActionHandler[StudioItemActionId.CreateMediaFolder]({
+      fsPath: folderPath,
+    })
+
+    /* STEP 2: UPLOAD MEDIA IN FOLDER */
+    const file = createMockFile(mediaName)
+    await context.itemActionHandler[StudioItemActionId.UploadMedia]({
+      parentFsPath: folderPath,
+      files: [file],
+    })
+
+    /* STEP 3: REVERT FOLDER */
+    const folderTreeItem = context.activeTree.value.root.value[0]
+    await context.itemActionHandler[StudioItemActionId.RevertItem](folderTreeItem!)
+
+    // Storage
+    expect(mockStorageDraft.size).toEqual(0)
+
+    // Memory
+    expect(context.activeTree.value.draft.list.value).toHaveLength(0)
+
+    // Tree
+    expect(context.activeTree.value.root.value).toHaveLength(0)
+
+    // Hooks
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
+  })
 })

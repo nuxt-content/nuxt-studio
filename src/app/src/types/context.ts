@@ -6,7 +6,8 @@ export enum StudioFeature {
 }
 
 export enum StudioItemActionId {
-  CreateFolder = 'create-folder',
+  CreateDocumentFolder = 'create-document-folder',
+  CreateMediaFolder = 'create-media-folder',
   CreateDocument = 'create-document',
   UploadMedia = 'upload-media',
   RevertItem = 'revert-item',
@@ -58,7 +59,8 @@ export interface PublishBranchParams {
 
 export type ActionHandlerParams = {
   // Items
-  [StudioItemActionId.CreateFolder]: CreateFolderParams
+  [StudioItemActionId.CreateDocumentFolder]: CreateFolderParams
+  [StudioItemActionId.CreateMediaFolder]: CreateFolderParams
   [StudioItemActionId.CreateDocument]: CreateFileParams
   [StudioItemActionId.UploadMedia]: UploadMediaParams
   [StudioItemActionId.RevertItem]: TreeItem

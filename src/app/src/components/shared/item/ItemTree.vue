@@ -27,6 +27,8 @@ const props = defineProps({
 
 const showCreationForm = computed(() => props.showForm && context.actionInProgress.value?.id !== StudioItemActionId.RenameItem)
 
+const visibleTree = computed(() => props.tree.filter(item => !item.hide))
+
 const cardComponent = computed(() => {
   if (props.feature === StudioFeature.Media) {
     return MediaCard
@@ -61,7 +63,7 @@ const formComponent = computed(() => {
         />
       </li>
       <li
-        v-for="(item, index) in tree"
+        v-for="(item, index) in visibleTree"
         :key="`${item.id}-${index}`"
       >
         <component

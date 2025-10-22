@@ -6,13 +6,13 @@ import { StudioItemActionId, StudioFeature } from '../types'
 const { context } = useStudio()
 
 const folderTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'directory'))
-const fileTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'file'))
+const fileTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'file' && !f.id.endsWith('.gitkeep')))
 
 const currentTreeItem = computed(() => context.activeTree.value.currentItem.value)
 const currentDraftItem = computed(() => context.activeTree.value.draft.current.value)
 
 const showFolderForm = computed(() => {
-  return context.actionInProgress.value?.id === StudioItemActionId.CreateFolder
+  return context.actionInProgress.value?.id === StudioItemActionId.CreateMediaFolder
     || (
       context.actionInProgress.value?.id === StudioItemActionId.RenameItem
       && context.actionInProgress.value?.item?.type === 'directory'

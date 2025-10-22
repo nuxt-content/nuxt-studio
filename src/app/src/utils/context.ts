@@ -1,7 +1,7 @@
 import { type StudioAction, type TreeItem, TreeStatus, StudioItemActionId, StudioBranchActionId, TreeRootId } from '../types'
 
 export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
-export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateFolder, StudioItemActionId.RenameItem]
+export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder, StudioItemActionId.RenameItem]
 
 export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction<StudioItemActionId>[] = [
   {
@@ -23,7 +23,13 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction<StudioItemActionId>[] 
     tooltip: 'Upload media',
   },
   {
-    id: StudioItemActionId.CreateFolder,
+    id: StudioItemActionId.CreateDocumentFolder,
+    label: 'Create folder',
+    icon: 'i-lucide-folder-plus',
+    tooltip: 'Create a new folder',
+  },
+  {
+    id: StudioItemActionId.CreateMediaFolder,
     label: 'Create folder',
     icon: 'i-lucide-folder-plus',
     tooltip: 'Create a new folder',
@@ -62,13 +68,11 @@ export function computeItemActions(itemActions: StudioAction<StudioItemActionId>
 
   const forbiddenActions: StudioItemActionId[] = []
 
-  // Duplicate only available for documents
   if (item.id.startsWith(TreeRootId.Media)) {
-    forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.CreateFolder, StudioItemActionId.CreateDocument)
+    forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateDocument)
   }
-  // Upload only available for medias
   else {
-    forbiddenActions.push(StudioItemActionId.UploadMedia)
+    forbiddenActions.push(StudioItemActionId.UploadMedia, StudioItemActionId.CreateMediaFolder)
   }
 
   // Item type filtering
@@ -77,7 +81,7 @@ export function computeItemActions(itemActions: StudioAction<StudioItemActionId>
       forbiddenActions.push(StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem)
       break
     case 'file':
-      forbiddenActions.push(StudioItemActionId.CreateFolder, StudioItemActionId.CreateDocument, StudioItemActionId.UploadMedia)
+      forbiddenActions.push(StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder, StudioItemActionId.CreateDocument, StudioItemActionId.UploadMedia)
       break
     case 'directory':
       forbiddenActions.push(StudioItemActionId.DuplicateItem)
