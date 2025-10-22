@@ -12,7 +12,7 @@ import { StudioFeature } from '../types'
 import { documentStorage, mediaStorage, nullStorageDriver } from '../utils/storage'
 import { useHooks } from './useHooks'
 import { getDraftStatus } from '../utils/draft'
-import { useState } from './useState'
+import { useStudioState } from './useStudioState'
 
 export const studioFlags = {
   dev: false,
@@ -34,7 +34,7 @@ export const useStudio = createSharedComposable(() => {
   }
 
   const git = studioFlags.dev ? useDevelopmentGit(gitOptions) : useGit(gitOptions)
-  const { config } = useState()
+  const { preferences } = useStudioState()
   const ui = useUI(host)
   const draftDocuments = useDraftDocuments(host, git)
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
@@ -54,7 +54,7 @@ export const useStudio = createSharedComposable(() => {
     isReady.value = true
 
     host.on.routeChange(async (to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
-      if (ui.isOpen.value && config.value.syncEditorAndRoute) {
+      if (ui.isOpen.value && preferences.value.syncEditorAndRoute) {
         if (documentTree.currentItem.value.routePath === to.path) {
           return
         }

@@ -5,11 +5,11 @@ import type { useDraftMedias } from './useDraftMedias'
 import { buildTree, findItemFromId, findItemFromRoute, findParentFromId } from '../utils/tree'
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
-import { useState } from './useState'
+import { useStudioState } from './useStudioState'
 
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
-  const { config } = useState()
+  const { preferences, location } = useStudioState()
 
   const tree = ref<TreeItem[]>([])
 
@@ -47,11 +47,17 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
 
   async function select(item: TreeItem) {
     currentItem.value = item || rootItem.value
+
+    location.value = {
+      feature: type,
+      itemId: currentItem.value.id,
+    }
+
     if (item?.type === 'file') {
       await draft.selectById(item.id)
 
       if (
-        !config.value.syncEditorAndRoute
+        !preferences.value.syncEditorAndRoute
         || type === StudioFeature.Media
         || item.name === '.navigation'
       ) {
@@ -76,7 +82,12 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   async function selectItemById(id: string) {
     const treeItem = findItemFromId(tree.value, id)
 
-    if (!treeItem || treeItem.id === currentItem.value.id) return
+    if (!treeItem) {
+      await select(rootItem.value)
+      return
+    }
+
+    if (treeItem.id === currentItem.value.id) return
 
     await select(treeItem)
   }
@@ -87,7 +98,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   }
 
   // Trigger tree rebuild to update files status
-  async function handleDraftUpdate() {
+  async function handleDraftUpdate(selectItem: boolean = true) {
     const api = type === StudioFeature.Content ? host.document : host.media
     const list = await api.list()
     const listWithFsPath = list.map((item) => {
@@ -98,7 +109,9 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     tree.value = buildTree(listWithFsPath, draft.list.value)
 
     // Reselect current item to update status
-    select(findItemFromId(tree.value, currentItem.value.id)!)
+    if (selectItem) {
+      select(findItemFromId(tree.value, currentItem.value.id)!)
+    }
 
     // Rerender host app
     host.app.requestRerender()
@@ -107,13 +120,13 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   if (type === StudioFeature.Content) {
     hooks.hook('studio:draft:document:updated', async ({ caller }) => {
       console.info('studio:draft:document:updated have been called by', caller)
-      await handleDraftUpdate()
+      await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }
   else {
     hooks.hook('studio:draft:media:updated', async ({ caller }) => {
       console.info('studio:draft:media:updated have been called by', caller)
-      await handleDraftUpdate()
+      await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }
 

@@ -2,8 +2,11 @@
 import { useStudio } from './composables/useStudio'
 import { watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStudioState } from './composables/useStudioState'
+import { StudioFeature } from './types'
 
-const { host, ui, isReady, context } = useStudio()
+const { host, ui, isReady, context, documentTree, mediaTree } = useStudio()
+const { location } = useStudioState()
 const router = useRouter()
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -32,6 +35,13 @@ function detectActiveDocuments() {
 
 async function editContentFile(id: string) {
   await context.activeTree.value.selectItemById(id)
+  ui.open()
+}
+
+async function open() {
+  router.push(`/${location.value.feature}`)
+  const tree = location.value.feature === StudioFeature.Content ? documentTree : mediaTree
+  await tree.selectItemById(location.value.itemId)
   ui.open()
 }
 
@@ -118,7 +128,7 @@ router.beforeEach((to, from) => {
               color="neutral"
               variant="outline"
               class="bg-transparent backdrop-blur-md"
-              @click="ui.open()"
+              @click="open()"
             />
           </UTooltip>
           <UButton

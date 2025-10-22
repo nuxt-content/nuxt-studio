@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
-import { useState } from '../composables/useState'
+import { useStudioState } from '../composables/useStudioState'
 
-const { config } = useState()
 const { ui, host, git } = useStudio()
-
+const { preferences } = useStudioState()
 const user = host.user.get()
 
 const showTechnicalMode = computed({
-  get: () => config.value.showTechnicalMode,
+  get: () => preferences.value.showTechnicalMode,
   set: (value) => {
-    config.value.showTechnicalMode = value
+    preferences.value.showTechnicalMode = value
   },
 })
 
@@ -77,15 +76,15 @@ const userMenuItems = computed(() => [
 
     <div class="flex items-center">
       <UTooltip
-        :text="config.syncEditorAndRoute ? 'Unlink editor and preview' : 'Link editor and preview'"
+        :text="preferences.syncEditorAndRoute ? 'Unlink editor and preview' : 'Link editor and preview'"
         :delay-duration="0"
       >
         <UButton
           icon="i-lucide-arrow-left-right"
           variant="ghost"
-          :color="config.syncEditorAndRoute ? 'info' : 'neutral'"
-          :class="!config.syncEditorAndRoute && 'opacity-50'"
-          @click="config.syncEditorAndRoute = !config.syncEditorAndRoute"
+          :color="preferences.syncEditorAndRoute ? 'info' : 'neutral'"
+          :class="!preferences.syncEditorAndRoute && 'opacity-50'"
+          @click="preferences.syncEditorAndRoute = !preferences.syncEditorAndRoute"
         />
       </UTooltip>
       <UButton

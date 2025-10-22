@@ -2,10 +2,13 @@
 import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { useStudio } from '../../composables/useStudio'
+import type { StudioFeature } from '../../types'
+import { useStudioState } from '../../composables/useStudioState'
 
 const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
+const { location } = useStudioState()
 
 const items = [
   {
@@ -22,7 +25,13 @@ const items = [
 
 const current = computed({
   get: () => route.name as string,
-  set: (name: string) => router.push({ name }),
+  set: async (name: StudioFeature) => {
+    await router.push({ name })
+    location.value = {
+      feature: name,
+      itemId: context.activeTree.value.currentItem.value?.id,
+    }
+  },
 })
 </script>
 

@@ -4,10 +4,12 @@ import * as z from 'zod'
 import { useStudio } from '../../composables/useStudio'
 import { useToast } from '@nuxt/ui/composables/useToast'
 import { useRouter } from 'vue-router'
-import { StudioBranchActionId } from '../../types'
+import { StudioBranchActionId, StudioFeature } from '../../types'
+import { useStudioState } from '../../composables/useStudioState'
 
 const router = useRouter()
-const { context } = useStudio()
+const { location } = useStudioState()
+const { context, documentTree, mediaTree } = useStudio()
 const toast = useToast()
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -53,6 +55,13 @@ async function publishChanges() {
     isPublishing.value = false
   }
 }
+
+async function backToEditor() {
+  const feature = location.value.feature
+  router.push(`/${feature}`)
+  const tree = feature === StudioFeature.Content ? documentTree : mediaTree
+  await tree.selectItemById(location.value.itemId)
+}
 </script>
 
 <template>
@@ -74,7 +83,7 @@ async function publishChanges() {
             variant="soft"
             size="sm"
             aria-label="Back"
-            to="/content"
+            @click="backToEditor"
           />
         </UTooltip>
 
