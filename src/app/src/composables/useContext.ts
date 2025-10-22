@@ -37,7 +37,7 @@ export const useContext = createSharedComposable((
   /**
    * Drafts
    */
-  const allDrafts = computed(() => [...documentTree.draft.list.value, ...mediaTree.draft.list.value].filter(draft => draft.status !== DraftStatus.Pristine && !draft.fsPath.endsWith('.gitkeep')))
+  const allDrafts = computed(() => [...documentTree.draft.list.value, ...mediaTree.draft.list.value].filter(draft => draft.status !== DraftStatus.Pristine))
   const isDraftInProgress = computed(() => allDrafts.value.some(draft => draft.status !== DraftStatus.Pristine))
   const draftCount = computed(() => allDrafts.value.length)
 
@@ -126,6 +126,15 @@ export const useContext = createSharedComposable((
       await activeTree.value.selectItemById(draftItem.id)
     },
     [StudioItemActionId.UploadMedia]: async ({ parentFsPath, files }: UploadMediaParams) => {
+      // Remove .gitkeep draft in folder if exists
+      console.log('parentPath', parentFsPath)
+      const gitkeepFsPath = parentFsPath === '/' ? '.gitkeep' : joinURL(parentFsPath, '.gitkeep')
+      const gitkeepId = generateIdFromFsPath(gitkeepFsPath)
+      const gitkeepDraft = await activeTree.value.draft.get(generateIdFromFsPath(gitkeepFsPath))
+      if (gitkeepDraft) {
+        await activeTree.value.draft.remove([gitkeepId], { rerender: false })
+      }
+
       for (const file of files) {
         await (activeTree.value.draft as ReturnType<typeof useDraftMedias>).upload(parentFsPath, file)
       }

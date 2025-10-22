@@ -50,7 +50,10 @@ const imageSrc = computed(() => isImageFile(props.item.fsPath) ? props.item.rout
           class="w-full h-full object-cover"
         />
       </div>
-      <div v-else>
+      <div
+        v-else
+        class="flex items-center justify-center h-full"
+      >
         <UIcon
           name="i-lucide-play"
           class="w-6 h-6 text-muted"

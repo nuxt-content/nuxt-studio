@@ -1031,12 +1031,14 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(gitkeepDraftMemory.modified).toHaveProperty('id', gitkeepId)
     expect(gitkeepDraftMemory.original).toBeUndefined()
 
-    // Tree
+    // Tree - .gitkeep file exists but is hidden
     let rootTree = context.activeTree.value.root.value
     expect(rootTree).toHaveLength(1)
     expect(rootTree[0]).toHaveProperty('type', 'directory')
     expect(rootTree[0]).toHaveProperty('name', folderName)
-    expect(rootTree[0].children).toHaveLength(0)
+    expect(rootTree[0].children).toHaveLength(1)
+    expect(rootTree[0].children![0]).toHaveProperty('id', gitkeepId)
+    expect(rootTree[0].children![0]).toHaveProperty('hide', true)
 
     /* STEP 2: UPLOAD MEDIA IN FOLDER */
     const file = createMockFile(mediaName)
@@ -1046,23 +1048,23 @@ describe('Media - Action Chains Integration Tests', () => {
       files: [file],
     })
 
-    // Storage
-    expect(mockStorageDraft.size).toEqual(2)
+    // Storage - .gitkeep has been removed
+    expect(mockStorageDraft.size).toEqual(1)
     const createdDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(uploadedMediaId))!)
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('id', uploadedMediaId)
     expect(createdDraftStorage.original).toBeUndefined()
     expect(createdDraftStorage.modified).toHaveProperty('id', uploadedMediaId)
 
-    // Memory
-    expect(context.activeTree.value.draft.list.value).toHaveLength(2)
+    // Memory - .gitkeep has been removed
+    expect(context.activeTree.value.draft.list.value).toHaveLength(1)
     const createdDraftMemory = context.activeTree.value.draft.list.value.find(item => item.id === uploadedMediaId)!
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftMemory).toHaveProperty('id', uploadedMediaId)
     expect(createdDraftMemory.modified).toHaveProperty('id', uploadedMediaId)
     expect(createdDraftMemory.original).toBeUndefined()
 
-    // Tree
+    // Tree - .gitkeep has been removed
     rootTree = context.activeTree.value.root.value
     expect(rootTree).toHaveLength(1)
     expect(rootTree[0]).toHaveProperty('type', 'directory')
@@ -1075,21 +1077,13 @@ describe('Media - Action Chains Integration Tests', () => {
     await context.itemActionHandler[StudioItemActionId.RevertItem](uploadedMediaTreeItem!)
 
     // Storage
-    expect(mockStorageDraft.size).toEqual(1)
-    const remainingDraft = JSON.parse(mockStorageDraft.get(normalizeKey(gitkeepId))!)
-    expect(remainingDraft).toHaveProperty('status', DraftStatus.Created)
-    expect(remainingDraft).toHaveProperty('id', gitkeepId)
+    expect(mockStorageDraft.size).toEqual(0)
 
     // Memory
-    expect(context.activeTree.value.draft.list.value).toHaveLength(1)
-    expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('id', gitkeepId)
+    expect(context.activeTree.value.draft.list.value).toHaveLength(0)
 
     // Tree
-    rootTree = context.activeTree.value.root.value
-    expect(rootTree).toHaveLength(1)
-    expect(rootTree[0]).toHaveProperty('type', 'directory')
-    expect(rootTree[0]).toHaveProperty('name', folderName)
-    expect(rootTree[0].children).toHaveLength(0)
+    expect(context.activeTree.value.root.value).toHaveLength(0)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(3)

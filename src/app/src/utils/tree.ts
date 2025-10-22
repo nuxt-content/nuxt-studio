@@ -89,6 +89,10 @@ TreeItem[] {
         prefix,
       }
 
+      if (dbItem.fsPath.endsWith('.gitkeep')) {
+        fileItem.hide = true
+      }
+
       if (itemHasPathField) {
         fileItem.routePath = dbItem.path as string
       }
@@ -161,6 +165,10 @@ TreeItem[] {
       fsPath: dbItem.fsPath,
       type: 'file',
       prefix,
+    }
+
+    if (dbItem.fsPath.endsWith('.gitkeep')) {
+      fileItem.hide = true
     }
 
     const draftFileItem = draftList?.find(draft => draft.id === dbItem.id)
