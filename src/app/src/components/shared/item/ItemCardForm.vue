@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, type PropType, onMounted, onUnmounted } from 'vue'
+import { computed, reactive, ref, type PropType, onMounted, onUnmounted, watch } from 'vue'
 import * as z from 'zod'
 import type {
   CreateFileParams,
@@ -19,6 +19,7 @@ const { context } = useStudio()
 
 const isLoading = ref(false)
 const formRef = ref<HTMLDivElement>()
+const openTooltip = ref(false)
 
 const props = defineProps({
   actionId: {
@@ -50,8 +51,13 @@ const originalExtension = computed(() => {
   return props.renamedItem ? getFileExtension(props.renamedItem?.fsPath) : props.config.default
 })
 const originalPrefix = computed(() => props.renamedItem?.prefix || null)
+const fullName = computed(() => {
+  const baseName = state.name
+  const prefixedName = state.prefix ? `${state.prefix}.${baseName}` : baseName
+  return isDirectory.value ? prefixedName : `${prefixedName}.${state.extension}`
+})
 
-const schema = z.object({
+const schema = computed(() => z.object({
   name: z.string()
     .min(1, 'Name cannot be empty')
     .refine((name: string) => !name.endsWith('.'), 'Name cannot end with "."')
@@ -61,13 +67,54 @@ const schema = z.object({
     val => val === '' ? null : val,
     z.number().int().positive().nullish(),
   ),
-})
+}).refine(() => {
+  const siblings = props.parentItem.children?.filter(child => !child.hide) || []
 
-type Schema = z.output<typeof schema>
+  const isDuplicate = siblings.some((sibling) => {
+    const siblingBaseName = sibling.fsPath.split('/').pop()
+    if (props.renamedItem && sibling.id === props.renamedItem.id) {
+      return false
+    }
+    return siblingBaseName === fullName.value
+  })
+
+  return !isDuplicate
+}, {
+  message: 'Name already exists',
+  path: ['name'],
+}))
+
+type Schema = {
+  name: string
+  extension: string | null | undefined
+  prefix: number | null | undefined
+}
 const state = reactive<Schema>({
   name: originalName.value,
   extension: originalExtension.value,
   prefix: originalPrefix.value,
+})
+
+const validationErrors = computed(() => {
+  try {
+    schema.value.parse(state)
+    return []
+  }
+  catch (error) {
+    if (error instanceof z.ZodError) {
+      return error.issues
+    }
+    return []
+  }
+})
+
+watch(validationErrors, (errors) => {
+  if (errors.length > 0) {
+    openTooltip.value = true
+  }
+  else {
+    openTooltip.value = false
+  }
 })
 
 const routePath = computed(() => {
@@ -84,6 +131,10 @@ const displayInfo = computed(() => {
 })
 
 const tooltipText = computed(() => {
+  if (validationErrors.value.length > 0) {
+    return validationErrors.value[0]?.message
+  }
+
   if (props.actionId === StudioItemActionId.RenameItem) {
     return 'Rename'
   }
@@ -114,10 +165,7 @@ async function onSubmit() {
   isLoading.value = true
 
   let params: CreateFileParams | RenameFileParams | CreateFolderParams
-  const baseName = state.name
-  const prefixedName = state.prefix ? `${state.prefix}.${baseName}` : baseName
-  const name = isDirectory.value ? prefixedName : `${prefixedName}.${state.extension}`
-  const newFsPath = withoutLeadingSlash(joinURL(props.parentItem.fsPath, name))
+  const newFsPath = withoutLeadingSlash(joinURL(props.parentItem.fsPath, fullName.value))
 
   if (newFsPath === props.renamedItem?.fsPath) {
     isLoading.value = false
@@ -129,7 +177,7 @@ async function onSubmit() {
     case StudioItemActionId.CreateDocument:
       params = {
         fsPath: newFsPath,
-        content: `# ${upperFirst(baseName)} file`,
+        content: `# ${upperFirst(state.name)} file`,
       }
       break
     case StudioItemActionId.RenameItem:
@@ -165,7 +213,7 @@ async function onSubmit() {
     :state="state"
     @submit="onSubmit"
   >
-    <template #default="{ errors }">
+    <template #default>
       <div
         ref="formRef"
         @click.stop
@@ -268,15 +316,16 @@ async function onSubmit() {
                 />
 
                 <UTooltip
-                  :text="errors.length > 0 ? errors[0]?.message : tooltipText"
+                  v-model:open="openTooltip"
+                  :text="tooltipText"
                   :popper="{ strategy: 'absolute' }"
                 >
                   <UButton
                     type="submit"
                     variant="soft"
-                    :color="errors.length > 0 ? 'error' : 'secondary'"
+                    :color="validationErrors.length > 0 ? 'error' : 'secondary'"
                     aria-label="Submit button"
-                    :disabled="errors.length > 0 || isLoading"
+                    :disabled="validationErrors.length > 0 || isLoading"
                     :loading="isLoading"
                     size="xs"
                     square
