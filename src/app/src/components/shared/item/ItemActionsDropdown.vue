@@ -2,7 +2,7 @@
 import { computeItemActions, oneStepActions } from '../../../utils/context'
 import { computed, ref, watch, type PropType } from 'vue'
 import { StudioItemActionId } from '../../../types'
-import type { StudioItemActionId as StudioItemActionIdType, TreeItem } from '../../../types'
+import type { TreeItem, StudioAction } from '../../../types'
 import { useStudio } from '../../../composables/useStudio'
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.js'
 
@@ -16,32 +16,58 @@ const props = defineProps({
 })
 
 const isOpen = ref(false)
-const pendingActionId = ref<StudioItemActionIdType | null>(null)
+const pendingAction = ref<StudioAction<StudioItemActionId> | null>(null)
+const loadingAction = ref<StudioAction<StudioItemActionId> | null>(null)
 
 // Reset pending action when menu closes
-watch(isOpen, (newValue) => {
-  if (!newValue) {
+watch(isOpen, () => {
+  if (!isOpen.value) {
     setTimeout(() => {
-      pendingActionId.value = null
+      pendingAction.value = null
+      loadingAction.value = null
     }, 300)
   }
 })
 
+// Close dropdown when action is completed
+watch(context.actionInProgress, (actionInProgress) => {
+  if (!actionInProgress) {
+    isOpen.value = false
+  }
+})
+
 const actions = computed<DropdownMenuItem[]>(() => {
-  const hasPendingAction = pendingActionId.value !== null
+  const hasPendingAction = pendingAction.value !== null
+  const hasLoadingAction = loadingAction.value !== null
 
   return computeItemActions(context.itemActions.value, props.item).map((action) => {
     const isOneStepAction = oneStepActions.includes(action.id)
-    const isPending = pendingActionId.value === action.id
+    const isPending = pendingAction.value?.id === action.id
+    const isLoading = loadingAction.value?.id === action.id
     const isDeleteAction = action.id === StudioItemActionId.DeleteItem
+
+    let icon = action.icon
+    if (isLoading) {
+      icon = 'i-ph-circle-notch'
+    }
+    else if (isPending) {
+      icon = isDeleteAction ? 'i-ph-x' : 'i-ph-check'
+    }
 
     return {
       ...action,
-      icon: isPending ? (isDeleteAction ? 'i-ph-x' : 'i-ph-check') : action.icon,
+      icon,
       color: isPending ? (isDeleteAction ? 'error' : 'secondary') : 'neutral',
       slot: isPending ? 'pending-action' : undefined,
-      disabled: hasPendingAction && !isPending,
+      disabled: (hasPendingAction && !isPending) || hasLoadingAction,
+      loading: isLoading,
       onSelect: (e: Event) => {
+        // Don't allow action if already loading
+        if (hasLoadingAction) {
+          e.preventDefault()
+          return
+        }
+
         // For two-step actions, execute it without confirmation
         if (!isOneStepAction) {
           if (props.item.type === 'directory' && [StudioItemActionId.CreateDocument, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder].includes(action.id)) {
@@ -53,20 +79,22 @@ const actions = computed<DropdownMenuItem[]>(() => {
           return
         }
 
+        // Prevent dropdown from closing for one-step actions
+        e.preventDefault()
+
         // Second click on pending action - execute it
         if (isPending) {
+          loadingAction.value = action
           action.handler!(props.item)
-          pendingActionId.value = null
+          pendingAction.value = null
         }
         // Click on different action while one is pending - cancel pending state
-        else if (pendingActionId.value !== null) {
-          e.preventDefault()
-          pendingActionId.value = null
+        else if (pendingAction.value !== null) {
+          pendingAction.value = null
         }
         // First click - enter confirmation state
         else {
-          e.preventDefault()
-          pendingActionId.value = action.id
+          pendingAction.value = action
         }
       },
     }
@@ -74,7 +102,7 @@ const actions = computed<DropdownMenuItem[]>(() => {
 })
 
 const pendingActionLabel = computed(() => {
-  return `Click again to ${pendingActionId.value?.split('-')[0]}`
+  return `Click again to ${pendingAction.value?.id.split('-')[0]}`
 })
 </script>
 
