@@ -144,9 +144,30 @@ const tooltipText = computed(() => {
 })
 
 const handleClickOutside = (event: MouseEvent) => {
-  if (formRef.value && !formRef.value.contains(event.target as Node)) {
-    context.unsetActionInProgress()
+  if (!formRef.value) {
+    return
   }
+
+  const target = event.target as HTMLElement
+  const body = document.body
+  const bodyPointerEvents = window.getComputedStyle(body).pointerEvents
+
+  // Click on select extension dropdown
+  if (bodyPointerEvents === 'none' || target.tagName === 'HTML') {
+    const hasOpenDropdown = document.querySelector('[role="listbox"]')
+      || document.querySelector('[data-radix-popper-content-wrapper]')
+    if (hasOpenDropdown) {
+      return
+    }
+  }
+
+  const path = event.composedPath() as HTMLElement[]
+  const clickInsideCard = path.includes(formRef.value)
+  if (clickInsideCard) {
+    return
+  }
+
+  context.unsetActionInProgress()
 }
 
 onMounted(() => {
