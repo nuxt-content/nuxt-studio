@@ -482,9 +482,6 @@ describe('buildTree od medias', () => {
       path: withLeadingSlash(joinURL(mediaFolderName, 'image.jpg')),
     }
 
-    console.log(gitkeepDbItem)
-    console.log(mediaDbItem)
-
     const draftList: DraftItem[] = [{
       id: gitkeepDbItem.id,
       fsPath: gitkeepDbItem.fsPath,

@@ -127,7 +127,6 @@ export const useContext = createSharedComposable((
     },
     [StudioItemActionId.UploadMedia]: async ({ parentFsPath, files }: UploadMediaParams) => {
       // Remove .gitkeep draft in folder if exists
-      console.log('parentPath', parentFsPath)
       const gitkeepFsPath = parentFsPath === '/' ? '.gitkeep' : joinURL(parentFsPath, '.gitkeep')
       const gitkeepId = generateIdFromFsPath(gitkeepFsPath)
       const gitkeepDraft = await activeTree.value.draft.get(generateIdFromFsPath(gitkeepFsPath))
