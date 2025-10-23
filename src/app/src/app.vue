@@ -40,8 +40,7 @@ async function editContentFile(id: string) {
 
 async function open() {
   router.push(`/${location.value.feature}`)
-  const tree = location.value.feature === StudioFeature.Content ? documentTree : mediaTree
-  await tree.selectItemById(location.value.itemId)
+  await context.activeTree.value.selectItemById(location.value.itemId)
   ui.open()
 }
 

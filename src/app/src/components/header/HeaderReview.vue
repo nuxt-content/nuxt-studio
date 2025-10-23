@@ -57,10 +57,8 @@ async function publishChanges() {
 }
 
 async function backToEditor() {
-  const feature = location.value.feature
-  router.push(`/${feature}`)
-  const tree = feature === StudioFeature.Content ? documentTree : mediaTree
-  await tree.selectItemById(location.value.itemId)
+  router.push(`/${location.value.feature}`)
+  await context.activeTree.value.selectItemById(location.value.itemId)
 }
 </script>
 
