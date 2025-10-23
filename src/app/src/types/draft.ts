@@ -9,6 +9,11 @@ export enum DraftStatus {
   Pristine = 'pristine',
 }
 
+export interface ContentConflict {
+  githubContent: string
+  localContent: string
+}
+
 export interface DraftItem<T = DatabaseItem | MediaItem> {
   id: string // nuxt/content id
   fsPath: string // file path in content directory
@@ -27,4 +32,8 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    * Used to detect changes when the draft is saved
    */
   version?: number
+  /**
+   * Content conflict detection
+   */
+  conflict?: ContentConflict
 }

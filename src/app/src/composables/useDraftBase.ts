@@ -2,7 +2,7 @@ import type { Storage } from 'unstorage'
 import { joinURL } from 'ufo'
 import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem } from '../types'
 import { DraftStatus } from '../types/draft'
-import { findDescendantsFromId, getDraftStatus } from '../utils/draft'
+import { checkConflict, findDescendantsFromId, getDraftStatus } from '../utils/draft'
 import type { useGit } from './useGit'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
@@ -154,7 +154,12 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     await hooks.callHook(hookName, { caller: 'useDraftBase.revertAll' })
   }
 
-  function select(draftItem: DraftItem<T> | null) {
+  async function select(draftItem: DraftItem<T> | null) {
+    const conflict = draftItem && await checkConflict(draftItem)
+    if (conflict) {
+      draftItem.conflict = conflict
+    }
+
     current.value = draftItem
   }
 
@@ -213,5 +218,6 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     select,
     selectById,
     load,
+    checkConflict,
   }
 }

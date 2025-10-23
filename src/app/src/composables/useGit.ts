@@ -11,6 +11,7 @@ export const useDevelopmentGit = (_options: GitOptions) => {
     commitFiles: (_files: RawFile[], _message: string): Promise<{ success: boolean, commitSha: string, url: string } | null> => Promise.resolve(null),
     getRepositoryUrl: () => '',
     getBranchUrl: () => '',
+    getContentRootDirUrl: () => '',
     getRepositoryInfo: () => ({ owner: '', repo: '', branch: '' }),
   }
 }
@@ -165,6 +166,10 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     return `https://github.com/${owner}/${repo}/tree/${branch}`
   }
 
+  function getContentRootDirUrl() {
+    return `https://github.com/${owner}/${repo}/tree/${branch}/${rootDir}/content`
+  }
+
   function getRepositoryInfo() {
     return {
       owner,
@@ -178,6 +183,7 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     commitFiles,
     getRepositoryUrl,
     getBranchUrl,
+    getContentRootDirUrl,
     getRepositoryInfo,
   }
 })

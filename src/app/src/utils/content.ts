@@ -13,6 +13,10 @@ import { getFileExtension } from './file'
 
 const reservedKeys = ['id', 'stem', 'extension', '__hash__', 'path', 'body', 'meta', 'rawbody']
 
+export function generateStemFromId(id: string) {
+  return id.split('/').slice(1).join('/').split('.').slice(0, -1).join('.')
+}
+
 export function pickReservedKeysFromDocument(document: DatabaseItem) {
   return pick(document, reservedKeys)
 }
@@ -89,7 +93,7 @@ async function generateDocumentFromYAMLContent(id: string, content: string): Pro
   return {
     id,
     extension: ContentFileExtension.YAML,
-    stem: id.split('.').slice(0, -1).join('.'),
+    stem: generateStemFromId(id),
     meta: {},
     ...parsed,
     body: parsed.body || parsed,
@@ -110,7 +114,7 @@ async function generateDocumentFromJSONContent(id: string, content: string): Pro
   return {
     id,
     extension: ContentFileExtension.JSON,
-    stem: id.split('.').slice(0, -1).join('.'),
+    stem: generateStemFromId(id),
     meta: {},
     ...parsed,
     body: parsed.body || parsed,
@@ -143,7 +147,7 @@ async function generateDocumentFromMarkdownContent(id: string, content: string):
     id,
     meta: {},
     extension: ContentFileExtension.Markdown,
-    stem: id.split('.').slice(0, -1).join('.'),
+    stem: generateStemFromId(id),
     body: {
       ...body,
       toc: document.toc,

@@ -60,7 +60,12 @@ const document = computed<DatabasePageItem>({
 
 <template>
   <div class="h-full">
+    <ContentEditorConflict
+      v-if="draftItem.conflict"
+      :draft-item="draftItem"
+    />
     <ContentEditorCode
+      v-else
       v-model="document"
       :draft-item="draftItem"
       :read-only="readOnly"

@@ -1,7 +1,35 @@
-import { type DatabasePageItem, type DraftItem, type BaseItem, ContentFileExtension, TreeRootId } from '../types'
-import { DraftStatus } from '../types'
+import type { DatabaseItem, MediaItem, DatabasePageItem, DraftItem, BaseItem, ContentConflict } from '../types'
+import { DraftStatus, ContentFileExtension, TreeRootId } from '../types'
 import { isEqual } from './database'
 import { studioFlags } from '../composables/useStudio'
+import { generateContentFromDocument } from './content'
+
+export async function checkConflict(draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<ContentConflict | undefined> {
+  if (draftItem.id.startsWith(TreeRootId.Media)) {
+    return
+  }
+
+  if (draftItem.status === DraftStatus.Deleted) {
+    return
+  }
+
+  // TODO: No GitHub file found (might have been deleted remotely)
+  if (!draftItem.githubFile || !draftItem.githubFile.content) {
+    return
+  }
+
+  const localContent = await generateContentFromDocument(draftItem.modified as DatabaseItem) as string
+  const githubContent = atob(draftItem.githubFile.content)
+
+  if (localContent.trim() === githubContent.trim()) {
+    return
+  }
+
+  return {
+    githubContent,
+    localContent,
+  }
+}
 
 export function getDraftStatus(modified?: BaseItem, original?: BaseItem): DraftStatus {
   if (studioFlags.dev) {
