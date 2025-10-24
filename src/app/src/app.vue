@@ -3,9 +3,8 @@ import { useStudio } from './composables/useStudio'
 import { watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStudioState } from './composables/useStudioState'
-import { StudioFeature } from './types'
 
-const { host, ui, isReady, context, documentTree, mediaTree } = useStudio()
+const { host, ui, isReady, context } = useStudio()
 const { location } = useStudioState()
 const router = useRouter()
 

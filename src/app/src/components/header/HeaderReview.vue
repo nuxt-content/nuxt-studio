@@ -4,12 +4,12 @@ import * as z from 'zod'
 import { useStudio } from '../../composables/useStudio'
 import { useToast } from '@nuxt/ui/composables/useToast'
 import { useRouter } from 'vue-router'
-import { StudioBranchActionId, StudioFeature } from '../../types'
+import { StudioBranchActionId } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
 
 const router = useRouter()
 const { location } = useStudioState()
-const { context, documentTree, mediaTree } = useStudio()
+const { context } = useStudio()
 const toast = useToast()
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

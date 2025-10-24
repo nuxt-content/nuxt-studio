@@ -6,6 +6,7 @@ import { useStudio } from '../composables/useStudio'
 const route = useRoute()
 const { git } = useStudio()
 
+const isReloadingApp = ref(false)
 const isWaitingForDeployment = ref(true)
 const deploymentCheckStarted = ref(false)
 
@@ -23,7 +24,11 @@ const alertDescription = computed(() => {
 })
 
 function reload() {
+  isReloadingApp.value = true
   window.location.reload()
+  setTimeout(() => {
+    isReloadingApp.value = false
+  }, 2000)
 }
 
 onMounted(() => {
@@ -93,6 +98,7 @@ onMounted(() => {
           v-if="!isWaitingForDeployment"
           icon="i-lucide-rotate-ccw"
           color="neutral"
+          :loading="isReloadingApp"
           @click="reload"
         >
           Reload application
