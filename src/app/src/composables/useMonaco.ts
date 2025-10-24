@@ -39,6 +39,7 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
       theme: getTheme(colorMode),
       lineNumbers: 'off',
       readOnly: options.readOnly ?? false,
+      wordWrap: 'on',
       scrollbar: options.readOnly
         ? {
             vertical: 'hidden',
