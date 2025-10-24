@@ -52,10 +52,8 @@ host.on.mounted(async () => {
   })
 
   const id = await host.app.getManifestId()
-  console.log('manifestUpdate init', id)
   manifestId.value = id
   host.on.manifestUpdate((id) => {
-    console.log('manifestUpdate', id)
     manifestId.value = id
   })
 })
