@@ -88,7 +88,6 @@ onMounted(() => {
         </p>
       </div>
 
-      <!-- Deployment Info -->
       <UAlert
         :icon="isWaitingForDeployment ? 'i-lucide-loader' : 'i-lucide-check'"
         :title="isWaitingForDeployment ? 'Waiting for deployment...' : 'Deployment complete'"
@@ -98,9 +97,7 @@ onMounted(() => {
         :ui="{ icon: isWaitingForDeployment ? 'animate-spin' : '' }"
       />
 
-      <div
-        class="flex justify-center h-7"
-      >
+      <div class="flex justify-center h-7">
         <UButton
           v-if="!isWaitingForDeployment"
           icon="i-lucide-rotate-ccw"

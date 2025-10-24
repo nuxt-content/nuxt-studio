@@ -11,7 +11,7 @@ const currentHeader = computed(() => {
   if (route.name === 'review') {
     return HeaderReview
   }
-  if (route.name === 'success') {
+  if (['success', 'error'].includes(route.name as string)) {
     return HeaderSuccess
   }
   return HeaderMain
