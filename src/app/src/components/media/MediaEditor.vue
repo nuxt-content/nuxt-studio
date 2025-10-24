@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
-import { type MediaItem, DraftStatus } from '../../types'
+import type { MediaItem, DraftStatus, GithubFile } from '../../types'
 import { isImageFile, isVideoFile, isAudioFile } from '../../utils/file'
 
 const props = defineProps({
   mediaItem: {
     type: Object as PropType<MediaItem>,
     required: true,
+  },
+  githubFile: {
+    type: Object as PropType<GithubFile>,
+    default: null,
   },
   status: {
     type: String as PropType<DraftStatus>,
@@ -20,12 +24,12 @@ const isAudio = computed(() => isAudioFile(props.mediaItem?.path || ''))
 </script>
 
 <template>
-  <div class="bg-elevated">
-    <img
+  <div class="bg-elevated h-full">
+    <MediaImageEditor
       v-if="isImage"
-      :src="mediaItem.path!"
-      :class="{ 'opacity-50': status === DraftStatus.Deleted }"
-    >
+      :media-item="mediaItem"
+      :github-file="githubFile"
+    />
     <MediaVideoEditor
       v-else-if="isVideo"
       :src="mediaItem.path!"

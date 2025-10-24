@@ -12,10 +12,6 @@ const showNewVersionAlert = ref(false)
 const isReloadingApp = ref(false)
 
 watch(manifestId, (newId) => {
-  console.log('👀 Manifest ID changed')
-  console.log('📦 Previous manifest ID:', previousManifestId.value)
-  console.log('📦 New manifest ID:', newId)
-
   if (previousManifestId.value && previousManifestId.value !== newId) {
     showNewVersionAlert.value = true
   }

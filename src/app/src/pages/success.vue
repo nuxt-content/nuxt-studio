@@ -37,8 +37,6 @@ onMounted(() => {
   isWaitingForDeployment.value = true
 
   const newDeployment = watch(manifestId, (newId) => {
-    console.log('newDeployment', newId)
-    console.log('manifestId.value', manifestId.value)
     if (newId !== previousManifestId.value) {
       previousManifestId.value = newId
       isWaitingForDeployment.value = false

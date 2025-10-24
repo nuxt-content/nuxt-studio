@@ -83,3 +83,15 @@ export function isAudioFile(fsPath: string) {
 export function isImageFile(fsPath: string) {
   return IMAGE_EXTENSIONS.includes(getFileExtension(fsPath) as ImageFileExtension)
 }
+
+export function formatBytes(bytes: number, decimals = 2): string {
+  if (bytes === 0) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return Math.round((bytes / Math.pow(k, i)) * Math.pow(10, dm)) / Math.pow(10, dm) + ' ' + sizes[i]
+}

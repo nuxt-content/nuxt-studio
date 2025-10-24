@@ -16,7 +16,6 @@ const props = defineProps({
 const { ui, git } = useStudio()
 
 const diffEditorRef = ref<HTMLDivElement>()
-const reloading = ref(false)
 
 const conflict = computed<ContentConflict>(() => props.draftItem.conflict!)
 const repositoryInfo = computed(() => git.getRepositoryInfo())
@@ -42,14 +41,6 @@ useMonacoDiff(diffEditorRef, {
   language: language.value,
   colorMode: ui.colorMode.value,
 })
-
-function reload() {
-  reloading.value = true
-  window.location.reload()
-  setTimeout(() => {
-    reloading.value = false
-  }, 2000)
-}
 </script>
 
 <template>
@@ -129,18 +120,6 @@ function reload() {
           <p class="text-xs mb-2">
             The content on GitHub differs from your website version. Ensure your latest changes are deployed and refresh the page.
           </p>
-
-          <div class="flex justify-end">
-            <UButton
-              icon="i-lucide-rotate-ccw"
-              color="neutral"
-              size="xs"
-              :loading="reloading"
-              @click="reload"
-            >
-              Reload application
-            </UButton>
-          </div>
         </div>
       </div>
     </div>

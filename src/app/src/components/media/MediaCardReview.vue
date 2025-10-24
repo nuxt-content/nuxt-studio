@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DraftItem, MediaItem } from '../../types'
 import type { PropType } from 'vue'
+import { DraftStatus } from '../../types'
 
 defineProps({
   draftItem: {
@@ -13,10 +14,10 @@ defineProps({
 <template>
   <ItemCardReview :draft-item="draftItem">
     <template #open>
-      <MediaEditor
-        :media-item="draftItem.modified || draftItem.original!"
-        :status="draftItem.status"
-      />
+      <img
+        :src="draftItem.modified?.routePath as string"
+        :class="{ 'opacity-50': draftItem.status === DraftStatus.Deleted }"
+      >
     </template>
   </ItemCardReview>
 </template>
