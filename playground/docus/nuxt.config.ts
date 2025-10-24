@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     repository: {
       owner: 'nuxt-content',
       repo: 'studio',
-      branch: 'edit-preview',
+      branch: 'main',
       rootDir: 'playground/docus',
     },
   },
