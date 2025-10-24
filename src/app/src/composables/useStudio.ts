@@ -70,6 +70,7 @@ export const useStudio = createSharedComposable(() => {
     git,
     ui,
     context,
+    mediaTree,
   }
 })
 
