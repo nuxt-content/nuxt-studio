@@ -10,6 +10,7 @@ const { manifestId } = useStudioState()
 
 const isReloadingApp = ref(false)
 const isWaitingForDeployment = ref(true)
+const previousManifestId = ref<string>(manifestId.value)
 
 const changeCount = computed(() => {
   const queryCount = route.query.changeCount
@@ -38,7 +39,8 @@ onMounted(() => {
   const newDeployment = watch(manifestId, (newId) => {
     console.log('newDeployment', newId)
     console.log('manifestId.value', manifestId.value)
-    if (newId !== manifestId.value) {
+    if (newId !== previousManifestId.value) {
+      previousManifestId.value = newId
       isWaitingForDeployment.value = false
       newDeployment.stop()
     }

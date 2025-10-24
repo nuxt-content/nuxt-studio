@@ -7,18 +7,20 @@ const { ui, host, git } = useStudio()
 const { preferences, manifestId } = useStudioState()
 const user = host.user.get()
 
+const previousManifestId = ref<string>(manifestId.value)
 const showNewVersionAlert = ref(false)
 const isReloadingApp = ref(false)
 
 watch(manifestId, (newId) => {
   console.log('👀 Manifest ID changed')
-  console.log('📦 Previous manifest ID:', manifestId.value)
+  console.log('📦 Previous manifest ID:', previousManifestId.value)
   console.log('📦 New manifest ID:', newId)
 
-  if (manifestId.value && manifestId.value !== newId) {
-    console.log('✨ New version detected! Showing update alert')
+  if (previousManifestId.value && previousManifestId.value !== newId) {
     showNewVersionAlert.value = true
   }
+
+  previousManifestId.value = manifestId.value
 })
 
 function handleReload() {
