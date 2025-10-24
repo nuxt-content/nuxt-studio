@@ -27,6 +27,7 @@ export interface StudioHost {
     mounted: (fn: () => void) => void
     beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => void
     colorModeChange: (fn: (colorMode: 'light' | 'dark') => void) => void
+    manifestUpdate: (fn: (id: string) => void) => void
     documentUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => void
     mediaUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => void
   }
@@ -59,6 +60,7 @@ export interface StudioHost {
     get: () => StudioUser
   }
   app: {
+    getManifestId: () => Promise<string>
     requestRerender: () => void
     navigateTo: (path: string) => void
   }

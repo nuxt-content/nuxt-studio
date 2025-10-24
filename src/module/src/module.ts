@@ -76,6 +76,10 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    // Enable checkoutOutdatedBuildInterval to detect new deployments
+    nuxt.options.experimental = nuxt.options.experimental || {}
+    nuxt.options.experimental.checkOutdatedBuildInterval = 1000 * 30
+
     nuxt.options.runtimeConfig.public.contentStudio = {
       development: {
         sync: Boolean(options.development!.sync),

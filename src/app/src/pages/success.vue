@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStudio } from '../composables/useStudio'
+import { useStudioState } from '../composables/useStudioState'
 
 const route = useRoute()
 const { git } = useStudio()
+const { manifestId } = useStudioState()
 
 const isReloadingApp = ref(false)
 const isWaitingForDeployment = ref(true)
@@ -34,10 +36,13 @@ function reload() {
 onMounted(() => {
   deploymentCheckStarted.value = true
 
-  // TODO: implemented manifest detection logic
-  setTimeout(() => {
-    isWaitingForDeployment.value = false
-  }, 1000)
+  const newDeployment = watch(manifestId, (newId) => {
+    console.log('manifestUpdate', newId)
+    if (newId !== manifestId.value) {
+      isWaitingForDeployment.value = false
+      newDeployment.stop()
+    }
+  })
 })
 </script>
 

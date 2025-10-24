@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { useStudioState } from './composables/useStudioState'
 
 const { host, ui, isReady, context } = useStudio()
-const { location } = useStudioState()
+const { location, manifestId } = useStudioState()
 const router = useRouter()
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -43,12 +43,20 @@ async function open() {
   ui.open()
 }
 
-host.on.mounted(() => {
+host.on.mounted(async () => {
   detectActiveDocuments()
   host.on.routeChange(() => {
     setTimeout(() => {
       detectActiveDocuments()
     }, 100)
+  })
+
+  const id = await host.app.getManifestId()
+  console.log('manifestUpdate init', id)
+  manifestId.value = id
+  host.on.manifestUpdate((id) => {
+    console.log('manifestUpdate', id)
+    manifestId.value = id
   })
 })
 

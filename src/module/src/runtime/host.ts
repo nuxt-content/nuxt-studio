@@ -8,7 +8,7 @@ import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from
 import type { RouteLocationNormalized, Router } from 'vue-router'
 import { generateDocumentFromContent } from 'nuxt-studio/app/utils'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
-import { clearError, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
+import { clearError, getAppManifest, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
 import { collections } from '#content/preview'
 import { publicAssetsStorage } from '#build/content-studio-public-assets'
 import { useHostMeta } from './composables/useMeta'
@@ -128,6 +128,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           attributes: true,
           attributeFilter: ['class'],
         })
+      },
+      manifestUpdate: (fn: (id: string) => void) => {
+        useNuxtApp().hooks.hookOnce('app:manifest:update', meta => fn(meta!.id))
       },
       documentUpdate: (_fn: (id: string, type: 'remove' | 'update') => void) => {
         // no operation
@@ -257,6 +260,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     },
 
     app: {
+      getManifestId: async () => {
+        const manifest = await getAppManifest()
+        return manifest!.id
+      },
       requestRerender: async () => {
         if (useNuxtApp().payload.error) {
           await clearError({ redirect: `?t=${Date.now()}` })
