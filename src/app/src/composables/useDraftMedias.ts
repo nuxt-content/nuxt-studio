@@ -14,6 +14,7 @@ const hooks = useHooks()
 
 export const useDraftMedias = createSharedComposable((host: StudioHost, git: ReturnType<typeof useGit>) => {
   const {
+    isLoading,
     list,
     current,
     get,
@@ -21,8 +22,8 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     remove,
     revert,
     revertAll,
-    select,
     selectById,
+    unselect,
     load,
   } = useDraftBase('media', host, git, storage)
 
@@ -110,6 +111,9 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   }
 
   return {
+    isLoading,
+    list,
+    current,
     get,
     create,
     update: () => {},
@@ -118,11 +122,9 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     revert,
     revertAll,
     rename,
-    list,
     load,
-    current,
-    select,
     selectById,
+    unselect,
     upload,
     listAsRawFiles,
   }

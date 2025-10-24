@@ -67,7 +67,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       host.app.navigateTo(item.routePath!)
     }
     else {
-      draft.select(null)
+      draft.unselect()
     }
   }
 

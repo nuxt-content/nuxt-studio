@@ -13,12 +13,19 @@ export async function checkConflict(draftItem: DraftItem<DatabaseItem | MediaIte
     return
   }
 
+  if (draftItem.status === DraftStatus.Created && draftItem.githubFile) {
+    return {
+      githubContent: atob(draftItem.githubFile.content!),
+      localContent: await generateContentFromDocument(draftItem.modified as DatabaseItem) as string,
+    }
+  }
+
   // TODO: No GitHub file found (might have been deleted remotely)
   if (!draftItem.githubFile || !draftItem.githubFile.content) {
     return
   }
 
-  const localContent = await generateContentFromDocument(draftItem.modified as DatabaseItem) as string
+  const localContent = await generateContentFromDocument(draftItem.original as DatabaseItem) as string
   const githubContent = atob(draftItem.githubFile.content)
 
   if (localContent.trim() === githubContent.trim()) {

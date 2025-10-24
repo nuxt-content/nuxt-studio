@@ -12,6 +12,7 @@ import { useDraftBase } from './useDraftBase'
 
 export const useDraftDocuments = createSharedComposable((host: StudioHost, git: ReturnType<typeof useGit>) => {
   const {
+    isLoading,
     list,
     current,
     get,
@@ -19,8 +20,8 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     remove,
     revert,
     revertAll,
-    select,
     selectById,
+    unselect,
     load,
   } = useDraftBase<DatabaseItem>('document', host, git, storage)
 
@@ -128,6 +129,9 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
   }
 
   return {
+    isLoading,
+    list,
+    current,
     get,
     create,
     update,
@@ -136,11 +140,9 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     revertAll,
     rename,
     duplicate,
-    list,
     listAsRawFiles,
     load,
-    current,
-    select,
     selectById,
+    unselect,
   }
 })

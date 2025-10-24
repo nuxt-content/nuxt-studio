@@ -42,6 +42,7 @@ async function onFileDrop(event: DragEvent) {
 
 <template>
   <div
+    class="h-full flex flex-col"
     @drop.prevent.stop="onFileDrop"
     @dragover.prevent.stop
   >
@@ -49,63 +50,73 @@ async function onFileDrop(event: DragEvent) {
       <ItemBreadcrumb />
       <ItemActionsToolbar />
     </div>
-    <MediaEditor
-      v-if="currentTreeItem.type === 'file' && currentDraftItem"
-      :media-item="currentDraftItem.modified || currentDraftItem.original!"
-      :status="currentDraftItem.status"
-    />
-    <div
-      v-else
-      class="flex flex-col p-4"
-    >
-      <div v-if="folderTree?.length > 0 || showFolderForm">
-        <div class="flex items-center gap-1 mb-3">
-          <UIcon
-            name="i-lucide-folder"
-            class="size-3.5 text-muted"
-          />
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
-            Directories
-          </h3>
-          <UBadge
-            v-if="folderTree?.length > 0"
-            :label="folderTree.length.toString()"
-            color="neutral"
-            variant="soft"
-            size="xs"
-          />
-          <div class="flex-1 h-px bg-border ml-2" />
-        </div>
-        <ItemTree
-          class="mb-6"
-          :tree="folderTree"
-          :show-form="showFolderForm"
-          :feature="StudioFeature.Media"
+
+    <div class="flex-1 relative">
+      <div
+        v-if="context.activeTree.value.draft.isLoading.value"
+        class="absolute inset-0 bg-primary/10 animate-pulse pointer-events-none"
+      />
+
+      <template v-else>
+        <MediaEditor
+          v-if="currentTreeItem.type === 'file' && currentDraftItem"
+          :media-item="currentDraftItem.modified || currentDraftItem.original!"
+          :status="currentDraftItem.status"
         />
-      </div>
-      <div>
-        <div class="flex items-center gap-1 mb-3">
-          <UIcon
-            name="i-lucide-image"
-            class="size-3.5 text-muted"
-          />
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
-            Media
-          </h3>
-          <UBadge
-            :label="fileTree.length.toString()"
-            color="neutral"
-            variant="soft"
-            size="xs"
-          />
-          <div class="flex-1 h-px bg-border ml-2" />
+        <div
+          v-else
+          class="flex flex-col p-4"
+        >
+          <div v-if="folderTree?.length > 0 || showFolderForm">
+            <div class="flex items-center gap-1 mb-3">
+              <UIcon
+                name="i-lucide-folder"
+                class="size-3.5 text-muted"
+              />
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+                Directories
+              </h3>
+              <UBadge
+                v-if="folderTree?.length > 0"
+                :label="folderTree.length.toString()"
+                color="neutral"
+                variant="soft"
+                size="xs"
+              />
+              <div class="flex-1 h-px bg-border ml-2" />
+            </div>
+            <ItemTree
+              class="mb-6"
+              :tree="folderTree"
+              :show-form="showFolderForm"
+              :feature="StudioFeature.Media"
+            />
+          </div>
+          <div>
+            <div class="flex items-center gap-1 mb-3">
+              <UIcon
+                name="i-lucide-image"
+                class="size-3.5 text-muted"
+              />
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+                Media
+              </h3>
+              <UBadge
+                :label="fileTree.length.toString()"
+                color="neutral"
+                variant="soft"
+                size="xs"
+              />
+              <div class="flex-1 h-px bg-border ml-2" />
+            </div>
+            <ItemTree
+              :tree="fileTree"
+              :show-form="showFileForm"
+              :feature="StudioFeature.Media"
+            />
+          </div>
         </div>
-        <ItemTree
-          :tree="fileTree"
-          :show-form="showFileForm"
-          :feature="StudioFeature.Media"
-        />
-      </div>
+      </template>
     </div>
   </div>
 </template>

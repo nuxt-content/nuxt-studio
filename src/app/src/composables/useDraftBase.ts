@@ -13,6 +13,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   git: ReturnType<typeof useGit>,
   storage: Storage<DraftItem<T>>,
 ) {
+  const isLoading = ref(false)
   const list = ref<DraftItem<DatabaseItem | MediaItem>[]>([])
   const current = ref<DraftItem<DatabaseItem | MediaItem> | null>(null)
 
@@ -45,6 +46,11 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
     if (original) {
       draftItem.original = original
+    }
+
+    const conflict = await checkConflict(draftItem)
+    if (conflict) {
+      draftItem.conflict = conflict
     }
 
     await storage.setItem(item.id, draftItem)
@@ -154,29 +160,32 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     await hooks.callHook(hookName, { caller: 'useDraftBase.revertAll' })
   }
 
-  async function select(draftItem: DraftItem<T> | null) {
-    const conflict = draftItem && await checkConflict(draftItem)
-    if (conflict) {
-      draftItem.conflict = conflict
-    }
-
-    current.value = draftItem
+  async function unselect() {
+    current.value = null
   }
 
   async function selectById(id: string) {
-    const existingItem = list.value?.find(item => item.id === id) as DraftItem<T>
-    if (existingItem) {
-      select(existingItem)
-      return
-    }
+    isLoading.value = true
 
-    const dbItem = await hostDb.get(id) as T
-    if (!dbItem) {
-      throw new Error(`Cannot select item: no corresponding database entry found for id ${id}`)
-    }
+    try {
+      const existingItem = list.value?.find(item => item.id === id) as DraftItem<T>
+      if (existingItem) {
+        current.value = existingItem
+        return
+      }
 
-    const draftItem = await create(dbItem, dbItem)
-    select(draftItem)
+      const dbItem = await hostDb.get(id) as T
+      if (!dbItem) {
+        throw new Error(`Cannot select item: no corresponding database entry found for id ${id}`)
+      }
+
+      const draftItem = await create(dbItem, dbItem)
+
+      current.value = draftItem
+    }
+    finally {
+      isLoading.value = false
+    }
   }
 
   async function load() {
@@ -208,6 +217,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   }
 
   return {
+    isLoading,
     list,
     current,
     get,
@@ -215,8 +225,8 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     remove,
     revert,
     revertAll,
-    select,
     selectById,
+    unselect,
     load,
     checkConflict,
   }
