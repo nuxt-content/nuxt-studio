@@ -16,7 +16,10 @@ export const setupMonaco = createSingletonPromise(async () => {
     const styleEl = window.document.createElement('style')
     styleEl.id = 'monaco-editor-core-css'
     styleEl.media = 'screen'
-    styleEl.textContent = '/* Dummy CSS to disable modern monaco styles. TODO: drop a PR to modern-monaco */'
+    styleEl.textContent = [
+      '/* Only include font-face rules in head tag to load fonts and avoid conflicts with other styles */',
+      cssBundle.match(/@font-face{[^}]+}/)?.[0] || '',
+    ].join('\n')
     window.document.head.appendChild(styleEl)
   }
 
