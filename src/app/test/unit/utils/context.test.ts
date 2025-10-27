@@ -53,6 +53,27 @@ describe('computeItemActions', () => {
     expect(result).toEqual(expectedActions)
   })
 
+  it('should filter out actions for media root items with UPDATED status', () => {
+    const rootItem: TreeItem = {
+      id: TreeRootId.Media,
+      type: 'root',
+      name: 'media',
+      status: TreeStatus.Updated,
+    } as TreeItem
+
+    const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
+
+    const expectedActions = STUDIO_ITEM_ACTION_DEFINITIONS.filter(action =>
+      action.id !== StudioItemActionId.DeleteItem
+      && action.id !== StudioItemActionId.DuplicateItem
+      && action.id !== StudioItemActionId.RenameItem
+      && action.id !== StudioItemActionId.CreateDocumentFolder
+      && action.id !== StudioItemActionId.CreateDocument,
+    )
+
+    expect(result).toEqual(expectedActions)
+  })
+
   /**************************************************
    ******************* File items *******************
    **************************************************/

@@ -38,7 +38,7 @@ async function editContentFile(id: string) {
 }
 
 async function open() {
-  router.push(`/${location.value.feature}`)
+  await router.push(`/${location.value.feature}`)
   await context.activeTree.value.selectItemById(location.value.itemId)
   ui.open()
 }
