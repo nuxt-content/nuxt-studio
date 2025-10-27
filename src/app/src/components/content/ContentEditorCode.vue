@@ -118,6 +118,6 @@ function setContent(document: DatabasePageItem) {
 <template>
   <div
     ref="editorRef"
-    class="h-full -ml-3 py-2"
+    class="h-full -ml-3"
   />
 </template>
