@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
 
 const { ui, host, git } = useStudio()
-const { preferences, manifestId, updatePreference, unsetActiveLocation } = useStudioState()
+const { preferences, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
-
-const previousManifestId = ref<string>(manifestId.value)
-const showNewVersionAlert = ref(false)
-const isReloadingApp = ref(false)
-
-watch(manifestId, (newId) => {
-  if (previousManifestId.value && previousManifestId.value !== newId) {
-    showNewVersionAlert.value = true
-  }
-
-  previousManifestId.value = manifestId.value
-})
 
 const showTechnicalMode = computed({
   get: () => preferences.value.showTechnicalMode,
@@ -51,14 +39,6 @@ const userMenuItems = computed(() => [
     },
   }],
 ])
-
-function handleReload() {
-  isReloadingApp.value = true
-  window.location.reload()
-  setTimeout(() => {
-    isReloadingApp.value = false
-  }, 2000)
-}
 
 function closeStudio() {
   unsetActiveLocation()
@@ -97,28 +77,6 @@ function closeStudio() {
         :label="user?.name"
       />
     </UDropdownMenu>
-
-    <UTooltip
-      v-if="showNewVersionAlert"
-      text="New website version detected. Click to reload."
-    >
-      <UButton
-        label="New deployment"
-        variant="subtle"
-        color="secondary"
-        trailing-icon="i-lucide-refresh-cw"
-        size="xs"
-        :loading="isReloadingApp"
-        class="cursor-pointer"
-        @click="handleReload"
-      >
-        <template #trailing>
-          <span class="inline-flex rounded-full bg-secondary/30 p-0.5">
-            <span class="inline-flex rounded-full bg-secondary p-0.5" />
-          </span>
-        </template>
-      </UButton>
-    </UTooltip>
 
     <div class="flex items-center">
       <UTooltip

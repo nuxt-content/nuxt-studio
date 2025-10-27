@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppHeader from './AppHeader.vue'
 import AppFooter from './AppFooter.vue'
-import AppResizeHandle from './AppResizeHandle.vue'
 import { useSidebar } from '../composables/useSidebar'
 
 defineProps<{
@@ -59,6 +58,7 @@ function onLeave(el: Element, done: () => void) {
         <slot />
       </div>
 
+      <AppBanner />
       <AppFooter />
 
       <AppResizeHandle />
