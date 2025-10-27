@@ -8,7 +8,7 @@ import { useStudioState } from '../../composables/useStudioState'
 const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
-const { location } = useStudioState()
+const { setLocation } = useStudioState()
 
 const items = [
   {
@@ -27,10 +27,7 @@ const current = computed({
   get: () => route.name as string,
   set: async (name: StudioFeature) => {
     await router.push({ name })
-    location.value = {
-      feature: name,
-      itemId: context.activeTree.value.currentItem.value?.id,
-    }
+    setLocation(name, context.activeTree.value.currentItem.value?.id)
   },
 })
 </script>
