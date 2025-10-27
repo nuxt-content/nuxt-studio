@@ -59,6 +59,14 @@ async function initializeEditor() {
       modified: modified!,
       language: language.value,
       colorMode: ui.colorMode.value,
+      editorOptions: {
+        // automatically adjust the layout of the editor
+        automaticLayout: true,
+        // hide unchanged regions
+        hideUnchangedRegions: {
+          enabled: true,
+        },
+      },
     })
   }
   else if ([DraftStatus.Created, DraftStatus.Deleted].includes(props.draftItem.status)) {

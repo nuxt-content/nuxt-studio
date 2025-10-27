@@ -7,6 +7,7 @@ export interface UseMonacoDiffOptions {
   modified: string
   language: string
   colorMode?: 'light' | 'dark'
+  editorOptions?: Editor.IStandaloneDiffEditorConstructionOptions
 }
 
 export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
@@ -31,6 +32,7 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
       renderSideBySideInlineBreakpoint: 0,
       wordWrap: 'on',
       scrollBeyondLastLine: false,
+      ...options.editorOptions,
     })
 
     editor.setModel({
