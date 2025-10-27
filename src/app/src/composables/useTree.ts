@@ -9,7 +9,7 @@ import { useStudioState } from './useStudioState'
 
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
-  const { preferences, location } = useStudioState()
+  const { preferences, setLocation } = useStudioState()
 
   const tree = ref<TreeItem[]>([])
 
@@ -48,10 +48,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   async function select(item: TreeItem) {
     currentItem.value = item || rootItem.value
 
-    location.value = {
-      feature: type,
-      itemId: currentItem.value.id,
-    }
+    setLocation(type, currentItem.value.id)
 
     if (item?.type === 'file') {
       await draft.selectById(item.id)

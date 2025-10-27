@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { readonly, ref } from 'vue'
 import { useStorage, createSharedComposable } from '@vueuse/core'
 import type { StudioConfig, StudioLocation } from '../types'
 import { TreeRootId } from '../types'
@@ -9,9 +9,24 @@ export const useStudioState = createSharedComposable(() => {
   const preferences = useStorage<StudioConfig>('studio-preferences', { syncEditorAndRoute: true, showTechnicalMode: false })
   const location = useStorage<StudioLocation>('studio-active', { feature: StudioFeature.Content, itemId: TreeRootId.Content })
 
+  function setLocation(feature: StudioFeature, itemId: string) {
+    location.value = { feature, itemId }
+  }
+
+  function setManifestId(id: string) {
+    manifestId.value = id
+  }
+
+  function updatePreference<K extends keyof StudioConfig>(key: K, value: StudioConfig[K]) {
+    preferences.value = { ...preferences.value, [key]: value }
+  }
+
   return {
-    manifestId,
-    preferences,
-    location,
+    manifestId: readonly(manifestId),
+    preferences: readonly(preferences),
+    location: readonly(location),
+    setLocation,
+    setManifestId,
+    updatePreference,
   }
 })

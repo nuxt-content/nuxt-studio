@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { useStudioState } from './composables/useStudioState'
 
 const { host, ui, isReady, context } = useStudio()
-const { location, manifestId } = useStudioState()
+const { location, setManifestId } = useStudioState()
 const router = useRouter()
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -52,9 +52,9 @@ host.on.mounted(async () => {
   })
 
   const id = await host.app.getManifestId()
-  manifestId.value = id
+  setManifestId(id)
   host.on.manifestUpdate((id) => {
-    manifestId.value = id
+    setManifestId(id)
   })
 })
 

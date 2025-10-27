@@ -4,7 +4,7 @@ import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
 
 const { ui, host, git } = useStudio()
-const { preferences, manifestId } = useStudioState()
+const { preferences, manifestId, updatePreference } = useStudioState()
 const user = host.user.get()
 
 const previousManifestId = ref<string>(manifestId.value)
@@ -30,7 +30,7 @@ function handleReload() {
 const showTechnicalMode = computed({
   get: () => preferences.value.showTechnicalMode,
   set: (value) => {
-    preferences.value.showTechnicalMode = value
+    updatePreference('showTechnicalMode', value)
   },
 })
 
@@ -126,7 +126,7 @@ const userMenuItems = computed(() => [
           variant="ghost"
           :color="preferences.syncEditorAndRoute ? 'info' : 'neutral'"
           :class="!preferences.syncEditorAndRoute && 'opacity-50'"
-          @click="preferences.syncEditorAndRoute = !preferences.syncEditorAndRoute"
+          @click="updatePreference('syncEditorAndRoute', !preferences.syncEditorAndRoute)"
         />
       </UTooltip>
       <UButton
