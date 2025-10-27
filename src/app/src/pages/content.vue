@@ -37,7 +37,7 @@ const showFileForm = computed(() => {
     <div class="flex-1 relative">
       <div
         v-if="context.activeTree.value.draft.isLoading.value"
-        class="absolute inset-0 bg-primary/5 animate-pulse z-10 pointer-events-none"
+        class="absolute inset-0 bg-primary/3 animate-pulse z-10 pointer-events-none"
       />
       <template v-else>
         <ContentEditor
