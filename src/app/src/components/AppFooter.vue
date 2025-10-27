@@ -4,7 +4,7 @@ import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
 
 const { ui, host, git } = useStudio()
-const { preferences, manifestId, updatePreference } = useStudioState()
+const { preferences, manifestId, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
 
 const previousManifestId = ref<string>(manifestId.value)
@@ -19,14 +19,6 @@ watch(manifestId, (newId) => {
   previousManifestId.value = manifestId.value
 })
 
-function handleReload() {
-  isReloadingApp.value = true
-  window.location.reload()
-  setTimeout(() => {
-    isReloadingApp.value = false
-  }, 2000)
-}
-
 const showTechnicalMode = computed({
   get: () => preferences.value.showTechnicalMode,
   set: (value) => {
@@ -35,7 +27,6 @@ const showTechnicalMode = computed({
 })
 
 const repositoryUrl = computed(() => git.getBranchUrl())
-
 const userMenuItems = computed(() => [
   [
   // [{
@@ -60,6 +51,19 @@ const userMenuItems = computed(() => [
     },
   }],
 ])
+
+function handleReload() {
+  isReloadingApp.value = true
+  window.location.reload()
+  setTimeout(() => {
+    isReloadingApp.value = false
+  }, 2000)
+}
+
+function closeStudio() {
+  unsetActiveLocation()
+  ui.close()
+}
 </script>
 
 <template>
@@ -133,7 +137,7 @@ const userMenuItems = computed(() => [
         icon="i-lucide-panel-left-close"
         variant="ghost"
         color="neutral"
-        @click="ui.close()"
+        @click="closeStudio"
       />
     </div>
   </div>

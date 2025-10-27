@@ -6,6 +6,7 @@ export interface StudioConfig {
 }
 
 export interface StudioLocation {
+  active: boolean
   feature: StudioFeature
   itemId: string
 }

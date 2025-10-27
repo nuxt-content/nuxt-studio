@@ -56,6 +56,12 @@ host.on.mounted(async () => {
   host.on.manifestUpdate((id) => {
     setManifestId(id)
   })
+
+  if (location.value.active) {
+    setTimeout(async () => {
+      await open()
+    }, 100)
+  }
 })
 
 const direction = ref<'left' | 'right'>('left')

@@ -7,10 +7,14 @@ import { StudioFeature } from '../types/context'
 export const useStudioState = createSharedComposable(() => {
   const manifestId = ref<string>('')
   const preferences = useStorage<StudioConfig>('studio-preferences', { syncEditorAndRoute: true, showTechnicalMode: false })
-  const location = useStorage<StudioLocation>('studio-active', { feature: StudioFeature.Content, itemId: TreeRootId.Content })
+  const location = useStorage<StudioLocation>('studio-active', { active: false, feature: StudioFeature.Content, itemId: TreeRootId.Content })
 
   function setLocation(feature: StudioFeature, itemId: string) {
-    location.value = { feature, itemId }
+    location.value = { active: true, feature, itemId }
+  }
+
+  function unsetActiveLocation() {
+    location.value.active = false
   }
 
   function setManifestId(id: string) {
@@ -26,6 +30,7 @@ export const useStudioState = createSharedComposable(() => {
     preferences: readonly(preferences),
     location: readonly(location),
     setLocation,
+    unsetActiveLocation,
     setManifestId,
     updatePreference,
   }
