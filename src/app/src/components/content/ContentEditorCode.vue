@@ -78,8 +78,9 @@ const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
 // Trigger on action events
 watch(() => props.draftItem.status, (newStatus) => {
   if (editor.value && newStatus !== localStatus.value) {
+    const document = newStatus === DraftStatus.Deleted ? props.draftItem.original : props.draftItem.modified
     localStatus.value = newStatus
-    setContent(props.draftItem.modified as DatabasePageItem)
+    setContent(document as DatabasePageItem)
   }
 })
 
