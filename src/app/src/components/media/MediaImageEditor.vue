@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { formatBytes, getFileExtension } from '../../utils/file'
 import type { MediaItem, GithubFile } from '../../types'
 import type { PropType } from 'vue'
+import { useStudio } from '../../composables/useStudio'
+import { joinURL } from 'ufo'
 
 const props = defineProps({
   mediaItem: {
@@ -14,6 +16,8 @@ const props = defineProps({
     default: null,
   },
 })
+
+const { git } = useStudio()
 
 const imageRef = ref<HTMLImageElement | null>(null)
 const imageDimensions = ref({ width: 0, height: 0 })
@@ -55,6 +59,15 @@ const previewBackground = computed(() => {
     backgroundColor: '#f5f5f5',
   }
 })
+
+const markdownCode = computed(() => {
+  const name = props.githubFile?.name || 'image'
+  return `![${name}](${props.mediaItem.path})`
+})
+
+const githubPath = computed(() => {
+  return joinURL(git.getBranchUrl(), props.githubFile.path!)
+})
 </script>
 
 <template>
@@ -90,18 +103,29 @@ const previewBackground = computed(() => {
       v-if="githubFile?.name"
       class="p-3 rounded-lg bg-default border border-muted"
     >
-      <p class="text-xs text-muted mb-2">
-        File name
-      </p>
+      <div class="flex items-center gap-1 text-xs text-muted mb-2">
+        <UIcon
+          name="i-lucide-file"
+          class="w-3.5 h-3.5"
+        />
+        <span>File name</span>
+      </div>
       <p class="text-xs font-mono text-highlighted truncate">
         {{ githubFile.name }}
       </p>
     </div>
 
-    <div class="p-3 rounded-lg bg-default border border-muted">
-      <p class="text-xs text-muted mb-2">
-        Public path
-      </p>
+    <div class="p-3 rounded-lg bg-default border border-muted relative">
+      <div class="absolute top-3 right-3">
+        <CopyButton :content="mediaItem.path" />
+      </div>
+      <div class="flex items-center gap-1 text-xs text-muted mb-2">
+        <UIcon
+          name="i-lucide-globe"
+          class="w-3.5 h-3.5"
+        />
+        <span>Public path</span>
+      </div>
       <p class="text-xs font-mono text-highlighted truncate">
         {{ mediaItem.path }}
       </p>
@@ -109,13 +133,36 @@ const previewBackground = computed(() => {
 
     <div
       v-if="githubFile?.path"
-      class="p-3 rounded-lg bg-default border border-muted"
+      class="p-3 rounded-lg bg-default border border-muted relative"
     >
-      <p class="text-xs text-muted mb-2">
-        GitHub path
-      </p>
+      <div class="absolute top-3 right-3">
+        <CopyButton :content="githubPath" />
+      </div>
+      <div class="flex items-center gap-1 text-xs text-muted mb-2">
+        <UIcon
+          name="i-simple-icons:github"
+          class="w-3.5 h-3.5"
+        />
+        <span>GitHub path</span>
+      </div>
       <p class="text-xs font-mono text-highlighted truncate">
         {{ githubFile.path }}
+      </p>
+    </div>
+
+    <div class="p-3 rounded-lg bg-default border border-muted relative">
+      <div class="absolute top-3 right-3">
+        <CopyButton :content="markdownCode" />
+      </div>
+      <div class="flex items-center gap-1 text-xs text-muted mb-2">
+        <UIcon
+          name="i-simple-icons:markdown"
+          class="w-3.5 h-3.5"
+        />
+        <span>Markdown</span>
+      </div>
+      <p class="text-xs font-mono text-highlighted truncate">
+        {{ markdownCode }}
       </p>
     </div>
   </div>
