@@ -95,3 +95,25 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
   return Math.round((bytes / Math.pow(k, i)) * Math.pow(10, dm)) / Math.pow(10, dm) + ' ' + sizes[i]
 }
+
+export function slugifyFileName(fileName: string): string {
+  const lastDotIndex = fileName.lastIndexOf('.')
+
+  if (lastDotIndex === -1) {
+    const normalized = fileName.normalize('NFKD').replace(/[\u0300-\u036F]/g, '')
+    return slugifyString(normalized)
+  }
+
+  const name = fileName.substring(0, lastDotIndex)
+  const extension = fileName.substring(lastDotIndex + 1)
+
+  const normalized = name.normalize('NFKD').replace(/[\u0300-\u036F]/g, '')
+  const slugifiedName = slugifyString(normalized)
+
+  return `${slugifiedName}.${extension}`
+}
+
+function slugifyString(str: string): string {
+  return str.replace(/[\s_()@#$%^&*+={}';:"<>?/|`~!-]+/g, '-')
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+}

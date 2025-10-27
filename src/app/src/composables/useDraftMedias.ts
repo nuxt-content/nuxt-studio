@@ -6,7 +6,7 @@ import type { useGit } from './useGit'
 import { createSharedComposable } from '@vueuse/core'
 import { useDraftBase } from './useDraftBase'
 import { mediaStorage as storage } from '../utils/storage'
-import { getFileExtension } from '../utils/file'
+import { getFileExtension, slugifyFileName } from '../utils/file'
 import { generateStemFromFsPath } from '../utils/media'
 import { useHooks } from './useHooks'
 
@@ -35,7 +35,8 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
 
   async function fileToDraftItem(parentFsPath: string, file: File): Promise<DraftItem<MediaItem>> {
     const rawData = await fileToDataUrl(file)
-    const fsPath = parentFsPath !== '/' ? joinURL(parentFsPath, file.name) : file.name
+    const slugifiedFileName = slugifyFileName(file.name)
+    const fsPath = parentFsPath !== '/' ? joinURL(parentFsPath, slugifiedFileName) : slugifiedFileName
 
     return {
       id: joinURL(TreeRootId.Media, fsPath),
