@@ -59,7 +59,7 @@ function retry() {
 
       <UAlert
         icon="i-lucide-alert-triangle"
-        title="GitHub API Error"
+        title="Error during GitHub publish"
         :description="errorMessage"
         color="error"
         variant="soft"

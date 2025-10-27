@@ -99,6 +99,10 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
   async function listAsRawFiles(): Promise<RawFile[]> {
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
+      if (draftItem.status === DraftStatus.Pristine) {
+        continue
+      }
+
       if (draftItem.status === DraftStatus.Deleted) {
         files.push({ path: joinURL('public', draftItem.fsPath), content: null, status: draftItem.status, encoding: 'base64' })
         continue
