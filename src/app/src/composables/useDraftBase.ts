@@ -213,7 +213,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       }
     }))
 
-    await hooks.callHook(hookName, { caller: 'useDraftBase.load' })
+    await hooks.callHook(hookName, { caller: 'useDraftBase.load', selectItem: false })
   }
 
   return {
