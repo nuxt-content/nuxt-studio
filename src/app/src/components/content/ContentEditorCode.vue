@@ -84,6 +84,21 @@ watch(() => props.draftItem.status, (newStatus) => {
   }
 })
 
+watch(() => props.readOnly, (newReadOnly) => {
+  if (editor.value) {
+    editor.value.updateOptions({
+      readOnly: newReadOnly,
+      scrollbar: newReadOnly
+        ? {
+            vertical: 'hidden',
+            horizontal: 'hidden',
+            handleMouseWheel: false,
+          }
+        : undefined,
+    })
+  }
+})
+
 // Trigger on document changes
 watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
   if (document.value?.body) {
