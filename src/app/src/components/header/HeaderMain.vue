@@ -27,7 +27,14 @@ const current = computed({
   get: () => route.name as string,
   set: async (name: StudioFeature) => {
     await router.push({ name })
-    setLocation(name, context.activeTree.value.currentItem.value?.id)
+
+    const currentItem = context.activeTree.value.currentItem.value
+    setLocation(name, currentItem?.id)
+
+    // Ensure root item status is up to date when navigating by selecting computed
+    if (currentItem.type === 'root') {
+      await context.activeTree.value.select(context.activeTree.value.rootItem.value)
+    }
   },
 })
 </script>

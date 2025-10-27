@@ -34,7 +34,7 @@ export const useStudio = createSharedComposable(() => {
   }
 
   const git = studioFlags.dev ? useDevelopmentGit(gitOptions) : useGit(gitOptions)
-  const { preferences } = useStudioState()
+  const { preferences, setManifestId } = useStudioState()
   const ui = useUI(host)
   const draftDocuments = useDraftDocuments(host, git)
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
@@ -61,6 +61,12 @@ export const useStudio = createSharedComposable(() => {
 
         await documentTree.selectByRoute(to)
       }
+    })
+
+    const id = await host.app.getManifestId()
+    setManifestId(id)
+    host.on.manifestUpdate((id) => {
+      setManifestId(id)
     })
   })
 

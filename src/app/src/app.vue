@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { useStudioState } from './composables/useStudioState'
 
 const { host, ui, isReady, context } = useStudio()
-const { location, setManifestId } = useStudioState()
+const { location } = useStudioState()
 const router = useRouter()
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -21,8 +21,8 @@ watch(ui.sidebar.sidebarWidth, () => {
     host.ui.updateStyles()
   }
 })
-const activeDocuments = ref<{ id: string, title: string }[]>([])
 
+const activeDocuments = ref<{ id: string, title: string }[]>([])
 function detectActiveDocuments() {
   activeDocuments.value = host.document.detectActives().map((content) => {
     return {
@@ -49,12 +49,6 @@ host.on.mounted(async () => {
     setTimeout(() => {
       detectActiveDocuments()
     }, 100)
-  })
-
-  const id = await host.app.getManifestId()
-  setManifestId(id)
-  host.on.manifestUpdate((id) => {
-    setManifestId(id)
   })
 
   if (location.value.active) {
