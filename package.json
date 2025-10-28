@@ -69,6 +69,7 @@
     "modern-monaco": "^0.2.2",
     "nuxt-studio": "workspace:*",
     "ofetch": "^1.4.1",
+    "tailwindcss": "^4.1.16",
     "vite": "^7.1.12",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-libcss": "^1.1.2",
