@@ -42,19 +42,33 @@
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
   },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.71",
+    "@nuxtjs/mdc": "0.18.0",
+    "defu": "^6.1.4",
+    "destr": "^2.0.5",
+    "unstorage": "^1.17.1"
+  },
   "devDependencies": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@2d21c02",
-    "@nuxt/eslint-config": "latest",
+    "@iconify-json/simple-icons": "^1.2.56",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@dd854d5",
+    "@nuxt/eslint-config": "^1.9.0",
     "@nuxt/kit": "^4.2.0",
-    "@nuxt/module-builder": "latest",
+    "@nuxt/module-builder": "^1.0.2",
     "@nuxt/ui": "^4.1.0",
     "@octokit/types": "^15.0.1",
-    "@tailwindcss/typography": "latest",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/js-yaml": "^4.0.9",
+    "@unhead/vue": "^2.0.19",
+    "@unpic/vue": "^1.0.0",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vueuse/core": "^13.9.0",
     "eslint": "^9.38.0",
+    "idb-keyval": "^6.2.2",
+    "minimark": "^0.2.0",
     "modern-monaco": "^0.2.2",
     "nuxt-studio": "workspace:*",
+    "ofetch": "^1.4.1",
     "vite": "^7.1.12",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-libcss": "^1.1.2",
@@ -65,24 +79,9 @@
     "zod": "^4.1.12"
   },
   "resolutions": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@2d21c02"
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@dd854d5"
   },
   "packageManager": "pnpm@10.19.0",
-  "dependencies": {
-    "@iconify-json/simple-icons": "^1.2.55",
-    "@nuxtjs/mdc": "0.18.0",
-    "@nuxtlabs/monarch-mdc": "^0.8.1",
-    "@unhead/vue": "^2.0.19",
-    "@unpic/vue": "^1.0.0",
-    "@vueuse/core": "^13.9.0",
-    "defu": "^6.1.4",
-    "destr": "^2.0.5",
-    "idb-keyval": "^6.2.2",
-    "js-yaml": "^4.1.0",
-    "minimark": "^0.2.0",
-    "ofetch": "^1.4.1",
-    "unstorage": "^1.17.1"
-  },
   "keywords": [
     "nuxt",
     "content",
