@@ -6,6 +6,7 @@ import fsDriver from 'unstorage/drivers/fs'
 import { createStorage } from 'unstorage'
 import type { ViteDevServer } from 'vite'
 import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
+import { version } from '../../../package.json'
 
 interface ModuleOptions {
   /**
@@ -77,6 +78,8 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-studio',
     configKey: 'studio',
+    version,
+    docs: 'https://content.nuxt.com/studio'
   },
   defaults: {
     route: '/_studio',
