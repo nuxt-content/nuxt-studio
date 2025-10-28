@@ -13,30 +13,62 @@ interface ModuleOptions {
    * @default '/_studio'
    */
   route?: string
-  development?: {
-    sync?: boolean
-  }
+
+  /**
+   * The authentication settings for studio.
+   */
   auth?: {
+    /**
+     * The GitHub OAuth credentials.
+     */
     github?: {
-      clientId: string
-      clientSecret: string
+      /**
+       * The GitHub OAuth client ID.
+       * @default process.env.STUDIO_GITHUB_CLIENT_ID
+       */
+      clientId?: string
+      /**
+       * The GitHub OAuth client secret.
+       * @default process.env.STUDIO_GITHUB_CLIENT_SECRET
+       */
+      clientSecret?: string
     }
   }
+  /**
+   * The git repository information to connect to.
+   */
   repository?: {
     /**
+     * The provider to use for the git repository.
      * @default 'github'
      */
     provider?: 'github'
+    /**
+     * The owner of the git repository.
+     */
     owner: string
+    /**
+     * The repository name.
+     */
     repo: string
     /**
+     * The branch to use for the git repository.
      * @default 'main'
      */
     branch?: string
     /**
+     * The root directory to use for the git repository.
      * @default ''
      */
     rootDir?: string
+  }
+  /**
+   * Enable Nuxt Studio to edit content and media files on your filesystem.
+   * Currently experimental.
+   * @experimental
+   */
+  development?: {
+    sync?: boolean
   }
 }
 
@@ -47,6 +79,20 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: 'studio',
   },
   defaults: {
+    route: '/_studio',
+    repository: {
+      provider: 'github',
+      owner: '',
+      repo: '',
+      branch: 'main',
+      rootDir: '',
+    },
+    auth: {
+      github: {
+        clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
+        clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
+      },
+    },
     development: {
       sync: false,
     },
@@ -54,20 +100,6 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
-    options = defu(options, {
-      route: '/_studio',
-      repository: {
-        provider: 'github',
-        branch: 'main',
-        rootDir: '',
-      },
-      auth: {
-        github: {
-          clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
-          clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
-        },
-      },
-    }) as ModuleOptions
 
     if (!nuxt.options.dev) {
       options.development!.sync = false
@@ -145,11 +177,11 @@ export default defineNuxtModule<ModuleOptions>({
         },
       }
       addServerHandler({
-        route: '/__nuxt_content/studio/dev/content/**',
+        route: '/__nuxt_studio/dev/content/**',
         handler: runtime('./server/routes/dev/content/[...path]'),
       })
       addServerHandler({
-        route: '/__nuxt_content/studio/dev/public/**',
+        route: '/__nuxt_studio/dev/public/**',
         handler: runtime('./server/routes/dev/public/[...path]'),
       })
 
@@ -175,31 +207,31 @@ export default defineNuxtModule<ModuleOptions>({
       }),
     })
     addTemplate({
-      filename: 'content-studio-public-assets.mjs',
+      filename: 'studio-public-assets.mjs',
       getContents: () => options.development!.sync
         ? getAssetsStorageDevTemplate(assetsStorage, nuxt)
         : getAssetsStorageTemplate(assetsStorage, nuxt),
     })
 
     addServerHandler({
-      route: '/__nuxt_content/studio/auth/github',
+      route: '/__nuxt_studio/auth/github',
       handler: runtime('./server/routes/auth/github.get'),
     })
     addServerHandler({
-      route: '/__nuxt_content/studio/auth/session',
+      route: '/__nuxt_studio/auth/session',
       handler: runtime('./server/routes/auth/session.get'),
     })
     addServerHandler({
       method: 'delete',
-      route: '/__nuxt_content/studio/auth/session',
+      route: '/__nuxt_studio/auth/session',
       handler: runtime('./server/routes/auth/session.delete'),
     })
     addServerHandler({ route: options.route as string, handler: runtime('./server/routes/admin') })
     // Register meta route for studio
-    addServerHandler({ route: '/__nuxt_content/studio/meta', handler: runtime('./server/routes/meta') })
+    addServerHandler({ route: '/__nuxt_studio/meta', handler: runtime('./server/routes/meta') })
     addServerHandler({ route: '/sw.js', handler: runtime('./server/routes/sw') })
     // addServerHandler({
-    //   route: '/__nuxt_content/studio/auth/google',
+    //   route: '/__nuxt_studio/auth/google',
     //   handler: runtime('./server/routes/auth/google.get'),
     // })
   },

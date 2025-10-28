@@ -8,7 +8,7 @@ import { removeReservedKeysFromDocument } from 'nuxt-studio/app/utils'
 import { useStorage } from '#imports'
 
 export default eventHandler(async (event) => {
-  const path = event.path.replace('/__nuxt_content/studio/dev/content/', '')
+  const path = event.path.replace('/__nuxt_studio/dev/content/', '')
   const key = path.replace(/\//g, ':').replace(/^content:/, '')
   const storage = useStorage('nuxt_studio_content')
 

@@ -5,7 +5,7 @@ import type { Storage, StorageMeta } from 'unstorage'
 import { useStorage } from '#imports'
 
 export default eventHandler(async (event) => {
-  const path = event.path.replace('/__nuxt_content/studio/dev/public/', '')
+  const path = event.path.replace('/__nuxt_studio/dev/public/', '')
   const key = path.replace(/\//g, ':').replace(/^public-assets:/, '')
   const storage = useStorage('nuxt_studio_public_assets') as Storage
 
@@ -46,7 +46,7 @@ export default eventHandler(async (event) => {
     else {
       const value = await readRawBody(event, 'utf8')
       const json = JSON.parse(value || '{}')
-      
+
       const data = json.raw.split(';base64,')[1]
       await storage.setItemRaw(key, Buffer.from(data, 'base64'))
     }

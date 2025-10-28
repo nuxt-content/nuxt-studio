@@ -6,7 +6,7 @@ export async function getAssetsStorageDevTemplate(_assetsStorage: Storage, _nuxt
     'import { createStorage } from \'unstorage\'',
     'import httpDriver from \'unstorage/drivers/http\'',
     '',
-    `const storage = createStorage({ driver: httpDriver({ base: '/__nuxt_content/studio/dev/public' }) })`,
+    `const storage = createStorage({ driver: httpDriver({ base: '/__nuxt_studio/dev/public' }) })`,
     'export const publicAssetsStorage = storage',
   ].join('\n')
 }

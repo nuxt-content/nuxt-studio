@@ -10,7 +10,7 @@ import { generateDocumentFromContent } from 'nuxt-studio/app/utils'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
 import { clearError, getAppManifest, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections } from '#imports'
 import { collections } from '#content/preview'
-import { publicAssetsStorage } from '#build/content-studio-public-assets'
+import { publicAssetsStorage } from '#build/studio-public-assets'
 import { useHostMeta } from './composables/useMeta'
 
 function getSidebarWidth(): number {

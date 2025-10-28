@@ -193,7 +193,7 @@ export default eventHandler(async (event: H3Event) => {
 
   // Success
   const session = await useSession(event, {
-    name: 'content-studio-session',
+    name: 'studio-session',
     password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
   })
 

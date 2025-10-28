@@ -2,10 +2,10 @@ import { getAppManifest, useState, useRuntimeConfig } from '#imports'
 import type { StudioUser } from 'nuxt-studio/app'
 
 export async function defineStudioActivationPlugin(onStudioActivation: (user: StudioUser) => Promise<void>) {
-  const user = useState<StudioUser | null>('content-studio-session', () => null)
+  const user = useState<StudioUser | null>('studio-session', () => null)
   const config = useRuntimeConfig().public.studio
 
-  await $fetch<{ user: StudioUser }>('/__nuxt_content/studio/auth/session').then((session) => {
+  await $fetch<{ user: StudioUser }>('/__nuxt_studio/auth/session').then((session) => {
     user.value = session?.user ?? null
   })
 

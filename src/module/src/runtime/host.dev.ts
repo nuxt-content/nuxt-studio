@@ -19,7 +19,7 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
   host.meta.dev = true
 
   const devStorage = createStorage({
-    driver: httpDriver({ base: '/__nuxt_content/studio/dev/content' }),
+    driver: httpDriver({ base: '/__nuxt_studio/dev/content' }),
   })
 
   host.app.requestRerender = () => {

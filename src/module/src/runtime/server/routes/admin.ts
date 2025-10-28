@@ -10,9 +10,9 @@ export default eventHandler(() => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
       (function () {
-        var storageListenerKey = 'content-studio-auth-popup'
+        var storageListenerKey = 'studio-auth-popup'
         function navigateToGitHub() {
-          window.location.assign('/__nuxt_content/studio/auth/github')
+          window.location.assign('/__nuxt_studio/auth/github')
         }
 
         function notifyOpenerAndClose() {

@@ -15,7 +15,7 @@ interface NuxtComponentMeta {
 
 export default eventHandler(async (event) => {
   const session = await useSession(event, {
-    name: 'content-studio-session',
+    name: 'studio-session',
     password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
   })
 

@@ -33,7 +33,7 @@ const userMenuItems = computed(() => [
     label: 'Sign out',
     icon: 'i-lucide-log-out',
     onClick: () => {
-      fetch('/__nuxt_content/studio/auth/session', { method: 'delete' }).then(() => {
+      fetch('/__nuxt_studio/auth/session', { method: 'delete' }).then(() => {
         document.location.reload()
       })
     },
