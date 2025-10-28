@@ -1,9 +1,9 @@
 export default defineNuxtConfig({
   extends: ['docus'],
   modules: [
-    'nuxt-studio',
     '@nuxt/ui',
     '@nuxt/content',
+    'nuxt-studio',
   ],
   devtools: { enabled: true },
   content: {
@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2025-08-26',
-  contentStudio: {
+  studio: {
     repository: {
       owner: 'nuxt-content',
       repo: 'studio',

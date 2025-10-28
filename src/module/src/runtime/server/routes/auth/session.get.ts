@@ -4,7 +4,7 @@ import { useRuntimeConfig } from '#imports'
 export default eventHandler(async (event) => {
   const session = await useSession(event, {
     name: 'content-studio-session',
-    password: useRuntimeConfig(event).contentStudio?.auth?.sessionSecret,
+    password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
   })
 
   return {

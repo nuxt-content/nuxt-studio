@@ -80,7 +80,7 @@ interface RequestAccessTokenOptions {
 }
 
 export default eventHandler(async (event: H3Event) => {
-  const config = defu(useRuntimeConfig(event).contentStudio?.auth?.github, {
+  const config = defu(useRuntimeConfig(event).studio?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
     authorizationURL: 'https://github.com/login/oauth/authorize',
@@ -194,7 +194,7 @@ export default eventHandler(async (event: H3Event) => {
   // Success
   const session = await useSession(event, {
     name: 'content-studio-session',
-    password: useRuntimeConfig(event).contentStudio?.auth?.sessionSecret,
+    password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
   })
 
   await session.update(defu({

@@ -8,6 +8,11 @@ import type { ViteDevServer } from 'vite'
 import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
 
 interface ModuleOptions {
+  /**
+   * The route to access the studio login page.
+   * @default '/_studio'
+   */
+  route?: string
   development?: {
     sync?: boolean
   }
@@ -39,7 +44,7 @@ const logger = useLogger('nuxt-studio')
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-studio',
-    configKey: 'contentStudio',
+    configKey: 'studio',
   },
   defaults: {
     development: {
@@ -50,6 +55,7 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
     options = defu(options, {
+      route: '/_studio',
       repository: {
         provider: 'github',
         branch: 'main',
@@ -80,7 +86,8 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.experimental = nuxt.options.experimental || {}
     nuxt.options.experimental.checkOutdatedBuildInterval = 1000 * 30
 
-    nuxt.options.runtimeConfig.public.contentStudio = {
+    nuxt.options.runtimeConfig.public.studio = {
+      route: options.route!,
       development: {
         sync: Boolean(options.development!.sync),
         server: process.env.STUDIO_DEV_SERVER,
@@ -89,7 +96,7 @@ export default defineNuxtModule<ModuleOptions>({
       repository: options.repository,
     }
 
-    nuxt.options.runtimeConfig.contentStudio = {
+    nuxt.options.runtimeConfig.studio = {
       auth: {
         sessionSecret: createHash('md5').update([
           options.auth?.github?.clientId,
@@ -187,7 +194,7 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/__nuxt_content/studio/auth/session',
       handler: runtime('./server/routes/auth/session.delete'),
     })
-    addServerHandler({ route: '/__nuxt_content/studio', handler: runtime('./server/routes/admin') })
+    addServerHandler({ route: options.route as string, handler: runtime('./server/routes/admin') })
     // Register meta route for studio
     addServerHandler({ route: '/__nuxt_content/studio/meta', handler: runtime('./server/routes/meta') })
     addServerHandler({ route: '/sw.js', handler: runtime('./server/routes/sw') })

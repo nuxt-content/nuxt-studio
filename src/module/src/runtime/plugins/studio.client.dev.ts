@@ -16,10 +16,10 @@ export default defineNuxtPlugin(() => {
 
     // Initialize host
     const host = await import('../host.dev').then(m => m.useStudioHost);
-    (window as unknown as { useStudioHost: UseStudioHost }).useStudioHost = () => host(user, config.public.contentStudio.repository as unknown as Repository)
+    (window as unknown as { useStudioHost: UseStudioHost }).useStudioHost = () => host(user, config.public.studio.repository as unknown as Repository)
 
     const el = document.createElement('script')
-    el.src = `${config.public.contentStudio?.development?.server}/src/main.ts`
+    el.src = `${config.public.studio?.development?.server}/src/main.ts`
     el.type = 'module'
     document.body.appendChild(el)
 

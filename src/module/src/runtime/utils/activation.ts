@@ -1,8 +1,9 @@
-import { getAppManifest, useState } from '#imports'
+import { getAppManifest, useState, useRuntimeConfig } from '#imports'
 import type { StudioUser } from 'nuxt-studio/app'
 
 export async function defineStudioActivationPlugin(onStudioActivation: (user: StudioUser) => Promise<void>) {
   const user = useState<StudioUser | null>('content-studio-session', () => null)
+  const config = useRuntimeConfig().public.studio
 
   await $fetch<{ user: StudioUser }>('/__nuxt_content/studio/auth/session').then((session) => {
     user.value = session?.user ?? null
@@ -24,7 +25,7 @@ export async function defineStudioActivationPlugin(onStudioActivation: (user: St
     // Listen to CMD + . to toggle the studio or redirect to the login page
     document.addEventListener('keydown', (event) => {
       if (event.metaKey && event.key === '.') {
-        window.location.href = '/__nuxt_content/studio'
+        window.location.href = config.route
       }
     })
   }
