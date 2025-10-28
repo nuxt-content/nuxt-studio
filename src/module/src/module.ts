@@ -79,7 +79,7 @@ export default defineNuxtModule<ModuleOptions>({
     name: 'nuxt-studio',
     configKey: 'studio',
     version,
-    docs: 'https://content.nuxt.com/studio'
+    docs: 'https://content.nuxt.com/studio',
   },
   defaults: {
     route: '/_studio',
