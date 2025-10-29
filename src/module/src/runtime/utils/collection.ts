@@ -72,20 +72,21 @@ export function getCollectionSource(id: string, collection: CollectionInfo) {
   return matchedSource
 }
 
-export function getFsPath(id: string, source: CollectionInfo['source'][0]) {
+export function generateFsPathFromId(id: string, source: CollectionInfo['source'][0]) {
   const [_, ...rest] = id.split(/[/:]/)
   const path = rest.join('/')
 
   const { fixed } = parseSourceBase(source)
 
-  return join(fixed, path)
+  const pathWithoutFixed = path.substring(fixed.length)
+  return join(fixed, pathWithoutFixed)
 }
 
 export function getCollectionInfo(id: string, collections: Record<string, CollectionInfo>) {
   const collection = getCollection(id.split(/[/:]/)[0]!, collections)
   const source = getCollectionSource(id, collection)
 
-  const fsPath = getFsPath(id, source!)
+  const fsPath = generateFsPathFromId(id, source!)
 
   return {
     collection,
