@@ -100,3 +100,62 @@ export const nestedDbItemsList: (DatabaseItem & { fsPath: string })[] = [
     __hash__: 'EXAMPLE_HASH_FOR_ADVANCED',
   },
 ]
+
+export const languagePrefixedDbItemsList: (DatabaseItem & { fsPath: string })[] = [
+  {
+    id: 'landing_en/en/index.md',
+    title: '',
+    description: '',
+    extension: 'md',
+    meta: {},
+    navigation: true,
+    path: '/en',
+    seo: {
+      title: 'Write beautiful docs with Markdown',
+      description: 'Ship fast, flexible, and SEO-optimized documentation with beautiful design out of the box. Docus brings together the best of the Nuxt ecosystem. Powered by Nuxt UI.',
+    },
+    stem: 'en/index',
+    __hash__: 'BxOHluwGJlv20AmP_1_rJpaQGU9M2op7_lgbEag-cGQ',
+    fsPath: 'en/index.md',
+  },
+  {
+    id: 'docs_en/en/1.getting-started/2.introduction.md',
+    title: 'Introduction',
+    body: { type: 'minimark', value: [] },
+    description: 'Welcome to Docus theme documentation.',
+    extension: 'md',
+    links: null,
+    meta: {},
+    navigation: {
+      icon: 'i-lucide-house',
+    },
+    path: '/en/getting-started/introduction',
+    seo: {
+      title: 'Introduction',
+      description: 'Discover how to create, manage, and publish documentation effortlessly with Docus.',
+    },
+    stem: 'en/1.getting-started/2.introduction',
+    __hash__: '1qEHmeHop1z0_uM95iH2NGHdd1vQN1Z7TVntMd7T9t0',
+    fsPath: 'en/1.getting-started/2.introduction.md',
+  },
+  {
+    id: 'docs_en/en/1.getting-started/3.installation.md',
+    title: 'Installation',
+    body: { type: 'minimark', value: [] },
+    description: 'Get started with Docus.',
+    extension: 'md',
+    links: null,
+    meta: {},
+    navigation: {
+      icon: 'i-lucide-download',
+    },
+    path: '/en/getting-started/installation',
+    seo: {
+      description: 'Get started with Docus documentation theme.',
+      title: 'Installation',
+    },
+    stem: 'en/1.getting-started/3.installation',
+    __hash__: 'TRjVoVTW0M-RLnWMVSJx8rkuxElTCVibSwgu4QbOLJ0',
+    fsPath: 'en/1.getting-started/3.installation.md',
+  },
+]

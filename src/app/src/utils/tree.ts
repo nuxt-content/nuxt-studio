@@ -6,7 +6,6 @@ import {
   type DraftItem,
   type TreeItem,
 } from '../types'
-import { withLeadingSlash } from 'ufo'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { BaseItem } from '../types/item'
 import { isEqual } from './database'
@@ -69,11 +68,6 @@ TreeItem[] {
     const directorySegments = fsPathSegments.slice(0, -1)
     let fileName = fsPathSegments[fsPathSegments.length - 1].replace(/\.[^/.]+$/, '')
 
-    let routePathSegments: string[] | undefined
-    if (itemHasPathField) {
-      routePathSegments = (dbItem.path as string).split('/').slice(0, -1).filter(Boolean)
-    }
-
     /*****************
     Generate root file
     ******************/
@@ -109,18 +103,15 @@ TreeItem[] {
     /*****************
     Generate directory
     ******************/
+    // Directory id do not start with collection prefix since files from different collections can be part of the same directory
     function dirIdBuilder(index: number) {
-      const idSegments = dbItem.id.split('/')
+      const idSegments = dbItem.id.split('/').slice(1)
       const stemVsIdGap = idSegments.length - fsPathSegments.length
       return idSegments.slice(0, index + stemVsIdGap + 1).join('/')
     }
 
     function dirFsPathBuilder(index: number) {
       return directorySegments.slice(0, index + 1).join('/')
-    }
-
-    function dirRoutePathBuilder(index: number) {
-      return withLeadingSlash(routePathSegments!.slice(0, index + 1).join('/'))
     }
 
     let directoryChildren = tree
@@ -139,10 +130,6 @@ TreeItem[] {
           type: 'directory',
           children: [],
           prefix: dirPrefix,
-        }
-
-        if (itemHasPathField) {
-          directory.routePath = dirRoutePathBuilder(i)
         }
 
         directoryMap.set(dirId, directory)
@@ -282,20 +269,26 @@ export function findDescendantsFileItemsFromId(tree: TreeItem[], id: string): Tr
 
   function traverse(items: TreeItem[]) {
     for (const item of items) {
-      // Check if this item matches the id or is a descendant of it
-      if (item.id === id || item.id.startsWith(id + '/')) {
-        if (item.type === 'file') {
+      // File type
+      if (item.type === 'file') {
+        const itemIdWithoutCollectionPrefix = item.id.split('/').slice(1).join('/')
+        const isExactItem = item.id === id
+        // Descendants means id without collection prefix starts with the parent id
+        const isDescendant = itemIdWithoutCollectionPrefix.startsWith(id + '/')
+        if (isExactItem || isDescendant) {
           descendants.push(item)
         }
-
-        // If this item has children, add all of them as descendants
-        if (item.children) {
-          getAllDescendants(item.children, descendants)
-        }
       }
-      else if (item.children) {
-        // Continue searching in children
-        traverse(item.children)
+      // Directory type
+      else {
+        // Directory found, add all children as descendants
+        if (item.id === id) {
+          getAllDescendants(item.children!, descendants)
+        }
+        // Keep browsing children
+        else if (item.children) {
+          traverse(item.children)
+        }
       }
     }
   }

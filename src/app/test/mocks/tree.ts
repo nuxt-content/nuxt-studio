@@ -9,7 +9,7 @@ export const tree: TreeItem[] = [
     routePath: '/',
   },
   {
-    id: 'docs/1.getting-started',
+    id: '1.getting-started',
     name: 'getting-started',
     fsPath: 'getting-started',
     type: 'directory',
@@ -29,7 +29,7 @@ export const tree: TreeItem[] = [
         routePath: '/getting-started/installation',
       },
       {
-        id: 'docs/1.getting-started/1.advanced',
+        id: '1.getting-started/1.advanced',
         name: 'advanced',
         fsPath: '1.getting-started/1.advanced',
         type: 'directory',

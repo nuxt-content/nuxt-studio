@@ -76,7 +76,15 @@ export function findDescendantsFromId(list: DraftItem[], id: string): DraftItem[
 
   const descendants: DraftItem[] = []
   for (const item of list) {
-    if (item.id === id || item.id.startsWith(id + '/')) {
+    // Only file type are stored in the draft list, if id is exact match, return the file
+    if (item.id === id) {
+      return [item]
+    }
+
+    // Else the parent is a directory, add we need to browse the list and find all descendants
+    // Descendants means id without collection prefix starts with the parent id
+    const idWithoutCollectionPrefix = item.id.split('/').slice(1).join('/') || item.id
+    if (idWithoutCollectionPrefix.startsWith(id + '/')) {
       descendants.push(item)
     }
   }

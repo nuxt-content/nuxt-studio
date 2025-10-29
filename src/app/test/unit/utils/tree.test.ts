@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { buildTree, findParentFromId, findItemFromRoute, findItemFromId, findDescendantsFileItemsFromId, getTreeStatus } from '../../../src/utils/tree'
 import { tree } from '../../../test/mocks/tree'
 import type { TreeItem } from '../../../src/types/tree'
-import { dbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
+import { dbItemsList, languagePrefixedDbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
 import type { DraftItem } from '../../../src/types/draft'
 import type { MediaItem } from '../../../src/types'
 import { DraftStatus, TreeRootId, TreeStatus } from '../../../src/types'
@@ -22,10 +22,9 @@ describe('buildTree of documents with one level of depth', () => {
       prefix: null,
     },
     {
-      id: 'docs/1.getting-started',
+      id: '1.getting-started',
       name: 'getting-started',
       fsPath: '1.getting-started',
-      routePath: '/getting-started',
       type: 'directory',
       prefix: 1,
       children: [
@@ -310,10 +309,9 @@ describe('buildTree of documents with one level of depth', () => {
 describe('buildTree of documents with two levels of depth', () => {
   const result: TreeItem[] = [
     {
-      id: 'docs/1.essentials',
+      id: '1.essentials',
       name: 'essentials',
       fsPath: '1.essentials',
-      routePath: '/essentials',
       type: 'directory',
       prefix: 1,
       children: [
@@ -326,10 +324,9 @@ describe('buildTree of documents with two levels of depth', () => {
           prefix: 2,
         },
         {
-          id: 'docs/1.essentials/1.nested',
+          id: '1.essentials/1.nested',
           name: 'nested',
           fsPath: '1.essentials/1.nested',
-          routePath: '/essentials/nested',
           type: 'directory',
           prefix: 1,
           children: [
@@ -460,7 +457,59 @@ describe('buildTree of documents with two levels of depth', () => {
   })
 })
 
-describe('buildTree od medias', () => {
+describe('buildTree of documents with language prefixed', () => {
+  const result: TreeItem[] = [
+    {
+      id: 'en',
+      name: 'en',
+      fsPath: 'en',
+      type: 'directory',
+      prefix: null,
+      children: [
+        {
+          id: 'landing_en/en/index.md',
+          name: 'index',
+          fsPath: 'en/index.md',
+          prefix: null,
+          type: 'file',
+          routePath: '/en',
+        },
+        {
+          id: 'en/1.getting-started',
+          name: 'getting-started',
+          fsPath: 'en/1.getting-started',
+          type: 'directory',
+          prefix: 1,
+          children: [
+            {
+              id: 'docs_en/en/1.getting-started/2.introduction.md',
+              name: 'introduction',
+              fsPath: 'en/1.getting-started/2.introduction.md',
+              type: 'file',
+              routePath: '/en/getting-started/introduction',
+              prefix: 2,
+            },
+            {
+              id: 'docs_en/en/1.getting-started/3.installation.md',
+              name: 'installation',
+              fsPath: 'en/1.getting-started/3.installation.md',
+              type: 'file',
+              routePath: '/en/getting-started/installation',
+              prefix: 3,
+            },
+          ],
+        },
+      ],
+    },
+  ]
+
+  it('Without draft', () => {
+    const tree = buildTree(languagePrefixedDbItemsList, null)
+    expect(tree).toStrictEqual(result)
+  })
+})
+
+describe('buildTree of medias', () => {
   it('With .gitkeep file in directory (file is marked as hidden)', () => {
     const mediaFolderName = 'media-folder'
     const gitKeepId = joinURL(TreeRootId.Media, mediaFolderName, '.gitkeep')
@@ -493,7 +542,7 @@ describe('buildTree od medias', () => {
     const tree = buildTree([gitkeepDbItem, mediaDbItem], draftList)
 
     expect(tree).toHaveLength(1)
-    expect(tree[0]).toHaveProperty('id', joinURL(TreeRootId.Media, mediaFolderName))
+    expect(tree[0]).toHaveProperty('id', mediaFolderName)
     expect(tree[0].children).toHaveLength(2)
 
     const gitkeepFile = tree[0].children!.find(item => item.id === gitKeepId)
@@ -566,13 +615,13 @@ describe('findParentFromId', () => {
   it('should find direct parent of a child', () => {
     const parent = findParentFromId(tree, 'docs/1.getting-started/2.introduction.md')
     expect(parent).toBeDefined()
-    expect(parent?.id).toBe('docs/1.getting-started')
+    expect(parent?.id).toBe('1.getting-started')
   })
 
   it('should find nested parent', () => {
     const parent = findParentFromId(tree, 'docs/1.getting-started/1.advanced/1.studio.md')
     expect(parent).toBeDefined()
-    expect(parent?.id).toBe('docs/1.getting-started/1.advanced')
+    expect(parent?.id).toBe('1.getting-started/1.advanced')
   })
 
   it('should return null for root level items', () => {
@@ -649,9 +698,9 @@ describe('findItemFromId', () => {
   })
 
   it('should find directory by id', () => {
-    const item = findItemFromId(tree, 'docs/1.getting-started')
+    const item = findItemFromId(tree, '1.getting-started')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('docs/1.getting-started')
+    expect(item?.id).toBe('1.getting-started')
     expect(item?.name).toBe('getting-started')
     expect(item?.type).toBe('directory')
     expect(item?.children).toBeDefined()
@@ -666,9 +715,9 @@ describe('findItemFromId', () => {
   })
 
   it('should find nested directory by id', () => {
-    const item = findItemFromId(tree, 'docs/1.getting-started/1.advanced')
+    const item = findItemFromId(tree, '1.getting-started/1.advanced')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('docs/1.getting-started/1.advanced')
+    expect(item?.id).toBe('1.getting-started/1.advanced')
     expect(item?.name).toBe('advanced')
     expect(item?.type).toBe('directory')
   })
@@ -707,7 +756,7 @@ describe('findDescendantsFileItemsFromId', () => {
   })
 
   it('returns all descendants files for directory id', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, 'docs/1.getting-started')
+    const descendants = findDescendantsFileItemsFromId(tree, '1.getting-started')
 
     expect(descendants).toHaveLength(3)
 
@@ -717,7 +766,7 @@ describe('findDescendantsFileItemsFromId', () => {
   })
 
   it('returns all descendants files for nested directory id', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, 'docs/1.getting-started/1.advanced')
+    const descendants = findDescendantsFileItemsFromId(tree, '1.getting-started/1.advanced')
 
     expect(descendants).toHaveLength(1)
 
