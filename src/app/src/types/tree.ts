@@ -12,13 +12,13 @@ export enum TreeStatus {
 }
 
 export interface TreeItem {
-  id: string
   name: string
-  fsPath: string
+  fsPath: string // can be used as id
   type: 'file' | 'directory' | 'root'
+  prefix: number | null
+  collections: string[]
   status?: TreeStatus
   routePath?: string
   children?: TreeItem[]
-  prefix?: number | null
   hide?: boolean
 }

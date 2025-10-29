@@ -117,7 +117,7 @@ const githubPath = computed(() => {
 
     <div class="p-3 rounded-lg bg-default border border-muted relative">
       <div class="absolute top-3 right-3">
-        <CopyButton :content="mediaItem.path" />
+        <CopyButton :content="mediaItem.path!" />
       </div>
       <div class="flex items-center gap-1 text-xs text-muted mb-2">
         <UIcon

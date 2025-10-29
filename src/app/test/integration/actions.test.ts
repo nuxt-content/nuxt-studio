@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { joinURL } from 'ufo'
-import { DraftStatus, StudioItemActionId, TreeRootId, StudioFeature, type StudioHost } from '../../src/types'
+import { DraftStatus, StudioItemActionId, TreeRootId, StudioFeature, type StudioHost, type TreeItem } from '../../src/types'
 import { normalizeKey, generateUniqueDocumentId, generateUniqueMediaId, generateUniqueMediaName } from '../utils'
 import { createMockHost, clearMockHost } from '../mocks/host'
 import { createMockGit } from '../mocks/git'
@@ -8,7 +8,7 @@ import { createMockFile, createMockMedia, setupMediaMocks } from '../mocks/media
 import { createMockDocument } from '../mocks/document'
 import { createMockStorage } from '../mocks/composables'
 import type { useGit } from '../../src/composables/useGit'
-import { findItemFromId } from '../../src/utils/tree'
+import { findItemFromFsPath } from '../../src/utils/tree'
 
 const mockStorageDraft = createMockStorage()
 const mockHost = createMockHost()
@@ -72,12 +72,18 @@ const cleanAndSetupContext = async (mockedHost: StudioHost, mockedGit: ReturnTyp
 }
 
 describe('Document - Action Chains Integration Tests', () => {
+  let filename: string
   let documentId: string
+  let documentFsPath: string
+  let collection: string
   let context: Awaited<ReturnType<typeof cleanAndSetupContext>>
 
   beforeEach(async () => {
     currentRouteName = 'content'
-    documentId = generateUniqueDocumentId()
+    collection = 'docs'
+    filename = 'document'
+    documentId = generateUniqueDocumentId(filename, collection)
+    documentFsPath = mockHost.document.getFileSystemPath(documentId)
     context = await cleanAndSetupContext(mockHost, mockGit)
   })
 
@@ -85,9 +91,8 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     /* STEP 1: CREATE */
-    const fsPath = mockHost.document.getFileSystemPath(documentId)
     await context.itemActionHandler[StudioItemActionId.CreateDocument]({
-      fsPath,
+      fsPath: documentFsPath,
       content: 'Test content',
     })
 
@@ -110,10 +115,8 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value[0].original).toBeUndefined()
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('id', documentId)
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('status', DraftStatus.Created)
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     /* STEP 2: REVERT */
     await context.itemActionHandler[StudioItemActionId.RevertItem](context.activeTree.value.currentItem.value)
@@ -125,7 +128,6 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value).toHaveLength(0)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('type', 'root')
     expect(context.activeTree.value.root.value).toHaveLength(0)
 
     // Hooks
@@ -137,19 +139,21 @@ describe('Document - Action Chains Integration Tests', () => {
   it('Create > Rename', async () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
     /* STEP 1: CREATE */
-    const fsPath = mockHost.document.getFileSystemPath(documentId)
     await context.itemActionHandler[StudioItemActionId.CreateDocument]({
-      fsPath,
+      fsPath: documentFsPath,
       content: 'Test content',
     })
 
     /* STEP 2: RENAME */
     const newId = generateUniqueDocumentId()
     const newFsPath = mockHost.document.getFileSystemPath(newId)
-    const draftItem = context.activeTree.value.draft.list.value[0]
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
       newFsPath,
+      item: {
+        type: 'file',
+        fsPath: documentFsPath,
+        collections: [collection],
+      } as TreeItem,
     })
 
     // Draft in Storage
@@ -169,9 +173,7 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(list[0].modified).toHaveProperty('id', newId)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('type', 'root')
-    expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
     expect(context.activeTree.value.root.value[0]).toHaveProperty('status', DraftStatus.Created)
 
     // Hooks
@@ -184,9 +186,8 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     /* STEP 1: CREATE */
-    const fsPath = mockHost.document.getFileSystemPath(documentId)
     await context.itemActionHandler[StudioItemActionId.CreateDocument]({
-      fsPath,
+      fsPath: documentFsPath,
       content: 'Test content',
     })
 
@@ -216,9 +217,8 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('id', updatedDocument.id)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('id', documentId)
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     /* STEP 3: REVERT */
     await context.itemActionHandler[StudioItemActionId.RevertItem](context.activeTree.value.currentItem.value)
@@ -230,7 +230,6 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value).toHaveLength(0)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('type', 'root')
     expect(context.activeTree.value.root.value).toHaveLength(0)
 
     // Hooks
@@ -243,12 +242,11 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    const documentFsPath = mockHost.document.getFileSystemPath(documentId)
     await mockHost.document.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
-    await context.activeTree.value.selectItemById(documentId)
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
 
     // Storage
     expect(mockStorageDraft.size).toEqual(1)
@@ -266,9 +264,8 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('id', documentId)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('id', documentId)
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     /* STEP 2: UPDATE */
     const updatedDocument = createMockDocument(documentId, {
@@ -294,9 +291,8 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('id', documentId)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('id', documentId)
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.root.value[0].status).toEqual('updated')
 
     /* STEP 3: REVERT */
@@ -316,9 +312,8 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('id', documentId)
 
     // Tree
-    expect(context.activeTree.value.currentItem.value).toHaveProperty('id', documentId)
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -332,12 +327,11 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    const documentFsPath = mockHost.document.getFileSystemPath(documentId)
     await mockHost.document.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
-    await context.activeTree.value.selectItemById(documentId)
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
 
     /* STEP 2: UPDATE */
     const updatedDocument = createMockDocument(documentId, {
@@ -351,9 +345,12 @@ describe('Document - Action Chains Integration Tests', () => {
     /* STEP 3: RENAME */
     const newId = generateUniqueDocumentId()
     const newFsPath = mockHost.document.getFileSystemPath(newId)
-    const draftItem = context.activeTree.value.draft.list.value.find(d => d.id === documentId)!
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
+      item: {
+        type: 'file',
+        fsPath: documentFsPath,
+        collections: [collection],
+      } as TreeItem,
       newFsPath,
     })
 
@@ -392,7 +389,7 @@ describe('Document - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -406,19 +403,21 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    const documentFsPath = mockHost.document.getFileSystemPath(documentId)
     await mockHost.document.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
-    await context.activeTree.value.selectItemById(documentId)
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
 
     /* STEP 2: RENAME */
     const newId = generateUniqueDocumentId()
     const newFsPath = mockHost.document.getFileSystemPath(newId)
-    const draftItem = context.activeTree.value.draft.list.value[0]
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
+      item: {
+        type: 'file',
+        fsPath: documentFsPath,
+        collections: [collection],
+      } as TreeItem,
       newFsPath,
     })
 
@@ -457,7 +456,7 @@ describe('Document - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
 
     /* STEP 3: UPDATE */
     const updatedDocument = createMockDocument(newId, {
@@ -504,7 +503,7 @@ describe('Document - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
@@ -519,25 +518,27 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    const documentFsPath = mockHost.document.getFileSystemPath(documentId)
     await mockHost.document.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
-    await context.activeTree.value.selectItemById(documentId)
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
 
     /* STEP 2: RENAME */
     const newId = generateUniqueDocumentId()
     const newFsPath = mockHost.document.getFileSystemPath(newId)
-    const draftItem = context.activeTree.value.draft.list.value[0]
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
+      item: {
+        type: 'file',
+        fsPath: documentFsPath,
+        collections: [collection],
+      } as TreeItem,
       newFsPath,
     })
 
     /* STEP 3: REVERT */
     const renamedTreeItem = context.activeTree.value.root.value[0]
-    expect(renamedTreeItem).toHaveProperty('id', newId)
+    expect(renamedTreeItem).toHaveProperty('fsPath', newFsPath)
 
     await context.itemActionHandler[StudioItemActionId.RevertItem](renamedTreeItem)
 
@@ -559,7 +560,7 @@ describe('Document - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -573,28 +574,33 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    const documentFsPath = mockHost.document.getFileSystemPath(documentId)
     await mockHost.document.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
-    await context.activeTree.value.selectItemById(documentId)
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
 
     /* STEP 2: RENAME */
     const newId = generateUniqueDocumentId()
     const newFsPath = mockHost.document.getFileSystemPath(newId)
-    let draftItem = context.activeTree.value.draft.list.value[0]
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
+      item: {
+        type: 'file',
+        fsPath: documentFsPath,
+        collections: [collection],
+      } as TreeItem,
       newFsPath,
     })
 
     /* STEP 3: RENAME */
     const newId2 = generateUniqueDocumentId()
     const newFsPath2 = mockHost.document.getFileSystemPath(newId2)
-    draftItem = context.activeTree.value.draft.list.value.find(d => d.id === newId)!
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
+      item: {
+        type: 'file',
+        fsPath: newFsPath,
+        collections: [collection],
+      } as TreeItem,
       newFsPath: newFsPath2,
     })
 
@@ -634,7 +640,7 @@ describe('Document - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId2)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath2)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -649,6 +655,7 @@ describe('Media - Action Chains Integration Tests', () => {
   let context: Awaited<ReturnType<typeof cleanAndSetupContext>>
   let mediaName: string
   let mediaId: string
+  let mediaFsPath: string
   const parentPath = '/'
 
   beforeEach(async () => {
@@ -657,6 +664,7 @@ describe('Media - Action Chains Integration Tests', () => {
     currentRouteName = 'media'
     mediaName = generateUniqueMediaName()
     mediaId = joinURL(TreeRootId.Media, mediaName)
+    mediaFsPath = mockHost.media.getFileSystemPath(mediaId)
     context = await cleanAndSetupContext(mockHost, mockGit)
   })
 
@@ -688,7 +696,7 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', mediaId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     /* STEP 2: REVERT */
     const mediaTreeItem = context.activeTree.value.root.value[0]
@@ -722,9 +730,12 @@ describe('Media - Action Chains Integration Tests', () => {
     /* STEP 2: RENAME */
     const newId = generateUniqueMediaId()
     const newFsPath = mockHost.media.getFileSystemPath(newId)
-    const draftItem = context.activeTree.value.draft.list.value[0]
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: draftItem.id,
+      item: {
+        type: 'file',
+        fsPath: mediaFsPath,
+        collections: [TreeRootId.Media],
+      } as TreeItem,
       newFsPath,
     })
 
@@ -746,7 +757,7 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
     expect(context.activeTree.value.root.value[0]).toHaveProperty('status', DraftStatus.Created)
 
     // Hooks
@@ -763,7 +774,7 @@ describe('Media - Action Chains Integration Tests', () => {
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
-    await context.activeTree.value.selectItemById(mediaId)
+    await context.activeTree.value.selectItemByFsPath(mediaFsPath)
 
     // Storage
     expect(mockStorageDraft.size).toEqual(1)
@@ -783,10 +794,10 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', mediaId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     /* STEP 2: DELETE */
-    const itemTreeToDelete = findItemFromId(context.activeTree.value.root.value, mediaId)
+    const itemTreeToDelete = findItemFromFsPath(context.activeTree.value.root.value, mediaFsPath)
     await context.itemActionHandler[StudioItemActionId.DeleteItem](itemTreeToDelete!)
 
     // Storage
@@ -807,7 +818,7 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', mediaId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     /* STEP 3: REVERT */
     const mediaTreeItem = context.activeTree.value.root.value[0]
@@ -831,7 +842,7 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', mediaId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -849,12 +860,16 @@ describe('Media - Action Chains Integration Tests', () => {
     await context.activeTree.value.draft.load()
 
     /* STEP 1: RENAME */
-    await context.activeTree.value.selectItemById(mediaId)
+    await context.activeTree.value.selectItemByFsPath(mediaFsPath)
 
     const newId = generateUniqueMediaId()
     const newFsPath = mockHost.media.getFileSystemPath(newId)
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: mediaId,
+      item: {
+        type: 'file',
+        fsPath: mediaFsPath,
+        collections: [TreeRootId.Media],
+      } as TreeItem,
       newFsPath,
     })
 
@@ -894,11 +909,11 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
 
     /* STEP 2: REVERT */
     const renamedTreeItem = context.activeTree.value.root.value[0]
-    expect(renamedTreeItem).toHaveProperty('id', newId)
+    expect(renamedTreeItem).toHaveProperty('fsPath', newFsPath)
     await context.itemActionHandler[StudioItemActionId.RevertItem](renamedTreeItem)
 
     // Storage
@@ -919,7 +934,7 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', mediaId)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -937,21 +952,28 @@ describe('Media - Action Chains Integration Tests', () => {
     await context.activeTree.value.draft.load()
 
     /* STEP 1: RENAME */
-    await context.activeTree.value.selectItemById(mediaId)
+    await context.activeTree.value.selectItemByFsPath(mediaFsPath)
 
     const newId = generateUniqueMediaId()
     const newFsPath = mockHost.media.getFileSystemPath(newId)
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: mediaId,
       newFsPath,
+      item: {
+        type: 'file',
+        fsPath: mediaFsPath,
+        collections: [TreeRootId.Media],
+      } as TreeItem,
     })
 
     /* STEP 2: RENAME */
     const newId2 = generateUniqueMediaId()
     const newFsPath2 = mockHost.media.getFileSystemPath(newId2)
-    const renamedDraftItem = context.activeTree.value.draft.list.value.find(d => d.id === newId)!
     await context.itemActionHandler[StudioItemActionId.RenameItem]({
-      id: renamedDraftItem.id,
+      item: {
+        type: 'file',
+        fsPath: newFsPath,
+        collections: [TreeRootId.Media],
+      } as TreeItem,
       newFsPath: newFsPath2,
     })
 
@@ -992,7 +1014,7 @@ describe('Media - Action Chains Integration Tests', () => {
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
-    expect(context.activeTree.value.root.value[0]).toHaveProperty('id', newId2)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath2)
 
     // Hooks
     expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
@@ -1007,6 +1029,7 @@ describe('Media - Action Chains Integration Tests', () => {
     const folderName = 'media-folder'
     const folderPath = `/${folderName}`
     const gitkeepId = joinURL(TreeRootId.Media, folderPath, '.gitkeep')
+    const gitkeepFsPath = mockHost.media.getFileSystemPath(gitkeepId)
 
     /* STEP 1: CREATE FOLDER */
     await context.itemActionHandler[StudioItemActionId.CreateMediaFolder]({
@@ -1035,12 +1058,13 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(rootTree[0]).toHaveProperty('type', 'directory')
     expect(rootTree[0]).toHaveProperty('name', folderName)
     expect(rootTree[0].children).toHaveLength(1)
-    expect(rootTree[0].children![0]).toHaveProperty('id', gitkeepId)
+    expect(rootTree[0].children![0]).toHaveProperty('fsPath', gitkeepFsPath)
     expect(rootTree[0].children![0]).toHaveProperty('hide', true)
 
     /* STEP 2: UPLOAD MEDIA IN FOLDER */
     const file = createMockFile(mediaName)
     const uploadedMediaId = joinURL(TreeRootId.Media, folderPath, mediaName)
+    const uploadedMediaFsPath = mockHost.media.getFileSystemPath(uploadedMediaId)
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
       parentFsPath: folderPath,
       files: [file],
@@ -1068,10 +1092,10 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(rootTree[0]).toHaveProperty('type', 'directory')
     expect(rootTree[0]).toHaveProperty('name', folderName)
     expect(rootTree[0].children).toHaveLength(1)
-    expect(rootTree[0].children![0]).toHaveProperty('id', uploadedMediaId)
+    expect(rootTree[0].children![0]).toHaveProperty('fsPath', uploadedMediaFsPath)
 
     /* STEP 3: REVERT UPLOADED MEDIA */
-    const uploadedMediaTreeItem = context.activeTree.value.root.value[0].children!.find(item => item.id === uploadedMediaId)!
+    const uploadedMediaTreeItem = context.activeTree.value.root.value[0].children!.find(item => item.fsPath === uploadedMediaFsPath)!
     await context.itemActionHandler[StudioItemActionId.RevertItem](uploadedMediaTreeItem!)
 
     // Storage

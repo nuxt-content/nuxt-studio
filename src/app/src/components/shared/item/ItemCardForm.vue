@@ -72,7 +72,7 @@ const schema = computed(() => z.object({
 
   const isDuplicate = siblings.some((sibling) => {
     const siblingBaseName = sibling.fsPath.split('/').pop()
-    if (props.renamedItem && sibling.id === props.renamedItem.id) {
+    if (props.renamedItem && sibling.fsPath === props.renamedItem.fsPath) {
       return false
     }
     return siblingBaseName === fullName.value
@@ -204,7 +204,7 @@ async function onSubmit() {
     case StudioItemActionId.RenameItem:
       params = {
         newFsPath: newFsPath,
-        id: props.renamedItem.id,
+        item: props.renamedItem,
       }
       break
     case StudioItemActionId.CreateDocumentFolder:
@@ -307,7 +307,7 @@ async function onSubmit() {
                       <span />
                     </template>
                     <USelect
-                      v-model="state.extension"
+                      v-model="state.extension as string"
                       :items="config.allowed"
                       :disabled="!config.editable || isLoading"
                       variant="soft"
@@ -324,7 +324,7 @@ async function onSubmit() {
                 </UTooltip>
               </div>
 
-              <div class="flex-shrink-0 flex gap-1">
+              <div class="shrink-0 flex gap-1">
                 <UButton
                   color="neutral"
                   variant="ghost"

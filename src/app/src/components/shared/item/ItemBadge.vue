@@ -13,7 +13,7 @@ defineProps({
 
 <template>
   <UBadge
-    :color="COLOR_UI_STATUS_MAP[status]"
+    :color="COLOR_UI_STATUS_MAP[status] as never"
     :label="status"
     variant="soft"
     size="sm"

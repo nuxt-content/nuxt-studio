@@ -14,10 +14,12 @@ describe('computeItemActions', () => {
    **************************************************/
   it('should filter out actions for content root items', () => {
     const rootItem: TreeItem = {
-      id: TreeRootId.Content,
       type: 'root',
       name: 'content',
-    } as TreeItem
+      fsPath: '/',
+      prefix: null,
+      collections: [TreeRootId.Content],
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
 
@@ -34,10 +36,12 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for media root items', () => {
     const rootItem: TreeItem = {
-      id: TreeRootId.Media,
       type: 'root',
       name: 'media',
-    } as TreeItem
+      fsPath: '/',
+      prefix: null,
+      collections: [TreeRootId.Media],
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
 
@@ -55,11 +59,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for media root items with UPDATED status', () => {
     const rootItem: TreeItem = {
-      id: TreeRootId.Media,
       type: 'root',
       name: 'media',
+      fsPath: '/',
+      prefix: null,
       status: TreeStatus.Updated,
-    } as TreeItem
+      collections: [TreeRootId.Media],
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
 
@@ -79,10 +85,12 @@ describe('computeItemActions', () => {
    **************************************************/
   it('should filter out actions for content file items without draft status', () => {
     const fileItem: TreeItem = {
-      id: 'docs/test.md',
       type: 'file',
       name: 'test.md',
-    } as TreeItem
+      fsPath: 'test.md',
+      prefix: null,
+      collections: [TreeRootId.Content],
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
@@ -98,11 +106,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content file items with draft OPENED status', () => {
     const fileItem: TreeItem = {
-      id: 'docs/test.md',
       type: 'file',
       name: 'test.md',
+      fsPath: 'test.md',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Opened,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
@@ -118,11 +128,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content file items with draft UPDATED status', () => {
     const fileItem: TreeItem = {
-      id: 'docs/test.md',
       type: 'file',
       name: 'test.md',
+      fsPath: 'test.md',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Updated,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
@@ -137,11 +149,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content file items with draft CREATED status', () => {
     const fileItem: TreeItem = {
-      id: 'docs/test.md',
       type: 'file',
       name: 'test.md',
+      fsPath: 'test.md',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Created,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
@@ -156,11 +170,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content file items with draft DELETED status', () => {
     const fileItem: TreeItem = {
-      id: 'docs/test.md',
       type: 'file',
       name: 'test.md',
+      fsPath: 'test.md',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Deleted,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
@@ -178,11 +194,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content file items with draft RENAMED status', () => {
     const fileItem: TreeItem = {
-      id: 'docs/test.md',
       type: 'file',
       name: 'test.md',
+      fsPath: 'test.md',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Renamed,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
 
@@ -201,10 +219,12 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content directory items without draft status', () => {
     const directoryItem: TreeItem = {
-      id: 'docs/folder',
       type: 'directory',
       name: 'folder',
-    } as TreeItem
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Content],
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
@@ -220,11 +240,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content directory items with draft OPENED status', () => {
     const directoryItem: TreeItem = {
-      id: 'docs/folder',
       type: 'directory',
       name: 'folder',
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Opened,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
@@ -239,11 +261,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content directory items with draft UPDATED status', () => {
     const directoryItem: TreeItem = {
-      id: 'docs/folder',
       type: 'directory',
       name: 'folder',
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Updated,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
@@ -257,11 +281,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content directory items with draft CREATED status', () => {
     const directoryItem: TreeItem = {
-      id: 'docs/folder',
       type: 'directory',
       name: 'folder',
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Created,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
@@ -275,11 +301,13 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content directory items with draft DELETED status', () => {
     const directoryItem: TreeItem = {
-      id: 'docs/folder',
       type: 'directory',
       name: 'folder',
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Deleted,
-    } as TreeItem
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 
@@ -295,9 +323,11 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for content directory items with draft RENAMED status', () => {
     const directoryItem: TreeItem = {
-      id: 'docs/folder',
       type: 'directory',
       name: 'folder',
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Content],
       status: TreeStatus.Renamed,
     } as TreeItem
 
@@ -313,9 +343,12 @@ describe('computeItemActions', () => {
 
   it('should filter out actions for media directory items', () => {
     const directoryItem: TreeItem = {
-      id: `${TreeRootId.Media}/folder`,
       type: 'directory',
-    } as TreeItem
+      name: 'folder',
+      fsPath: 'folder',
+      prefix: null,
+      collections: [TreeRootId.Media],
+    }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
 

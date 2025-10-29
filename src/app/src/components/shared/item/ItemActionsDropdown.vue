@@ -72,7 +72,7 @@ const actions = computed<DropdownMenuItem[]>(() => {
         if (!isOneStepAction) {
           if (props.item.type === 'directory' && [StudioItemActionId.CreateDocument, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder].includes(action.id)) {
             // Navigate into folder before adding form creation
-            context.activeTree.value.selectItemById(props.item.id)
+            context.activeTree.value.selectItemByFsPath(props.item.fsPath)
           }
 
           action.handler!(props.item)

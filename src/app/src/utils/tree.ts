@@ -11,6 +11,7 @@ import type { BaseItem } from '../types/item'
 import { isEqual } from './database'
 import { studioFlags } from '../composables/useStudio'
 import { getFileExtension, parseName } from './file'
+import { joinURL } from 'ufo'
 
 export const COLOR_STATUS_MAP: { [key in TreeStatus]?: string } = {
   [TreeStatus.Created]: 'green',
@@ -74,13 +75,12 @@ TreeItem[] {
     if (directorySegments.length === 0) {
       const { name, prefix } = parseName(fileName)
       fileName = name === 'index' ? 'home' : name
-
       const fileItem: TreeItem = {
-        id: dbItem.id,
         name: fileName,
         fsPath: dbItem.fsPath,
         type: 'file',
         prefix,
+        collections: [dbItem.id.split('/')[0]],
       }
 
       if (dbItem.fsPath.endsWith('.gitkeep')) {
@@ -103,13 +103,6 @@ TreeItem[] {
     /*****************
     Generate directory
     ******************/
-    // Directory id do not start with collection prefix since files from different collections can be part of the same directory
-    function dirIdBuilder(index: number) {
-      const idSegments = dbItem.id.split('/').slice(1)
-      const stemVsIdGap = idSegments.length - fsPathSegments.length
-      return idSegments.slice(0, index + stemVsIdGap + 1).join('/')
-    }
-
     function dirFsPathBuilder(index: number) {
       return directorySegments.slice(0, index + 1).join('/')
     }
@@ -117,25 +110,30 @@ TreeItem[] {
     let directoryChildren = tree
     for (let i = 0; i < directorySegments.length; i++) {
       const { name: dirName, prefix: dirPrefix } = parseName(directorySegments[i])
-      const dirId = dirIdBuilder(i)
       const dirFsPath = dirFsPathBuilder(i)
 
       // Only create directory if it doesn't exist
-      let directory = directoryMap.get(dirId)
+      let directory = directoryMap.get(dirFsPath)
       if (!directory) {
         directory = {
-          id: dirId,
           name: dirName,
           fsPath: dirFsPath,
           type: 'directory',
           children: [],
           prefix: dirPrefix,
+          collections: [dbItem.id.split('/')[0]],
         }
 
-        directoryMap.set(dirId, directory)
+        directoryMap.set(dirFsPath, directory)
 
-        if (!directoryChildren.find(child => child.id === dirId)) {
+        if (!directoryChildren.find(child => child.fsPath === dirFsPath)) {
           directoryChildren.push(directory)
+        }
+      }
+      else {
+        const collection = dbItem.id.split('/')[0]
+        if (!directory.collections.includes(collection)) {
+          directory.collections.push(collection)
         }
       }
 
@@ -147,11 +145,11 @@ TreeItem[] {
     ******************************************/
     const { name, prefix } = parseName(fileName)
     const fileItem: TreeItem = {
-      id: dbItem.id,
       name,
       fsPath: dbItem.fsPath,
       type: 'file',
       prefix,
+      collections: [dbItem.id.split('/')[0]],
     }
 
     if (dbItem.fsPath.endsWith('.gitkeep')) {
@@ -173,6 +171,10 @@ TreeItem[] {
   calculateDirectoryStatuses(tree)
 
   return tree
+}
+
+export function generateIdFromFsPath(fsPath: string, collectionName: string): string {
+  return joinURL(collectionName, fsPath)
 }
 
 export function getTreeStatus(modified?: BaseItem, original?: BaseItem): TreeStatus {
@@ -210,14 +212,14 @@ export function getTreeStatus(modified?: BaseItem, original?: BaseItem): TreeSta
   return TreeStatus.Opened
 }
 
-export function findItemFromId(tree: TreeItem[], id: string): TreeItem | null {
+export function findItemFromFsPath(tree: TreeItem[], fsPath: string): TreeItem | null {
   for (const item of tree) {
-    if (item.id === id) {
+    if (item.fsPath === fsPath) {
       return item
     }
 
     if (item.children) {
-      const foundInChildren = findItemFromId(item.children, id)
+      const foundInChildren = findItemFromFsPath(item.children, fsPath)
       if (foundInChildren) {
         return foundInChildren
       }
@@ -227,16 +229,16 @@ export function findItemFromId(tree: TreeItem[], id: string): TreeItem | null {
   return null
 }
 
-export function findParentFromId(tree: TreeItem[], id: string): TreeItem | null {
+export function findParentFromFsPath(tree: TreeItem[], fsPath: string): TreeItem | null {
   for (const item of tree) {
     if (item.children) {
       for (const child of item.children) {
-        if (child.id === id) {
+        if (child.fsPath === fsPath) {
           return item
         }
       }
 
-      const foundParent = findParentFromId(item.children, id)
+      const foundParent = findParentFromFsPath(item.children, fsPath)
       if (foundParent) {
         return foundParent
       }
@@ -264,17 +266,15 @@ export function findItemFromRoute(tree: TreeItem[], route: RouteLocationNormaliz
   return null
 }
 
-export function findDescendantsFileItemsFromId(tree: TreeItem[], id: string): TreeItem[] {
+export function findDescendantsFileItemsFromFsPath(tree: TreeItem[], fsPath: string): TreeItem[] {
   const descendants: TreeItem[] = []
 
   function traverse(items: TreeItem[]) {
     for (const item of items) {
       // File type
       if (item.type === 'file') {
-        const itemIdWithoutCollectionPrefix = item.id.split('/').slice(1).join('/')
-        const isExactItem = item.id === id
-        // Descendants means id without collection prefix starts with the parent id
-        const isDescendant = itemIdWithoutCollectionPrefix.startsWith(id + '/')
+        const isExactItem = item.fsPath === fsPath
+        const isDescendant = item.fsPath.startsWith(fsPath + '/')
         if (isExactItem || isDescendant) {
           descendants.push(item)
         }
@@ -282,7 +282,7 @@ export function findDescendantsFileItemsFromId(tree: TreeItem[], id: string): Tr
       // Directory type
       else {
         // Directory found, add all children as descendants
-        if (item.id === id) {
+        if (item.fsPath === fsPath) {
           getAllDescendants(item.children!, descendants)
         }
         // Keep browsing children

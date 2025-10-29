@@ -18,7 +18,7 @@ describe('findDescendantsFromId', () => {
   })
 
   it('returns all descendants files for a directory path', () => {
-    const descendants = findDescendantsFromId(draftItemsList, '1.getting-started')
+    const descendants = findDescendantsFromId(draftItemsList, 'docs/1.getting-started')
 
     expect(descendants).toHaveLength(5)
 
@@ -30,7 +30,7 @@ describe('findDescendantsFromId', () => {
   })
 
   it('returns all descendants for a nested directory path', () => {
-    const descendants = findDescendantsFromId(draftItemsList, '1.getting-started/1.advanced')
+    const descendants = findDescendantsFromId(draftItemsList, 'docs/1.getting-started/1.advanced')
 
     expect(descendants).toHaveLength(2)
 

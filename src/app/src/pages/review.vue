@@ -71,7 +71,7 @@ const statusConfig = {
               <span class="text-xs font-semibold">{{ statusConfig[status].label }}</span>
               <UBadge
                 :label="drafts.length.toString()"
-                :color="statusConfig[status].color"
+                :color="statusConfig[status].color as never"
                 variant="soft"
                 size="xs"
               />

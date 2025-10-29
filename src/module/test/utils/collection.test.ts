@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getCollectionByFilePath, generateIdFromFsPath, generateFsPathFromId } from '../../src/runtime/utils/collection'
+import { getCollectionByFilePath, generateFsPathFromId } from '../../src/runtime/utils/collection'
 import type { CollectionInfo, ResolvedCollectionSource } from '@nuxt/content'
 import { collections } from '../mocks/collection'
 
@@ -41,51 +41,6 @@ describe('getCollectionByFilePath', () => {
 
     expect(result).toBeUndefined()
   })
-})
-
-describe('generateIdFromFsPath', () => {
-  it('should generate ID using collection name and prefix from landing collection', () => {
-    const result = generateIdFromFsPath('index.md', collections.landing!)
-    expect(result).toBe('landing/index.md')
-  })
-
-  it('should generate ID using collection name and prefix from docs collection', () => {
-    const result = generateIdFromFsPath('1.getting-started/2.introduction.md', collections.docs!)
-    expect(result).toBe('docs/1.getting-started/2.introduction.md')
-  })
-
-  it('should handle collection with empty prefix', () => {
-    const mockCollection: CollectionInfo = {
-      ...collections.docs as CollectionInfo,
-      name: 'test',
-      source: [{
-        ...collections.docs!.source[0] as ResolvedCollectionSource,
-        prefix: '',
-      }],
-    }
-    const result = generateIdFromFsPath('content/test.md', mockCollection)
-    expect(result).toBe('test/content/test.md')
-  })
-
-  // TODO handle multiple sources
-  // it('should use the appropriate source when collection has multiple sources', () => {
-  //   const mockCollection: CollectionInfo = {
-  //     ...collections.docs,
-  //     name: 'multi-source',
-  //     source: [
-  //       {
-  //         ...collections.docs.source[0],
-  //         prefix: '/first',
-  //       },
-  //       {
-  //         ...collections.docs.source[0],
-  //         prefix: '/second',
-  //       },
-  //     ],
-  //   }
-  //   const result = generateIdFromFsPath(mockCollection, 'content/test.md')
-  //   expect(result).toBe('multi-source/first/content/test.md')
-  // })
 })
 
 describe('generateFsPathFromId', () => {

@@ -1,11 +1,12 @@
-import { StudioFeature, TreeStatus, type StudioHost, type TreeItem, DraftStatus, TreeRootId } from '../types'
+import { StudioFeature, TreeStatus, type StudioHost, type TreeItem, DraftStatus } from '../types'
 import { ref, computed } from 'vue'
 import type { useDraftDocuments } from './useDraftDocuments'
 import type { useDraftMedias } from './useDraftMedias'
-import { buildTree, findItemFromId, findItemFromRoute, findParentFromId } from '../utils/tree'
+import { buildTree, findItemFromFsPath, findItemFromRoute, findParentFromFsPath, generateIdFromFsPath } from '../utils/tree'
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
 import { useStudioState } from './useStudioState'
+import { TreeRootId } from '../types/tree'
 
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
@@ -16,27 +17,28 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   const rootItem = computed<TreeItem>(() => {
     const draftedTreeItems = draft.list.value.filter(draft => draft.status !== DraftStatus.Pristine)
     return {
-      id: type === StudioFeature.Content ? TreeRootId.Content : TreeRootId.Media,
       name: type === StudioFeature.Content ? 'content' : 'public',
       type: 'root',
       fsPath: '/',
       children: tree.value,
       status: draftedTreeItems.length > 0 ? TreeStatus.Updated : null,
+      collections: [type === StudioFeature.Content ? TreeRootId.Content : TreeRootId.Media],
+      prefix: null,
     } as TreeItem
   })
 
   const currentItem = ref<TreeItem>(rootItem.value)
 
   const currentTree = computed<TreeItem[]>(() => {
-    if (currentItem.value.id === rootItem.value.id) {
+    if (currentItem.value.type === 'root') {
       return tree.value
     }
 
     let subTree = tree.value
-    const idSegments = currentItem.value.id.split('/').filter(Boolean)
-    for (let i = 0; i < idSegments.length; i++) {
-      const id = idSegments.slice(0, i + 1).join('/')
-      const file = subTree.find(item => item.id === id) as TreeItem
+    const fsPathSegments = currentItem.value.fsPath.split('/').filter(Boolean)
+    for (let i = 0; i < fsPathSegments.length; i++) {
+      const fsPath = fsPathSegments.slice(0, i + 1).join('/')
+      const file = subTree.find(item => item.fsPath === fsPath) as TreeItem
       if (file) {
         subTree = file.children!
       }
@@ -48,10 +50,10 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   async function select(item: TreeItem) {
     currentItem.value = item || rootItem.value
 
-    setLocation(type, currentItem.value.id)
+    setLocation(type, currentItem.value.fsPath)
 
     if (item?.type === 'file') {
-      await draft.selectById(item.id)
+      await draft.selectById(generateIdFromFsPath(item.fsPath, item.collections![0]))
 
       if (
         !preferences.value.syncEditorAndRoute
@@ -71,26 +73,26 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   async function selectByRoute(route: RouteLocationNormalized) {
     const item = findItemFromRoute(tree.value, route)
 
-    if (!item || item.id === currentItem.value.id) return
+    if (!item || item.fsPath === currentItem.value.fsPath) return
 
     await select(item)
   }
 
-  async function selectItemById(id: string) {
-    const treeItem = findItemFromId(tree.value, id)
+  async function selectItemByFsPath(fsPath: string) {
+    const treeItem = findItemFromFsPath(tree.value, fsPath)
 
     if (!treeItem) {
       await select(rootItem.value)
       return
     }
 
-    if (treeItem.id === currentItem.value.id) return
+    if (treeItem.fsPath === currentItem.value.fsPath) return
 
     await select(treeItem)
   }
 
-  async function selectParentById(id: string) {
-    const parent = findParentFromId(tree.value, id)
+  async function selectParentByFsPath(fsPath: string) {
+    const parent = findParentFromFsPath(tree.value, fsPath)
     await select(parent || rootItem.value)
   }
 
@@ -107,7 +109,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
 
     // Reselect current item to update status
     if (selectItem) {
-      select(findItemFromId(tree.value, currentItem.value.id)!)
+      select(findItemFromFsPath(tree.value, currentItem.value.fsPath)!)
     }
 
     // Rerender host app
@@ -135,8 +137,8 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     // parentItem,
     select,
     selectByRoute,
-    selectItemById,
-    selectParentById,
+    selectItemByFsPath,
+    selectParentByFsPath,
     type,
     draft,
   }

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { buildTree, findParentFromId, findItemFromRoute, findItemFromId, findDescendantsFileItemsFromId, getTreeStatus } from '../../../src/utils/tree'
+import { buildTree, findParentFromFsPath, findItemFromRoute, findItemFromFsPath, findDescendantsFileItemsFromFsPath, getTreeStatus, generateIdFromFsPath } from '../../../src/utils/tree'
 import { tree } from '../../../test/mocks/tree'
 import type { TreeItem } from '../../../src/types/tree'
 import { dbItemsList, languagePrefixedDbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
 import type { DraftItem } from '../../../src/types/draft'
 import type { MediaItem } from '../../../src/types'
-import { DraftStatus, TreeRootId, TreeStatus } from '../../../src/types'
+import { DraftStatus, TreeStatus, TreeRootId } from '../../../src/types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { DatabaseItem } from '../../../src/types/database'
 import { joinURL, withLeadingSlash } from 'ufo'
@@ -14,35 +14,35 @@ describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock
   const result: TreeItem[] = [
     {
-      id: 'landing/index.md',
       name: 'home',
       fsPath: 'index.md',
       type: 'file',
       routePath: '/',
       prefix: null,
+      collections: ['landing'],
     },
     {
-      id: '1.getting-started',
       name: 'getting-started',
       fsPath: '1.getting-started',
       type: 'directory',
       prefix: 1,
+      collections: ['docs'],
       children: [
         {
-          id: 'docs/1.getting-started/2.introduction.md',
           name: 'introduction',
           fsPath: '1.getting-started/2.introduction.md',
           type: 'file',
           routePath: '/getting-started/introduction',
           prefix: 2,
+          collections: ['docs'],
         },
         {
-          id: 'docs/1.getting-started/3.installation.md',
           name: 'installation',
           fsPath: '1.getting-started/3.installation.md',
           type: 'file',
           routePath: '/getting-started/installation',
           prefix: 3,
+          collections: ['docs'],
         },
       ],
     },
@@ -50,7 +50,7 @@ describe('buildTree of documents with one level of depth', () => {
 
   it('Without draft', () => {
     const tree = buildTree(dbItemsList, null)
-    expect(tree).toStrictEqual(result)
+    expect(tree).toStrictEqual(result as TreeItem[])
   })
 
   it('With draft', () => {
@@ -71,7 +71,7 @@ describe('buildTree of documents with one level of depth', () => {
         ...result[0],
         status: TreeStatus.Created,
       },
-      ...result.slice(1)])
+      ...result.slice(1)] as TreeItem[])
   })
 
   it('With DELETED draft file in existing directory', () => {
@@ -97,17 +97,17 @@ describe('buildTree of documents with one level of depth', () => {
         children: [
           result[1].children![1],
           {
-            id: deletedDbItem.id,
             name: 'introduction',
             fsPath: deletedDbItem.fsPath,
             type: 'file',
             routePath: deletedDbItem.path,
             status: TreeStatus.Deleted,
             prefix: 2,
+            collections: ['docs'],
           },
         ],
       },
-    ])
+    ] as TreeItem[])
   })
 
   it('With DELETED draft file in non existing directory', () => {
@@ -133,17 +133,17 @@ describe('buildTree of documents with one level of depth', () => {
         children: [
           result[1].children![0],
           {
-            id: deletedDbItem.id,
             name: 'installation',
             fsPath: deletedDbItem.fsPath,
             type: 'file',
             routePath: deletedDbItem.path,
             status: TreeStatus.Deleted,
             prefix: 3,
+            collections: ['docs'],
           },
         ],
       },
-    ])
+    ] as TreeItem[])
   })
 
   it('With UPDATED draft file in existing directory (directory status is set)', () => {
@@ -165,7 +165,7 @@ describe('buildTree of documents with one level of depth', () => {
 
     const tree = buildTree(dbItemsList, draftList)
 
-    const expectedTree: TreeItem[] = [
+    const expectedTree = [
       result[0],
       {
         ...result[1],
@@ -180,7 +180,7 @@ describe('buildTree of documents with one level of depth', () => {
       },
     ]
 
-    expect(tree).toStrictEqual(expectedTree)
+    expect(tree).toStrictEqual(expectedTree as TreeItem[])
   })
 
   it('With CREATED and OPENED draft files in exsiting directory (directory status is set)', () => {
@@ -203,7 +203,7 @@ describe('buildTree of documents with one level of depth', () => {
 
     const tree = buildTree(dbItemsList, draftList)
 
-    const expectedTree: TreeItem[] = [
+    const expectedTree = [
       result[0],
       {
         ...result[1],
@@ -215,7 +215,7 @@ describe('buildTree of documents with one level of depth', () => {
       },
     ]
 
-    expect(tree).toStrictEqual(expectedTree)
+    expect(tree).toStrictEqual(expectedTree as TreeItem[])
   })
 
   it('With OPENED draft files in existing directory (directory status is not set)', () => {
@@ -238,7 +238,7 @@ describe('buildTree of documents with one level of depth', () => {
 
     const tree = buildTree(dbItemsList, draftList)
 
-    const expectedTree: TreeItem[] = [
+    const expectedTree = [
       result[0],
       {
         ...result[1],
@@ -251,12 +251,12 @@ describe('buildTree of documents with one level of depth', () => {
       },
     ]
 
-    expect(tree).toStrictEqual(expectedTree)
+    expect(tree).toStrictEqual(expectedTree as TreeItem[])
   })
 
   it('With same id DELETED and CREATED draft file resulting in RENAMED', () => {
     const deletedDbItem: DatabaseItem & { fsPath: string } = dbItemsList[1] // 2.introduction.md
-    const createdDbItem: DatabaseItem & { fsPath: string } = {
+    const createdDbItem: DatabaseItem & { fsPath: string } = { // 2.renamed.md
       ...dbItemsList[1],
       id: 'docs/1.getting-started/2.renamed.md',
       path: '/getting-started/renamed',
@@ -292,51 +292,51 @@ describe('buildTree of documents with one level of depth', () => {
         children: [
           ...result[1].children!.slice(1),
           {
-            id: createdDbItem.id,
             fsPath: createdDbItem.fsPath,
             routePath: createdDbItem.path,
             name: createdDbItem.path!.split('/').pop()!,
             type: 'file',
             status: TreeStatus.Renamed,
             prefix: 2,
+            collections: ['docs'],
           },
         ],
       },
-    ])
+    ] as TreeItem[])
   })
 })
 
 describe('buildTree of documents with two levels of depth', () => {
   const result: TreeItem[] = [
     {
-      id: '1.essentials',
       name: 'essentials',
       fsPath: '1.essentials',
       type: 'directory',
       prefix: 1,
+      collections: ['docs'],
       children: [
         {
-          id: 'docs/1.essentials/2.configuration.md',
           name: 'configuration',
           fsPath: '1.essentials/2.configuration.md',
           type: 'file',
           routePath: '/essentials/configuration',
           prefix: 2,
+          collections: ['docs'],
         },
         {
-          id: '1.essentials/1.nested',
           name: 'nested',
           fsPath: '1.essentials/1.nested',
           type: 'directory',
           prefix: 1,
+          collections: ['docs'],
           children: [
             {
-              id: 'docs/1.essentials/1.nested/2.advanced.md',
               name: 'advanced',
               fsPath: '1.essentials/1.nested/2.advanced.md',
               type: 'file',
               routePath: '/essentials/nested/advanced',
               prefix: 2,
+              collections: ['docs'],
             },
           ],
         },
@@ -375,7 +375,7 @@ describe('buildTree of documents with two levels of depth', () => {
         { ...result[0].children![0], status: TreeStatus.Updated },
         result[0].children![1],
       ],
-    }])
+    }] as TreeItem[])
   })
 
   it('With nested levels of depth draft files', () => {
@@ -413,7 +413,7 @@ describe('buildTree of documents with two levels of depth', () => {
           ],
         },
       ],
-    }])
+    }] as TreeItem[])
   })
 
   it ('With DELETED draft file in nested non existing directory (directory status is set)', () => {
@@ -442,60 +442,60 @@ describe('buildTree of documents with two levels of depth', () => {
           status: TreeStatus.Deleted,
           children: [
             {
-              id: deletedDbItem.id,
               name: 'advanced',
               fsPath: deletedDbItem.fsPath,
               routePath: deletedDbItem.path,
               type: 'file',
               status: TreeStatus.Deleted,
               prefix: 2,
+              collections: ['docs'],
             },
           ],
         },
       ],
-    }])
+    }] as TreeItem[])
   })
 })
 
 describe('buildTree of documents with language prefixed', () => {
   const result: TreeItem[] = [
     {
-      id: 'en',
       name: 'en',
       fsPath: 'en',
       type: 'directory',
       prefix: null,
+      collections: ['landing_en', 'docs_en'],
       children: [
         {
-          id: 'landing_en/en/index.md',
           name: 'index',
           fsPath: 'en/index.md',
           prefix: null,
           type: 'file',
           routePath: '/en',
+          collections: ['landing_en'],
         },
         {
-          id: 'en/1.getting-started',
           name: 'getting-started',
           fsPath: 'en/1.getting-started',
           type: 'directory',
           prefix: 1,
+          collections: ['docs_en'],
           children: [
             {
-              id: 'docs_en/en/1.getting-started/2.introduction.md',
               name: 'introduction',
               fsPath: 'en/1.getting-started/2.introduction.md',
               type: 'file',
               routePath: '/en/getting-started/introduction',
               prefix: 2,
+              collections: ['docs_en'],
             },
             {
-              id: 'docs_en/en/1.getting-started/3.installation.md',
               name: 'installation',
               fsPath: 'en/1.getting-started/3.installation.md',
               type: 'file',
               routePath: '/en/getting-started/installation',
               prefix: 3,
+              collections: ['docs_en'],
             },
           ],
         },
@@ -512,23 +512,25 @@ describe('buildTree of documents with language prefixed', () => {
 describe('buildTree of medias', () => {
   it('With .gitkeep file in directory (file is marked as hidden)', () => {
     const mediaFolderName = 'media-folder'
-    const gitKeepId = joinURL(TreeRootId.Media, mediaFolderName, '.gitkeep')
-    const mediaId = joinURL(TreeRootId.Media, mediaFolderName, 'image.jpg')
+    const gitKeepFsPath = joinURL(mediaFolderName, '.gitkeep')
+    const gitKeepId = generateIdFromFsPath(gitKeepFsPath, TreeRootId.Media)
+    const mediaFsPath = joinURL(mediaFolderName, 'image.jpg')
+    const mediaId = generateIdFromFsPath(mediaFsPath, TreeRootId.Media)
 
     const gitkeepDbItem: MediaItem & { fsPath: string } = {
       id: gitKeepId,
-      fsPath: joinURL(mediaFolderName, '.gitkeep'),
+      fsPath: gitKeepFsPath,
       stem: '.gitkeep',
       extension: 'gitkeep',
-      path: withLeadingSlash(joinURL(mediaFolderName, '.gitkeep')),
+      path: withLeadingSlash(gitKeepFsPath),
     }
 
     const mediaDbItem: MediaItem & { fsPath: string } = {
       id: mediaId,
-      fsPath: joinURL(mediaFolderName, 'image.jpg'),
+      fsPath: mediaFsPath,
       stem: 'image',
       extension: 'jpg',
-      path: withLeadingSlash(joinURL(mediaFolderName, 'image.jpg')),
+      path: withLeadingSlash(mediaFsPath),
     }
 
     const draftList: DraftItem[] = [{
@@ -542,11 +544,11 @@ describe('buildTree of medias', () => {
     const tree = buildTree([gitkeepDbItem, mediaDbItem], draftList)
 
     expect(tree).toHaveLength(1)
-    expect(tree[0]).toHaveProperty('id', mediaFolderName)
+    expect(tree[0]).toHaveProperty('fsPath', mediaFolderName)
     expect(tree[0].children).toHaveLength(2)
 
-    const gitkeepFile = tree[0].children!.find(item => item.id === gitKeepId)
-    const imageFile = tree[0].children!.find(item => item.id === mediaId)
+    const gitkeepFile = tree[0].children!.find(item => item.fsPath === gitKeepFsPath)
+    const imageFile = tree[0].children!.find(item => item.fsPath === mediaFsPath)
 
     expect(gitkeepFile).toHaveProperty('hide', true)
     expect(imageFile).toBeDefined()
@@ -556,14 +558,14 @@ describe('buildTree of medias', () => {
 
 describe('getTreeStatus', () => {
   it('draft is CREATED if originalDatabaseItem is not defined', () => {
-    const modified: DatabaseItem = dbItemsList[0] // landing/index.md
+    const modified: DatabaseItem = dbItemsList[0] // index.md
 
     const status = getTreeStatus(modified, undefined)
     expect(status).toBe(TreeStatus.Created)
   })
 
   it('draft is OPENED if originalDatabaseItem is defined and is the same as draftedDocument', () => {
-    const original: DatabaseItem = dbItemsList[0] // landing/index.md
+    const original: DatabaseItem = dbItemsList[0] // index.md
 
     const status = getTreeStatus(original, original)
     expect(status).toBe(TreeStatus.Opened)
@@ -592,10 +594,10 @@ describe('getTreeStatus', () => {
   })
 
   it('draft is RENAMED if originalDatabaseItem is defined and id is different from draftedDocument', () => {
-    const original: DatabaseItem = dbItemsList[0] // landing/index.md
+    const original: DatabaseItem = dbItemsList[0] // index.md
     const modified: DatabaseItem = {
       ...original,
-      id: 'landing/renamed.md',
+      id: 'renamed.md',
     }
 
     const status = getTreeStatus(modified, original)
@@ -603,7 +605,7 @@ describe('getTreeStatus', () => {
   })
 
   it('draft is DELETED if modifiedDatabaseItem is not defined', () => {
-    const original: DatabaseItem = dbItemsList[0] // landing/index.md
+    const original: DatabaseItem = dbItemsList[0] // index.md
     const modified: DatabaseItem = undefined as never
 
     const status = getTreeStatus(modified, original)
@@ -611,31 +613,31 @@ describe('getTreeStatus', () => {
   })
 })
 
-describe('findParentFromId', () => {
+describe('findParentFromFsPath', () => {
   it('should find direct parent of a child', () => {
-    const parent = findParentFromId(tree, 'docs/1.getting-started/2.introduction.md')
+    const parent = findParentFromFsPath(tree, '1.getting-started/2.introduction.md')
     expect(parent).toBeDefined()
-    expect(parent?.id).toBe('1.getting-started')
+    expect(parent?.fsPath).toBe('1.getting-started')
   })
 
   it('should find nested parent', () => {
-    const parent = findParentFromId(tree, 'docs/1.getting-started/1.advanced/1.studio.md')
+    const parent = findParentFromFsPath(tree, '1.getting-started/1.advanced/1.studio.md')
     expect(parent).toBeDefined()
-    expect(parent?.id).toBe('1.getting-started/1.advanced')
+    expect(parent?.fsPath).toBe('1.getting-started/1.advanced')
   })
 
   it('should return null for root level items', () => {
-    const parent = findParentFromId(tree, 'landing/index.md')
+    const parent = findParentFromFsPath(tree, 'index.md')
     expect(parent).toBeNull()
   })
 
   it('should return null for non-existent items', () => {
-    const parent = findParentFromId(tree, 'non/existent/item.md')
+    const parent = findParentFromFsPath(tree, 'non/existent/item.md')
     expect(parent).toBeNull()
   })
 
   it('should return null for empty tree', () => {
-    const parent = findParentFromId([], 'any/item.md')
+    const parent = findParentFromFsPath([], 'any/item.md')
     expect(parent).toBeNull()
   })
 })
@@ -647,7 +649,7 @@ describe('findItemFromRoute', () => {
     const route = mockRoute('/')
     const item = findItemFromRoute(tree, route)
     expect(item).toBeDefined()
-    expect(item?.id).toBe('landing/index.md')
+    expect(item?.fsPath).toBe('index.md')
     expect(item?.name).toBe('home')
   })
 
@@ -655,7 +657,7 @@ describe('findItemFromRoute', () => {
     const route = mockRoute('/getting-started/introduction')
     const item = findItemFromRoute(tree, route)
     expect(item).toBeDefined()
-    expect(item?.id).toBe('docs/1.getting-started/2.introduction.md')
+    expect(item?.fsPath).toBe('1.getting-started/2.introduction.md')
     expect(item?.name).toBe('introduction')
   })
 
@@ -663,7 +665,7 @@ describe('findItemFromRoute', () => {
     const route = mockRoute('/getting-started/installation/advanced/studio')
     const item = findItemFromRoute(tree, route)
     expect(item).toBeDefined()
-    expect(item?.id).toBe('docs/1.getting-started/1.advanced/1.studio.md')
+    expect(item?.fsPath).toBe('1.getting-started/1.advanced/1.studio.md')
     expect(item?.name).toBe('studio')
   })
 
@@ -680,110 +682,110 @@ describe('findItemFromRoute', () => {
   })
 })
 
-describe('findItemFromId', () => {
-  it('should find root level item by id', () => {
-    const item = findItemFromId(tree, 'landing/index.md')
+describe('findItemFromFsPath', () => {
+  it('should find root level item by fsPath', () => {
+    const item = findItemFromFsPath(tree, 'index.md')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('landing/index.md')
+    expect(item?.fsPath).toBe('index.md')
     expect(item?.name).toBe('home')
     expect(item?.type).toBe('file')
   })
 
-  it('should find nested file by id', () => {
-    const item = findItemFromId(tree, 'docs/1.getting-started/2.introduction.md')
+  it('should find nested file by fsPath', () => {
+    const item = findItemFromFsPath(tree, '1.getting-started/2.introduction.md')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('docs/1.getting-started/2.introduction.md')
+    expect(item?.fsPath).toBe('1.getting-started/2.introduction.md')
     expect(item?.name).toBe('introduction')
     expect(item?.type).toBe('file')
   })
 
-  it('should find directory by id', () => {
-    const item = findItemFromId(tree, '1.getting-started')
+  it('should find directory by fsPath', () => {
+    const item = findItemFromFsPath(tree, '1.getting-started')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('1.getting-started')
+    expect(item?.fsPath).toBe('1.getting-started')
     expect(item?.name).toBe('getting-started')
     expect(item?.type).toBe('directory')
     expect(item?.children).toBeDefined()
   })
 
-  it('should find deeply nested item by id', () => {
-    const item = findItemFromId(tree, 'docs/1.getting-started/1.advanced/1.studio.md')
+  it('should find deeply nested item by fsPath', () => {
+    const item = findItemFromFsPath(tree, '1.getting-started/1.advanced/1.studio.md')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('docs/1.getting-started/1.advanced/1.studio.md')
+    expect(item?.fsPath).toBe('1.getting-started/1.advanced/1.studio.md')
     expect(item?.name).toBe('studio')
     expect(item?.type).toBe('file')
   })
 
-  it('should find nested directory by id', () => {
-    const item = findItemFromId(tree, '1.getting-started/1.advanced')
+  it('should find nested directory by fsPath', () => {
+    const item = findItemFromFsPath(tree, '1.getting-started/1.advanced')
     expect(item).toBeDefined()
-    expect(item?.id).toBe('1.getting-started/1.advanced')
+    expect(item?.fsPath).toBe('1.getting-started/1.advanced')
     expect(item?.name).toBe('advanced')
     expect(item?.type).toBe('directory')
   })
 
-  it('should return null for non-existent id', () => {
-    const item = findItemFromId(tree, 'non/existent/item.md')
+  it('should return null for non-existent fsPath', () => {
+    const item = findItemFromFsPath(tree, 'non/existent/item.md')
     expect(item).toBeNull()
   })
 
-  it('should return null for partial id match', () => {
-    const item = findItemFromId(tree, 'docs/1.getting-started/2.introduction')
+  it('should return null for partial fsPath match', () => {
+    const item = findItemFromFsPath(tree, '1.getting-started/2.introduction')
     expect(item).toBeNull()
   })
 
   it('should return null for empty tree', () => {
-    const item = findItemFromId([], 'any/item.md')
+    const item = findItemFromFsPath([], 'any/item.md')
     expect(item).toBeNull()
   })
 
-  it('should return null for empty id', () => {
-    const item = findItemFromId(tree, '')
+  it('should return null for empty fsPath', () => {
+    const item = findItemFromFsPath(tree, '')
     expect(item).toBeNull()
   })
 })
 
-describe('findDescendantsFileItemsFromId', () => {
+describe('findDescendantsFileItemsFromFsPath', () => {
   it('returns exact match for a root level file', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, 'landing/index.md')
+    const descendants = findDescendantsFileItemsFromFsPath(tree, 'index.md')
     expect(descendants).toHaveLength(1)
-    expect(descendants[0].id).toBe('landing/index.md')
+    expect(descendants[0].fsPath).toBe('index.md')
   })
 
   it('returns empty array for non-existent id', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, 'non-existent/file.md')
+    const descendants = findDescendantsFileItemsFromFsPath(tree, 'non-existent/file.md')
     expect(descendants).toHaveLength(0)
   })
 
   it('returns all descendants files for directory id', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, '1.getting-started')
+    const descendants = findDescendantsFileItemsFromFsPath(tree, '1.getting-started')
 
     expect(descendants).toHaveLength(3)
 
-    expect(descendants.some(item => item.id === 'docs/1.getting-started/2.introduction.md')).toBe(true)
-    expect(descendants.some(item => item.id === 'docs/1.getting-started/3.installation.md')).toBe(true)
-    expect(descendants.some(item => item.id === 'docs/1.getting-started/1.advanced/1.studio.md')).toBe(true)
+    expect(descendants.some(item => item.fsPath === '1.getting-started/2.introduction.md')).toBe(true)
+    expect(descendants.some(item => item.fsPath === '1.getting-started/3.installation.md')).toBe(true)
+    expect(descendants.some(item => item.fsPath === '1.getting-started/1.advanced/1.studio.md')).toBe(true)
   })
 
   it('returns all descendants files for nested directory id', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, '1.getting-started/1.advanced')
+    const descendants = findDescendantsFileItemsFromFsPath(tree, '1.getting-started/1.advanced')
 
     expect(descendants).toHaveLength(1)
 
-    expect(descendants.some(item => item.id === 'docs/1.getting-started/1.advanced/1.studio.md')).toBe(true)
+    expect(descendants.some(item => item.fsPath === '1.getting-started/1.advanced/1.studio.md')).toBe(true)
   })
 
   it('returns only the file itself when searching for a specific file', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, 'docs/1.getting-started/2.introduction.md')
+    const descendants = findDescendantsFileItemsFromFsPath(tree, '1.getting-started/2.introduction.md')
 
     expect(descendants).toHaveLength(1)
-    expect(descendants[0].id).toBe('docs/1.getting-started/2.introduction.md')
+    expect(descendants[0].fsPath).toBe('1.getting-started/2.introduction.md')
   })
 
   it('returns deeply nested file when searching by specific file id', () => {
-    const descendants = findDescendantsFileItemsFromId(tree, 'docs/1.getting-started/1.advanced/1.studio.md')
+    const descendants = findDescendantsFileItemsFromFsPath(tree, '1.getting-started/1.advanced/1.studio.md')
 
     expect(descendants).toHaveLength(1)
-    expect(descendants[0].id).toBe('docs/1.getting-started/1.advanced/1.studio.md')
+    expect(descendants[0].fsPath).toBe('1.getting-started/1.advanced/1.studio.md')
   })
 })

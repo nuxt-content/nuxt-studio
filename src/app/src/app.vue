@@ -33,13 +33,13 @@ function detectActiveDocuments() {
 }
 
 async function editContentFile(id: string) {
-  await context.activeTree.value.selectItemById(id)
+  await context.activeTree.value.selectItemByFsPath(id)
   ui.open()
 }
 
 async function open() {
   await router.push(`/${location.value.feature}`)
-  await context.activeTree.value.selectItemById(location.value.itemId)
+  await context.activeTree.value.selectItemByFsPath(location.value.fsPath)
   ui.open()
 }
 
