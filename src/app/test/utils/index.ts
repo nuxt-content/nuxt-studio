@@ -17,10 +17,10 @@ export function normalizeKey(key: string): string {
     || ''
 }
 
-export function generateUniqueDocumentId(filename = 'document'): string {
+export function generateUniqueDocumentId(filename = 'document', collection = 'docs'): string {
   const uniqueId = Math.random().toString(36).substr(2, 9)
   // Add dummy collection prefix
-  return joinURL('docs', `${filename}-${uniqueId}.md`)
+  return joinURL(collection, `${filename}-${uniqueId}.md`)
 }
 
 export function generateUniqueMediaId(filename = 'media'): string {

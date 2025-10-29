@@ -44,7 +44,7 @@ export interface CreateFileParams {
 }
 
 export interface RenameFileParams {
-  id: string
+  item: TreeItem
   newFsPath: string
 }
 

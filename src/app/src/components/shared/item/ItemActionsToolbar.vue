@@ -84,7 +84,7 @@ const actionHandler = (action: StudioAction<StudioItemActionId> & { isPending?: 
   if (!action.isOneStepAction) {
     if (action.id === StudioItemActionId.RenameItem) {
       // Navigate to parent since rename form is displayed in the parent tree
-      context.activeTree.value.selectParentById(targetItem.id)
+      context.activeTree.value.selectParentByFsPath(targetItem.fsPath)
     }
 
     action.handler!(targetItem)
@@ -138,8 +138,8 @@ onUnmounted(() => {
         :icon="action.icon"
         :disabled="action.disabled"
         size="sm"
-        :color="action.color"
-        :variant="action.variant"
+        :color="action.color as never"
+        :variant="action.variant as never"
         :loading="action.isLoading"
         @click="actionHandler(action, $event)"
       />

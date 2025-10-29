@@ -40,7 +40,7 @@ const cardComponent = computed(() => {
 const isItemBeingRenamed = (item: TreeItem) => {
   if (context.actionInProgress.value?.id !== StudioItemActionId.RenameItem) return false
 
-  return context.actionInProgress.value?.item?.id === item.id
+  return context.actionInProgress.value?.item?.fsPath === item.fsPath
 }
 
 const formComponent = computed(() => {
@@ -64,7 +64,7 @@ const formComponent = computed(() => {
       </li>
       <li
         v-for="(item, index) in visibleTree"
-        :key="`${item.id}-${index}`"
+        :key="`${item.fsPath}-${index}`"
       >
         <component
           :is="cardComponent"

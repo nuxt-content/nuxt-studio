@@ -4,7 +4,7 @@ import type { DropdownMenuItem } from '@nuxt/ui/components/DropdownMenu.vue.d.ts
 import { computed, unref } from 'vue'
 import { type TreeItem, TreeStatus } from '../../../types'
 import { useStudio } from '../../../composables/useStudio'
-import { findParentFromId } from '../../../utils/tree'
+import { findParentFromFsPath } from '../../../utils/tree'
 
 const { context } = useStudio()
 
@@ -21,7 +21,7 @@ const items = computed<BreadcrumbItem[]>(() => {
     },
   }
 
-  if (currentItem.value.id === rootTreeItem.id) {
+  if (currentItem.value.fsPath === rootTreeItem.fsPath) {
     return [rootBreadcrumbItem]
   }
 
@@ -37,7 +37,7 @@ const items = computed<BreadcrumbItem[]>(() => {
       },
     })
 
-    currentTreeItem = findParentFromId(tree.value, currentTreeItem.id)
+    currentTreeItem = findParentFromFsPath(tree.value, currentTreeItem.fsPath)
   }
 
   const allItems = [rootBreadcrumbItem, ...breadcrumbItems]
@@ -75,7 +75,7 @@ const items = computed<BreadcrumbItem[]>(() => {
       color="neutral"
       :ui="{ link: 'text-sm', list: 'gap-0.5', separatorIcon: 'size-3', linkLeadingIcon: 'size-4' }"
     >
-      <template #ellipsis="{ item }">
+      <template #ellipsis="{ item }: { item: DropdownMenuItem }">
         <UDropdownMenu :items="item.children">
           <UButton
             :icon="item.icon"

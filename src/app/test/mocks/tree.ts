@@ -2,44 +2,50 @@ import type { TreeItem } from '../../src/types/tree'
 
 export const tree: TreeItem[] = [
   {
-    id: 'landing/index.md',
     name: 'home',
     fsPath: 'index.md',
     type: 'file',
     routePath: '/',
+    collections: ['landing'],
+    prefix: null,
   },
   {
-    id: '1.getting-started',
     name: 'getting-started',
-    fsPath: 'getting-started',
+    fsPath: '1.getting-started',
     type: 'directory',
+    collections: ['docs'],
+    prefix: 1,
     children: [
       {
-        id: 'docs/1.getting-started/2.introduction.md',
         name: 'introduction',
         fsPath: '1.getting-started/2.introduction.md',
         type: 'file',
         routePath: '/getting-started/introduction',
+        collections: ['docs'],
+        prefix: 2,
       },
       {
-        id: 'docs/1.getting-started/3.installation.md',
         name: 'installation',
         fsPath: '1.getting-started/3.installation.md',
         type: 'file',
         routePath: '/getting-started/installation',
+        collections: ['docs'],
+        prefix: 3,
       },
       {
-        id: '1.getting-started/1.advanced',
         name: 'advanced',
         fsPath: '1.getting-started/1.advanced',
         type: 'directory',
+        collections: ['docs'],
+        prefix: 1,
         children: [
           {
-            id: 'docs/1.getting-started/1.advanced/1.studio.md',
             name: 'studio',
             fsPath: '1.getting-started/1.advanced/1.studio.md',
             type: 'file',
             routePath: '/getting-started/installation/advanced/studio',
+            collections: ['docs'],
+            prefix: 1,
           },
         ],
       },

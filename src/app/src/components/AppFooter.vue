@@ -7,12 +7,12 @@ const { ui, host, git } = useStudio()
 const { preferences, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
 
-const showTechnicalMode = computed({
-  get: () => preferences.value.showTechnicalMode,
-  set: (value) => {
-    updatePreference('showTechnicalMode', value)
-  },
-})
+// const showTechnicalMode = computed({
+//   get: () => preferences.value.showTechnicalMode,
+//   set: (value) => {
+//     updatePreference('showTechnicalMode', value)
+//   },
+// })
 
 const repositoryUrl = computed(() => git.getBranchUrl())
 const userMenuItems = computed(() => [
@@ -55,7 +55,7 @@ function closeStudio() {
       :items="userMenuItems"
       :ui="{ content: 'w-full' }"
     >
-      <template #view-mode>
+      <!-- <template #view-mode>
         <div
           class="w-full"
           @click.stop
@@ -67,7 +67,7 @@ function closeStudio() {
             :ui="{ root: 'w-full flex-row-reverse justify-between', wrapper: 'ms-0' }"
           />
         </div>
-      </template>
+      </template> -->
       <UButton
         color="neutral"
         variant="ghost"

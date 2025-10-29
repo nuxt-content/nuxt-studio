@@ -96,8 +96,9 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
       }
     }
     else if (item) {
+      const fsPath = host.document.getFileSystemPath(id)
       // Update draft if the document is not focused or the current item is not the one that was updated
-      if (!window.document.hasFocus() || documentTree.currentItem.value?.id !== id) {
+      if (!window.document.hasFocus() || documentTree.currentItem.value?.fsPath !== fsPath) {
         const document = await host.document.get(id)
         item.modified = document
         item.original = document
@@ -118,7 +119,8 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
       }
     }
     else if (item) {
-      if (!window.document.hasFocus() || mediaTree.currentItem.value?.id !== id) {
+      const fsPath = host.media.getFileSystemPath(id)
+      if (!window.document.hasFocus() || mediaTree.currentItem.value?.fsPath !== fsPath) {
         const media = await host.media.get(id)
         item.modified = media
         item.original = media

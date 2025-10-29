@@ -36,7 +36,7 @@
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus",
     "release": "pnpm run lint && pnpm run test && pnpm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck",
+    "typecheck": "nuxt typecheck && vue-tsc -p src/app/tsconfig.app.json",
     "verify": "pnpm run lint && pnpm run typecheck && pnpm run test",
     "test": "vitest run",
     "test:watch": "vitest watch",

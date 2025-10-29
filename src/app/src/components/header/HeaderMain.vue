@@ -29,7 +29,7 @@ const current = computed({
     await router.push({ name })
 
     const currentItem = context.activeTree.value.currentItem.value
-    setLocation(name, currentItem?.id)
+    setLocation(name, currentItem.fsPath)
 
     // Ensure root item status is up to date when navigating by selecting computed
     if (currentItem.type === 'root') {

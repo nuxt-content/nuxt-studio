@@ -78,7 +78,7 @@ async function publishChanges() {
 
 async function backToEditor() {
   router.push(`/${location.value.feature}`)
-  await context.activeTree.value.selectItemById(location.value.itemId)
+  await context.activeTree.value.selectItemByFsPath(location.value.fsPath)
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

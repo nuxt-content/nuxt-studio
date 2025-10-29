@@ -1,6 +1,6 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { StudioItemActionId, DraftStatus, StudioBranchActionId } from '../types'
+import { StudioItemActionId, DraftStatus, StudioBranchActionId, TreeRootId } from '../types'
 import type {
   PublishBranchParams,
   RenameFileParams,
@@ -20,10 +20,10 @@ import type { useTree } from './useTree'
 import type { useGit } from './useGit'
 import type { useDraftMedias } from './useDraftMedias'
 import { useRoute, useRouter } from 'vue-router'
-import { findDescendantsFileItemsFromId, findItemFromId } from '../utils/tree'
+import { findDescendantsFileItemsFromFsPath, generateIdFromFsPath } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
-import { generateIdFromFsPath, generateStemFromFsPath } from '../utils/media'
+import { generateStemFromFsPath } from '../utils/media'
 
 export const useContext = createSharedComposable((
   host: StudioHost,
@@ -100,13 +100,13 @@ export const useContext = createSharedComposable((
 
       const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocument)
 
-      await activeTree.value.selectItemById(rootDocumentDraftItem.id)
+      await activeTree.value.selectItemByFsPath(rootDocumentDraftItem.id)
     },
     [StudioItemActionId.CreateMediaFolder]: async (params: CreateFolderParams) => {
       const { fsPath } = params
       const gitkeepFsPath = joinURL(fsPath, '.gitkeep')
       const gitKeepMedia: MediaItem = {
-        id: generateIdFromFsPath(gitkeepFsPath),
+        id: generateIdFromFsPath(gitkeepFsPath, TreeRootId.Media),
         fsPath: gitkeepFsPath,
         stem: generateStemFromFsPath(gitkeepFsPath),
         extension: '',
@@ -117,19 +117,19 @@ export const useContext = createSharedComposable((
 
       unsetActionInProgress()
 
-      await activeTree.value.selectParentById(gitKeepMedia.id)
+      await activeTree.value.selectParentByFsPath(gitKeepMedia.id)
     },
     [StudioItemActionId.CreateDocument]: async (params: CreateFileParams) => {
       const { fsPath, content } = params
       const document = await host.document.create(fsPath, content)
       const draftItem = await activeTree.value.draft.create(document as DatabaseItem)
-      await activeTree.value.selectItemById(draftItem.id)
+      await activeTree.value.selectItemByFsPath(draftItem.id)
     },
     [StudioItemActionId.UploadMedia]: async ({ parentFsPath, files }: UploadMediaParams) => {
       // Remove .gitkeep draft in folder if exists
       const gitkeepFsPath = parentFsPath === '/' ? '.gitkeep' : joinURL(parentFsPath, '.gitkeep')
-      const gitkeepId = generateIdFromFsPath(gitkeepFsPath)
-      const gitkeepDraft = await activeTree.value.draft.get(generateIdFromFsPath(gitkeepFsPath))
+      const gitkeepId = generateIdFromFsPath(gitkeepFsPath, TreeRootId.Media)
+      const gitkeepDraft = await activeTree.value.draft.get(gitkeepId)
       if (gitkeepDraft) {
         await activeTree.value.draft.remove([gitkeepId], { rerender: false })
       }
@@ -139,28 +139,60 @@ export const useContext = createSharedComposable((
       }
     },
     [StudioItemActionId.RevertItem]: async (item: TreeItem) => {
-      await activeTree.value.draft.revert(item.id)
+      // Get collections from document item or use default media collection
+      for (const collection of item.collections) {
+        const id = generateIdFromFsPath(item.fsPath, collection)
+        await activeTree.value.draft.revert(id)
+      }
     },
     [StudioItemActionId.RenameItem]: async (params: TreeItem | RenameFileParams) => {
-      const { id, newFsPath } = params as RenameFileParams
+      const { item, newFsPath } = params as RenameFileParams
 
-      const descendants = findDescendantsFileItemsFromId(activeTree.value.root.value, id)
-      if (descendants.length > 0) {
-        const parent = findItemFromId(activeTree.value.root.value, id)!
-        const itemsToRename = descendants.map(item => ({ id: item.id, newFsPath: item.fsPath.replace(parent.fsPath, newFsPath) }))
-        await activeTree.value.draft.rename(itemsToRename)
-      }
-      else {
+      // Revert file
+      if (item.type === 'file') {
+        const id = generateIdFromFsPath(item.fsPath, item.collections[0])
         await activeTree.value.draft.rename([{ id, newFsPath }])
+        return
+      }
+
+      // Revert folder
+      const descendants = findDescendantsFileItemsFromFsPath(activeTree.value.root.value, item.fsPath)
+      if (descendants.length > 0) {
+        const itemsToRename = descendants.map((descendant) => {
+          return {
+            id: generateIdFromFsPath(descendant.fsPath, descendant.collections[0]),
+            newFsPath: descendant.fsPath.replace(item.fsPath, newFsPath),
+          }
+        })
+
+        await activeTree.value.draft.rename(itemsToRename)
       }
     },
     [StudioItemActionId.DeleteItem]: async (item: TreeItem) => {
-      const ids: string[] = findDescendantsFileItemsFromId(activeTree.value.root.value, item.id).map(item => item.id)
-      await activeTree.value.draft.remove(ids)
+      // Delete file
+      if (item.type === 'file') {
+        const id = generateIdFromFsPath(item.fsPath, item.collections![0])
+        await activeTree.value.draft.remove([id])
+        return
+      }
+
+      // Delete folder
+      const descendants = findDescendantsFileItemsFromFsPath(activeTree.value.root.value, item.fsPath)
+      if (descendants.length > 0) {
+        const ids: string[] = descendants.map((descendant) => {
+          return generateIdFromFsPath(descendant.fsPath, descendant.collections![0])
+        })
+        await activeTree.value.draft.remove(ids)
+      }
     },
     [StudioItemActionId.DuplicateItem]: async (item: TreeItem) => {
-      const draftItem = await activeTree.value.draft.duplicate(item.id)
-      await activeTree.value.selectItemById(draftItem!.id)
+      // Duplicate file
+      if (item.type === 'file') {
+        const id = generateIdFromFsPath(item.fsPath, item.collections![0])
+        const draftItem = await activeTree.value.draft.duplicate(id)
+        await activeTree.value.selectItemByFsPath(draftItem!.id)
+        return
+      }
     },
     [StudioItemActionId.RevertAllItems]: async () => {
       await documentTree.draft.revertAll()

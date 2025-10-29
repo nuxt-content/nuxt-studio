@@ -68,7 +68,7 @@ export function computeItemActions(itemActions: StudioAction<StudioItemActionId>
 
   const forbiddenActions: StudioItemActionId[] = []
 
-  if (item.id.startsWith(TreeRootId.Media)) {
+  if (item.collections.includes(TreeRootId.Media)) {
     forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateDocument)
   }
   else {

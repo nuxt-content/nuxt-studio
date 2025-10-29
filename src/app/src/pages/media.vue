@@ -7,7 +7,7 @@ const { context } = useStudio()
 const isUploading = ref(false)
 
 const folderTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'directory'))
-const fileTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'file' && !f.id.endsWith('.gitkeep')))
+const fileTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'file' && !f.fsPath.endsWith('.gitkeep')))
 
 const currentTreeItem = computed(() => context.activeTree.value.currentItem.value)
 const currentDraftItem = computed(() => context.activeTree.value.draft.current.value)
