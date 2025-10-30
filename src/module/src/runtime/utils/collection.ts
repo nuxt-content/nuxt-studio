@@ -143,10 +143,19 @@ export function normalizeDocument(document: DatabaseItem) {
   // we can remove it to avoid duplication
   if (document.seo) {
     const seo = document.seo as Record<string, unknown>
-    if ((!seo.title || seo.title === document.title) && (!seo.description || seo.description === document.description)) {
+
+    if (!seo.title || seo.title === document.title) {
+      Reflect.deleteProperty(document.seo, 'title')
+    }
+    if (!seo.description || seo.description === document.description) {
+      Reflect.deleteProperty(document.seo, 'description')
+    }
+
+    if (Object.keys(seo).length === 0) {
       Reflect.deleteProperty(document, 'seo')
     }
   }
+  console.log({document})
   return document
 }
 
