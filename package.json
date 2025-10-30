@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@iconify-json/simple-icons": "^1.2.56",
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@dd854d5",
+    "@nuxt/content": "^3.8.0",
     "@nuxt/eslint-config": "^1.9.0",
     "@nuxt/kit": "^4.2.0",
     "@nuxt/module-builder": "^1.0.2",
@@ -78,9 +78,6 @@
     "vue-router": "^4.6.3",
     "vue-tsc": "^3.1.2",
     "zod": "^4.1.12"
-  },
-  "resolutions": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@dd854d5"
   },
   "packageManager": "pnpm@10.19.0",
   "keywords": [
