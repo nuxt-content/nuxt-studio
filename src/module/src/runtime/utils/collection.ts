@@ -155,7 +155,7 @@ export function normalizeDocument(document: DatabaseItem) {
       Reflect.deleteProperty(document, 'seo')
     }
   }
-  console.log({document})
+
   return document
 }
 
