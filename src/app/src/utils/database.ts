@@ -35,7 +35,7 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
     }
   }
 
-  if (JSON.stringify(documentData1) !== JSON.stringify(documentData2)) {
+  if (!isDeepEqual(refineDocumentData(documentData1), refineDocumentData(documentData2))) {
     return false
   }
 
@@ -45,6 +45,37 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
     if (JSON.stringify(metaFields1) !== JSON.stringify(metaFields2)) {
       return false
     }
+  }
+
+  return true
+}
+
+function refineDocumentData(doc: Record<string, unknown>) {
+  if (doc.seo) {
+    const seo = doc.seo as Record<string, unknown>
+    doc.seo = {
+      ...seo,
+      title: seo.title || doc.title,
+      description: seo.description || doc.description,
+    }
+  }
+  // documents with same id are being compared, so it is safe to remove `path` and `__hash__`
+  Reflect.deleteProperty(doc, '__hash__')
+  Reflect.deleteProperty(doc, 'path')
+  return doc
+}
+
+function isDeepEqual(obj1: Record<string, unknown>, obj2: Record<string, unknown>) {
+  if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return obj1 === obj2
+
+  const keys1 = Object.keys(obj1).filter(k => obj1[k] != null)
+  const keys2 = Object.keys(obj2).filter(k => obj2[k] != null)
+
+  if (keys1.length !== keys2.length) return false
+
+  for (const key of keys1) {
+    if (!keys2.includes(key)) continue // Ignore missing null/undefined fields
+    if (!isDeepEqual(obj1[key] as Record<string, unknown>, obj2[key] as Record<string, unknown>)) return false
   }
 
   return true
