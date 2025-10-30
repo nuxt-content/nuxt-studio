@@ -44,6 +44,20 @@ const isDirectory = computed(() => props.item.type === 'directory')
         />
       </div>
     </template>
+    <template #name-prefix>
+      <UIcon
+        v-if="item.name === 'home'"
+        name="i-lucide-house"
+        class="size-3.5 shrink-0 text-muted"
+      />
+      <UBadge
+        v-else-if="item.prefix"
+        :label="item.prefix.toString()"
+        size="xs"
+        variant="soft"
+        class="bg-elevated"
+      />
+    </template>
     <template #bottom-right>
       <UBadge
         v-if="!isDirectory"

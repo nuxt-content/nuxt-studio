@@ -51,18 +51,7 @@ const displayInfo = computed(() => {
 
           <div class="flex flex-col gap-1 flex-1 min-w-0">
             <div class="flex items-center gap-1 min-w-0">
-              <UIcon
-                v-if="name === 'Home'"
-                name="i-lucide-house"
-                class="size-3.5 shrink-0 text-muted"
-              />
-              <UBadge
-                v-else-if="item.prefix"
-                :label="item.prefix.toString()"
-                size="xs"
-                variant="soft"
-                class="bg-elevated"
-              />
+              <slot name="name-prefix" />
               <h3
                 class="flex items-center gap-1 text-sm font-semibold truncate text-default overflow-hidden"
                 :class="props.item.status === 'deleted' && 'line-through'"
