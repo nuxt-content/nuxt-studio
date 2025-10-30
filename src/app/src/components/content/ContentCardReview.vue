@@ -60,8 +60,6 @@ async function initializeEditor() {
       language: language.value,
       colorMode: ui.colorMode.value,
       editorOptions: {
-        // automatically adjust the layout of the editor
-        automaticLayout: true,
         // hide unchanged regions
         hideUnchangedRegions: {
           enabled: true,

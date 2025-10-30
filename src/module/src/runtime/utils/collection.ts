@@ -137,6 +137,19 @@ export function createCollectionDocument(collection: CollectionInfo, id: string,
   return result
 }
 
+export function normalizeDocument(document: DatabaseItem) {
+  // `seo` is an auto-generated field in content module
+  // if `seo.title` and `seo.description` are same as `title` and `description`
+  // we can remove it to avoid duplication
+  if (document.seo) {
+    const seo = document.seo as Record<string, unknown>
+    if ((!seo.title || seo.title === document.title) && (!seo.description || seo.description === document.description)) {
+      Reflect.deleteProperty(document, 'seo')
+    }
+  }
+  return document
+}
+
 function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: Record<string, unknown>) {
   const fields: string[] = []
   const values: Array<string | number | boolean> = []

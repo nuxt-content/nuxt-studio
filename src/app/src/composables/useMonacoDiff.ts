@@ -32,6 +32,7 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
       renderSideBySideInlineBreakpoint: 0,
       wordWrap: 'on',
       scrollBeyondLastLine: false,
+      automaticLayout: true,
       ...options.editorOptions,
     })
 
