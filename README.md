@@ -17,9 +17,9 @@
 > - ✅ Media management and uploads
 > - ✅ GitHub authentication and publishing workflow
 >
-> **🎨 Visual Editor Coming Soon!**
+> **🎨 Visual Editor Coming Soon**
 >
-> Once all file operations and GitHub publishing workflows are tested and stable, we'll release **Phase 2 (Beta)** with the full visual editor for Markdown, components, and media.
+> Once all file operations and GitHub publishing workflows are tested and stable, we'll release **Phase 2 (Beta)** with the full visual editor for Markdown, Vue components, and medias...
 
 ---
 
@@ -107,8 +107,6 @@ STUDIO_GITHUB_CLIENT_SECRET=your_github_client_secret
 
 ## Configuration
 
-### Basic Configuration
-
 Configure Nuxt Studio in your `nuxt.config.ts`:
 
 ```ts
@@ -152,9 +150,6 @@ When enabled, Nuxt Studio will:
 - ✅ Write media changes to your local `public/` directory
 - ❌ Listen for file system changes and update the editor
 - ❌ Commit changes to your repository (use your classical workflow instead)
-
-## Contribute and develop on Nuxt Studio
-
 
 ## Contributing
 You must clone the repository and create a local GitHub OAuth App (pointing to `http://localhost:3000` as callback URL).
@@ -224,7 +219,7 @@ pnpm lint
 - [ ] Frontmatter edition as form
 - [ ] Vue Component edition (props, slots)
 
-### 🔮 Future Phases
+### 🔮 Future
 
 - [ ] Multi-user collaboration
 - [ ] Version history and rollback
