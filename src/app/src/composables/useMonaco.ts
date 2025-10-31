@@ -3,6 +3,7 @@ import type { editor as Editor } from 'modern-monaco/editor-core'
 import { setupMonaco } from '../utils/monaco'
 
 export interface UseMonacoOptions {
+  uri?: string
   language: Ref<string> | string
   initialContent?: string
   readOnly?: boolean
@@ -60,7 +61,9 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
 
     // Create and attach model
     const language = unref(options.language)
-    editor.value.setModel(monaco.editor.createModel(initialContent, language))
+    const existingModel = options.uri && monaco.editor.getModel(options.uri)
+    const model = existingModel || monaco.editor.createModel(initialContent, language, options.uri)
+    editor.value.setModel(model)
 
     // Watch for color mode changes
     watch(options.colorMode, (newMode) => {

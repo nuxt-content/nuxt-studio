@@ -3,6 +3,7 @@ import { type DatabasePageItem, ContentFileExtension } from '../types'
 import { stringify } from 'minimark/stringify'
 import type { MDCRoot } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
+import { isDeepEqual } from './object'
 
 export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem) {
   function withoutLastStyles(body: MarkdownRoot) {
@@ -35,7 +36,7 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
     }
   }
 
-  if (JSON.stringify(documentData1) !== JSON.stringify(documentData2)) {
+  if (!isDeepEqual(refineDocumentData(documentData1), refineDocumentData(documentData2))) {
     return false
   }
 
@@ -48,4 +49,19 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
   }
 
   return true
+}
+
+function refineDocumentData(doc: Record<string, unknown>) {
+  if (doc.seo) {
+    const seo = doc.seo as Record<string, unknown>
+    doc.seo = {
+      ...seo,
+      title: seo.title || doc.title,
+      description: seo.description || doc.description,
+    }
+  }
+  // documents with same id are being compared, so it is safe to remove `path` and `__hash__`
+  Reflect.deleteProperty(doc, '__hash__')
+  Reflect.deleteProperty(doc, 'path')
+  return doc
 }
