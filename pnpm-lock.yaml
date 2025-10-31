@@ -14,6 +14,9 @@ importers:
       '@nuxtjs/mdc':
         specifier: https://pkg.pr.new/@nuxtjs/mdc@bf09212
         version: https://pkg.pr.new/@nuxtjs/mdc@bf09212(magicast@0.3.5)
+      '@vueuse/core':
+        specifier: ^13.9.0
+        version: 13.9.0(vue@3.5.22(typescript@5.9.3))
       defu:
         specifier: ^6.1.4
         version: 6.1.4
@@ -60,9 +63,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.1(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
-      '@vueuse/core':
-        specifier: ^13.9.0
-        version: 13.9.0(vue@3.5.22(typescript@5.9.3))
       eslint:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
