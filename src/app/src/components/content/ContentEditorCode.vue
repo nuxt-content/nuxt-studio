@@ -42,7 +42,7 @@ const language = computed(() => {
 })
 
 const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
-  uri: 'file://' + document.value?.id || '',
+  uri: 'file://' + (document.value?.id || ''),
   language,
   readOnly: props.readOnly,
   colorMode: ui.colorMode,
