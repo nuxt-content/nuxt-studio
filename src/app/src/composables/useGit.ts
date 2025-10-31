@@ -69,7 +69,9 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
       return Promise.resolve(null)
     }
 
-    files = files.map(file => ({ ...file, path: joinURL(rootDir, file.path) }))
+    files = files
+      .filter(file => file.status !== DraftStatus.Pristine)
+      .map(file => ({ ...file, path: joinURL(rootDir, file.path) }))
 
     return commitFilesToGitHub({
       owner,
