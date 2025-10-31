@@ -209,10 +209,11 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         }
 
         const document = await generateDocumentFromContent(id, content)
+        const collectionDocument = createCollectionDocument(collectionInfo!, id, document!)
 
-        await host.document.upsert(id, document!)
+        await host.document.upsert(id, collectionDocument!)
 
-        return document!
+        return collectionDocument!
       },
       upsert: async (id: string, document: CollectionItemBase) => {
         id = id.replace(/:/g, '/')

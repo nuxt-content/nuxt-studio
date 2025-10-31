@@ -69,7 +69,7 @@ const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
       localStatus.value = DraftStatus.Updated
 
       document.value = {
-        ...pickReservedKeysFromDocument(props.draftItem.original as DatabasePageItem || document.value!),
+        ...pickReservedKeysFromDocument(props.draftItem.modified as DatabasePageItem || document.value!),
         ...doc,
       } as DatabasePageItem
     })

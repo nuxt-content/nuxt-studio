@@ -103,10 +103,10 @@ export function parseSourceBase(source: CollectionSource) {
   }
 }
 
-export function createCollectionDocument(collection: CollectionInfo, id: string, item: CollectionItemBase) {
+export function createCollectionDocument(collection: CollectionInfo, id: string, document: CollectionItemBase) {
   const parsedContent = [
     pathMetaTransform,
-  ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...item, id } as PageCollectionItemBase)
+  ].reduce((acc, fn) => collection.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...document, id } as PageCollectionItemBase)
   const result = { id } as DatabaseItem
   const meta = parsedContent.meta as Record<string, unknown>
 
@@ -141,7 +141,7 @@ export function normalizeDocument(document: DatabaseItem) {
   // `seo` is an auto-generated field in content module
   // if `seo.title` and `seo.description` are same as `title` and `description`
   // we can remove it to avoid duplication
-  if (document.seo) {
+  if (document?.seo) {
     const seo = document.seo as Record<string, unknown>
 
     if (!seo.title || seo.title === document.title) {
