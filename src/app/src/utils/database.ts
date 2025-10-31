@@ -36,16 +36,10 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
     }
   }
 
-  if (!isDeepEqual(refineDocumentData(documentData1), refineDocumentData(documentData2))) {
+  const data1 = refineDocumentData({ ...documentData1, ...meta1 })
+  const data2 = refineDocumentData({ ...documentData2, ...meta2 })
+  if (!isDeepEqual(data1, data2)) {
     return false
-  }
-
-  if (meta1 && meta2) {
-    const { __hash__: _hash1, ...metaFields1 } = meta1
-    const { __hash__: _hash2, ...metaFields2 } = meta2
-    if (JSON.stringify(metaFields1) !== JSON.stringify(metaFields2)) {
-      return false
-    }
   }
 
   return true
@@ -63,5 +57,11 @@ function refineDocumentData(doc: Record<string, unknown>) {
   // documents with same id are being compared, so it is safe to remove `path` and `__hash__`
   Reflect.deleteProperty(doc, '__hash__')
   Reflect.deleteProperty(doc, 'path')
+
+  // default value of navigation is true
+  if (typeof doc.navigation === 'undefined') {
+    doc.navigation = true
+  }
+
   return doc
 }
