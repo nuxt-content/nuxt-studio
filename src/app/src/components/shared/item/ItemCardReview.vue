@@ -50,7 +50,7 @@ function toggleOpen() {
       <div class="flex items-center gap-3 flex-1 min-w-0">
         <UIcon
           :name="fileIcon"
-          class="w-5 h-5 flex-shrink-0 text-muted"
+          class="w-5 h-5 shrink-0 text-muted"
         />
 
         <div class="flex flex-col flex-1 min-w-0">
@@ -74,7 +74,7 @@ function toggleOpen() {
               <span class="text-dimmed font-medium">{{ originalPath }}</span>
               <UIcon
                 name="i-lucide-arrow-right"
-                class="w-3 h-3 text-dimmed flex-shrink-0"
+                class="w-3 h-3 text-dimmed shrink-0"
               />
             </div>
             <span class="text-muted italic">{{ filePath }}</span>

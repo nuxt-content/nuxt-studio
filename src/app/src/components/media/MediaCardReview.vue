@@ -15,7 +15,7 @@ defineProps({
   <ItemCardReview :draft-item="draftItem">
     <template #open>
       <img
-        :src="draftItem.modified?.routePath as string"
+        :src="draftItem.modified?.path!"
         :class="{ 'opacity-50': draftItem.status === DraftStatus.Deleted }"
       >
     </template>
