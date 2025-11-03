@@ -100,7 +100,7 @@ export const useContext = createSharedComposable((
 
       const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocument)
 
-      await activeTree.value.selectItemByFsPath(rootDocumentDraftItem.id)
+      await activeTree.value.selectItemByFsPath(rootDocumentDraftItem.fsPath)
     },
     [StudioItemActionId.CreateMediaFolder]: async (params: CreateFolderParams) => {
       const { fsPath } = params
@@ -123,7 +123,7 @@ export const useContext = createSharedComposable((
       const { fsPath, content } = params
       const document = await host.document.create(fsPath, content)
       const draftItem = await activeTree.value.draft.create(document as DatabaseItem)
-      await activeTree.value.selectItemByFsPath(draftItem.id)
+      await activeTree.value.selectItemByFsPath(draftItem.fsPath)
     },
     [StudioItemActionId.UploadMedia]: async ({ parentFsPath, files }: UploadMediaParams) => {
       // Remove .gitkeep draft in folder if exists
