@@ -36,7 +36,11 @@ export function generateStemFromFsPath(path: string) {
 
 // TODO handle several sources case
 export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
-  return join(collectionInfo.name, collectionInfo.source[0]?.prefix || '', path)
+  const { fixed } = parseSourceBase(collectionInfo.source[0]!)
+
+  const pathWithoutFixed = path.substring(fixed.length)
+
+  return join(collectionInfo.name, collectionInfo.source[0]?.prefix || '', pathWithoutFixed)
 }
 
 export function getOrderedSchemaKeys(schema: Draft07) {
