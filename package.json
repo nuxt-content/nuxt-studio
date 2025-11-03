@@ -79,6 +79,9 @@
     "vue-tsc": "^3.1.2",
     "zod": "^4.1.12"
   },
+  "resolutions": {
+    "remark-mdc": "https://pkg.pr.new/nuxt-content/remark-mdc/remark-mdc@25cc82c"
+  },
   "packageManager": "pnpm@10.19.0",
   "keywords": [
     "nuxt",

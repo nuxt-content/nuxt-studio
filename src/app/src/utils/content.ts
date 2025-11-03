@@ -187,6 +187,7 @@ export async function generateContentFromYAMLDocument(document: DatabaseItem): P
   return await stringifyFrontMatter(removeReservedKeysFromDocument(document), '', {
     prefix: '',
     suffix: '',
+    lineWidth: 0,
   })
 }
 
