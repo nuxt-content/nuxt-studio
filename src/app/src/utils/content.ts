@@ -61,6 +61,14 @@ export function removeReservedKeysFromDocument(document: DatabaseItem) {
   return result
 }
 
+export function isEqual(content1: string | null, content2: string | null): boolean {
+  if (content1 && content2) {
+    return content1.trim() === content2.trim()
+  }
+
+  return false
+}
+
 export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
   const extension = getFileExtension(id)

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus } from '../../types'
+import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus, type DatabaseItem } from '../../types'
 import type { PropType } from 'vue'
-import { generateContentFromDocument, generateDocumentFromContent, pickReservedKeysFromDocument } from '../../utils/content'
+import { generateContentFromDocument, generateDocumentFromContent, isEqual, pickReservedKeysFromDocument } from '../../utils/content'
 import { setupSuggestion } from '../../utils/monaco'
 import { useStudio } from '../../composables/useStudio'
 import { useMonaco } from '../../composables/useMonaco'
+import { fromBase64ToUTF8 } from '../../utils/string'
 
 const props = defineProps({
   draftItem: {
@@ -26,6 +27,7 @@ const editorRef = ref<HTMLElement>()
 const content = ref<string>('')
 const currentDocumentId = ref<string | null>(null)
 const localStatus = ref<DraftStatus>(props.draftItem.status)
+const isAutomaticFormattingDetected = ref(false)
 
 const language = computed(() => {
   switch (document.value?.extension) {
@@ -107,18 +109,28 @@ watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
   }
 }, { immediate: true })
 
-function setContent(document: DatabasePageItem) {
-  generateContentFromDocument(document).then((md) => {
-    content.value = md || ''
-    setEditorContent(md || '', true)
-    currentDocumentId.value = document.id
-  })
+async function setContent(document: DatabasePageItem) {
+  const md = await generateContentFromDocument(document) || ''
+  content.value = md
+  setEditorContent(md, true)
+  currentDocumentId.value = document.id
+
+  isAutomaticFormattingDetected.value = false
+  if (props.draftItem.original && props.draftItem.githubFile?.content) {
+    const localOriginal = await generateContentFromDocument(props.draftItem.original as DatabaseItem)
+    const gitHubOriginal = fromBase64ToUTF8(props.draftItem.githubFile.content)
+
+    isAutomaticFormattingDetected.value = !isEqual(localOriginal, gitHubOriginal)
+  }
 }
 </script>
 
 <template>
-  <div
-    ref="editorRef"
-    class="h-full -ml-3"
-  />
+  <div class="relative h-full">
+    <WarningTooltip v-if="isAutomaticFormattingDetected" />
+    <div
+      ref="editorRef"
+      class="h-full -ml-3"
+    />
+  </div>
 </template>
