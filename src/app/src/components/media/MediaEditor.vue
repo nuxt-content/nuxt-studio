@@ -25,16 +25,16 @@ const isAudio = computed(() => isAudioFile(props.mediaItem?.path || ''))
 
 <template>
   <div class="bg-elevated h-full">
-    <MediaImageEditor
+    <MediaEditorImage
       v-if="isImage"
       :media-item="mediaItem"
       :github-file="githubFile"
     />
-    <MediaVideoEditor
+    <MediaEditorVideo
       v-else-if="isVideo"
       :src="mediaItem.path!"
     />
-    <MediaAudioEditor
+    <MediaEditorAudio
       v-else-if="isAudio"
       :src="mediaItem.path!"
     />
