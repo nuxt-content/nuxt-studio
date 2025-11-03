@@ -221,16 +221,11 @@ pnpm lint
 
 ### 🔮 Future
 
-- [ ] Multi-user collaboration
-- [ ] Version history and rollback
 - [ ] GitLab provider support
-- [ ] Bitbucket provider support
-- [ ] Azure DevOps provider support
+- [ ] Other provider support
 - [ ] Advanced conflict resolution
-- [ ] Content scheduling
-- [ ] Team permissions and roles
+- [ ] Pull request generation (from a branch to the main one)
 - [ ] AI-powered content suggestions
-
 
 ## Links
 
