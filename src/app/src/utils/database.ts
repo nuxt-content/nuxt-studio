@@ -5,7 +5,7 @@ import type { MDCRoot } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
 import { isDeepEqual } from './object'
 
-export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem) {
+export function isEqual(document1: Record<string, unknown>, document2: Record<string, unknown>) {
   function withoutLastStyles(body: MarkdownRoot) {
     if (body.value[body.value.length - 1]?.[0] === 'style') {
       return { ...body, value: body.value.slice(0, -1) }
@@ -19,10 +19,10 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
   // Compare body first
   if (document1.extension === ContentFileExtension.Markdown) {
     const minifiedBody1 = withoutLastStyles(
-      document1.body.type === 'minimark' ? document1.body : compressTree(document1.body as unknown as MDCRoot),
+      (document1 as DatabasePageItem).body.type === 'minimark' ? document1.body as MarkdownRoot : compressTree(document1.body as unknown as MDCRoot),
     )
     const minifiedBody2 = withoutLastStyles(
-      document2.body.type === 'minimark' ? document2.body : compressTree(document2.body as unknown as MDCRoot),
+      (document2 as DatabasePageItem).body.type === 'minimark' ? document2.body as MarkdownRoot : compressTree(document2.body as unknown as MDCRoot),
     )
 
     if (stringify(minifiedBody1) !== stringify(minifiedBody2)) {
@@ -36,8 +36,8 @@ export function isEqual(document1: DatabasePageItem, document2: DatabasePageItem
     }
   }
 
-  const data1 = refineDocumentData({ ...documentData1, ...meta1 })
-  const data2 = refineDocumentData({ ...documentData2, ...meta2 })
+  const data1 = refineDocumentData({ ...documentData1, ...(meta1 || {}) })
+  const data2 = refineDocumentData({ ...documentData2, ...(meta2 || {}) })
   if (!isDeepEqual(data1, data2)) {
     return false
   }
