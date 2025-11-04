@@ -6,7 +6,7 @@
 
 ---
 
-## ⚠️ Alpha Release
+## ⚠️ Alpha Version
 
 > **Current Status: Alpha Testing**
 >
@@ -17,13 +17,12 @@
 > - ✅ Media management and uploads
 > - ✅ GitHub authentication and publishing workflow
 >
-> **🎨 Visual Editor Coming Soon**
 >
 > Once all file operations and GitHub publishing workflows are tested and stable, we'll release **Phase 2 (Beta)** with the full visual editor for Markdown, Vue components, and medias...
 
 ---
 
-> Visual edition in production for your [Nuxt Content](https://content.nuxt.com) website.
+Visual edition in production for your [Nuxt Content](https://content.nuxt.com) website.
 
 Originally offered as a standalone premium platform at https://nuxt.studio, Studio has evolved into a free, open-source, and self-hostable Nuxt module. Enable your entire team to edit website content right in production.
 
@@ -47,8 +46,9 @@ Originally offered as a standalone premium platform at https://nuxt.studio, Stud
 - 🤖 **AI Content Assistant** — Receive smart, AI-powered suggestions to enhance your content creation flow
 - 💡 **Community-driven Features** — Have an idea? [Share your suggestions](https://github.com/nuxt-content/studio/discussions) to shape the future of Nuxt Studio
 
-[📖 Documentation](https://content.nuxt.com/docs/studio)
-[🎮 Live Demo](https://docus.dev/admin)
+### Resources
+- [📖 Documentation](https://content.nuxt.com/docs/studio)
+- [🎮 Live Demo](https://docus.dev/admin)
 
 ## Quick Setup
 
