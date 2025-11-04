@@ -6,7 +6,7 @@ seo:
 
 ::u-page-hero
 #title
-Write docs with Markdown
+Write docs with Markdown!
 
 #description
 Ship fast, flexible, and SEO-optimized documentation with beautiful design out of the box.
