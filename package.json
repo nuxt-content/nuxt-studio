@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.71",
-    "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@bf09212",
+    "@nuxtjs/mdc": "v0.18.1",
     "@vueuse/core": "^13.9.0",
     "defu": "^6.1.4",
     "destr": "^2.0.5",
@@ -78,9 +78,6 @@
     "vue-router": "^4.6.3",
     "vue-tsc": "^3.1.2",
     "zod": "^4.1.12"
-  },
-  "resolutions": {
-    "remark-mdc": "https://pkg.pr.new/nuxt-content/remark-mdc/remark-mdc@25cc82c"
   },
   "packageManager": "pnpm@10.19.0",
   "keywords": [
