@@ -1,6 +1,6 @@
 {
   "name": "nuxt-studio",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Nuxt Studio for Nuxt Content",
   "repository": {
     "type": "git",
@@ -34,10 +34,10 @@
     "dev:app": "vite src/app --port 5151",
     "dev:build": "nuxi build playground/docus",
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus",
-    "release": "release-it",
+    "release": "release-it --preRelease=alpha --npm.tag=alpha",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck && vue-tsc -p src/app/tsconfig.app.json",
-    "verify": "pnpm run lint && pnpm run typecheck && pnpm run test",
+    "verify": "pnpm run dev:prepare && pnpm run lint && pnpm run prepack && pnpm run typecheck && pnpm run test",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
