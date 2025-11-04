@@ -207,6 +207,11 @@ export async function generateContentFromMarkdownDocument(document: DatabasePage
   })
 
   const markdown = await stringifyMarkdown(body, removeReservedKeysFromDocument(document), {
+    frontMatter: {
+      options: {
+        lineWidth: 0,
+      },
+    },
     plugins: {
       remarkMDC: {
         options: {
