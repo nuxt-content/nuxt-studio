@@ -19,17 +19,14 @@ const IMAGE_EXTENSIONS = [
   'gif',
 ]
 
-function extractImagePath(pathname) {
+function extractImagePath(url) {
+  const pathname = url.pathname;
   if (pathname.startsWith('/_ipx/_/')) {
     return pathname.replace('/_ipx/_', '')
   }
 
   if (pathname.startsWith('/_vercel/image')) {
-    try {
-      return new URL(pathname, 'http://localhost').searchParams.get('url') || null
-    } catch (error) {
-      return null
-    }
+    return url.searchParams.get('url') || null
   }
 
   if (IMAGE_EXTENSIONS.includes(pathname.split('.').pop())) {
@@ -39,6 +36,14 @@ function extractImagePath(pathname) {
   return null
 }
 
+self.addEventListener('install', event => {
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim())
+})
+
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const isSameDomain = url.origin === self.location.origin;
@@ -47,7 +52,7 @@ self.addEventListener('fetch', event => {
     return event.respondWith(fetch(event.request));
   }
 
-  const imageUrl = extractImagePath(url.pathname);
+  const imageUrl = extractImagePath(url);
   if (imageUrl) {
     return event.respondWith(fetchFromIndexedDB(event, imageUrl));
   }
@@ -56,7 +61,7 @@ self.addEventListener('fetch', event => {
 })
 
 function fetchFromIndexedDB(event, url) {
-  const dbKey = ['public-assets:', url.replace(/^\\//g, ':')].join('')
+  const dbKey = ['public-assets:', url.replace(/^\\//g, '').replace(/\\//g, ':')].join('')
   return getData(dbKey).then(data => {
     if (!data) {
       return fetch(event.request);

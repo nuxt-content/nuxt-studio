@@ -13,6 +13,8 @@ import { collections } from '#content/preview'
 import { publicAssetsStorage } from '#build/studio-public-assets'
 import { useHostMeta } from './composables/useMeta'
 
+const serviceWorkerVersion = 'v0.0.1'
+
 function getSidebarWidth(): number {
   let sidebarWidth = 440
   // Try to get width from localStorage if available
@@ -291,7 +293,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         isMounted.value = true
       }).then(() => {
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/sw.js')
+          navigator.serviceWorker.register(`/sw.js?${serviceWorkerVersion}`)
         }
         return meta.fetch()
       })
