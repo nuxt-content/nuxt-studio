@@ -242,7 +242,7 @@ async function onSubmit() {
         <UPageCard
           reverse
           :class="{ 'animate-pulse': isLoading }"
-          class="hover:bg-white relative w-full min-w-0 overflow-hidden"
+          class="hover:bg-elevated/20 relative w-full min-w-0 overflow-hidden"
           :ui="{ container: 'overflow-hidden' }"
         >
           <template #body>

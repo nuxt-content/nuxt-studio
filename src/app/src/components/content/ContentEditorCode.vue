@@ -127,7 +127,7 @@ async function setContent(document: DatabasePageItem) {
 
 <template>
   <div class="relative h-full">
-    <WarningTooltip v-if="isAutomaticFormattingDetected" />
+    <AlertMDCFormatting v-if="isAutomaticFormattingDetected" />
     <div
       ref="editorRef"
       class="h-full -ml-3"

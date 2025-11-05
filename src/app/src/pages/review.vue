@@ -38,9 +38,9 @@ const statusConfig = {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full text-default">
     <div class="flex items-center gap-1 px-4 py-2 border-b-[0.5px] border-default bg-muted/70">
-      <h2 class="text-xs font-semibold">
+      <h2 class="text-xs font-semibold text-muted">
         Review changes
       </h2>
       <UBadge

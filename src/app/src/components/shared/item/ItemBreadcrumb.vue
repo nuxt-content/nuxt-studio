@@ -69,7 +69,7 @@ const items = computed<BreadcrumbItem[]>(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-1">
+  <div class="flex items-center gap-1 overflow-hidden">
     <UBreadcrumb
       :items="items"
       color="neutral"
