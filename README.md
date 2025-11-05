@@ -1,6 +1,6 @@
 # Nuxt Studio
 
-[![npm version](https://img.shields.io/npm/v/nuxt-studio.svg?style=flat&colorA=020420&colorB=EEEEEE)](https://npmjs.com/package/nuxt-studio)
+[![npm version](https://img.shields.io/npm/v/nuxt-studio/alpha.svg?style=flat&colorA=020420&colorB=EEEEEE)](https://npmjs.com/package/nuxt-studio)
 [![npm downloads](https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat&colorA=020420&colorB=EEEEEE)](https://npm.chart.dev/nuxt-studio)
 [![License](https://img.shields.io/npm/l/nuxt-studio.svg?style=flat&colorA=020420&colorB=EEEEEE)](https://npmjs.com/package/nuxt-studio)
 
@@ -61,7 +61,7 @@ Originally offered as a standalone premium platform at https://nuxt.studio, Stud
 Install the module in your Nuxt application with one command:
 
 ```bash
-npx nuxi module add nuxt-studio
+npx nuxi module add nuxt-studio@alpha
 ```
 
 Add it to your `nuxt.config` and configure your repository.
