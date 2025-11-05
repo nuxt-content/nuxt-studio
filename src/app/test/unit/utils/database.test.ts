@@ -169,4 +169,21 @@ describe('isEqual', () => {
 
     expect(isEqual(document1, document2)).toBe(false)
   })
+
+  it('should return true if date values are same but different format', () => {
+    const document1: DatabasePageItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      date: '2025-11-04',
+    }
+    const document2: DatabasePageItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      date: '2025-11-04T00:00:00.000Z',
+    }
+
+    expect(isEqual(document1, document2)).toBe(true)
+  })
 })
