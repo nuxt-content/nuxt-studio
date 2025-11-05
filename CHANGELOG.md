@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.0-alpha.1](https://github.com/nuxt-content/studio/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2025-11-05)
+
+### Features
+
+* add support for redirect query parameter ([0d77460](https://github.com/nuxt-content/studio/commit/0d77460675ccb26bf0cce84e10e8522a54a6c924))
+
+### Bug Fixes
+
+* **app:** edit this page button ([392d1d3](https://github.com/nuxt-content/studio/commit/392d1d387ffa7beb4c071d58c6df93205ce5be2c))
+* **deps:** rollback unstorage to previous patch ([5aa09f9](https://github.com/nuxt-content/studio/commit/5aa09f9ac26b53ef68cef5be698fa2b53d58f3ac))
+* **diff:** compare date values with timestamp ([#46](https://github.com/nuxt-content/studio/issues/46)) ([5be5e03](https://github.com/nuxt-content/studio/commit/5be5e0322f3fd8b1092df689e5aaa8e7122f19eb))
+* fallback to user login ([c74b1dd](https://github.com/nuxt-content/studio/commit/c74b1dd0595ebaf4a5de5d7b1a10decc79bc376a))
+* service worker auto install ([dc7ddb6](https://github.com/nuxt-content/studio/commit/dc7ddb682b8e188b7056a1b9f47b6f0cb0e2d9c8))
+* **service-worker:** handle vercel images ([#48](https://github.com/nuxt-content/studio/issues/48)) ([22ae221](https://github.com/nuxt-content/studio/commit/22ae22179e8afcd0f57c8708a583bcb13143d3cc))
+
 ## 1.0.0-alpha.0 (2025-11-04)
 
 ### Features
