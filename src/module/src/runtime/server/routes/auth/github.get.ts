@@ -202,7 +202,7 @@ export default eventHandler(async (event: H3Event) => {
       contentUser: true,
       githubId: user.id,
       githubToken: token.access_token,
-      name: user.name,
+      name: user.name || user.login,
       avatar: user.avatar_url,
       email: user.email,
       provider: 'github',
