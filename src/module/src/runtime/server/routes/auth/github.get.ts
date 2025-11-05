@@ -80,7 +80,8 @@ interface RequestAccessTokenOptions {
 }
 
 export default eventHandler(async (event: H3Event) => {
-  const config = defu(useRuntimeConfig(event).studio?.auth?.github, {
+  const studioConfig = useRuntimeConfig(event).studio
+  const config = defu(studioConfig?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_GITHUB_REDIRECT_URL,
@@ -120,8 +121,8 @@ export default eventHandler(async (event: H3Event) => {
     if (config.emailRequired && !config.scope.includes('user:email')) {
       config.scope.push('user:email')
     }
-    if (config.emailRequired && !config.scope.includes('repo')) {
-      config.scope.push('repo')
+    if (config.emailRequired && !config.scope.includes('repo') && !config.scope.includes('public_repo')) {
+      config.scope.push(studioConfig.repository.private ? 'repo' : 'public_repo')
     }
 
     return sendRedirect(
