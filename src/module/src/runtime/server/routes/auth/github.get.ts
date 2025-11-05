@@ -10,12 +10,12 @@ import { useRuntimeConfig } from '#imports'
 export interface OAuthGitHubConfig {
   /**
    * GitHub OAuth Client ID
-   * @default process.env.NUXT_OAUTH_GITHUB_CLIENT_ID
+   * @default process.env.STUDIO_GITHUB_CLIENT_ID
    */
   clientId?: string
   /**
    * GitHub OAuth Client Secret
-   * @default process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET
+   * @default process.env.STUDIO_GITHUB_CLIENT_SECRET
    */
   clientSecret?: string
   /**
@@ -58,8 +58,8 @@ export interface OAuthGitHubConfig {
 
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
-   * @default process.env.NUXT_OAUTH_GITHUB_REDIRECT_URL
-   * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps
+   * Use `process.env.STUDIO_GITHUB_REDIRECT_URL` to overwrite the default redirect URL.
+   * @default is ${hostname}/__nuxt_studio/auth/github
    */
   redirectURL?: string
 }
@@ -83,6 +83,7 @@ export default eventHandler(async (event: H3Event) => {
   const config = defu(useRuntimeConfig(event).studio?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
+    redirectURL: process.env.STUDIO_GITHUB_REDIRECT_URL,
     authorizationURL: 'https://github.com/login/oauth/authorize',
     tokenURL: 'https://github.com/login/oauth/access_token',
     apiURL: 'https://api.github.com',
@@ -109,7 +110,9 @@ export default eventHandler(async (event: H3Event) => {
   }
 
   const requestURL = getRequestURL(event)
-  const redirectURL = `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
+
+  config.redirectURL = config.redirectURL || `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
+
   const state = await handleState(event)
 
   if (!query.code) {
@@ -125,7 +128,7 @@ export default eventHandler(async (event: H3Event) => {
       event,
       withQuery(config.authorizationURL as string, {
         client_id: config.clientId,
-        redirect_uri: redirectURL,
+        redirect_uri: config.redirectURL,
         scope: config.scope.join(' '),
         state,
         ...config.authorizationParams,
@@ -149,7 +152,7 @@ export default eventHandler(async (event: H3Event) => {
       grant_type: 'authorization_code',
       client_id: config.clientId,
       client_secret: config.clientSecret,
-      redirect_uri: redirectURL,
+      redirect_uri: config.redirectURL,
       code: query.code,
     },
   })
