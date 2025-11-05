@@ -33,7 +33,8 @@ function detectActiveDocuments() {
 }
 
 async function editContentFile(id: string) {
-  await context.activeTree.value.selectItemByFsPath(id)
+  const fsPath = host.document.getFileSystemPath(id)
+  await context.activeTree.value.selectItemByFsPath(fsPath)
   ui.open()
 }
 
