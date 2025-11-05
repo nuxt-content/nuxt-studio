@@ -19,6 +19,8 @@
 >
 >
 > Once all file operations and GitHub publishing workflows are tested and stable, we'll release **Phase 2 (Beta)** with the full visual editor for Markdown, Vue components, and medias...
+>
+> Read the [announcement blog post](https://content.nuxt.com/blog/studio-module-alpha) for more details.
 
 ---
 
