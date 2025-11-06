@@ -15,6 +15,7 @@ import Media from './pages/media.vue'
 import Review from './pages/review.vue'
 import Success from './pages/success.vue'
 import Error from './pages/error.vue'
+import { createStudioI18n } from './i18n'
 
 if (typeof window !== 'undefined' && 'customElements' in window) {
   const NuxtStudio = defineCustomElement(
@@ -55,6 +56,12 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
         })
 
         app.use(router)
+        // Read messages from window (set by our new Nuxt plugin)
+        // @ts-expect-error - We are defining this global variable
+        const messages = window.__NUXT_STUDIO_I18N_MESSAGES__ || {}
+        // Create the i18n instance dynamically
+        const i18n = createStudioI18n(messages)
+        app.use(i18n) // Use the new instance
         // app._context.provides.usehead = true
         app.use({
           install() {
