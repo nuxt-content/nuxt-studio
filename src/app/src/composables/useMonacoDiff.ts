@@ -6,7 +6,7 @@ export interface UseMonacoDiffOptions {
   original: string
   modified: string
   language: string
-  colorMode?: 'light' | 'dark'
+  colorMode: Ref<'light' | 'dark'>
   editorOptions?: Editor.IStandaloneDiffEditorConstructionOptions
 }
 
@@ -23,9 +23,10 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
     if (!el || isInitialized) return
 
     const monaco = await setupMonaco()
+    const colorMode = unref(options.colorMode) || 'dark'
 
     editor = monaco.createDiffEditor(el, {
-      theme: getTheme(options.colorMode),
+      theme: getTheme(colorMode),
       lineNumbers: 'off',
       readOnly: true,
       renderSideBySide: true,
@@ -34,6 +35,14 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
       scrollBeyondLastLine: false,
       automaticLayout: true,
       ...options.editorOptions,
+    })
+
+    // Watch for color mode changes
+    watch(options.colorMode, (newMode) => {
+      editor?.updateOptions({
+        // @ts-expect-error -- theme is missing from IDiffEditorOptions
+        theme: getTheme(newMode),
+      })
     })
 
     editor.setModel({
