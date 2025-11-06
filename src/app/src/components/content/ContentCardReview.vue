@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DraftItem, DatabaseItem, DatabasePageItem } from '../../types'
 import type { PropType } from 'vue'
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { DraftStatus, ContentFileExtension } from '../../types'
 import { getFileExtension } from '../../utils/file'
 import { generateContentFromDocument, isEqual } from '../../utils/content'
@@ -27,31 +27,43 @@ const isAutomaticFormattingDetected = ref(false)
 
 const height = ref(200)
 const isResizing = ref(false)
+const resizeStartY = ref(0)
+const resizeStartHeight = ref(0)
 const MIN_HEIGHT = 200
 const MAX_HEIGHT = 600
 
 function startResize(event: MouseEvent) {
   event.preventDefault()
   isResizing.value = true
+  resizeStartY.value = event.clientY
+  resizeStartHeight.value = height.value
+}
 
-  const startY = event.clientY
-  const startHeight = height.value
+function handleMouseMove(event: MouseEvent) {
+  if (!isResizing.value) return
 
-  function handleMouseMove(e: MouseEvent) {
-    const deltaY = e.clientY - startY
-    const newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight + deltaY))
-    height.value = newHeight
-  }
+  event.preventDefault()
+  const deltaY = event.clientY - resizeStartY.value
+  const newHeight = resizeStartHeight.value + deltaY
 
-  function handleMouseUp() {
-    isResizing.value = false
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }
+  // Limit to constraints
+  height.value = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, newHeight))
+}
 
+function handleMouseUp() {
+  if (!isResizing.value) return
+  isResizing.value = false
+}
+
+onMounted(() => {
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
-}
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleMouseMove)
+  document.removeEventListener('mouseup', handleMouseUp)
+})
 
 const language = computed(() => {
   const ext = getFileExtension(props.draftItem.fsPath)
@@ -93,7 +105,6 @@ async function initializeEditor() {
       language: language.value,
       colorMode: ui.colorMode,
       editorOptions: {
-        automaticLayout: true,
         hideUnchangedRegions: {
           enabled: true,
         },
@@ -106,9 +117,6 @@ async function initializeEditor() {
       initialContent: modified! || gitHubOriginal!,
       readOnly: true,
       colorMode: ui.colorMode,
-      editorOptions: {
-        automaticLayout: true,
-      },
     })
   }
 

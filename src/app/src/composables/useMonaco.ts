@@ -41,6 +41,7 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
       lineNumbers: 'off',
       readOnly: options.readOnly ?? false,
       wordWrap: 'on',
+      automaticLayout: true,
       ...options.editorOptions,
     })
 
