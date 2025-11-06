@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DraftItem, DatabaseItem, DatabasePageItem } from '../../types'
 import type { PropType } from 'vue'
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { DraftStatus, ContentFileExtension } from '../../types'
 import { getFileExtension } from '../../utils/file'
 import { generateContentFromDocument, isEqual } from '../../utils/content'
@@ -24,6 +24,46 @@ const editorRef = ref<HTMLDivElement>()
 const isLoadingContent = ref(false)
 const isOpen = ref(false)
 const isAutomaticFormattingDetected = ref(false)
+
+const height = ref(200)
+const isResizing = ref(false)
+const resizeStartY = ref(0)
+const resizeStartHeight = ref(0)
+const MIN_HEIGHT = 200
+const MAX_HEIGHT = 600
+
+function startResize(event: MouseEvent) {
+  event.preventDefault()
+  isResizing.value = true
+  resizeStartY.value = event.clientY
+  resizeStartHeight.value = height.value
+}
+
+function handleMouseMove(event: MouseEvent) {
+  if (!isResizing.value) return
+
+  event.preventDefault()
+  const deltaY = event.clientY - resizeStartY.value
+  const newHeight = resizeStartHeight.value + deltaY
+
+  // Limit to constraints
+  height.value = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, newHeight))
+}
+
+function handleMouseUp() {
+  if (!isResizing.value) return
+  isResizing.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleMouseMove)
+  document.removeEventListener('mouseup', handleMouseUp)
+})
 
 const language = computed(() => {
   const ext = getFileExtension(props.draftItem.fsPath)
@@ -65,7 +105,6 @@ async function initializeEditor() {
       language: language.value,
       colorMode: ui.colorMode,
       editorOptions: {
-        // hide unchanged regions
         hideUnchangedRegions: {
           enabled: true,
         },
@@ -91,7 +130,10 @@ async function initializeEditor() {
     :draft-item="draftItem"
   >
     <template #open>
-      <div class="bg-elevated h-[200px]">
+      <div
+        class="bg-elevated relative"
+        :style="{ height: `${height}px` }"
+      >
         <div
           v-if="isLoadingContent"
           class="p-4 flex items-center justify-center h-full"
@@ -114,6 +156,18 @@ async function initializeEditor() {
           <div
             ref="diffEditorRef"
             class="w-full h-full"
+          />
+        </div>
+
+        <!-- Resize handle -->
+        <div
+          class="absolute bottom-0 left-0 right-0 h-1 cursor-row-resize bg-transparent hover:bg-accented transition-colors duration-200 group"
+          :class="{ 'bg-accented': isResizing }"
+          @mousedown="startResize"
+        >
+          <div
+            class="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 w-8 bg-inverted rounded-t opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            :class="{ 'opacity-100': isResizing }"
           />
         </div>
       </div>

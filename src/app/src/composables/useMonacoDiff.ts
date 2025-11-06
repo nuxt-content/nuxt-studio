@@ -1,4 +1,4 @@
-import { watch, unref, type Ref } from 'vue'
+import { watch, unref, type Ref, shallowRef } from 'vue'
 import type { editor as Editor } from 'modern-monaco/editor-core'
 import { setupMonaco } from '../utils/monaco/index'
 
@@ -11,7 +11,7 @@ export interface UseMonacoDiffOptions {
 }
 
 export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
-  let editor: Editor.IStandaloneDiffEditor | null = null
+  const editor = shallowRef<Editor.IStandaloneDiffEditor | null>(null)
   let isInitialized = false
 
   const getTheme = (mode: 'light' | 'dark' = 'dark') => {
@@ -25,7 +25,7 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
     const monaco = await setupMonaco()
     const colorMode = unref(options.colorMode) || 'dark'
 
-    editor = monaco.createDiffEditor(el, {
+    editor.value = monaco.createDiffEditor(el, {
       theme: getTheme(colorMode),
       lineNumbers: 'off',
       readOnly: true,
@@ -37,15 +37,14 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
       ...options.editorOptions,
     })
 
-    // Watch for color mode changes
     watch(options.colorMode, (newMode) => {
-      editor?.updateOptions({
+      editor.value?.updateOptions({
         // @ts-expect-error -- theme is missing from IDiffEditorOptions
         theme: getTheme(newMode),
       })
     })
 
-    editor.setModel({
+    editor.value.setModel({
       original: monaco.editor.createModel(options.original, options.language),
       modified: monaco.editor.createModel(options.modified, options.language),
     })
@@ -63,15 +62,15 @@ export function useMonacoDiff(target: Ref, options: UseMonacoDiffOptions) {
       }
       else if (!el && isInitialized) {
         isInitialized = false
-        editor?.dispose()
-        editor = null
+        editor.value?.dispose()
+        editor.value = null
       }
     },
     { immediate: true, flush: 'post' },
   )
 
   const setOptions = (opts: Editor.IStandaloneDiffEditorConstructionOptions) => {
-    editor?.updateOptions(opts)
+    editor.value?.updateOptions(opts)
   }
 
   return {
