@@ -92,12 +92,10 @@ router.beforeEach((to, from) => {
             leave-from-class="translate-y-0"
             leave-to-class="-translate-y-full"
           >
-            <KeepAlive>
-              <component
-                :is="Component"
-                class="w-full h-full"
-              />
-            </KeepAlive>
+            <component
+              :is="Component"
+              class="w-full h-full"
+            />
           </Transition>
           <Transition
             v-else
@@ -108,12 +106,10 @@ router.beforeEach((to, from) => {
             leave-from-class="translate-x-0"
             :leave-to-class="direction === 'right' ? '-translate-x-full' : 'translate-x-full'"
           >
-            <KeepAlive>
-              <component
-                :is="Component"
-                class="w-full h-full"
-              />
-            </KeepAlive>
+            <component
+              :is="Component"
+              class="w-full h-full"
+            />
           </Transition>
         </RouterView>
       </AppLayout>

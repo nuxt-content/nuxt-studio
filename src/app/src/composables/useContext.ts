@@ -230,8 +230,6 @@ export const useContext = createSharedComposable((
   }
 
   return {
-    documentTree,
-    mediaTree,
     activeTree,
     itemActions,
     itemActionHandler,
