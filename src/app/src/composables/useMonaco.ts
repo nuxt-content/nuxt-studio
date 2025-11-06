@@ -41,13 +41,6 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
       lineNumbers: 'off',
       readOnly: options.readOnly ?? false,
       wordWrap: 'on',
-      scrollbar: options.readOnly
-        ? {
-            vertical: 'hidden',
-            horizontal: 'hidden',
-            handleMouseWheel: false,
-          }
-        : undefined,
       ...options.editorOptions,
     })
 

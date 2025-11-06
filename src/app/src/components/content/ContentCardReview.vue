@@ -25,6 +25,34 @@ const isLoadingContent = ref(false)
 const isOpen = ref(false)
 const isAutomaticFormattingDetected = ref(false)
 
+const height = ref(200)
+const isResizing = ref(false)
+const MIN_HEIGHT = 200
+const MAX_HEIGHT = 600
+
+function startResize(event: MouseEvent) {
+  event.preventDefault()
+  isResizing.value = true
+
+  const startY = event.clientY
+  const startHeight = height.value
+
+  function handleMouseMove(e: MouseEvent) {
+    const deltaY = e.clientY - startY
+    const newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight + deltaY))
+    height.value = newHeight
+  }
+
+  function handleMouseUp() {
+    isResizing.value = false
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+  }
+
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
+}
+
 const language = computed(() => {
   const ext = getFileExtension(props.draftItem.fsPath)
   switch (ext) {
@@ -65,7 +93,7 @@ async function initializeEditor() {
       language: language.value,
       colorMode: ui.colorMode.value,
       editorOptions: {
-        // hide unchanged regions
+        automaticLayout: true,
         hideUnchangedRegions: {
           enabled: true,
         },
@@ -78,6 +106,9 @@ async function initializeEditor() {
       initialContent: modified! || gitHubOriginal!,
       readOnly: true,
       colorMode: ui.colorMode,
+      editorOptions: {
+        automaticLayout: true,
+      },
     })
   }
 
@@ -91,7 +122,10 @@ async function initializeEditor() {
     :draft-item="draftItem"
   >
     <template #open>
-      <div class="bg-elevated h-[200px]">
+      <div
+        class="bg-elevated relative"
+        :style="{ height: `${height}px` }"
+      >
         <div
           v-if="isLoadingContent"
           class="p-4 flex items-center justify-center h-full"
@@ -114,6 +148,18 @@ async function initializeEditor() {
           <div
             ref="diffEditorRef"
             class="w-full h-full"
+          />
+        </div>
+
+        <!-- Resize handle -->
+        <div
+          class="absolute bottom-0 left-0 right-0 h-1 cursor-row-resize bg-transparent hover:bg-accented transition-colors duration-200 group"
+          :class="{ 'bg-accented': isResizing }"
+          @mousedown="startResize"
+        >
+          <div
+            class="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 w-8 bg-inverted rounded-t opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            :class="{ 'opacity-100': isResizing }"
           />
         </div>
       </div>
