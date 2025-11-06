@@ -3,13 +3,13 @@ import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { StudioItemActionId, TreeStatus, StudioFeature } from '../types'
 
-const { context } = useStudio()
+const { context, documentTree } = useStudio()
 
-const folderTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'directory'))
-const fileTree = computed(() => (context.activeTree.value.current.value || []).filter(f => f.type === 'file'))
+const folderTree = computed(() => (documentTree.current.value || []).filter(f => f.type === 'directory'))
+const fileTree = computed(() => (documentTree.current.value || []).filter(f => f.type === 'file'))
 
-const currentTreeItem = computed(() => context.activeTree.value.currentItem.value)
-const currentDraftItem = computed(() => context.activeTree.value.draft.current.value)
+const currentTreeItem = computed(() => documentTree.currentItem.value)
+const currentDraftItem = computed(() => documentTree.draft.current.value)
 
 const showFolderForm = computed(() => {
   return context.actionInProgress.value?.id === StudioItemActionId.CreateDocumentFolder
@@ -36,7 +36,7 @@ const showFileForm = computed(() => {
 
     <div class="flex-1 relative">
       <div
-        v-if="context.activeTree.value.draft.isLoading.value"
+        v-if="documentTree.draft.isLoading.value"
         class="absolute inset-0 bg-primary/3 animate-pulse z-10 pointer-events-none"
       />
       <template v-else>
