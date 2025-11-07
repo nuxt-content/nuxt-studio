@@ -1,10 +1,11 @@
-import type { CollectionInfo, CollectionSource, Draft07, CollectionItemBase, PageCollectionItemBase, ResolvedCollectionSource, Draft07DefinitionProperty } from '@nuxt/content'
+import type { CollectionInfo, Draft07, CollectionItemBase, PageCollectionItemBase, ResolvedCollectionSource, Draft07DefinitionProperty } from '@nuxt/content'
 import { hash } from 'ohash'
 import { pathMetaTransform } from './path-meta'
 import { minimatch } from 'minimatch'
 import { join, dirname, parse } from 'pathe'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import { withoutLeadingSlash } from 'ufo'
+import { parseSourceBase } from 'nuxt-studio/app/utils'
+import { withLeadingSlash, withoutLeadingSlash } from 'ufo'
 
 export const getCollectionByFilePath = (path: string, collections: Record<string, CollectionInfo>): CollectionInfo | undefined => {
   let matchedSource: ResolvedCollectionSource | undefined
@@ -34,15 +35,6 @@ export function generateStemFromFsPath(path: string) {
   return withoutLeadingSlash(join(dirname(path), parse(path).name))
 }
 
-// TODO handle several sources case
-export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
-  const { fixed } = parseSourceBase(collectionInfo.source[0]!)
-
-  const pathWithoutFixed = path.substring(fixed.length)
-
-  return join(collectionInfo.name, collectionInfo.source[0]?.prefix || '', pathWithoutFixed)
-}
-
 export function getOrderedSchemaKeys(schema: Draft07) {
   const shape = Object.values(schema.definitions)[0]?.properties || {}
   const keys = new Set([
@@ -67,7 +59,24 @@ export function getCollectionSource(id: string, collection: CollectionInfo) {
   const path = rest.join('/')
 
   const matchedSource = collection.source.find((source) => {
-    const include = minimatch(path, source.include, { dot: true })
+    // Id is built like this: {collection.name}/{source.prefix}/{name}
+    // In some cases the prefix is different from the fsPath (source.include fixed part)
+    // In this case we need to remove the prefix from the path and add the fixed part of the source.include to get the fsPath
+
+    let fsPath = path
+
+    // First we need to ensure the path is starting with the source prefix in order to be sure the collection is the correct one
+    if (source.prefix && withLeadingSlash(path).startsWith(source.prefix)) {
+      const [fixPart] = source.include.includes('*') ? source.include.split('*') : ['', source.include]
+      const fixed = (fixPart || '').replace(/^\//, '')
+
+      const prefix = (source.prefix || '').replace(/^\//, '')
+      const pathWithoutPrefix = path.replace(prefix || '', '')
+
+      fsPath = join(fixed, pathWithoutPrefix)
+    }
+
+    const include = minimatch(fsPath, source.include, { dot: true })
     const exclude = source.exclude?.some(exclude => minimatch(path, exclude))
 
     return include && !exclude
@@ -81,9 +90,15 @@ export function generateFsPathFromId(id: string, source: CollectionInfo['source'
   const path = rest.join('/')
 
   const { fixed } = parseSourceBase(source)
+  const normalizedFixed = fixed.replace(/\/$/, '')
 
-  const pathWithoutFixed = path.substring(fixed.length)
-  return join(fixed, pathWithoutFixed)
+  // If path already starts with the fixed part, return as is
+  if (normalizedFixed && path.startsWith(normalizedFixed)) {
+    return path
+  }
+
+  // Otherwise, join fixed part with path
+  return join(fixed, path)
 }
 
 export function getCollectionInfo(id: string, collections: Record<string, CollectionInfo>) {
@@ -96,14 +111,6 @@ export function getCollectionInfo(id: string, collections: Record<string, Collec
     collection,
     source,
     fsPath,
-  }
-}
-
-export function parseSourceBase(source: CollectionSource) {
-  const [fixPart, ...rest] = source.include.includes('*') ? source.include.split('*') : ['', source.include]
-  return {
-    fixed: fixPart || '',
-    dynamic: '*' + rest.join('*'),
   }
 }
 
