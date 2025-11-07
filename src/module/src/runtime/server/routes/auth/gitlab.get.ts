@@ -120,9 +120,10 @@ export default eventHandler(async (event: H3Event) => {
 
   config.redirectURL = config.redirectURL || `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
 
-  const state = await handleState(event)
-
   if (!query.code) {
+    // Initial authorization request (generate and store state)
+    const state = await generateState(event)
+
     config.scope = config.scope || []
     if (!config.scope.includes('api')) {
       config.scope.push('api')
@@ -141,16 +142,31 @@ export default eventHandler(async (event: H3Event) => {
     )
   }
 
-  if (query.state !== state) {
+  // Callback with code (validate and consume state)
+  const storedState = getCookie(event, 'studio-oauth-state')
+
+  if (!storedState) {
     throw createError({
-      statusCode: 500,
-      message: 'Invalid state',
+      statusCode: 400,
+      message: 'OAuth state cookie not found. Please try logging in again.',
       data: {
-        query,
-        state,
+        hint: 'State cookie may have expired or been cleared',
       },
     })
   }
+
+  if (query.state !== storedState) {
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid state - OAuth state mismatch',
+      data: {
+        hint: 'This may be caused by browser refresh, navigation, or expired session',
+      },
+    })
+  }
+
+  // State validated, delete the cookie
+  deleteCookie(event, 'studio-oauth-state')
 
   const token = await requestAccessToken(config.tokenURL as string, {
     body: {
@@ -233,14 +249,7 @@ async function requestAccessToken(url: string, options: RequestAccessTokenOption
   }
 }
 
-async function handleState(event: H3Event) {
-  const state = getCookie(event, 'studio-oauth-state')
-
-  if (state) {
-    deleteCookie(event, 'studio-oauth-state')
-    return state
-  }
-
+async function generateState(event: H3Event) {
   const newState = Array.from(getRandomValues(new Uint8Array(32)))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
