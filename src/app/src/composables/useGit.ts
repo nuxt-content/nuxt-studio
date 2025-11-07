@@ -1,23 +1,25 @@
 import { ofetch } from 'ofetch'
 import { createSharedComposable } from '@vueuse/core'
-import type { RawFile, GithubFile, GitOptions, CommitFilesOptions } from '../types'
+import type { RawFile, GitFile, GitOptions, CommitFilesOptions, CommitResult, GitProvider } from '../types'
 import { DraftStatus } from '../types/draft'
 
 import { joinURL } from 'ufo'
 
 export const useDevelopmentGit = (_options: GitOptions) => {
   return {
-    fetchFile: (_path: string, _options: { cached?: boolean } = {}): Promise<GithubFile | null> => Promise.resolve(null),
-    commitFiles: (_files: RawFile[], _message: string): Promise<{ success: boolean, commitSha: string, url: string } | null> => Promise.resolve(null),
+    fetchFile: (_path: string, _options: { cached?: boolean } = {}): Promise<GitFile | null> => Promise.resolve(null),
+    commitFiles: (_files: RawFile[], _message: string): Promise<CommitResult | null> => Promise.resolve(null),
     getRepositoryUrl: () => '',
     getBranchUrl: () => '',
+    getCommitUrl: () => '',
     getContentRootDirUrl: () => '',
-    getRepositoryInfo: () => ({ owner: '', repo: '', branch: '' }),
+    getRepositoryInfo: () => ({ owner: '', repo: '', branch: '', provider: 'github' }),
   }
 }
 
-export const useGit = createSharedComposable(({ owner, repo, token, branch, rootDir, authorName, authorEmail }: GitOptions) => {
-  const gitFiles: Record<string, GithubFile> = {}
+function createGitHubProvider(options: GitOptions): GitProvider {
+  const { owner, repo, token, branch, rootDir, authorName, authorEmail } = options
+  const gitFiles: Record<string, GitFile> = {}
 
   // Support both token formats: "token {token}" for classic PATs, "Bearer {token}" for OAuth/fine-grained PATs
   const authHeader = token.startsWith('ghp_') ? `token ${token}` : `Bearer ${token}`
@@ -30,7 +32,7 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     },
   })
 
-  async function fetchFile(path: string, { cached = false }: { cached?: boolean } = {}): Promise<GithubFile | null> {
+  async function fetchFile(path: string, { cached = false }: { cached?: boolean } = {}): Promise<GitFile | null> {
     path = joinURL(rootDir, path)
     if (cached) {
       const file = gitFiles[path]
@@ -40,7 +42,7 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     }
 
     try {
-      const ghFile: GithubFile = await $api(`/contents/${path}?ref=${branch}`)
+      const ghFile: GitFile = await $api(`/contents/${path}?ref=${branch}`)
       if (cached) {
         gitFiles[path] = ghFile
       }
@@ -64,7 +66,7 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     }
   }
 
-  function commitFiles(files: RawFile[], message: string): Promise<{ success: boolean, commitSha: string, url: string } | null> {
+  function commitFiles(files: RawFile[], message: string): Promise<CommitResult | null> {
     if (!token) {
       return Promise.resolve(null)
     }
@@ -168,6 +170,10 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     return `https://github.com/${owner}/${repo}/tree/${branch}`
   }
 
+  function getCommitUrl(sha: string) {
+    return `https://github.com/${owner}/${repo}/commit/${sha}`
+  }
+
   function getContentRootDirUrl() {
     return `https://github.com/${owner}/${repo}/tree/${branch}/${rootDir}/content`
   }
@@ -177,6 +183,7 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
       owner,
       repo,
       branch,
+      provider: 'github' as const,
     }
   }
 
@@ -185,7 +192,184 @@ export const useGit = createSharedComposable(({ owner, repo, token, branch, root
     commitFiles,
     getRepositoryUrl,
     getBranchUrl,
+    getCommitUrl,
     getContentRootDirUrl,
     getRepositoryInfo,
+  }
+}
+
+function createGitLabProvider(options: GitOptions): GitProvider {
+  const { owner, repo, token, branch, rootDir, authorName, authorEmail, instanceUrl = 'https://gitlab.com' } = options
+  const gitFiles: Record<string, GitFile> = {}
+
+  // GitLab uses project path (namespace/project) encoded as project ID
+  const projectPath = encodeURIComponent(`${owner}/${repo}`)
+  const baseURL = `${instanceUrl}/api/v4`
+
+  const $api = ofetch.create({
+    baseURL: `${baseURL}/projects/${projectPath}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  async function fetchFile(path: string, { cached = false }: { cached?: boolean } = {}): Promise<GitFile | null> {
+    path = joinURL(rootDir, path)
+    if (cached) {
+      const file = gitFiles[path]
+      if (file) {
+        return file
+      }
+    }
+
+    try {
+      const encodedPath = encodeURIComponent(path)
+      const glFile = await $api(`/repository/files/${encodedPath}/raw?ref=${branch}`)
+
+      // Get file metadata
+      const fileMetadata = await $api(`/repository/files/${encodedPath}?ref=${branch}`)
+
+      const gitFile: GitFile = {
+        name: path.split('/').pop() || path,
+        path,
+        sha: fileMetadata.blob_id,
+        size: fileMetadata.size,
+        url: fileMetadata.file_path,
+        content: typeof glFile === 'string' ? glFile : undefined,
+        encoding: fileMetadata.encoding,
+      }
+
+      if (cached) {
+        gitFiles[path] = gitFile
+      }
+      return gitFile
+    }
+    catch (error) {
+      // Handle different types of errors gracefully
+      if ((error as { status?: number }).status === 404) {
+        console.warn(`File not found on GitLab: ${path}`)
+        return null
+      }
+
+      // For development, show alert. In production, you might want to use a toast notification
+      if (process.env.NODE_ENV === 'development') {
+        alert(`Failed to fetch file: ${path}\n${(error as { message?: string }).message || error}`)
+      }
+
+      console.error(`Failed to fetch file from GitLab: ${path}`, error)
+
+      return null
+    }
+  }
+
+  function commitFiles(files: RawFile[], message: string): Promise<CommitResult | null> {
+    if (!token) {
+      return Promise.resolve(null)
+    }
+
+    files = files
+      .filter(file => file.status !== DraftStatus.Pristine)
+      .map(file => ({ ...file, path: joinURL(rootDir, file.path) }))
+
+    return commitFilesToGitLab({
+      owner,
+      repo,
+      branch,
+      files,
+      message,
+      authorName,
+      authorEmail,
+    })
+  }
+
+  async function commitFilesToGitLab({ branch, files, message, authorName, authorEmail }: CommitFilesOptions) {
+    // GitLab uses a single commits API with actions
+    const actions = files.map((file) => {
+      if (file.status === DraftStatus.Deleted) {
+        return {
+          action: 'delete',
+          file_path: file.path,
+        }
+      }
+      else if (file.status === DraftStatus.Created) {
+        return {
+          action: 'create',
+          file_path: file.path,
+          content: file.content,
+          encoding: file.encoding === 'base64' ? 'base64' : 'text',
+        }
+      }
+      else {
+        return {
+          action: 'update',
+          file_path: file.path,
+          content: file.content,
+          encoding: file.encoding === 'base64' ? 'base64' : 'text',
+        }
+      }
+    })
+
+    const commitData = await $api(`/repository/commits`, {
+      method: 'POST',
+      body: {
+        branch,
+        commit_message: message,
+        actions,
+        author_name: authorName,
+        author_email: authorEmail,
+      },
+    })
+
+    return {
+      success: true,
+      commitSha: commitData.id,
+      url: `${instanceUrl}/${owner}/${repo}/-/commit/${commitData.id}`,
+    }
+  }
+
+  function getRepositoryUrl() {
+    return `${instanceUrl}/${owner}/${repo}`
+  }
+
+  function getBranchUrl() {
+    return `${instanceUrl}/${owner}/${repo}/-/tree/${branch}`
+  }
+
+  function getCommitUrl(sha: string) {
+    return `${instanceUrl}/${owner}/${repo}/-/commit/${sha}`
+  }
+
+  function getContentRootDirUrl() {
+    return `${instanceUrl}/${owner}/${repo}/-/tree/${branch}/${rootDir}/content`
+  }
+
+  function getRepositoryInfo() {
+    return {
+      owner,
+      repo,
+      branch,
+      provider: 'gitlab' as const,
+    }
+  }
+
+  return {
+    fetchFile,
+    commitFiles,
+    getRepositoryUrl,
+    getBranchUrl,
+    getCommitUrl,
+    getContentRootDirUrl,
+    getRepositoryInfo,
+  }
+}
+
+export const useGit = createSharedComposable((options: GitOptions): GitProvider => {
+  const provider = options.provider || 'github'
+
+  if (provider === 'gitlab') {
+    return createGitLabProvider(options)
+  }
+  else {
+    return createGitHubProvider(options)
   }
 })

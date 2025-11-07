@@ -24,13 +24,15 @@ export const useStudio = createSharedComposable(() => {
   studioFlags.dev = host.meta.dev
 
   const gitOptions: GitOptions = {
+    provider: host.repository.provider,
     owner: host.repository.owner,
     repo: host.repository.repo,
     branch: host.repository.branch,
     rootDir: host.repository.rootDir,
-    token: host.user.get().githubToken,
+    token: host.user.get().accessToken,
     authorName: host.user.get().name,
     authorEmail: host.user.get().email,
+    instanceUrl: host.repository.instanceUrl,
   }
 
   const git = studioFlags.dev ? useDevelopmentGit(gitOptions) : useGit(gitOptions)
