@@ -59,7 +59,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
         !preferences.value.syncEditorAndRoute
         || type === StudioFeature.Media
         || item.name === '.navigation'
-        || item.routePath === undefined
+        || !item.routePath
       ) {
         return
       }
