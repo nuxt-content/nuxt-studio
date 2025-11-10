@@ -4,6 +4,9 @@ import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { titleCase } from 'scule'
 import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   item: {
@@ -23,7 +26,9 @@ const displayInfo = computed(() => {
   if (isDirectory.value) {
     const itemcount = props.item.children?.filter(child => !child.hide).length || 0
     const collectionCount = props.item.collections.length
-    return `${itemcount} ${itemcount === 1 ? 'item' : 'items'} from ${collectionCount} ${collectionCount === 1 ? 'collection' : 'collections'}`
+    const itemsLabel = t('studio.items.itemCount', itemcount)
+    const collectionsLabel = t('studio.items.collectionCount', collectionCount)
+    return t('studio.items.itemInfo', { items: itemsLabel, collections: collectionsLabel })
   }
   return props.item.routePath || props.item.fsPath
 })

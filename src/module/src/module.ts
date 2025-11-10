@@ -132,7 +132,6 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
 
-    // --- START: I18N LOGIC ---
     const defaultLocalesPath = resolver.resolve('../../app/src/locales')
     const defaultLocaleFiles = await globby(`${defaultLocalesPath}/*.json`)
     const defaultMessages: Record<string, unknown> = {}

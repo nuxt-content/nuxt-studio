@@ -121,7 +121,7 @@ router.beforeEach((to, from) => {
       >
         <UFieldGroup>
           <UTooltip
-            text="Toggle Studio"
+            :text="$t('studio.tooltips.toggleStudio')"
             :kbds="['meta', '.']"
           >
             <UButton

@@ -14,8 +14,10 @@ import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { parseName, getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../../utils/file'
 import { upperFirst } from 'scule'
+import { useI18n } from 'vue-i18n'
 
 const { context } = useStudio()
+const { t } = useI18n()
 
 const isLoading = ref(false)
 const formRef = ref<HTMLDivElement>()
@@ -59,9 +61,9 @@ const fullName = computed(() => {
 
 const schema = computed(() => z.object({
   name: z.string()
-    .min(1, 'Name cannot be empty')
-    .refine((name: string) => !name.endsWith('.'), 'Name cannot end with "."')
-    .refine((name: string) => !name.startsWith('/'), 'Name cannot start with "/"'),
+    .min(1, t('studio.validation.nameEmpty'))
+    .refine((name: string) => !name.endsWith('.'), t('studio.validation.nameEndsWithDot'))
+    .refine((name: string) => !name.startsWith('/'), t('studio.validation.nameStartsWithSlash')),
   extension: z.enum([...CONTENT_EXTENSIONS, ...MEDIA_EXTENSIONS] as [string, ...string[]]).nullish(),
   prefix: z.preprocess(
     val => val === '' ? null : val,
@@ -80,16 +82,16 @@ const schema = computed(() => z.object({
 
   return !isDuplicate
 }, {
-  message: 'Name already exists',
+  message: t('studio.validation.nameExists'),
   path: ['name'],
 }))
 
-type Schema = {
+type SchemaType = {
   name: string
   extension: string | null | undefined
   prefix: number | null | undefined
 }
-const state = reactive<Schema>({
+const state = reactive<SchemaType>({
   name: originalName.value,
   extension: originalExtension.value,
   prefix: originalPrefix.value,
@@ -125,7 +127,8 @@ const routePath = computed(() => {
 
 const displayInfo = computed(() => {
   if (isDirectory.value) {
-    return `${props.renamedItem?.children?.length || 0} items`
+    const itemCount = props.renamedItem?.children?.length || 0
+    return t('studio.items.itemCount', itemCount)
   }
   return routePath.value
 })
@@ -134,13 +137,7 @@ const tooltipText = computed(() => {
   if (validationErrors.value.length > 0) {
     return validationErrors.value[0]?.message
   }
-
-  if (props.actionId === StudioItemActionId.RenameItem) {
-    return 'Rename'
-  }
-  else {
-    return 'Create file'
-  }
+  return t(`studio.actions.labels.${props.actionId}`)
 })
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -270,7 +267,7 @@ async function onSubmit() {
                       v-model.number="state.prefix"
                       type="number"
                       variant="soft"
-                      placeholder="N°"
+                      :placeholder="$t('studio.placeholders.order')"
                       min="1"
                       class="h-5"
                       size="xs"
@@ -290,7 +287,7 @@ async function onSubmit() {
                       v-model="state.name"
                       variant="soft"
                       autofocus
-                      placeholder="File name"
+                      :placeholder="$t('studio.placeholders.fileName')"
                       class="w-full h-5"
                       size="xs"
                       :disabled="isLoading"
@@ -329,7 +326,7 @@ async function onSubmit() {
                   color="neutral"
                   variant="ghost"
                   icon="i-ph-x"
-                  aria-label="Cancel"
+                  :aria-label="$t('studio.aria.cancel')"
                   size="xs"
                   square
                   :disabled="isLoading"
@@ -345,7 +342,7 @@ async function onSubmit() {
                     type="submit"
                     variant="soft"
                     :color="validationErrors.length > 0 ? 'error' : 'secondary'"
-                    aria-label="Submit button"
+                    :aria-label="$t('studio.aria.submit')"
                     :disabled="validationErrors.length > 0 || isLoading"
                     :loading="isLoading"
                     size="xs"
