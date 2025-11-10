@@ -4,6 +4,7 @@ import { formatBytes, getFileExtension } from '../../utils/file'
 import type { MediaItem, GitFile } from '../../types'
 import type { PropType } from 'vue'
 import { useStudio } from '../../composables/useStudio'
+import { useGitProviderIcon } from '../../composables/useGitProviderIcon'
 import { joinURL } from 'ufo'
 
 const props = defineProps({
@@ -18,6 +19,7 @@ const props = defineProps({
 })
 
 const { git } = useStudio()
+const { icon: gitProviderIcon, providerName } = useGitProviderIcon()
 
 const imageRef = ref<HTMLImageElement | null>(null)
 const imageDimensions = ref({ width: 0, height: 0 })
@@ -140,10 +142,10 @@ const remotePath = computed(() => {
       </div>
       <div class="flex items-center gap-1 text-xs text-muted mb-2">
         <UIcon
-          name="i-simple-icons:github"
+          :name="gitProviderIcon"
           class="w-3.5 h-3.5"
         />
-        <span>GitHub path</span>
+        <span>{{ providerName }} path</span>
       </div>
       <p class="text-xs font-mono text-highlighted truncate">
         {{ remoteFile.path }}

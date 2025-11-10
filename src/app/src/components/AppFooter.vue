@@ -2,10 +2,12 @@
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
+import { useGitProviderIcon } from '../composables/useGitProviderIcon'
 
 const { ui, host, git } = useStudio()
 const { preferences, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
+const { icon: gitProviderIcon } = useGitProviderIcon()
 
 // const showTechnicalMode = computed({
 //   get: () => preferences.value.showTechnicalMode,
@@ -23,7 +25,7 @@ const userMenuItems = computed(() => [
     repositoryUrl.value
       ? {
           label: `${host.repository.owner}/${host.repository.repo}`,
-          icon: 'i-simple-icons:github',
+          icon: gitProviderIcon.value,
           to: repositoryUrl.value,
           target: '_blank',
         }

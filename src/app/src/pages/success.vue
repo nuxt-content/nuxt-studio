@@ -3,10 +3,12 @@ import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
+import { useGitProviderIcon } from '../composables/useGitProviderIcon'
 
 const route = useRoute()
 const { git } = useStudio()
 const { manifestId } = useStudioState()
+const { icon: gitProviderIcon } = useGitProviderIcon()
 
 const isReloadingApp = ref(false)
 const isWaitingForDeployment = ref(true)
@@ -76,7 +78,7 @@ onMounted(() => {
           of
           <UButton
             :label="`${repositoryInfo.owner}/${repositoryInfo.repo}`"
-            icon="i-simple-icons:github"
+            :icon="gitProviderIcon"
             :to="git.getRepositoryUrl()"
             variant="link"
             target="_blank"

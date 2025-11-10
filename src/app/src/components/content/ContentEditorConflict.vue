@@ -3,6 +3,7 @@ import { ref, computed, type PropType } from 'vue'
 import type { ContentConflict, DraftItem } from '../../types'
 import { useMonacoDiff } from '../../composables/useMonacoDiff'
 import { useStudio } from '../../composables/useStudio'
+import { useGitProviderIcon } from '../../composables/useGitProviderIcon'
 import { ContentFileExtension } from '../../types'
 import { joinURL } from 'ufo'
 
@@ -14,6 +15,7 @@ const props = defineProps({
 })
 
 const { ui, git } = useStudio()
+const { icon: gitProviderIcon, providerName } = useGitProviderIcon()
 
 const diffEditorRef = ref<HTMLDivElement>()
 
@@ -49,7 +51,7 @@ useMonacoDiff(diffEditorRef, {
       <div class="flex items-start gap-3">
         <UIcon
           name="i-lucide-alert-triangle"
-          class="size-4 text-warning flex-shrink-0"
+          class="size-4 text-warning shrink-0"
         />
         <div class="flex-1">
           <h3 class="font-semibold text-highlighted text-sm mb-3">
@@ -60,7 +62,7 @@ useMonacoDiff(diffEditorRef, {
             <div class="flex items-center">
               <dt class="text-muted min-w-20 flex items-center gap-1.5">
                 <UIcon
-                  name="i-simple-icons:github"
+                  :name="gitProviderIcon"
                   class="size-3.5"
                 />
                 Repository
@@ -118,7 +120,7 @@ useMonacoDiff(diffEditorRef, {
           </dl>
 
           <p class="text-xs mb-2">
-            The content on GitHub differs from your website version. Ensure your latest changes are deployed and refresh the page.
+            The content on {{ providerName }} differs from your website version. Ensure your latest changes are deployed and refresh the page.
           </p>
         </div>
       </div>
@@ -127,10 +129,10 @@ useMonacoDiff(diffEditorRef, {
     <div class="grid grid-cols-2 mb-2 px-2">
       <div class="flex items-center gap-1 text-sm text-muted">
         <UIcon
-          name="i-simple-icons:git"
+          :name="gitProviderIcon"
           class="size-3.5"
         />
-        GitHub
+        {{ providerName }}
       </div>
       <div class="flex items-center gap-1 text-sm text-muted">
         <UIcon

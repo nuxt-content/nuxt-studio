@@ -2,10 +2,12 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStudio } from '../composables/useStudio'
+import { useGitProviderIcon } from '../composables/useGitProviderIcon'
 
 const route = useRoute()
 const router = useRouter()
 const { git } = useStudio()
+const { icon: gitProviderIcon, providerName } = useGitProviderIcon()
 
 const errorMessage = computed(() => {
   return (route.query.error as string) || 'An unknown error occurred'
@@ -47,7 +49,7 @@ function retry() {
           of
           <UButton
             :label="`${repositoryInfo.owner}/${repositoryInfo.repo}`"
-            icon="i-simple-icons:github"
+            :icon="gitProviderIcon"
             :to="git.getRepositoryUrl()"
             variant="link"
             target="_blank"
@@ -59,7 +61,7 @@ function retry() {
 
       <UAlert
         icon="i-lucide-alert-triangle"
-        title="Error during GitHub publish"
+        :title="`Error during ${providerName} publish`"
         :description="errorMessage"
         color="error"
         variant="soft"
