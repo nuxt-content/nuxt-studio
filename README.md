@@ -232,8 +232,8 @@ pnpm lint
 ## Links
 
 - 📖 [Documentation](https://content.nuxt.com/studio)
-- 🐛 [Report a Bug](https://github.com/nuxt-content/studio/issues)
-- 💡 [Feature Request](https://github.com/nuxt-content/studio/discussions)
+- 🐛 [Report a Bug](https://github.com/nuxt-content/studio/issues/new)
+- 💡 [Feature Request](https://github.com/nuxt-content/studio/issues/new)
 - 🗨️ [Discussions](https://github.com/nuxt-content/studio/discussions)
 - 🆇 [Twitter](https://x.com/nuxtstudio)
 - 🦋 [Bluesky](https://bsky.app/profile/nuxt.com)
