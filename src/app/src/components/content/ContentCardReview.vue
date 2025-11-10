@@ -90,21 +90,21 @@ async function initializeEditor() {
   isLoadingContent.value = true
 
   const localOriginal = props.draftItem.original ? await generateContentFromDocument(props.draftItem.original as DatabaseItem) : null
-  const gitHubOriginal = props.draftItem.remoteFile?.content
+  const remoteOriginal = props.draftItem.remoteFile?.content
     ? (props.draftItem.remoteFile.encoding === 'base64'
         ? fromBase64ToUTF8(props.draftItem.remoteFile.content)
         : props.draftItem.remoteFile.content)
     : null
   const modified = props.draftItem.modified ? await generateContentFromDocument(props.draftItem.modified as DatabasePageItem) : null
 
-  isAutomaticFormattingDetected.value = !isEqual(localOriginal, gitHubOriginal)
+  isAutomaticFormattingDetected.value = !isEqual(localOriginal, remoteOriginal)
 
   // Wait for DOM to update before initializing Monaco
   await nextTick()
 
   if (props.draftItem.status === DraftStatus.Updated) {
     useMonacoDiff(diffEditorRef, {
-      original: gitHubOriginal!,
+      original: remoteOriginal!,
       modified: modified!,
       language: language.value,
       colorMode: ui.colorMode,
@@ -118,7 +118,7 @@ async function initializeEditor() {
   else if ([DraftStatus.Created, DraftStatus.Deleted].includes(props.draftItem.status)) {
     useMonaco(editorRef, {
       language,
-      initialContent: modified! || gitHubOriginal!,
+      initialContent: modified! || remoteOriginal!,
       readOnly: true,
       colorMode: ui.colorMode,
     })

@@ -1,6 +1,6 @@
 import type { Storage } from 'unstorage'
 import { joinURL } from 'ufo'
-import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem } from '../types'
+import type { DraftItem, StudioHost, GitFile, DatabaseItem, MediaItem } from '../types'
 import { DraftStatus } from '../types/draft'
 import { checkConflict, findDescendantsFromId, getDraftStatus } from '../utils/draft'
 import type { useGit } from './useGit'
@@ -17,7 +17,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   const list = ref<DraftItem<DatabaseItem | MediaItem>[]>([])
   const current = ref<DraftItem<DatabaseItem | MediaItem> | null>(null)
 
-  const ghPathPrefix = type === 'media' ? 'public' : 'content'
+  const remotePathPrefix = type === 'media' ? 'public' : 'content'
   const hostDb = type === 'media' ? host.media : host.document
   const hookName = `studio:draft:${type}:updated` as const
 
@@ -34,7 +34,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
 
     const fsPath = hostDb.getFileSystemPath(item.id)
-    const remoteFile = await git.fetchFile(joinURL(ghPathPrefix, fsPath), { cached: true }) as GithubFile
+    const remoteFile = await git.fetchFile(joinURL(remotePathPrefix, fsPath), { cached: true }) as GitFile
 
     const draftItem: DraftItem<T> = {
       id: item.id,
@@ -93,8 +93,8 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         }
       }
       else {
-      // TODO: check if gh file has been updated
-        const remoteFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
+      // TODO: check if remote file has been updated
+        const remoteFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GitFile
 
         deleteDraftItem = {
           id,

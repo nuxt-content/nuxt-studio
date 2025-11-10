@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { formatBytes, getFileExtension } from '../../utils/file'
-import type { MediaItem, GithubFile } from '../../types'
+import type { MediaItem, GitFile } from '../../types'
 import type { PropType } from 'vue'
 import { useStudio } from '../../composables/useStudio'
 import { joinURL } from 'ufo'
@@ -11,8 +11,8 @@ const props = defineProps({
     type: Object as PropType<MediaItem>,
     required: true,
   },
-  githubFile: {
-    type: Object as PropType<GithubFile>,
+  remoteFile: {
+    type: Object as PropType<GitFile>,
     default: null,
   },
 })
@@ -44,8 +44,8 @@ const imageInfo = computed(() => {
     { label: 'Type', value: fileExtension.value },
   ]
 
-  if (props.githubFile) {
-    info.push({ label: 'Size', value: formatBytes(props.githubFile.size) })
+  if (props.remoteFile) {
+    info.push({ label: 'Size', value: formatBytes(props.remoteFile.size) })
   }
 
   return info
@@ -61,12 +61,12 @@ const previewBackground = computed(() => {
 })
 
 const markdownCode = computed(() => {
-  const name = props.githubFile?.name || 'image'
+  const name = props.remoteFile?.name || 'image'
   return `![${name}](${props.mediaItem.path})`
 })
 
-const githubPath = computed(() => {
-  return joinURL(git.getBranchUrl(), props.githubFile.path!)
+const remotePath = computed(() => {
+  return joinURL(git.getBranchUrl(), props.remoteFile.path!)
 })
 </script>
 
@@ -100,7 +100,7 @@ const githubPath = computed(() => {
     </div>
 
     <div
-      v-if="githubFile?.name"
+      v-if="remoteFile?.name"
       class="p-3 rounded-lg bg-default border border-muted"
     >
       <div class="flex items-center gap-1 text-xs text-muted mb-2">
@@ -111,7 +111,7 @@ const githubPath = computed(() => {
         <span>File name</span>
       </div>
       <p class="text-xs font-mono text-highlighted truncate">
-        {{ githubFile.name }}
+        {{ remoteFile.name }}
       </p>
     </div>
 
@@ -132,11 +132,11 @@ const githubPath = computed(() => {
     </div>
 
     <div
-      v-if="githubFile?.path"
+      v-if="remoteFile?.path"
       class="p-3 rounded-lg bg-default border border-muted relative"
     >
       <div class="absolute top-3 right-3">
-        <CopyButton :content="githubPath" />
+        <CopyButton :content="remotePath" />
       </div>
       <div class="flex items-center gap-1 text-xs text-muted mb-2">
         <UIcon
@@ -146,7 +146,7 @@ const githubPath = computed(() => {
         <span>GitHub path</span>
       </div>
       <p class="text-xs font-mono text-highlighted truncate">
-        {{ githubFile.path }}
+        {{ remoteFile.path }}
       </p>
     </div>
 

@@ -1,4 +1,4 @@
-import type { GithubFile } from './git'
+import type { GitFile } from './git'
 import type { DatabaseItem } from './database'
 import type { MediaItem } from './media'
 
@@ -10,7 +10,7 @@ export enum DraftStatus {
 }
 
 export interface ContentConflict {
-  githubContent: string
+  remoteContent: string
   localContent: string
 }
 
@@ -19,7 +19,7 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
   fsPath: string // file path in content directory
   status: DraftStatus // status
 
-  remoteFile?: GithubFile
+  remoteFile?: GitFile
   original?: T
   modified?: T
   /**

@@ -19,7 +19,7 @@ const diffEditorRef = ref<HTMLDivElement>()
 
 const conflict = computed<ContentConflict>(() => props.draftItem.conflict!)
 const repositoryInfo = computed(() => git.getRepositoryInfo())
-const fileGitHubUrl = computed(() => joinURL(git.getContentRootDirUrl(), props.draftItem.fsPath))
+const fileRemoteUrl = computed(() => joinURL(git.getContentRootDirUrl(), props.draftItem.fsPath))
 
 const language = computed(() => {
   switch (props.draftItem.fsPath.split('.').pop()) {
@@ -36,7 +36,7 @@ const language = computed(() => {
 })
 
 useMonacoDiff(diffEditorRef, {
-  original: conflict.value?.githubContent || '',
+  original: conflict.value?.remoteContent || '',
   modified: conflict.value?.localContent || '',
   language: language.value,
   colorMode: ui.colorMode,
@@ -108,7 +108,7 @@ useMonacoDiff(diffEditorRef, {
               <dd class="text-highlighted font-medium">
                 <UButton
                   :label="props.draftItem.fsPath"
-                  :to="fileGitHubUrl"
+                  :to="fileRemoteUrl"
                   variant="link"
                   target="_blank"
                   size="xs"

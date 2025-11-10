@@ -16,30 +16,30 @@ export async function checkConflict(draftItem: DraftItem<DatabaseItem | MediaIte
 
   if (draftItem.status === DraftStatus.Created && draftItem.remoteFile) {
     return {
-      githubContent: draftItem.remoteFile.encoding === 'base64' ? fromBase64ToUTF8(draftItem.remoteFile.content!) : draftItem.remoteFile.content!,
+      remoteContent: draftItem.remoteFile.encoding === 'base64' ? fromBase64ToUTF8(draftItem.remoteFile.content!) : draftItem.remoteFile.content!,
       localContent: await generateContentFromDocument(draftItem.modified as DatabaseItem) as string,
     }
   }
 
-  // TODO: No GitHub file found (might have been deleted remotely)
+  // TODO: No remote file found (might have been deleted remotely)
   if (!draftItem.remoteFile || !draftItem.remoteFile.content) {
     return
   }
 
   const localContent = await generateContentFromDocument(draftItem.original as DatabaseItem) as string
-  const githubContent = draftItem.remoteFile.encoding === 'base64' ? fromBase64ToUTF8(draftItem.remoteFile.content!) : draftItem.remoteFile.content!
-  const githubDocument = await generateDocumentFromContent(draftItem.id, githubContent) as DatabaseItem
+  const remoteContent = draftItem.remoteFile.encoding === 'base64' ? fromBase64ToUTF8(draftItem.remoteFile.content!) : draftItem.remoteFile.content!
+  const remoteDocument = await generateDocumentFromContent(draftItem.id, remoteContent) as DatabaseItem
 
-  if (isEqual(draftItem.original as DatabasePageItem, githubDocument as DatabasePageItem)) {
+  if (isEqual(draftItem.original as DatabasePageItem, remoteDocument as DatabasePageItem)) {
     return
   }
 
-  if (localContent.trim() === githubContent.trim()) {
+  if (localContent.trim() === remoteContent.trim()) {
     return
   }
 
   return {
-    githubContent,
+    remoteContent,
     localContent,
   }
 }
