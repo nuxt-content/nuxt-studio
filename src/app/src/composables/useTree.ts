@@ -6,7 +6,6 @@ import { buildTree, findItemFromFsPath, findItemFromRoute, findParentFromFsPath,
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
 import { useStudioState } from './useStudioState'
-import { TreeRootId } from '../types/tree'
 
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
@@ -22,7 +21,6 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       fsPath: '/',
       children: tree.value,
       status: draftedTreeItems.length > 0 ? TreeStatus.Updated : null,
-      collections: [type === StudioFeature.Content ? TreeRootId.Content : TreeRootId.Media],
       prefix: null,
     } as TreeItem
   })

@@ -70,7 +70,6 @@ export function getCollection(collectionName: string, collections: Record<string
 export function getCollectionSource(id: string, collection: CollectionInfo) {
   const [_, ...rest] = id.split(/[/:]/)
   const prefixAndPath = rest.join('/')
-  console.log('prefixAndPath', prefixAndPath)
 
   const matchedSource = collection.source.find((source) => {
     const prefix = source.prefix

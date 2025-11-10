@@ -5,9 +5,18 @@ import { createMockMedia } from './media'
 import { joinURL } from 'ufo'
 import type { MediaItem } from '../../src/types/media'
 
-// Simple implementation that mimics the real getFileSystemPath logic
-const getFileSystemPath = (id: string) => {
-  return `${id.split('/').slice(1).join('/')}`
+// Helper to convert fsPath to id (simulates module's internal mapping)
+export const fsPathToId = (fsPath: string, type: 'document' | 'media') => {
+  if (type === 'media') {
+    return joinURL(TreeRootId.Media, fsPath)
+  }
+  // For documents, prefix with a collection name
+  return joinURL('docs', fsPath)
+}
+
+// Helper to convert id back to fsPath (simulates module's internal mapping)
+const idToFsPath = (id: string) => {
+  return id.split('/').slice(1).join('/')
 }
 
 const documentDb = new Map<string, DatabaseItem>()
@@ -15,7 +24,8 @@ const mediaDb = new Map<string, MediaItem>()
 
 export const createMockHost = (): StudioHost => ({
   document: {
-    get: vi.fn().mockImplementation(async (id: string) => {
+    get: vi.fn().mockImplementation(async (fsPath: string) => {
+      const id = fsPathToId(fsPath, 'document')
       if (documentDb.has(id)) {
         return documentDb.get(id)
       }
@@ -24,8 +34,7 @@ export const createMockHost = (): StudioHost => ({
       return document
     }),
     create: vi.fn().mockImplementation(async (fsPath: string, content: string) => {
-      // Add dummy collection prefix
-      const id = joinURL('docs', fsPath)
+      const id = fsPathToId(fsPath, 'document')
       const document = createMockDocument(id, {
         body: {
           type: 'minimark',
@@ -35,19 +44,22 @@ export const createMockHost = (): StudioHost => ({
       documentDb.set(id, document)
       return document
     }),
-    upsert: vi.fn().mockImplementation(async (id: string, document: DatabaseItem) => {
+    upsert: vi.fn().mockImplementation(async (fsPath: string, document: DatabaseItem) => {
+      const id = fsPathToId(fsPath, 'document')
       documentDb.set(id, document)
     }),
-    delete: vi.fn().mockImplementation(async (id: string) => {
+    delete: vi.fn().mockImplementation(async (fsPath: string) => {
+      const id = fsPathToId(fsPath, 'document')
       documentDb.delete(id)
     }),
     list: vi.fn().mockImplementation(async () => {
       return Array.from(documentDb.values())
     }),
-    getFileSystemPath,
+    getFileSystemPath: vi.fn().mockImplementation(idToFsPath),
   },
   media: {
-    get: vi.fn().mockImplementation(async (id: string) => {
+    get: vi.fn().mockImplementation(async (fsPath: string) => {
+      const id = fsPathToId(fsPath, 'media')
       if (mediaDb.has(id)) {
         return mediaDb.get(id)
       }
@@ -56,18 +68,20 @@ export const createMockHost = (): StudioHost => ({
       return media
     }),
     create: vi.fn().mockImplementation(async (fsPath: string, _routePath: string, _content: string) => {
-      const id = joinURL(TreeRootId.Media, fsPath)
+      const id = fsPathToId(fsPath, 'media')
       const media = createMockMedia(id)
       mediaDb.set(id, media)
       return media
     }),
-    upsert: vi.fn().mockImplementation(async (id: string, media: MediaItem) => {
+    upsert: vi.fn().mockImplementation(async (fsPath: string, media: MediaItem) => {
+      const id = fsPathToId(fsPath, 'media')
       mediaDb.set(id, media)
     }),
-    delete: vi.fn().mockImplementation(async (id: string) => {
+    delete: vi.fn().mockImplementation(async (fsPath: string) => {
+      const id = fsPathToId(fsPath, 'media')
       mediaDb.delete(id)
     }),
-    getFileSystemPath,
+    getFileSystemPath: vi.fn().mockImplementation(idToFsPath),
     list: vi.fn().mockImplementation(async () => {
       return Array.from(mediaDb.values())
     }),

@@ -19,14 +19,12 @@ describe('buildTree of documents with one level of depth', () => {
       type: 'file',
       routePath: '/',
       prefix: null,
-      collections: ['landing'],
     },
     {
       name: 'getting-started',
       fsPath: '1.getting-started',
       type: 'directory',
       prefix: 1,
-      collections: ['docs'],
       children: [
         {
           name: 'introduction',
@@ -34,7 +32,6 @@ describe('buildTree of documents with one level of depth', () => {
           type: 'file',
           routePath: '/getting-started/introduction',
           prefix: 2,
-          collections: ['docs'],
         },
         {
           name: 'installation',
@@ -42,7 +39,6 @@ describe('buildTree of documents with one level of depth', () => {
           type: 'file',
           routePath: '/getting-started/installation',
           prefix: 3,
-          collections: ['docs'],
         },
       ],
     },
@@ -57,7 +53,6 @@ describe('buildTree of documents with one level of depth', () => {
     const createdDbItem: DatabaseItem & { fsPath: string } = dbItemsList[0]
 
     const draftList: DraftItem[] = [{
-      id: createdDbItem.id,
       fsPath: createdDbItem.fsPath,
       status: DraftStatus.Created,
       original: undefined,
@@ -78,7 +73,6 @@ describe('buildTree of documents with one level of depth', () => {
     const deletedDbItem: DatabaseItem & { fsPath: string } = dbItemsList[1] // 2.introduction.md
 
     const draftList: DraftItem[] = [{
-      id: deletedDbItem.id,
       fsPath: deletedDbItem.fsPath,
       status: DraftStatus.Deleted,
       modified: undefined,
@@ -103,7 +97,6 @@ describe('buildTree of documents with one level of depth', () => {
             routePath: deletedDbItem.path,
             status: TreeStatus.Deleted,
             prefix: 2,
-            collections: ['docs'],
           },
         ],
       },
@@ -114,7 +107,6 @@ describe('buildTree of documents with one level of depth', () => {
     const deletedDbItem: DatabaseItem & { fsPath: string } = dbItemsList[2] // 3.installation.md
 
     const draftList: DraftItem[] = [{
-      id: deletedDbItem.id,
       fsPath: deletedDbItem.fsPath,
       status: DraftStatus.Deleted,
       modified: undefined,
@@ -139,7 +131,6 @@ describe('buildTree of documents with one level of depth', () => {
             routePath: deletedDbItem.path,
             status: TreeStatus.Deleted,
             prefix: 3,
-            collections: ['docs'],
           },
         ],
       },
@@ -150,7 +141,6 @@ describe('buildTree of documents with one level of depth', () => {
     const updatedDbItem: DatabaseItem & { fsPath: string } = dbItemsList[1] // 2.introduction.md
 
     const draftList: DraftItem[] = [{
-      id: updatedDbItem.id,
       fsPath: updatedDbItem.fsPath,
       status: DraftStatus.Updated,
       original: updatedDbItem,
@@ -188,13 +178,11 @@ describe('buildTree of documents with one level of depth', () => {
     const openedDbItem: DatabaseItem & { fsPath: string } = dbItemsList[2] // 3.installation.md
 
     const draftList: DraftItem[] = [{
-      id: createdDbItem.id,
       fsPath: createdDbItem.fsPath,
       status: DraftStatus.Created,
       original: undefined,
       modified: createdDbItem,
     }, {
-      id: openedDbItem.id,
       fsPath: openedDbItem.fsPath,
       status: DraftStatus.Pristine,
       original: openedDbItem,
@@ -223,13 +211,11 @@ describe('buildTree of documents with one level of depth', () => {
     const openedDbItem2: DatabaseItem & { fsPath: string } = dbItemsList[2] // 3.installation.md
 
     const draftList: DraftItem[] = [{
-      id: openedDbItem1.id,
       fsPath: openedDbItem1.fsPath,
       status: DraftStatus.Pristine,
       original: openedDbItem1,
       modified: openedDbItem1,
     }, {
-      id: openedDbItem2.id,
       fsPath: openedDbItem2.fsPath,
       status: DraftStatus.Pristine,
       original: openedDbItem2,
@@ -265,13 +251,11 @@ describe('buildTree of documents with one level of depth', () => {
     }
 
     const draftList: DraftItem[] = [{
-      id: deletedDbItem.id,
       fsPath: deletedDbItem.fsPath,
       status: DraftStatus.Deleted,
       modified: undefined,
       original: deletedDbItem,
     }, {
-      id: createdDbItem.id,
       fsPath: createdDbItem.fsPath,
       status: DraftStatus.Created,
       modified: createdDbItem,
@@ -298,7 +282,6 @@ describe('buildTree of documents with one level of depth', () => {
             type: 'file',
             status: TreeStatus.Renamed,
             prefix: 2,
-            collections: ['docs'],
           },
         ],
       },
@@ -313,7 +296,6 @@ describe('buildTree of documents with two levels of depth', () => {
       fsPath: '1.essentials',
       type: 'directory',
       prefix: 1,
-      collections: ['docs'],
       children: [
         {
           name: 'configuration',
@@ -321,14 +303,12 @@ describe('buildTree of documents with two levels of depth', () => {
           type: 'file',
           routePath: '/essentials/configuration',
           prefix: 2,
-          collections: ['docs'],
         },
         {
           name: 'nested',
           fsPath: '1.essentials/1.nested',
           type: 'directory',
           prefix: 1,
-          collections: ['docs'],
           children: [
             {
               name: 'advanced',
@@ -336,7 +316,6 @@ describe('buildTree of documents with two levels of depth', () => {
               type: 'file',
               routePath: '/essentials/nested/advanced',
               prefix: 2,
-              collections: ['docs'],
             },
           ],
         },
@@ -353,7 +332,6 @@ describe('buildTree of documents with two levels of depth', () => {
     const updatedDbItem: DatabaseItem & { fsPath: string } = nestedDbItemsList[0] // 1.essentials/2.configuration.md
 
     const draftList: DraftItem[] = [{
-      id: updatedDbItem.id,
       fsPath: updatedDbItem.fsPath,
       status: DraftStatus.Updated,
       original: updatedDbItem,
@@ -382,7 +360,6 @@ describe('buildTree of documents with two levels of depth', () => {
     const updatedDbItem: DatabaseItem & { fsPath: string } = nestedDbItemsList[1] // 1.essentials/1.nested/2.advanced.md
 
     const draftList: DraftItem[] = [{
-      id: updatedDbItem.id,
       fsPath: updatedDbItem.fsPath,
       status: DraftStatus.Updated,
       original: updatedDbItem,
@@ -420,7 +397,6 @@ describe('buildTree of documents with two levels of depth', () => {
     const deletedDbItem: DatabaseItem & { fsPath: string } = nestedDbItemsList[1] // 1.essentials/1.nested/2.advanced.md
 
     const draftList: DraftItem[] = [{
-      id: deletedDbItem.id,
       fsPath: deletedDbItem.fsPath,
       status: DraftStatus.Deleted,
       modified: undefined,
@@ -448,7 +424,6 @@ describe('buildTree of documents with two levels of depth', () => {
               type: 'file',
               status: TreeStatus.Deleted,
               prefix: 2,
-              collections: ['docs'],
             },
           ],
         },
@@ -464,7 +439,6 @@ describe('buildTree of documents with language prefixed', () => {
       fsPath: 'en',
       type: 'directory',
       prefix: null,
-      collections: ['landing_en', 'docs_en'],
       children: [
         {
           name: 'index',
@@ -472,14 +446,12 @@ describe('buildTree of documents with language prefixed', () => {
           prefix: null,
           type: 'file',
           routePath: '/en',
-          collections: ['landing_en'],
         },
         {
           name: 'getting-started',
           fsPath: 'en/1.getting-started',
           type: 'directory',
           prefix: 1,
-          collections: ['docs_en'],
           children: [
             {
               name: 'introduction',
@@ -487,7 +459,6 @@ describe('buildTree of documents with language prefixed', () => {
               type: 'file',
               routePath: '/en/getting-started/introduction',
               prefix: 2,
-              collections: ['docs_en'],
             },
             {
               name: 'installation',
@@ -495,7 +466,6 @@ describe('buildTree of documents with language prefixed', () => {
               type: 'file',
               routePath: '/en/getting-started/installation',
               prefix: 3,
-              collections: ['docs_en'],
             },
           ],
         },
@@ -534,7 +504,6 @@ describe('buildTree of medias', () => {
     }
 
     const draftList: DraftItem[] = [{
-      id: gitkeepDbItem.id,
       fsPath: gitkeepDbItem.fsPath,
       status: DraftStatus.Created,
       original: undefined,

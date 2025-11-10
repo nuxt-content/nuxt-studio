@@ -41,20 +41,19 @@ export interface StudioHost {
   }
   repository: Repository
   document: {
-    get: (id: string) => Promise<DatabaseItem>
-    getFileSystemPath: (id: string) => string
+    get: (fsPath: string) => Promise<DatabaseItem>
     list: () => Promise<DatabaseItem[]>
-    upsert: (id: string, document: DatabaseItem) => Promise<void>
+    upsert: (fsPath: string, document: DatabaseItem) => Promise<void>
     create: (fsPath: string, content: string) => Promise<DatabaseItem>
-    delete: (id: string) => Promise<void>
-    detectActives: () => Array<{ id: string, title: string }>
+    delete: (fsPath: string) => Promise<void>
+    detectActives: () => Array<{ fsPath: string, title: string }>
   }
   media: {
-    get: (id: string) => Promise<MediaItem>
-    getFileSystemPath: (id: string) => string
+    get: (fsPath: string) => Promise<MediaItem>
+    getFileSystemPath: (fsPath: string) => string
     list: () => Promise<MediaItem[]>
-    upsert: (id: string, media: MediaItem) => Promise<void>
-    delete: (id: string) => Promise<void>
+    upsert: (fsPath: string, media: MediaItem) => Promise<void>
+    delete: (fsPath: string) => Promise<void>
   }
   user: {
     get: () => StudioUser

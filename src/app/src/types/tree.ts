@@ -16,7 +16,6 @@ export interface TreeItem {
   fsPath: string // can be used as id
   type: 'file' | 'directory' | 'root'
   prefix: number | null
-  collections: string[]
   status?: TreeStatus
   routePath?: string
   children?: TreeItem[]

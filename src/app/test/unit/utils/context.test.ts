@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { computeItemActions, STUDIO_ITEM_ACTION_DEFINITIONS } from '../../../src/utils/context'
-import { StudioItemActionId, type TreeItem, TreeRootId } from '../../../src/types'
+import { StudioItemActionId, type TreeItem } from '../../../src/types'
 import { TreeStatus } from '../../../src/types'
 
 describe('computeItemActions', () => {
@@ -18,7 +18,6 @@ describe('computeItemActions', () => {
       name: 'content',
       fsPath: '/',
       prefix: null,
-      collections: [TreeRootId.Content],
     }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
@@ -40,7 +39,6 @@ describe('computeItemActions', () => {
       name: 'media',
       fsPath: '/',
       prefix: null,
-      collections: [TreeRootId.Media],
     }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
@@ -64,7 +62,6 @@ describe('computeItemActions', () => {
       fsPath: '/',
       prefix: null,
       status: TreeStatus.Updated,
-      collections: [TreeRootId.Media],
     }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, rootItem)
@@ -89,7 +86,6 @@ describe('computeItemActions', () => {
       name: 'test.md',
       fsPath: 'test.md',
       prefix: null,
-      collections: [TreeRootId.Content],
     }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, fileItem)
@@ -110,7 +106,6 @@ describe('computeItemActions', () => {
       name: 'test.md',
       fsPath: 'test.md',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Opened,
     }
 
@@ -132,7 +127,6 @@ describe('computeItemActions', () => {
       name: 'test.md',
       fsPath: 'test.md',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Updated,
     }
 
@@ -153,7 +147,6 @@ describe('computeItemActions', () => {
       name: 'test.md',
       fsPath: 'test.md',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Created,
     }
 
@@ -174,7 +167,6 @@ describe('computeItemActions', () => {
       name: 'test.md',
       fsPath: 'test.md',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Deleted,
     }
 
@@ -198,7 +190,6 @@ describe('computeItemActions', () => {
       name: 'test.md',
       fsPath: 'test.md',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Renamed,
     }
 
@@ -223,7 +214,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Content],
     }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
@@ -244,7 +234,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Opened,
     }
 
@@ -265,7 +254,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Updated,
     }
 
@@ -285,7 +273,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Created,
     }
 
@@ -305,7 +292,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Deleted,
     }
 
@@ -327,7 +313,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Content],
       status: TreeStatus.Renamed,
     } as TreeItem
 
@@ -347,7 +332,6 @@ describe('computeItemActions', () => {
       name: 'folder',
       fsPath: 'folder',
       prefix: null,
-      collections: [TreeRootId.Media],
     }
 
     const result = computeItemActions(STUDIO_ITEM_ACTION_DEFINITIONS, directoryItem)
