@@ -1,13 +1,12 @@
 import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, MediaItem, RawFile } from '../types'
-import { VirtualMediaCollectionName } from '../types/media'
+import { VirtualMediaCollectionName, generateStemFromFsPath } from '../utils/media'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
 import { createSharedComposable } from '@vueuse/core'
 import { useDraftBase } from './useDraftBase'
 import { mediaStorage as storage } from '../utils/storage'
 import { getFileExtension, slugifyFileName } from '../utils/file'
-import { generateStemFromFsPath } from '../utils/media'
 import { useHooks } from './useHooks'
 
 const hooks = useHooks()

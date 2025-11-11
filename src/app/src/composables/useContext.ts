@@ -1,6 +1,7 @@
 import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature, VirtualMediaCollectionName } from '../types'
+import { StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
+} from '../types'
 import type {
   PublishBranchParams,
   RenameFileParams,
@@ -15,6 +16,7 @@ import type {
   DatabaseItem,
   MediaItem,
 } from '../types'
+import { VirtualMediaCollectionName, generateStemFromFsPath } from '../utils/media'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions, STUDIO_BRANCH_ACTION_DEFINITIONS } from '../utils/context'
 import type { useTree } from './useTree'
 import type { useGit } from './useGit'
@@ -23,7 +25,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { findDescendantsFileItemsFromFsPath } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
-import { generateStemFromFsPath } from '../utils/media'
 
 export const useContext = createSharedComposable((
   host: StudioHost,

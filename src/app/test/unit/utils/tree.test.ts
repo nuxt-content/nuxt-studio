@@ -9,7 +9,7 @@ import { DraftStatus, TreeStatus } from '../../../src/types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { DatabaseItem } from '../../../src/types/database'
 import { joinURL, withLeadingSlash } from 'ufo'
-import { VirtualMediaCollectionName } from '../../../src/types/media'
+import { VirtualMediaCollectionName } from '../../../src/utils/media'
 
 describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock

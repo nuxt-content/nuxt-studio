@@ -1,4 +1,5 @@
-import { type StudioHost, VirtualMediaCollectionName, type DatabaseItem } from '../../src/types'
+import type { StudioHost, DatabaseItem } from '../../src/types'
+import { VirtualMediaCollectionName } from '../../src/utils/media'
 import { vi } from 'vitest'
 import { createMockDocument } from './document'
 import { createMockMedia } from './media'
