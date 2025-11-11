@@ -166,7 +166,9 @@ export function normalizeDocument(document: DatabaseItem) {
     Reflect.deleteProperty(document, 'title')
   }
 
-  const extractedContentHeading = contentHeading(document.body as MinimarkTree)
+  const extractedContentHeading = document.body 
+    ? contentHeading(document.body as MinimarkTree) 
+    : { title: '', description: '' }
   if (extractedContentHeading.title === document.title) {
     Reflect.deleteProperty(document, 'title')
   }
