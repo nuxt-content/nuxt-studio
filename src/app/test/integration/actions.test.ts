@@ -99,16 +99,15 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(storedDraft).toHaveProperty('status', DraftStatus.Created)
     expect(storedDraft).toHaveProperty('fsPath', documentFsPath)
     expect(storedDraft.modified).toHaveProperty('id', documentId)
-    expect(storedDraft.modified).toHaveProperty('body', {
-      type: 'minimark',
-      value: ['Test content'],
-    })
+    expect(storedDraft.modified).toHaveProperty('fsPath', documentFsPath)
+    expect(JSON.stringify(storedDraft.modified.body)).toContain('Test content')
     expect(storedDraft.original).toBeUndefined()
 
     // Draft in Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].original).toBeUndefined()
 
     // Tree
@@ -157,6 +156,7 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', fsPathToId(newFsPath, 'document'))
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftStorage.original).toBeUndefined()
 
     // Draft in Memory
@@ -165,6 +165,7 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(list[0].status).toEqual(DraftStatus.Created)
     expect(list[0]).toHaveProperty('fsPath', newFsPath)
     expect(list[0].modified).toHaveProperty('id', fsPathToId(newFsPath, 'document'))
+    expect(list[0].modified).toHaveProperty('fsPath', newFsPath)
     expect(list[0].original).toBeUndefined()
 
     // Tree
@@ -203,6 +204,7 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(storedDraft).toHaveProperty('status', DraftStatus.Created)
     expect(storedDraft).toHaveProperty('fsPath', documentFsPath)
     expect(storedDraft.modified).toHaveProperty('id', documentId)
+    expect(storedDraft.modified).toHaveProperty('fsPath', documentFsPath)
     expect(storedDraft.modified).toHaveProperty('body', updatedDocument.body)
     expect(storedDraft.original).toBeUndefined()
 
@@ -211,6 +213,7 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.draft.list.value[0].status).toEqual(DraftStatus.Created)
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].original).toBeUndefined()
 
     // Tree
@@ -251,14 +254,18 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(selectedDraft).toHaveProperty('status', DraftStatus.Pristine)
     expect(selectedDraft).toHaveProperty('fsPath', documentFsPath)
     expect(selectedDraft.modified).toHaveProperty('id', documentId)
+    expect(selectedDraft.modified).toHaveProperty('fsPath', documentFsPath)
     expect(selectedDraft.original).toHaveProperty('id', documentId)
+    expect(selectedDraft.original).toHaveProperty('fsPath', documentFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
     expect(context.activeTree.value.draft.list.value[0].status).toEqual(DraftStatus.Pristine)
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('fsPath', documentFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -281,15 +288,19 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(storedDraft).toHaveProperty('status', DraftStatus.Updated)
     expect(storedDraft).toHaveProperty('fsPath', documentFsPath)
     expect(storedDraft.modified).toHaveProperty('id', documentId)
+    expect(storedDraft.modified).toHaveProperty('fsPath', documentFsPath)
     expect(storedDraft.modified).toHaveProperty('body', updatedDocument.body)
     expect(storedDraft.original).toHaveProperty('id', documentId)
+    expect(storedDraft.original).toHaveProperty('fsPath', documentFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
     expect(context.activeTree.value.draft.list.value[0].status).toEqual(DraftStatus.Updated)
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('fsPath', documentFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -305,14 +316,18 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(revertedDraft).toHaveProperty('status', DraftStatus.Pristine)
     expect(revertedDraft).toHaveProperty('fsPath', documentFsPath)
     expect(revertedDraft.modified).toHaveProperty('id', documentId)
+    expect(revertedDraft.modified).toHaveProperty('fsPath', documentFsPath)
     expect(revertedDraft.original).toHaveProperty('id', documentId)
+    expect(revertedDraft.original).toHaveProperty('fsPath', documentFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
     expect(context.activeTree.value.draft.list.value[0].status).toEqual(DraftStatus.Pristine)
     expect(context.activeTree.value.draft.list.value[0]).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('fsPath', documentFsPath)
     expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('id', documentId)
+    expect(context.activeTree.value.draft.list.value[0].original).toHaveProperty('fsPath', documentFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -366,14 +381,17 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftStorage.original).toHaveProperty('id', documentId)
+    expect(createdDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', newId)
-    expect(createdDraftStorage.modified).toHaveProperty('body', updatedDocument.body)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
+    expect(JSON.stringify(createdDraftStorage.modified.body)).toContain('Updated content')
 
     // Deleted original draft
     const deletedDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(documentFsPath))!)
     expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftStorage).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.modified).toBeUndefined()
 
     // Memory
@@ -383,13 +401,16 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(list[0].status).toEqual(DraftStatus.Deleted)
     expect(list[0]).toHaveProperty('fsPath', documentFsPath)
     expect(list[0].original).toHaveProperty('id', documentId)
+    expect(list[0].original).toHaveProperty('fsPath', documentFsPath)
     expect(list[0].modified).toBeUndefined()
 
     expect(list[1].status).toEqual(DraftStatus.Created)
     expect(list[1]).toHaveProperty('fsPath', newFsPath)
     expect(list[1].original).toHaveProperty('id', documentId)
+    expect(list[1].original).toHaveProperty('fsPath', documentFsPath)
     expect(list[1].modified).toHaveProperty('id', newId)
-    expect(list[1].modified).toHaveProperty('body', updatedDocument.body)
+    expect(list[1].modified).toHaveProperty('fsPath', newFsPath)
+    expect(JSON.stringify(list[1].modified!.body)).toContain('Updated content')
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -432,13 +453,16 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftStorage.original).toHaveProperty('id', documentId)
+    expect(createdDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', newId)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
 
     // Deleted original draft
     let deletedDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(documentFsPath))!)
     expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftStorage).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.modified).toBeUndefined()
 
     // Memory
@@ -448,6 +472,7 @@ describe('Document - Action Chains Integration Tests', () => {
     let deletedDraftMemory = context.activeTree.value.draft.list.value.find(item => item.fsPath === documentFsPath)
     expect(deletedDraftMemory).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftMemory!.original).toHaveProperty('id', documentId)
+    expect(deletedDraftMemory!.original).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftMemory!.modified).toBeUndefined()
 
     // Created renamed draft
@@ -455,7 +480,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftMemory).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftMemory!.original).toHaveProperty('id', documentId)
+    expect(createdDraftMemory!.original).toHaveProperty('fsPath', documentFsPath)
     expect(createdDraftMemory!.modified).toHaveProperty('id', newId)
+    expect(createdDraftMemory!.modified).toHaveProperty('fsPath', newFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -480,7 +507,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(updatedDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(updatedDraftStorage).toHaveProperty('fsPath', newFsPath)
     expect(updatedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(updatedDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(updatedDraftStorage.modified).toHaveProperty('id', newId)
+    expect(updatedDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
     expect(updatedDraftStorage.modified).toHaveProperty('body', updatedDocument.body)
 
     // Deleted original draft
@@ -488,6 +517,7 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftStorage).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(2)
@@ -496,6 +526,7 @@ describe('Document - Action Chains Integration Tests', () => {
     deletedDraftMemory = context.activeTree.value.draft.list.value.find(item => item.fsPath === documentFsPath)
     expect(deletedDraftMemory).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftMemory!.original).toHaveProperty('id', documentId)
+    expect(deletedDraftMemory!.original).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftMemory!.modified).toBeUndefined()
 
     // Renamed original draft
@@ -503,7 +534,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(updatedDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(updatedDraftMemory).toHaveProperty('fsPath', newFsPath)
     expect(updatedDraftMemory!.original).toHaveProperty('id', documentId)
+    expect(updatedDraftMemory!.original).toHaveProperty('fsPath', documentFsPath)
     expect(updatedDraftMemory!.modified).toHaveProperty('id', newId)
+    expect(updatedDraftMemory!.modified).toHaveProperty('fsPath', newFsPath)
     expect(updatedDraftMemory!.modified).toHaveProperty('body', updatedDocument.body)
 
     // Tree
@@ -552,7 +585,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(openedDraftStorage).toHaveProperty('status', DraftStatus.Pristine)
     expect(openedDraftStorage).toHaveProperty('fsPath', documentFsPath)
     expect(openedDraftStorage.modified).toHaveProperty('id', documentId)
+    expect(openedDraftStorage.modified).toHaveProperty('fsPath', documentFsPath)
     expect(openedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(openedDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
 
     // Memory
     const list = context.activeTree.value.draft.list.value
@@ -560,7 +595,10 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(list[0]).toHaveProperty('status', DraftStatus.Pristine)
     expect(list[0]).toHaveProperty('fsPath', documentFsPath)
     expect(list[0].modified).toHaveProperty('id', documentId)
+    expect(list[0].modified).toHaveProperty('fsPath', documentFsPath)
     expect(list[0].original).toHaveProperty('id', documentId)
+    expect(list[0].original).toHaveProperty('fsPath', documentFsPath)
+    expect(list[0].original).toHaveProperty('fsPath', documentFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -614,13 +652,16 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath2)
     expect(createdDraftStorage.original).toHaveProperty('id', documentId)
+    expect(createdDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', newId2)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath2)
 
     // Deleted original draft (documentFsPath)
     const deletedDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(documentFsPath))!)
     expect(deletedDraftStorage).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftStorage).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.original).toHaveProperty('id', documentId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', documentFsPath)
     expect(deletedDraftStorage.modified).toBeUndefined()
 
     // Memory
@@ -631,7 +672,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftMemory).toHaveProperty('fsPath', newFsPath2)
     expect(createdDraftMemory.original).toHaveProperty('id', documentId)
+    expect(createdDraftMemory.original).toHaveProperty('fsPath', documentFsPath)
     expect(createdDraftMemory.modified).toHaveProperty('id', newId2)
+    expect(createdDraftMemory.modified).toHaveProperty('fsPath', newFsPath2)
 
     // Deleted original draft (documentFsPath)
     const deletedDraftMemory = context.activeTree.value.draft.list.value.find(item => item.fsPath === documentFsPath)!
@@ -687,6 +730,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftStorage.original).toBeUndefined()
     expect(createdDraftStorage.modified).toHaveProperty('id', mediaId)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
@@ -695,6 +739,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftMemory.original).toBeUndefined()
     expect(createdDraftMemory.modified).toHaveProperty('id', mediaId)
+    expect(createdDraftMemory.modified).toHaveProperty('fsPath', mediaFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -747,6 +792,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftStorage.original).toBeUndefined()
     expect(createdDraftStorage.modified).toHaveProperty('id', newId)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
 
     // Memory
     const list = context.activeTree.value.draft.list.value
@@ -755,6 +801,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(list[0]).toHaveProperty('fsPath', newFsPath)
     expect(list[0].original).toBeUndefined()
     expect(list[0].modified).toHaveProperty('id', newId)
+    expect(list[0].modified).toHaveProperty('fsPath', newFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -783,7 +830,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Pristine)
     expect(createdDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(createdDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', mediaId)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
@@ -791,7 +840,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Pristine)
     expect(createdDraftMemory).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftMemory.original).toHaveProperty('id', mediaId)
+    expect(createdDraftMemory.original).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftMemory.modified).toHaveProperty('id', mediaId)
+    expect(createdDraftMemory.modified).toHaveProperty('fsPath', mediaFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -808,6 +859,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(deletedDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftStorage.modified).toBeUndefined()
     expect(deletedDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
@@ -816,6 +868,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(deletedDraftMemory).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftMemory.modified).toBeUndefined()
     expect(deletedDraftMemory.original).toHaveProperty('id', mediaId)
+    expect(deletedDraftMemory.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -831,7 +884,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(revertedDraftStorage).toHaveProperty('status', DraftStatus.Pristine)
     expect(revertedDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(revertedDraftStorage.modified).toHaveProperty('id', mediaId)
+    expect(revertedDraftStorage.modified).toHaveProperty('fsPath', mediaFsPath)
     expect(revertedDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(revertedDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     const list = context.activeTree.value.draft.list.value
@@ -839,7 +894,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(list[0]).toHaveProperty('status', DraftStatus.Pristine)
     expect(list[0]).toHaveProperty('fsPath', mediaFsPath)
     expect(list[0].modified).toHaveProperty('id', mediaId)
+    expect(list[0].modified).toHaveProperty('fsPath', mediaFsPath)
     expect(list[0].original).toHaveProperty('id', mediaId)
+    expect(list[0].original).toHaveProperty('fsPath', mediaFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -857,7 +914,8 @@ describe('Media - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create media in db and load tree
-    await mockHost.media.upsert(mediaFsPath, { id: mediaId, stem: mediaName.split('.')[0], extension: mediaName.split('.')[1] })
+    const mediaDbItem = createMockMedia(mediaId)
+    await mockHost.media.upsert(mediaFsPath, mediaDbItem)
     await context.activeTree.value.draft.load()
 
     /* STEP 1: RENAME */
@@ -881,7 +939,10 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(createdDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', newId)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath)
 
     // Deleted original draft
     const deletedDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(mediaFsPath))!)
@@ -889,6 +950,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(deletedDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftStorage.modified).toBeUndefined()
     expect(deletedDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(2)
@@ -898,7 +960,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftMemory).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftMemory.modified).toHaveProperty('id', newId)
+    expect(createdDraftMemory.modified).toHaveProperty('fsPath', newFsPath)
     expect(createdDraftMemory.original).toHaveProperty('id', mediaId)
+    expect(createdDraftMemory.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Deleted original draft
     const deletedDraftMemory = context.activeTree.value.draft.list.value.find(item => item.fsPath === mediaFsPath)!
@@ -906,6 +970,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(deletedDraftMemory).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftMemory.modified).toBeUndefined()
     expect(deletedDraftMemory.original).toHaveProperty('id', mediaId)
+    expect(deletedDraftMemory.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -922,7 +987,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(revertedDraftStorage).toHaveProperty('status', DraftStatus.Pristine)
     expect(revertedDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(revertedDraftStorage.modified).toHaveProperty('id', mediaId)
+    expect(revertedDraftStorage.modified).toHaveProperty('fsPath', mediaFsPath)
     expect(revertedDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(revertedDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     const list = context.activeTree.value.draft.list.value
@@ -930,7 +997,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(list[0]).toHaveProperty('status', DraftStatus.Pristine)
     expect(list[0]).toHaveProperty('fsPath', mediaFsPath)
     expect(list[0].modified).toHaveProperty('id', mediaId)
+    expect(list[0].modified).toHaveProperty('fsPath', mediaFsPath)
     expect(list[0].original).toHaveProperty('id', mediaId)
+    expect(list[0].original).toHaveProperty('fsPath', mediaFsPath)
 
     // Tree
     expect(context.activeTree.value.root.value).toHaveLength(1)
@@ -948,7 +1017,8 @@ describe('Media - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create media in db and load tree
-    await mockHost.media.upsert(mediaFsPath, { id: mediaId, stem: mediaName.split('.')[0], extension: mediaName.split('.')[1] })
+    const mediaDbItem = createMockMedia(mediaId)
+    await mockHost.media.upsert(mediaFsPath, mediaDbItem)
     await context.activeTree.value.draft.load()
 
     /* STEP 1: RENAME */
@@ -983,7 +1053,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftStorage).toHaveProperty('fsPath', newFsPath2)
     expect(createdDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(createdDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
     expect(createdDraftStorage.modified).toHaveProperty('id', newId2)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', newFsPath2)
 
     // Deleted original draft
     const deletedDraftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(mediaFsPath))!)
@@ -991,6 +1063,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(deletedDraftStorage).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftStorage.modified).toBeUndefined()
     expect(deletedDraftStorage.original).toHaveProperty('id', mediaId)
+    expect(deletedDraftStorage.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Memory
     const list = context.activeTree.value.draft.list.value
@@ -1001,13 +1074,16 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftMemory).toHaveProperty('fsPath', newFsPath2)
     expect(createdDraftMemory.modified).toHaveProperty('id', newId2)
+    expect(createdDraftMemory.modified).toHaveProperty('fsPath', newFsPath2)
     expect(createdDraftMemory.original).toHaveProperty('id', mediaId)
+    expect(createdDraftMemory.original).toHaveProperty('fsPath', mediaFsPath)
 
     // Deleted original draft
     const deletedDraftMemory = list.find(item => item.fsPath === mediaFsPath)!
     expect(deletedDraftMemory).toHaveProperty('status', DraftStatus.Deleted)
     expect(deletedDraftMemory).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftMemory.original).toHaveProperty('id', mediaId)
+    expect(deletedDraftMemory.original).toHaveProperty('fsPath', mediaFsPath)
     expect(deletedDraftMemory.modified).toBeUndefined()
 
     // Tree
@@ -1022,10 +1098,10 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
   })
 
-  it('CreateFolder > Upload > Revert Media', async () => {
+  it('CreateMediaFolder > Upload > Revert Media', async () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
     const folderName = 'media-folder'
-    const folderPath = `/${folderName}`
+    const folderPath = folderName
     const gitkeepFsPath = joinURL(folderPath, '.gitkeep')
     const gitkeepId = fsPathToId(gitkeepFsPath, 'media')
 
@@ -1040,6 +1116,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(gitkeepDraftStorage).toHaveProperty('status', DraftStatus.Created)
     expect(gitkeepDraftStorage).toHaveProperty('fsPath', gitkeepFsPath)
     expect(gitkeepDraftStorage.modified).toHaveProperty('id', gitkeepId)
+    expect(gitkeepDraftStorage.modified).toHaveProperty('fsPath', gitkeepFsPath)
     expect(gitkeepDraftStorage.original).toBeUndefined()
 
     // Memory
@@ -1048,6 +1125,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(gitkeepDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(gitkeepDraftMemory).toHaveProperty('fsPath', gitkeepFsPath)
     expect(gitkeepDraftMemory.modified).toHaveProperty('id', gitkeepId)
+    expect(gitkeepDraftMemory.modified).toHaveProperty('fsPath', gitkeepFsPath)
     expect(gitkeepDraftMemory.original).toBeUndefined()
 
     // Tree - .gitkeep file exists but is hidden
@@ -1075,6 +1153,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftStorage).toHaveProperty('fsPath', uploadedMediaFsPath)
     expect(createdDraftStorage.original).toBeUndefined()
     expect(createdDraftStorage.modified).toHaveProperty('id', uploadedMediaId)
+    expect(createdDraftStorage.modified).toHaveProperty('fsPath', uploadedMediaFsPath)
 
     // Memory - .gitkeep has been removed
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
@@ -1082,6 +1161,7 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(createdDraftMemory).toHaveProperty('status', DraftStatus.Created)
     expect(createdDraftMemory).toHaveProperty('fsPath', uploadedMediaFsPath)
     expect(createdDraftMemory.modified).toHaveProperty('id', uploadedMediaId)
+    expect(createdDraftMemory.modified).toHaveProperty('fsPath', uploadedMediaFsPath)
     expect(createdDraftMemory.original).toBeUndefined()
 
     // Tree - .gitkeep has been removed
@@ -1115,7 +1195,7 @@ describe('Media - Action Chains Integration Tests', () => {
   it('CreateMediaFolder > Upload > Revert Media', async () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
     const folderName = 'media-folder'
-    const folderPath = `/${folderName}`
+    const folderPath = folderName
 
     /* STEP 1: CREATE MEDIA FOLDER */
     await context.itemActionHandler[StudioItemActionId.CreateMediaFolder]({

@@ -11,7 +11,6 @@ import type { BaseItem } from '../types/item'
 import { isEqual } from './database'
 import { studioFlags } from '../composables/useStudio'
 import { getFileExtension, parseName } from './file'
-import { joinURL } from 'ufo'
 
 export const COLOR_STATUS_MAP: { [key in TreeStatus]?: string } = {
   [TreeStatus.Created]: 'green',
@@ -29,7 +28,7 @@ export const COLOR_UI_STATUS_MAP: { [key in TreeStatus]?: string } = {
   [TreeStatus.Opened]: 'neutral',
 } as const
 
-export function buildTree(dbItems: ((BaseItem) & { fsPath: string })[], draftList: DraftItem[] | null):
+export function buildTree(dbItems: BaseItem[], draftList: DraftItem[] | null):
 TreeItem[] {
   const tree: TreeItem[] = []
   const directoryMap = new Map<string, TreeItem>()
@@ -37,7 +36,7 @@ TreeItem[] {
   const deletedDraftItems = draftList?.filter(draft => draft.status === DraftStatus.Deleted) || []
   const createdDraftItems = draftList?.filter(draft => draft.status === DraftStatus.Created) || []
 
-  function addDeletedDraftItemsInDbItems(dbItems: ((BaseItem) & { fsPath: string })[], deletedItems: DraftItem[]) {
+  function addDeletedDraftItemsInDbItems(dbItems: BaseItem[], deletedItems: DraftItem[]) {
     dbItems = [...dbItems]
     for (const deletedItem of deletedItems) {
       // TODO: createdDraftItem.original?.fsPath is null ATM
@@ -163,10 +162,6 @@ TreeItem[] {
   calculateDirectoryStatuses(tree)
 
   return tree
-}
-
-export function generateIdFromFsPath(fsPath: string, collectionName: string): string {
-  return joinURL(collectionName, fsPath)
 }
 
 export function getTreeStatus(modified?: BaseItem, original?: BaseItem): TreeStatus {

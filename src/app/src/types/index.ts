@@ -28,8 +28,8 @@ export interface StudioHost {
     beforeUnload: (fn: (event: BeforeUnloadEvent) => void) => void
     colorModeChange: (fn: (colorMode: 'light' | 'dark') => void) => void
     manifestUpdate: (fn: (id: string) => void) => void
-    documentUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => void
-    mediaUpdate: (fn: (id: string, type: 'remove' | 'update') => void) => void
+    documentUpdate: (fn: (fsPath: string, type: 'remove' | 'update') => void) => void
+    mediaUpdate: (fn: (fsPath: string, type: 'remove' | 'update') => void) => void
   }
   ui: {
     colorMode: 'light' | 'dark'
@@ -50,7 +50,6 @@ export interface StudioHost {
   }
   media: {
     get: (fsPath: string) => Promise<MediaItem>
-    getFileSystemPath: (fsPath: string) => string
     list: () => Promise<MediaItem[]>
     upsert: (fsPath: string, media: MediaItem) => Promise<void>
     delete: (fsPath: string) => Promise<void>

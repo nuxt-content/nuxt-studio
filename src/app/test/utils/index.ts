@@ -1,4 +1,3 @@
-import { TreeRootId } from '../../src/types'
 import { joinURL } from 'ufo'
 
 /**

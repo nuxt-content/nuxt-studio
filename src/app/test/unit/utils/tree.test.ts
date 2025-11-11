@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { buildTree, findParentFromFsPath, findItemFromRoute, findItemFromFsPath, findDescendantsFileItemsFromFsPath, getTreeStatus, generateIdFromFsPath } from '../../../src/utils/tree'
+import { buildTree, findParentFromFsPath, findItemFromRoute, findItemFromFsPath, findDescendantsFileItemsFromFsPath, getTreeStatus } from '../../../src/utils/tree'
 import { tree } from '../../../test/mocks/tree'
 import type { TreeItem } from '../../../src/types/tree'
 import { dbItemsList, languagePrefixedDbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
 import type { DraftItem } from '../../../src/types/draft'
 import type { MediaItem } from '../../../src/types'
-import { DraftStatus, TreeStatus, TreeRootId } from '../../../src/types'
+import { DraftStatus, TreeStatus } from '../../../src/types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { DatabaseItem } from '../../../src/types/database'
 import { joinURL, withLeadingSlash } from 'ufo'
+import { VirtualMediaCollectionName } from '../../../src/types/media'
 
 describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock
@@ -483,9 +484,9 @@ describe('buildTree of medias', () => {
   it('With .gitkeep file in directory (file is marked as hidden)', () => {
     const mediaFolderName = 'media-folder'
     const gitKeepFsPath = joinURL(mediaFolderName, '.gitkeep')
-    const gitKeepId = generateIdFromFsPath(gitKeepFsPath, TreeRootId.Media)
     const mediaFsPath = joinURL(mediaFolderName, 'image.jpg')
-    const mediaId = generateIdFromFsPath(mediaFsPath, TreeRootId.Media)
+    const mediaId = joinURL(VirtualMediaCollectionName, mediaFsPath)
+    const gitKeepId = joinURL(VirtualMediaCollectionName, gitKeepFsPath)
 
     const gitkeepDbItem: MediaItem & { fsPath: string } = {
       id: gitKeepId,

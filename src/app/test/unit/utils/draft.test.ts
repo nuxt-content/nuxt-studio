@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { findDescendantsFromFsPath, getDraftStatus } from '../../../src/utils/draft'
 import { draftItemsList } from '../../../test/mocks/draft'
 import { dbItemsList } from '../../../test/mocks/database'
-import { DraftStatus, TreeRootId } from '../../../src/types'
+import { DraftStatus } from '../../../src/types'
 
 describe('findDescendantsFromFsPath', () => {
   it('returns exact match for a root level file', () => {
@@ -38,7 +38,7 @@ describe('findDescendantsFromFsPath', () => {
   })
 
   it('returns all descendants for root item', () => {
-    const descendants = findDescendantsFromFsPath(draftItemsList, TreeRootId.Content)
+    const descendants = findDescendantsFromFsPath(draftItemsList, '/')
 
     expect(descendants).toHaveLength(draftItemsList.length)
   })

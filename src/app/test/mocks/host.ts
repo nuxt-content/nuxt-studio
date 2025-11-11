@@ -1,4 +1,4 @@
-import { type StudioHost, TreeRootId, type DatabaseItem } from '../../src/types'
+import { type StudioHost, VirtualMediaCollectionName, type DatabaseItem } from '../../src/types'
 import { vi } from 'vitest'
 import { createMockDocument } from './document'
 import { createMockMedia } from './media'
@@ -8,14 +8,14 @@ import type { MediaItem } from '../../src/types/media'
 // Helper to convert fsPath to id (simulates module's internal mapping)
 export const fsPathToId = (fsPath: string, type: 'document' | 'media') => {
   if (type === 'media') {
-    return joinURL(TreeRootId.Media, fsPath)
+    return joinURL(VirtualMediaCollectionName, fsPath)
   }
   // For documents, prefix with a collection name
   return joinURL('docs', fsPath)
 }
 
 // Helper to convert id back to fsPath (simulates module's internal mapping)
-const idToFsPath = (id: string) => {
+export const idToFsPath = (id: string) => {
   return id.split('/').slice(1).join('/')
 }
 
@@ -35,14 +35,9 @@ export const createMockHost = (): StudioHost => ({
     }),
     create: vi.fn().mockImplementation(async (fsPath: string, content: string) => {
       const id = fsPathToId(fsPath, 'document')
-      const document = createMockDocument(id, {
-        body: {
-          type: 'minimark',
-          value: [content?.trim() || 'Test content'],
-        },
-      })
+      const document = createMockDocument(id, { body: { type: 'minimark', value: [content?.trim() || 'Test content'] }, fsPath })
       documentDb.set(id, document)
-      return document
+      return documentx
     }),
     upsert: vi.fn().mockImplementation(async (fsPath: string, document: DatabaseItem) => {
       const id = fsPathToId(fsPath, 'document')
@@ -55,7 +50,6 @@ export const createMockHost = (): StudioHost => ({
     list: vi.fn().mockImplementation(async () => {
       return Array.from(documentDb.values())
     }),
-    getFileSystemPath: vi.fn().mockImplementation(idToFsPath),
   },
   media: {
     get: vi.fn().mockImplementation(async (fsPath: string) => {
@@ -81,7 +75,6 @@ export const createMockHost = (): StudioHost => ({
       const id = fsPathToId(fsPath, 'media')
       mediaDb.delete(id)
     }),
-    getFileSystemPath: vi.fn().mockImplementation(idToFsPath),
     list: vi.fn().mockImplementation(async () => {
       return Array.from(mediaDb.values())
     }),
