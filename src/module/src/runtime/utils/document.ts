@@ -1,7 +1,7 @@
 import type { CollectionInfo, CollectionItemBase, MinimarkTree, PageCollectionItemBase } from '@nuxt/content'
 import { getOrderedSchemaKeys } from './collection'
 import { pathMetaTransform } from './path-meta'
-import type { DatabaseItem } from 'nuxt-studio/app'
+import { ContentFileExtension, type DatabaseItem } from 'nuxt-studio/app'
 import { textContent } from 'minimark'
 
 export function createCollectionDocument(id: string, collectionInfo: CollectionInfo, document: CollectionItemBase) {
@@ -57,19 +57,21 @@ export function normalizeDocument(fsPath: string, document: DatabaseItem): Datab
     }
   }
 
-  const meta = pathMetaTransform(document as unknown as PageCollectionItemBase)
-  if (meta.title === document.title) {
-    Reflect.deleteProperty(document, 'title')
-  }
+  if (document.extension === ContentFileExtension.Markdown) {
+    const meta = pathMetaTransform(document as unknown as PageCollectionItemBase)
+    if (meta.title === document.title) {
+      Reflect.deleteProperty(document, 'title')
+    }
 
-  const extractedContentHeading = document.body
-    ? contentHeading(document.body as MinimarkTree)
-    : { title: '', description: '' }
-  if (extractedContentHeading.title === document.title) {
-    Reflect.deleteProperty(document, 'title')
-  }
-  if (extractedContentHeading.description === document.description) {
-    Reflect.deleteProperty(document, 'description')
+    const extractedContentHeading = document.body
+      ? contentHeading(document.body as MinimarkTree)
+      : { title: '', description: '' }
+    if (extractedContentHeading.title === document.title) {
+      Reflect.deleteProperty(document, 'title')
+    }
+    if (extractedContentHeading.description === document.description) {
+      Reflect.deleteProperty(document, 'description')
+    }
   }
 
   return {
@@ -77,7 +79,6 @@ export function normalizeDocument(fsPath: string, document: DatabaseItem): Datab
     fsPath,
   }
 }
-
 
 /**
  * Extract the title and description from the body
