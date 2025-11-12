@@ -27,11 +27,11 @@ export function normalizeDocument(fsPath: string, document: DatabaseItem): Datab
   }
 }
 
-export function pickReservedKeysFromDocument(document: DatabaseItem) {
+export function pickReservedKeysFromDocument(document: DatabaseItem): DatabaseItem {
   return pick(document, reservedKeys) as DatabaseItem
 }
 
-export function removeReservedKeysFromDocument(document: DatabaseItem) {
+export function removeReservedKeysFromDocument(document: DatabaseItem): DatabaseItem {
   const result = omit(document, reservedKeys)
   // Default value of navigation is true, so we can safely remove it
   if (result.navigation === true) {
@@ -133,7 +133,42 @@ export function areDocumentsEqual(document1: Record<string, unknown>, document2:
       doc.navigation = true
     }
 
-    return doc
+    // Normalize date values to ISO string format for comparison
+    for (const key in doc) {
+      const value = doc[key]
+      if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) {
+        // Check if it looks like a date string (YYYY-MM-DD or ISO format)
+        if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+          doc[key] = new Date(value).toISOString().split('T')[0]
+        }
+      }
+    }
+
+    // Remove null and undefined values recursively
+    function removeNullAndUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+      const result: Record<string, unknown> = {}
+
+      for (const key in obj) {
+        const value = obj[key]
+
+        // Skip null and undefined values
+        if (value === null || value === undefined) {
+          continue
+        }
+
+        // Recursively clean nested objects (but not arrays)
+        if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+          result[key] = removeNullAndUndefined(value as Record<string, unknown>)
+        }
+        else {
+          result[key] = value
+        }
+      }
+
+      return result
+    }
+
+    return removeNullAndUndefined(doc)
   }
 
   const data1 = refineDocumentData({ ...documentData1, ...(meta1 || {}) })

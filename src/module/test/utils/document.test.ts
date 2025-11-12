@@ -157,7 +157,7 @@ describe('areDocumentsEqual', () => {
     expect(areDocumentsEqual(document1, document2)).toBe(true)
   })
 
-  it('should ignore null/undefiend values', () => {
+  it('should ignore null/undefined values', () => {
     const document1: DatabasePageItem = {
       id: 'content:index.yml',
       path: '/index',
@@ -168,7 +168,7 @@ describe('areDocumentsEqual', () => {
       seo: {},
       body: {
         type: 'minimark',
-        value: ['Different content'],
+        value: ['Same content'],
       },
       meta: {
         title: 'Test Document',
@@ -185,7 +185,7 @@ describe('areDocumentsEqual', () => {
       seo: {},
       body: {
         type: 'minimark',
-        value: ['Different content'],
+        value: ['Same content'],
       },
       meta: {
         title: 'Test Document',

@@ -242,7 +242,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    await mockHost.document.create(documentFsPath, 'Test content')
+    await mockHost.document.db.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
@@ -345,7 +345,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    await mockHost.document.create(documentFsPath, 'Test content')
+    await mockHost.document.db.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
@@ -428,7 +428,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    await mockHost.document.create(documentFsPath, 'Test content')
+    await mockHost.document.db.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
@@ -556,7 +556,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    await mockHost.document.create(documentFsPath, 'Test content')
+    await mockHost.document.db.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
@@ -616,7 +616,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
 
     // Create document in db and load tree
-    await mockHost.document.create(documentFsPath, 'Test content')
+    await mockHost.document.db.create(documentFsPath, 'Test content')
     await context.activeTree.value.draft.load()
 
     /* STEP 1: SELECT */
