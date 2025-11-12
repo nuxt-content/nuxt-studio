@@ -11,7 +11,7 @@ import type { MarkdownRoot } from '@nuxt/content'
 import { destr } from 'destr'
 import { getFileExtension } from './file'
 
-const reservedKeys = ['id', 'stem', 'extension', '__hash__', 'path', 'body', 'meta', 'rawbody']
+const reservedKeys = ['id', 'fsPath', 'stem', 'extension', '__hash__', 'path', 'body', 'meta', 'rawbody']
 
 export function generateStemFromId(id: string) {
   return id.split('/').slice(1).join('/').split('.').slice(0, -1).join('.')
@@ -105,7 +105,7 @@ export async function generateDocumentFromYAMLContent(id: string, content: strin
     meta: {},
     ...parsed,
     body: parsed.body || parsed,
-  } as DatabaseItem
+  } as never as DatabaseItem
 }
 
 export async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
@@ -119,6 +119,7 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
     }
   }
 
+  // fsPath will be overridden by host
   return {
     id,
     extension: ContentFileExtension.JSON,
@@ -126,7 +127,7 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
     meta: {},
     ...parsed,
     body: parsed.body || parsed,
-  } as DatabaseItem
+  } as never as DatabaseItem
 }
 
 export async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem> {
@@ -161,7 +162,7 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
       toc: document.toc,
     },
     ...document.data,
-  } as DatabaseItem
+  } as never as DatabaseItem
 }
 
 export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
