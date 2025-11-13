@@ -1,7 +1,7 @@
 import { useStudioHost as useStudioHostBase } from './host'
 import type { StudioUser, DatabaseItem, Repository } from 'nuxt-studio/app'
 import { getCollectionByFilePath, generateIdFromFsPath, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { populateDocumentbasedOnCollectionInfo } from './utils/document'
+import { normalizeDocument } from './utils/document'
 import { createStorage } from 'unstorage'
 import httpDriver from 'unstorage/drivers/http'
 import { useRuntimeConfig } from '#imports'
@@ -35,9 +35,9 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
     }
 
     const id = generateIdFromFsPath(fsPath, collectionInfo)
-    const doc = populateDocumentbasedOnCollectionInfo(id, collectionInfo, upsertedDocument)
+    const document = normalizeDocument(id, collectionInfo, upsertedDocument)
 
-    const content = await host.document.generate.contentFromDocument(doc)
+    const content = await host.document.generate.contentFromDocument(document)
 
     await devStorage.setItem(fsPath, content, {
       headers: {

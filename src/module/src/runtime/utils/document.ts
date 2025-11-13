@@ -20,11 +20,43 @@ const reservedKeys = ['id', 'fsPath', 'stem', 'extension', '__hash__', 'path', '
 /*
 ** Normalization utils
 */
-export function normalizeDocument(fsPath: string, document: DatabaseItem): DatabaseItem {
-  return {
-    ...document,
-    fsPath,
+export function normalizeDocument(id: string, collectionInfo: CollectionInfo, document: CollectionItemBase) {
+  const parsedContent = [
+    pathMetaTransform,
+  ].reduce((acc, fn) => collectionInfo.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...document, id } as PageCollectionItemBase)
+  const result = { id } as DatabaseItem
+  const meta = parsedContent.meta as Record<string, unknown>
+
+  const collectionKeys = getOrderedSchemaKeys(collectionInfo.schema)
+  for (const key of Object.keys(parsedContent)) {
+    if (collectionKeys.includes(key)) {
+      result[key] = parsedContent[key as keyof PageCollectionItemBase]
+    }
+    else {
+      meta[key] = parsedContent[key as keyof PageCollectionItemBase]
+    }
   }
+
+  // Clean fsPath from meta to avoid storing it in the database
+  if (meta.fsPath) {
+    Reflect.deleteProperty(meta, 'fsPath')
+  }
+
+  result.meta = meta
+
+  // Storing `content` into `rawbody` field
+  // TODO: handle rawbody
+  // if (collectionKeys.includes('rawbody')) {
+  //   result.rawbody = result.rawbody ?? file.body
+  // }
+
+  if (collectionKeys.includes('seo')) {
+    const seo = result.seo = (result.seo || {}) as PageCollectionItemBase['seo']
+    seo.title = seo.title || result.title as string
+    seo.description = seo.description || result.description as string
+  }
+
+  return result
 }
 
 export function pickReservedKeysFromDocument(document: DatabaseItem): DatabaseItem {
@@ -183,40 +215,6 @@ export function areDocumentsEqual(document1: Record<string, unknown>, document2:
 /*
 ** Generation utils
 */
-export function populateDocumentbasedOnCollectionInfo(id: string, collectionInfo: CollectionInfo, document: CollectionItemBase) {
-  const parsedContent = [
-    pathMetaTransform,
-  ].reduce((acc, fn) => collectionInfo.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...document, id } as PageCollectionItemBase)
-  const result = { id } as DatabaseItem
-  const meta = parsedContent.meta as Record<string, unknown>
-
-  const collectionKeys = getOrderedSchemaKeys(collectionInfo.schema)
-  for (const key of Object.keys(parsedContent)) {
-    if (collectionKeys.includes(key)) {
-      result[key] = parsedContent[key as keyof PageCollectionItemBase]
-    }
-    else {
-      meta[key] = parsedContent[key as keyof PageCollectionItemBase]
-    }
-  }
-
-  result.meta = meta
-
-  // Storing `content` into `rawbody` field
-  // TODO: handle rawbody
-  // if (collectionKeys.includes('rawbody')) {
-  //   result.rawbody = result.rawbody ?? file.body
-  // }
-
-  if (collectionKeys.includes('seo')) {
-    const seo = result.seo = (result.seo || {}) as PageCollectionItemBase['seo']
-    seo.title = seo.title || result.title as string
-    seo.description = seo.description || result.description as string
-  }
-
-  return result
-}
-
 export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
   const extension = getFileExtension(id)
