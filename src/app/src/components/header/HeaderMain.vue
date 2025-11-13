@@ -19,7 +19,7 @@ const items = computed(() => [
     to: '/content',
   },
   {
-    label: t('studio.headings.media'),
+    label: t('studio.nav.media'),
     value: 'media',
     to: '/media',
   },
