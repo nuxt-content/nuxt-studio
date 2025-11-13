@@ -1,15 +1,13 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, useLogger, addServerHandler, addTemplate, addVitePlugin } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, useLogger, addServerHandler, addTemplate } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
 import { defu } from 'defu'
-import { resolve, basename } from 'node:path'
-import { promises as fsp } from 'node:fs'
-import { globby } from 'globby'
+import { resolve } from 'node:path'
 import fsDriver from 'unstorage/drivers/fs'
 import { createStorage } from 'unstorage'
-import type { Plugin } from 'vite'
 import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
+import { setupI18n } from './i18n'
 
 interface ModuleOptions {
   /**
@@ -135,71 +133,6 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
 
-    const defaultLocalesPath = resolver.resolve('../../app/src/locales')
-    const defaultLocaleFiles = await globby(`${defaultLocalesPath}/*.json`)
-    const defaultMessages: Record<string, unknown> = {}
-    for (const file of defaultLocaleFiles) {
-      const lang = basename(file, '.json')
-      defaultMessages[lang] = JSON.parse(await fsp.readFile(file, 'utf-8'))
-    }
-
-    const userLocalesPath = resolve(nuxt.options.srcDir, 'locales/studio')
-    const userLocaleFiles = await globby(`${userLocalesPath}/*.json`)
-    const userMessages: Record<string, unknown> = {}
-    for (const file of userLocaleFiles) {
-      const lang = basename(file, '.json')
-      userMessages[lang] = JSON.parse(await fsp.readFile(file, 'utf-8'))
-    }
-
-    const optionsMessages = options.i18n?.translations || {}
-    // @ts-expect-error - nuxt.options.appConfig.studio is not fully typed
-    const appConfigMessages = nuxt.options.appConfig.studio?.i18n?.translations || {}
-
-    const finalMessages = defu(
-      optionsMessages, // 1. Highest priority (nuxt.config options)
-      appConfigMessages, // 2. Priority (app.config)
-      userMessages, // 3. Priority (locales/studio folder)
-      defaultMessages, // 4. Default translations (module)
-    )
-
-    // --- VITE PLUGIN ---
-    const virtualModuleName = 'virtual:studio-i18n-messages'
-    const resolvedVirtualModuleId = '\0' + virtualModuleName
-
-    addVitePlugin({
-      name: 'nuxt-studio-i18n-virtual-module',
-      resolveId(id) {
-        if (id === virtualModuleName) {
-          return resolvedVirtualModuleId
-        }
-      },
-      load(id) {
-        if (id === resolvedVirtualModuleId) {
-          return `export default ${JSON.stringify(finalMessages)}`
-        }
-      },
-    } as Plugin)
-
-    addTemplate({
-      filename: 'studio-i18n-plugin.client.mjs',
-      getContents: () => {
-        const defaultLocale = options.i18n?.defaultLocale || 'en'
-
-        return `
-        import messages from 'virtual:studio-i18n-messages'
-
-        export default defineNuxtPlugin(() => {
-          // @ts-ignore
-          window.__NUXT_STUDIO_I18N_MESSAGES__ = messages
-          // @ts-ignore
-          window.__NUXT_STUDIO_DEFAULT_LOCALE__ = '${defaultLocale}'
-        })
-      `
-      },
-    })
-
-    addPlugin(resolve(nuxt.options.buildDir, 'studio-i18n-plugin.client.mjs'))
-
     if (nuxt.options.dev === false || options.development?.sync === false) {
       options.dev = false
     }
@@ -278,6 +211,8 @@ export default defineNuxtModule<ModuleOptions>({
         ? getAssetsStorageDevTemplate(assetsStorage, nuxt)
         : getAssetsStorageTemplate(assetsStorage, nuxt),
     })
+
+    await setupI18n(nuxt, options.i18n!)
 
     if (options.dev) {
       setupDevMode(nuxt, runtime, assetsStorage)
