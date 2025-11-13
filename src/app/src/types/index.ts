@@ -30,6 +30,7 @@ export interface StudioHost {
     manifestUpdate: (fn: (id: string) => void) => void
     documentUpdate: (fn: (fsPath: string, type: 'remove' | 'update') => void) => void
     mediaUpdate: (fn: (fsPath: string, type: 'remove' | 'update') => void) => void
+    requestDocumentEdit: (fn: (fsPath: string) => void) => void
   }
   ui: {
     colorMode: 'light' | 'dark'

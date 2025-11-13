@@ -234,6 +234,10 @@ export const useContext = createSharedComposable((
     actionInProgress.value = null
   }
 
+  function switchFeature(feature: StudioFeature) {
+    router.push(`/${feature}`)
+  }
+
   return {
     currentFeature,
     activeTree,
@@ -246,5 +250,6 @@ export const useContext = createSharedComposable((
     draftCount,
     isDraftInProgress,
     unsetActionInProgress,
+    switchFeature,
   }
 })

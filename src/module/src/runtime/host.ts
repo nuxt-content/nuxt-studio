@@ -142,6 +142,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       mediaUpdate: (_fn: (id: string, type: 'remove' | 'update') => void) => {
         // no operation
       },
+      requestDocumentEdit: (fn: (fsPath: string) => void) => {
+        // @ts-expect-error studio:document:edit is not defined in types
+        useNuxtApp().hooks.hook('studio:document:edit', fn)
+      },
     },
     ui: {
       colorMode,
@@ -347,6 +351,27 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         }
         return meta.fetch()
       })
+
+    document.body.addEventListener('dblclick', (event: MouseEvent) => {
+      let element = event.target as HTMLElement
+      while (element) {
+        if (element.getAttribute('data-content-id')) {
+          break
+        }
+        element = element.parentElement as HTMLElement
+      }
+      if (element) {
+        const id = element.getAttribute('data-content-id')!
+        const collection = getCollectionById(id, useContentCollections())
+        const source = getCollectionSourceById(id, collection.source)
+        const fsPath = generateFsPathFromId(id, source!)
+
+        // @ts-expect-error studio:document:edit is not defined in types
+        useNuxtApp().hooks.callHook('studio:document:edit', fsPath)
+      }
+    })
+    // Initialize styles
+    host.ui.updateStyles()
   })()
 
   return host
