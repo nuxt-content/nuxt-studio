@@ -89,7 +89,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
             deleteDraftItem = {
               fsPath: existingDraftItem.fsPath,
               status: DraftStatus.Deleted,
-              original: originalDbItem,
+              original: existingDraftItem.original,
               githubFile,
             }
 
