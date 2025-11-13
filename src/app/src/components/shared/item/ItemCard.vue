@@ -25,10 +25,7 @@ const statusRingColor = computed(() => props.item.status && props.item.status !=
 const displayInfo = computed(() => {
   if (isDirectory.value) {
     const itemcount = props.item.children?.filter(child => !child.hide).length || 0
-    const collectionCount = props.item.collections.length
-    const itemsLabel = t('studio.items.itemCount', itemcount)
-    const collectionsLabel = t('studio.items.collectionCount', collectionCount)
-    return t('studio.items.itemInfo', { items: itemsLabel, collections: collectionsLabel })
+    return t('studio.items.itemCount', itemcount)
   }
   return props.item.routePath || props.item.fsPath
 })
@@ -75,9 +72,8 @@ const displayInfo = computed(() => {
             </div>
           </div>
 
-          <div class="flex flex-col items-end justify-between self-stretch">
+          <div class="flex items-end">
             <ItemActionsDropdown :item="item" />
-            <slot name="bottom-right" />
           </div>
         </div>
       </UTooltip>

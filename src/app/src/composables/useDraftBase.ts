@@ -1,8 +1,10 @@
 import type { Storage } from 'unstorage'
 import { joinURL } from 'ufo'
-import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem } from '../types'
+import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem, BaseItem } from '../types'
+import { ContentFileExtension } from '../types'
+import { studioFlags } from './useStudio'
 import { DraftStatus } from '../types/draft'
-import { checkConflict, findDescendantsFromId, getDraftStatus } from '../utils/draft'
+import { checkConflict, findDescendantsFromFsPath } from '../utils/draft'
 import type { useGit } from './useGit'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
@@ -18,29 +20,28 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   const current = ref<DraftItem<DatabaseItem | MediaItem> | null>(null)
 
   const ghPathPrefix = type === 'media' ? 'public' : 'content'
-  const hostDb = type === 'media' ? host.media : host.document
+  const hostDb = type === 'media' ? host.media : host.document.db
   const hookName = `studio:draft:${type}:updated` as const
+  const areDocumentsEqual = host.document.utils.areEqual
 
   const hooks = useHooks()
 
-  async function get(id: string): Promise<DraftItem<T> | undefined> {
-    return list.value.find(item => item.id === id) as DraftItem<T>
+  async function get(fsPath: string): Promise<DraftItem<T> | undefined> {
+    return list.value.find(item => item.fsPath === fsPath) as DraftItem<T>
   }
 
-  async function create(item: T, original?: T, { rerender = true }: { rerender?: boolean } = {}): Promise<DraftItem<T>> {
-    const existingItem = list.value?.find(draft => draft.id === item.id)
+  async function create(fsPath: string, item: T, original?: T, { rerender = true }: { rerender?: boolean } = {}): Promise<DraftItem<T>> {
+    const existingItem = list.value?.find(draft => draft.fsPath === fsPath)
     if (existingItem) {
-      throw new Error(`Draft file already exists for document ${item.id}`)
+      throw new Error(`Draft file already exists for document at ${fsPath}`)
     }
 
-    const fsPath = hostDb.getFileSystemPath(item.id)
     const githubFile = await git.fetchFile(joinURL(ghPathPrefix, fsPath), { cached: true }) as GithubFile
 
     const draftItem: DraftItem<T> = {
-      id: item.id,
       fsPath,
       githubFile,
-      status: getDraftStatus(item, original),
+      status: getStatus(item, original!),
       modified: item,
     }
 
@@ -48,12 +49,12 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       draftItem.original = original
     }
 
-    const conflict = await checkConflict(draftItem)
+    const conflict = await checkConflict(host, draftItem)
     if (conflict) {
       draftItem.conflict = conflict
     }
 
-    await storage.setItem(item.id, draftItem)
+    await storage.setItem(fsPath, draftItem)
 
     list.value.push(draftItem)
 
@@ -64,32 +65,30 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     return draftItem
   }
 
-  async function remove(ids: string[], { rerender = true }: { rerender?: boolean } = {}) {
-    for (const id of ids) {
-      const existingDraftItem = list.value.find(item => item.id === id) as DraftItem<T> | undefined
-      const fsPath = hostDb.getFileSystemPath(id)
-      const originalDbItem = await hostDb.get(id) as T
+  async function remove(fsPaths: string[], { rerender = true }: { rerender?: boolean } = {}) {
+    for (const fsPath of fsPaths) {
+      const existingDraftItem = list.value.find(item => item.fsPath === fsPath) as DraftItem<T> | undefined
+      const originalDbItem = await hostDb.get(fsPath) as T
 
-      await storage.removeItem(id)
-      await hostDb.delete(id)
+      await storage.removeItem(fsPath)
+      await hostDb.delete(fsPath)
 
       let deleteDraftItem: DraftItem<T> | null = null
       if (existingDraftItem) {
         if (existingDraftItem.status === DraftStatus.Deleted) return
 
         if (existingDraftItem.status === DraftStatus.Created) {
-          list.value = list.value.filter(item => item.id !== id)
+          list.value = list.value.filter(item => item.fsPath !== fsPath)
         }
         else {
           deleteDraftItem = {
-            id,
             fsPath: existingDraftItem.fsPath,
             status: DraftStatus.Deleted,
             original: existingDraftItem.original,
             githubFile: existingDraftItem.githubFile,
           }
 
-          list.value = list.value.map(item => item.id === id ? deleteDraftItem! : item) as DraftItem<T>[]
+          list.value = list.value.map(item => item.fsPath === fsPath ? deleteDraftItem! : item) as DraftItem<T>[]
         }
       }
       else {
@@ -97,7 +96,6 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
 
         deleteDraftItem = {
-          id,
           fsPath,
           status: DraftStatus.Deleted,
           original: originalDbItem,
@@ -108,7 +106,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       }
 
       if (deleteDraftItem) {
-        await storage.setItem(id, deleteDraftItem)
+        await storage.setItem(fsPath, deleteDraftItem)
       }
 
       if (rerender) {
@@ -117,31 +115,31 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
   }
 
-  async function revert(id: string, { rerender = true }: { rerender?: boolean } = {}) {
-    const draftItems = findDescendantsFromId(list.value, id)
+  async function revert(fsPath: string, { rerender = true }: { rerender?: boolean } = {}) {
+    const draftItems = findDescendantsFromFsPath(list.value, fsPath)
 
     for (const draftItem of draftItems) {
-      const existingItem = list.value.find(item => item.id === draftItem.id) as DraftItem<T>
+      const existingItem = list.value.find(item => item.fsPath === draftItem.fsPath) as DraftItem<T>
       if (!existingItem) {
         return
       }
 
       if (existingItem.status === DraftStatus.Created) {
-        await hostDb.delete(draftItem.id)
-        await storage.removeItem(draftItem.id)
-        list.value = list.value.filter(item => item.id !== draftItem.id)
+        await hostDb.delete(draftItem.fsPath)
+        await storage.removeItem(draftItem.fsPath)
+        list.value = list.value.filter(item => item.fsPath !== draftItem.fsPath)
 
         // Renamed draft
         if (existingItem.original) {
-          await revert(existingItem.original.id, { rerender: false })
+          await revert(existingItem.original.fsPath!, { rerender: false })
         }
       }
       else {
         // @ts-expect-error upsert type is wrong, second param should be DatabaseItem | MediaItem
-        await hostDb.upsert(draftItem.id, existingItem.original)
+        await hostDb.upsert(draftItem.fsPath, existingItem.original)
         existingItem.modified = existingItem.original
-        existingItem.status = getDraftStatus(existingItem.modified, existingItem.original)
-        await storage.setItem(draftItem.id, existingItem)
+        existingItem.status = getStatus(existingItem.modified as DatabaseItem, existingItem.original as DatabaseItem)
+        await storage.setItem(draftItem.fsPath, existingItem)
       }
     }
 
@@ -154,7 +152,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     const itemsToRevert = [...list.value]
 
     for (const draftItem of itemsToRevert) {
-      await revert(draftItem.id, { rerender: false })
+      await revert(draftItem.fsPath, { rerender: false })
     }
 
     await hooks.callHook(hookName, { caller: 'useDraftBase.revertAll' })
@@ -164,22 +162,22 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     current.value = null
   }
 
-  async function selectById(id: string) {
+  async function selectByFsPath(fsPath: string) {
     isLoading.value = true
 
     try {
-      const existingItem = list.value?.find(item => item.id === id) as DraftItem<T>
+      const existingItem = list.value?.find(item => item.fsPath === fsPath) as DraftItem<T>
       if (existingItem) {
         current.value = existingItem
         return
       }
 
-      const dbItem = await hostDb.get(id) as T
+      const dbItem = await hostDb.get(fsPath) as T
       if (!dbItem) {
-        throw new Error(`Cannot select item: no corresponding database entry found for id ${id}`)
+        throw new Error(`Cannot select item: no corresponding database entry found for fsPath ${fsPath}`)
       }
 
-      const draftItem = await create(dbItem, dbItem)
+      const draftItem = await create(fsPath, dbItem, dbItem)
 
       current.value = draftItem
     }
@@ -205,15 +203,51 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     // Upsert/Delete draft files in database
     await Promise.all(list.value.map(async (draftItem) => {
       if (draftItem.status === DraftStatus.Deleted) {
-        await hostDb.delete(draftItem.id)
+        await hostDb.delete(draftItem.fsPath)
       }
       else {
         // @ts-expect-error upsert type is wrong, second param should be DatabaseItem | MediaItem
-        await hostDb.upsert(draftItem.id, draftItem.modified)
+        await hostDb.upsert(draftItem.fsPath, draftItem.modified)
       }
     }))
 
     await hooks.callHook(hookName, { caller: 'useDraftBase.load', selectItem: false })
+  }
+
+  function getStatus(modified: BaseItem, original: BaseItem): DraftStatus {
+    if (studioFlags.dev) {
+      return DraftStatus.Pristine
+    }
+
+    if (!modified && !original) {
+      throw new Error('Unconsistent state: both modified and original are undefined')
+    }
+
+    if (!modified) {
+      return DraftStatus.Deleted
+    }
+
+    if (!original || original.id !== modified.id) {
+      return DraftStatus.Created
+    }
+
+    if (original.extension === ContentFileExtension.Markdown) {
+      if (!areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
+        return DraftStatus.Updated
+      }
+    }
+    else if (typeof original === 'object' && typeof modified === 'object') {
+      if (!areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
+        return DraftStatus.Updated
+      }
+    }
+    else {
+      if (JSON.stringify(original) !== JSON.stringify(modified)) {
+        return DraftStatus.Updated
+      }
+    }
+
+    return DraftStatus.Pristine
   }
 
   return {
@@ -225,9 +259,10 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     remove,
     revert,
     revertAll,
-    selectById,
+    selectByFsPath,
     unselect,
     load,
     checkConflict,
+    getStatus,
   }
 }

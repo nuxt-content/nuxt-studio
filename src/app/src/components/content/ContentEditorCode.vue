@@ -2,12 +2,13 @@
 import { computed, ref, watch } from 'vue'
 import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus, type DatabaseItem } from '../../types'
 import type { PropType } from 'vue'
-import { generateContentFromDocument, generateDocumentFromContent, isEqual, pickReservedKeysFromDocument } from '../../utils/content'
 import { setupSuggestion } from '../../utils/monaco'
 import { useStudio } from '../../composables/useStudio'
 import { useMonaco } from '../../composables/useMonaco'
+import { useMonacoDiff } from '../../composables/useMonacoDiff'
 import { fromBase64ToUTF8 } from '../../utils/string'
 import { useI18n } from 'vue-i18n'
+import { areContentEqual } from '../../utils/content'
 
 const props = defineProps({
   draftItem: {
@@ -26,10 +27,13 @@ const { mediaTree, host, ui } = useStudio()
 const { t } = useI18n()
 
 const editorRef = ref<HTMLElement>()
+const diffEditorRef = ref<HTMLElement>()
+
 const content = ref<string>('')
 const currentDocumentId = ref<string | null>(null)
 const localStatus = ref<DraftStatus>(props.draftItem.status)
 const isAutomaticFormattingDetected = ref(false)
+const showAutomaticFormattingDiff = ref(false)
 
 const language = computed(() => {
   switch (document.value?.extension) {
@@ -69,11 +73,11 @@ const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
 
     content.value = newContent
 
-    generateDocumentFromContent(document.value!.id, content.value).then((doc) => {
+    host.document.generate.documentFromContent(document.value!.id, content.value).then((doc) => {
       localStatus.value = DraftStatus.Updated
 
       document.value = {
-        ...pickReservedKeysFromDocument(props.draftItem.modified as DatabasePageItem || document.value!),
+        ...host.document.utils.pickReservedKeys(props.draftItem.modified as DatabasePageItem || document.value!),
         ...doc,
       } as DatabasePageItem
     })
@@ -104,6 +108,19 @@ watch(() => props.readOnly, (newReadOnly) => {
   }
 })
 
+const originalContent = ref<string>('')
+const formattedContent = ref<string>('')
+watch(showAutomaticFormattingDiff, async (show) => {
+  if (show && diffEditorRef.value) {
+    useMonacoDiff(diffEditorRef, {
+      original: originalContent.value,
+      modified: formattedContent.value,
+      language: language.value,
+      colorMode: ui.colorMode,
+    })
+  }
+})
+
 // Trigger on document changes
 watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
   if (document.value?.body) {
@@ -112,18 +129,27 @@ watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
 }, { immediate: true })
 
 async function setContent(document: DatabasePageItem) {
-  const md = await generateContentFromDocument(document) || ''
+  const contentFromDocument = host.document.generate.contentFromDocument
+  const md = await contentFromDocument(document) || ''
   content.value = md
   setEditorContent(md, true)
   currentDocumentId.value = document.id
 
   isAutomaticFormattingDetected.value = false
   if (props.draftItem.original && props.draftItem.githubFile?.content) {
-    const localOriginal = await generateContentFromDocument(props.draftItem.original as DatabaseItem)
+    const localOriginal = await contentFromDocument(props.draftItem.original as DatabaseItem) as string
     const gitHubOriginal = fromBase64ToUTF8(props.draftItem.githubFile.content)
 
-    isAutomaticFormattingDetected.value = !isEqual(localOriginal, gitHubOriginal)
+    isAutomaticFormattingDetected.value = !areContentEqual(localOriginal, gitHubOriginal)
+    if (isAutomaticFormattingDetected.value) {
+      originalContent.value = gitHubOriginal
+      formattedContent.value = localOriginal
+    }
   }
+}
+
+function toggleDiffView() {
+  showAutomaticFormattingDiff.value = !showAutomaticFormattingDiff.value
 }
 </script>
 
@@ -131,10 +157,20 @@ async function setContent(document: DatabasePageItem) {
   <div class="relative h-full flex flex-col">
     <AlertMDCFormatting
       v-if="isAutomaticFormattingDetected"
+      show-action
+      :is-diff-shown="showAutomaticFormattingDiff"
       class="flex-none"
+      @show-diff="toggleDiffView"
     />
     <div
+      v-show="!showAutomaticFormattingDiff"
       ref="editorRef"
+      class="flex-1"
+    />
+    <div
+      v-if="isAutomaticFormattingDetected"
+      v-show="showAutomaticFormattingDiff"
+      ref="diffEditorRef"
       class="flex-1"
     />
   </div>
