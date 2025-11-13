@@ -1,8 +1,9 @@
 import type { Storage } from 'unstorage'
 import { joinURL } from 'ufo'
-import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem } from '../types'
+import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem, BaseItem } from '../types'
+import { ContentFileExtension } from '../types'
 import { DraftStatus } from '../types/draft'
-import { checkConflict, findDescendantsFromFsPath, getDraftStatus } from '../utils/draft'
+import { checkConflict, findDescendantsFromFsPath } from '../utils/draft'
 import type { useGit } from './useGit'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
@@ -19,8 +20,9 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   const current = ref<DraftItem<DatabaseItem | MediaItem> | null>(null)
 
   const ghPathPrefix = type === 'media' ? 'public' : 'content'
-  const hostDb = type === 'media' ? host.media : host.document
+  const hostDb = type === 'media' ? host.media : host.document.db
   const hookName = `studio:draft:${type}:updated` as const
+  const areDocumentsEqual = host.document.utils.areEqual
 
   const hooks = useHooks()
   const { devMode } = useStudioState()
@@ -40,7 +42,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     const draftItem: DraftItem<T> = {
       fsPath,
       githubFile,
-      status: getDraftStatus(item, original, devMode.value),
+      status: getStatus(item, original!),
       modified: item,
     }
 
@@ -48,7 +50,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       draftItem.original = original
     }
 
-    const conflict = await checkConflict(draftItem)
+    const conflict = await checkConflict(host, draftItem)
     if (conflict) {
       draftItem.conflict = conflict
     }
@@ -135,14 +137,14 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
         // Renamed draft
         if (existingItem.original) {
-          await revert(existingItem.original.fsPath, { rerender: false })
+          await revert(existingItem.original.fsPath!, { rerender: false })
         }
       }
       else {
         // @ts-expect-error upsert type is wrong, second param should be DatabaseItem | MediaItem
         await hostDb.upsert(draftItem.fsPath, existingItem.original)
         existingItem.modified = existingItem.original
-        existingItem.status = getDraftStatus(existingItem.modified, existingItem.original, devMode.value)
+        existingItem.status = getStatus(existingItem.modified as DatabaseItem, existingItem.original as DatabaseItem)
         await storage.setItem(draftItem.fsPath, existingItem)
       }
     }
@@ -218,6 +220,42 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     await hooks.callHook(hookName, { caller: 'useDraftBase.load', selectItem: false })
   }
 
+  function getStatus(modified: BaseItem, original: BaseItem): DraftStatus {
+    if (studioFlags.dev) {
+      return DraftStatus.Pristine
+    }
+
+    if (!modified && !original) {
+      throw new Error('Unconsistent state: both modified and original are undefined')
+    }
+
+    if (!modified) {
+      return DraftStatus.Deleted
+    }
+
+    if (!original || original.id !== modified.id) {
+      return DraftStatus.Created
+    }
+
+    if (original.extension === ContentFileExtension.Markdown) {
+      if (!areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
+        return DraftStatus.Updated
+      }
+    }
+    else if (typeof original === 'object' && typeof modified === 'object') {
+      if (!areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
+        return DraftStatus.Updated
+      }
+    }
+    else {
+      if (JSON.stringify(original) !== JSON.stringify(modified)) {
+        return DraftStatus.Updated
+      }
+    }
+
+    return DraftStatus.Pristine
+  }
+
   return {
     isLoading,
     list,
@@ -231,5 +269,6 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     unselect,
     load,
     checkConflict,
+    getStatus,
   }
 }
