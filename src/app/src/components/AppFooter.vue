@@ -5,7 +5,7 @@ import { useStudioState } from '../composables/useStudioState'
 import type { DropdownMenuItem } from '@nuxt/ui'
 
 const { ui, host, git } = useStudio()
-const { preferences, updatePreference, unsetActiveLocation } = useStudioState()
+const { devMode, preferences, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
 
 // const showTechnicalMode = computed({
@@ -51,7 +51,14 @@ function closeStudio() {
   <div
     class="bg-muted/50 border-default border-t-[0.5px] flex items-center justify-between gap-1.5 px-2 py-2"
   >
+    <span
+      v-if="devMode"
+      class="ml-2 text-xs text-muted"
+    >
+      Using local filesystem
+    </span>
     <UDropdownMenu
+      v-else
       :portal="false"
       :items="userMenuItems"
       :ui="{ content: 'w-full' }"
