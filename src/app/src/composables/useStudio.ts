@@ -7,20 +7,20 @@ import { useDraftMedias } from './useDraftMedias'
 import { ref } from 'vue'
 import { useTree } from './useTree'
 import type { RouteLocationNormalized } from 'vue-router'
-import type { StudioHost, GitOptions, DatabaseItem } from '../types'
+import type { GitOptions, DatabaseItem } from '../types'
 import { StudioFeature } from '../types'
 import { documentStorage, mediaStorage, nullStorageDriver } from '../utils/storage'
 import { useHooks } from './useHooks'
 import { useStudioState } from './useStudioState'
 
-export const studioFlags = {
-  dev: false,
-}
-
 export const useStudio = createSharedComposable(() => {
   const isReady = ref(false)
   const host = window.useStudioHost()
-  studioFlags.dev = host.meta.dev
+  const { devMode, enableDevMode, preferences, setManifestId } = useStudioState()
+
+  if (host.meta.dev) {
+    enableDevMode()
+  }
 
   const gitOptions: GitOptions = {
     owner: host.repository.owner,
@@ -32,8 +32,7 @@ export const useStudio = createSharedComposable(() => {
     authorEmail: host.user.get().email,
   }
 
-  const git = studioFlags.dev ? useDevelopmentGit(gitOptions) : useGit(gitOptions)
-  const { preferences, setManifestId } = useStudioState()
+  const git = devMode.value ? useDevelopmentGit(gitOptions) : useGit(gitOptions)
   const ui = useUI(host)
   const draftDocuments = useDraftDocuments(host, git)
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
@@ -42,8 +41,8 @@ export const useStudio = createSharedComposable(() => {
   const context = useContext(host, git, documentTree, mediaTree)
 
   host.on.mounted(async () => {
-    if (studioFlags.dev) {
-      initDevelopmentMode(host, documentTree, mediaTree)
+    if (devMode.value) {
+      initDevelopmentMode()
     }
 
     await draftDocuments.load()
@@ -80,7 +79,8 @@ export const useStudio = createSharedComposable(() => {
   }
 })
 
-function initDevelopmentMode(host: StudioHost, documentTree: ReturnType<typeof useTree>, mediaTree: ReturnType<typeof useTree>) {
+function initDevelopmentMode() {
+  const { host, documentTree, mediaTree, context, ui } = useStudio()
   const hooks = useHooks()
 
   // Disable browser storages
@@ -128,5 +128,14 @@ function initDevelopmentMode(host: StudioHost, documentTree: ReturnType<typeof u
     }
 
     await hooks.callHook('studio:draft:media:updated', { caller: 'useStudio.on.mediaUpdate' })
+  })
+
+  host.on.requestDocumentEdit((fsPath: string) => {
+    if (context.currentFeature.value !== StudioFeature.Content) {
+      context.switchFeature(StudioFeature.Content)
+    }
+
+    documentTree.selectItemByFsPath(fsPath)
+    ui.open()
   })
 }

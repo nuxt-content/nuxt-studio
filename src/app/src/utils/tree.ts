@@ -6,7 +6,6 @@ import {
 } from '../types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { BaseItem } from '../types/item'
-import { studioFlags } from '../composables/useStudio'
 import { getFileExtension, parseName } from './file'
 
 export const COLOR_STATUS_MAP: { [key in TreeStatus]?: string } = {
@@ -25,7 +24,7 @@ export const COLOR_UI_STATUS_MAP: { [key in TreeStatus]?: string } = {
   [TreeStatus.Opened]: 'neutral',
 } as const
 
-export function buildTree(dbItems: BaseItem[], draftList: DraftItem[] | null):
+export function buildTree(dbItems: BaseItem[], draftList: DraftItem[] | null, isDev = false):
 TreeItem[] {
   const tree: TreeItem[] = []
   const directoryMap = new Map<string, TreeItem>()
@@ -156,7 +155,7 @@ TreeItem[] {
     directoryChildren.push(fileItem)
   }
 
-  calculateDirectoryStatuses(tree)
+  calculateDirectoryStatuses(tree, isDev)
 
   return tree
 }
@@ -283,8 +282,8 @@ export function findDescendantsFileItemsFromFsPath(tree: TreeItem[], fsPath: str
   return descendants
 }
 
-function calculateDirectoryStatuses(items: TreeItem[]) {
-  if (studioFlags.dev) {
+function calculateDirectoryStatuses(items: TreeItem[], isDev = false) {
+  if (isDev) {
     return
   }
 
@@ -293,7 +292,7 @@ function calculateDirectoryStatuses(items: TreeItem[]) {
       continue
     }
 
-    calculateDirectoryStatuses(item.children)
+    calculateDirectoryStatuses(item.children, isDev)
 
     const childrenWithStatus = item.children.filter(child => child.status && child.status !== TreeStatus.Opened)
 

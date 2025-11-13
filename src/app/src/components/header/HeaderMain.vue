@@ -9,8 +9,8 @@ import { useStudioState } from '../../composables/useStudioState'
 const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
-const { setLocation } = useStudioState()
 const { t } = useI18n()
+const { setLocation, devMode } = useStudioState()
 
 const items = computed(() => [
   {
@@ -54,6 +54,7 @@ const current = computed({
     />
 
     <UButton
+      v-if="!devMode"
       :label="$t('studio.buttons.review')"
       color="neutral"
       :variant="context.draftCount.value > 0 ? 'solid' : 'soft'"
@@ -68,7 +69,7 @@ const current = computed({
       >
         <UBadge
           :label="context.draftCount.value.toString()"
-          class="bg-[var(--ui-color-neutral-400)]"
+          class="bg-neutral-400"
           size="xs"
           variant="soft"
         />
