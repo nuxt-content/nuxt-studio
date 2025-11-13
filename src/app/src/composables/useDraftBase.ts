@@ -2,12 +2,12 @@ import type { Storage } from 'unstorage'
 import { joinURL } from 'ufo'
 import type { DraftItem, StudioHost, GithubFile, DatabaseItem, MediaItem, BaseItem } from '../types'
 import { ContentFileExtension } from '../types'
-import { studioFlags } from './useStudio'
 import { DraftStatus } from '../types/draft'
 import { checkConflict, findDescendantsFromFsPath } from '../utils/draft'
 import type { useGit } from './useGit'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
+import { useStudioState } from './useStudioState'
 
 export function useDraftBase<T extends DatabaseItem | MediaItem>(
   type: 'media' | 'document',
@@ -25,6 +25,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   const areDocumentsEqual = host.document.utils.areEqual
 
   const hooks = useHooks()
+  const { devMode } = useStudioState()
 
   async function get(fsPath: string): Promise<DraftItem<T> | undefined> {
     return list.value.find(item => item.fsPath === fsPath) as DraftItem<T>
@@ -73,40 +74,45 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       await storage.removeItem(fsPath)
       await hostDb.delete(fsPath)
 
-      let deleteDraftItem: DraftItem<T> | null = null
-      if (existingDraftItem) {
-        if (existingDraftItem.status === DraftStatus.Deleted) return
+      if (!devMode.value) {
+        let deleteDraftItem: DraftItem<T> | null = null
+        if (existingDraftItem) {
+          if (existingDraftItem.status === DraftStatus.Deleted) return
 
-        if (existingDraftItem.status === DraftStatus.Created) {
-          list.value = list.value.filter(item => item.fsPath !== fsPath)
+          if (existingDraftItem.status === DraftStatus.Created) {
+            list.value = list.value.filter(item => item.fsPath !== fsPath)
+          }
+          else {
+          // TODO: check if gh file has been updated
+            const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
+
+            deleteDraftItem = {
+              fsPath: existingDraftItem.fsPath,
+              status: DraftStatus.Deleted,
+              original: existingDraftItem.original,
+              githubFile,
+            }
+
+            list.value = list.value.map(item => item.fsPath === fsPath ? deleteDraftItem! : item) as DraftItem<T>[]
+          }
         }
         else {
+        // TODO: check if gh file has been updated
+          const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
+
           deleteDraftItem = {
-            fsPath: existingDraftItem.fsPath,
+            fsPath,
             status: DraftStatus.Deleted,
-            original: existingDraftItem.original,
-            githubFile: existingDraftItem.githubFile,
+            original: originalDbItem,
+            githubFile,
           }
 
-          list.value = list.value.map(item => item.fsPath === fsPath ? deleteDraftItem! : item) as DraftItem<T>[]
-        }
-      }
-      else {
-      // TODO: check if gh file has been updated
-        const githubFile = await git.fetchFile(joinURL('content', fsPath), { cached: true }) as GithubFile
-
-        deleteDraftItem = {
-          fsPath,
-          status: DraftStatus.Deleted,
-          original: originalDbItem,
-          githubFile,
+          list.value.push(deleteDraftItem)
         }
 
-        list.value.push(deleteDraftItem)
-      }
-
-      if (deleteDraftItem) {
-        await storage.setItem(fsPath, deleteDraftItem)
+        if (deleteDraftItem) {
+          await storage.setItem(fsPath, deleteDraftItem)
+        }
       }
 
       if (rerender) {
@@ -215,7 +221,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   }
 
   function getStatus(modified: BaseItem, original: BaseItem): DraftStatus {
-    if (studioFlags.dev) {
+    if (devMode.value) {
       return DraftStatus.Pristine
     }
 

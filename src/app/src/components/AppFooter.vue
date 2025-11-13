@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
+import type { DropdownMenuItem } from '@nuxt/ui'
 
 const { ui, host, git } = useStudio()
-const { preferences, updatePreference, unsetActiveLocation } = useStudioState()
+const { devMode, preferences, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
 
 // const showTechnicalMode = computed({
@@ -16,19 +17,19 @@ const user = host.user.get()
 
 const repositoryUrl = computed(() => git.getBranchUrl())
 const userMenuItems = computed(() => [
-  [
-  // [{
-  //   slot: 'view-mode' as const,
-  // }
-    repositoryUrl.value
-      ? {
+  repositoryUrl.value
+    ? [
+        // [{
+        //   slot: 'view-mode' as const,
+        // }
+        {
           label: `${host.repository.owner}/${host.repository.repo}`,
           icon: 'i-simple-icons:github',
           to: repositoryUrl.value,
           target: '_blank',
-        }
-      : undefined,
-  ].filter(Boolean),
+        },
+      ]
+    : undefined,
   [{
     label: 'Sign out',
     icon: 'i-lucide-log-out',
@@ -38,7 +39,7 @@ const userMenuItems = computed(() => [
       })
     },
   }],
-])
+].filter(Boolean) as DropdownMenuItem[][])
 
 function closeStudio() {
   unsetActiveLocation()
@@ -50,7 +51,14 @@ function closeStudio() {
   <div
     class="bg-muted/50 border-default border-t-[0.5px] flex items-center justify-between gap-1.5 px-2 py-2"
   >
+    <span
+      v-if="devMode"
+      class="ml-2 text-xs text-muted"
+    >
+      Using local filesystem
+    </span>
     <UDropdownMenu
+      v-else
       :portal="false"
       :items="userMenuItems"
       :ui="{ content: 'w-full' }"
