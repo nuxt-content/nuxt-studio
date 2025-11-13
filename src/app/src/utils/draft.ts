@@ -1,12 +1,12 @@
-import type { DatabaseItem, MediaItem, DatabasePageItem, DraftItem, BaseItem, ContentConflict } from '../types'
-import { DraftStatus, ContentFileExtension } from '../types'
-import { isEqual } from './database'
-import { studioFlags } from '../composables/useStudio'
-import { generateContentFromDocument, generateDocumentFromContent } from './content'
+import type { DatabaseItem, MediaItem, DraftItem, ContentConflict, StudioHost } from '../types'
+import { DraftStatus } from '../types'
 import { fromBase64ToUTF8 } from '../utils/string'
 import { isMediaFile } from './file'
 
-export async function checkConflict(draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<ContentConflict | undefined> {
+export async function checkConflict(host: StudioHost, draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<ContentConflict | undefined> {
+  const generateContentFromDocument = host.document.generate.contentFromDocument
+  const isDocumentMatchingContent = host.document.utils.isMatchingContent
+
   if (isMediaFile(draftItem.fsPath) || draftItem.fsPath.endsWith('.gitkeep')) {
     return
   }
@@ -27,14 +27,13 @@ export async function checkConflict(draftItem: DraftItem<DatabaseItem | MediaIte
     return
   }
 
-  const localContent = await generateContentFromDocument(draftItem.original as DatabaseItem) as string
   const githubContent = fromBase64ToUTF8(draftItem.githubFile.content)
-  const githubDocument = await generateDocumentFromContent(draftItem.modified!.id!, githubContent) as DatabaseItem
 
-  if (isEqual(draftItem.original as DatabasePageItem, githubDocument as DatabasePageItem)) {
+  if (await isDocumentMatchingContent(githubContent, draftItem.original! as DatabaseItem)) {
     return
   }
 
+  const localContent = await generateContentFromDocument(draftItem.original as DatabaseItem) as string
   if (localContent.trim() === githubContent.trim()) {
     return
   }
@@ -43,42 +42,6 @@ export async function checkConflict(draftItem: DraftItem<DatabaseItem | MediaIte
     githubContent,
     localContent,
   }
-}
-
-export function getDraftStatus(modified?: BaseItem, original?: BaseItem): DraftStatus {
-  if (studioFlags.dev) {
-    return DraftStatus.Pristine
-  }
-
-  if (!modified && !original) {
-    throw new Error('Unconsistent state: both modified and original are undefined')
-  }
-
-  if (!modified) {
-    return DraftStatus.Deleted
-  }
-
-  if (!original || original.id !== modified.id) {
-    return DraftStatus.Created
-  }
-
-  if (original.extension === ContentFileExtension.Markdown) {
-    if (!isEqual(original as DatabasePageItem, modified as DatabasePageItem)) {
-      return DraftStatus.Updated
-    }
-  }
-  else if (typeof original === 'object' && typeof modified === 'object') {
-    if (!isEqual(original as unknown as Record<string, unknown>, modified as unknown as Record<string, unknown>)) {
-      return DraftStatus.Updated
-    }
-  }
-  else {
-    if (JSON.stringify(original) !== JSON.stringify(modified)) {
-      return DraftStatus.Updated
-    }
-  }
-
-  return DraftStatus.Pristine
 }
 
 export function findDescendantsFromFsPath(list: DraftItem[], fsPath: string): DraftItem[] {

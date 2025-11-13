@@ -1,14 +1,11 @@
 import {
-  ContentFileExtension,
   DraftStatus,
   TreeStatus,
-  type DatabasePageItem,
   type DraftItem,
   type TreeItem,
 } from '../types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { BaseItem } from '../types/item'
-import { isEqual } from './database'
 import { studioFlags } from '../composables/useStudio'
 import { getFileExtension, parseName } from './file'
 
@@ -65,7 +62,7 @@ TreeItem[] {
 
   for (const dbItem of virtualDbItems) {
     const itemHasPathField = 'path' in dbItem && dbItem.path
-    const fsPathSegments = dbItem.fsPath.split('/').filter(Boolean)
+    const fsPathSegments = dbItem.fsPath!.split('/').filter(Boolean)
     const directorySegments = fsPathSegments.slice(0, -1)
     let fileName = fsPathSegments[fsPathSegments.length - 1].replace(/\.[^/.]+$/, '')
 
@@ -77,12 +74,12 @@ TreeItem[] {
       fileName = name === 'index' ? 'home' : name
       const fileItem: TreeItem = {
         name: fileName,
-        fsPath: dbItem.fsPath,
+        fsPath: dbItem.fsPath!,
         type: 'file',
         prefix,
       }
 
-      if (dbItem.fsPath.endsWith('.gitkeep')) {
+      if (dbItem.fsPath!.endsWith('.gitkeep')) {
         fileItem.hide = true
       }
 
@@ -92,7 +89,7 @@ TreeItem[] {
 
       const draftFileItem = draftList?.find(draft => draft.fsPath === dbItem.fsPath)
       if (draftFileItem) {
-        fileItem.status = getTreeStatus(draftFileItem.modified!, draftFileItem.original!)
+        fileItem.status = getTreeStatus(draftFileItem)
       }
 
       tree.push(fileItem)
@@ -138,18 +135,18 @@ TreeItem[] {
     const { name, prefix } = parseName(fileName)
     const fileItem: TreeItem = {
       name,
-      fsPath: dbItem.fsPath,
+      fsPath: dbItem.fsPath!,
       type: 'file',
       prefix,
     }
 
-    if (dbItem.fsPath.endsWith('.gitkeep')) {
+    if (dbItem.fsPath!.endsWith('.gitkeep')) {
       fileItem.hide = true
     }
 
     const draftFileItem = draftList?.find(draft => draft.fsPath === dbItem.fsPath)
     if (draftFileItem) {
-      fileItem.status = getTreeStatus(draftFileItem.modified!, draftFileItem.original!)
+      fileItem.status = getTreeStatus(draftFileItem)
     }
 
     if (dbItem.path) {
@@ -164,36 +161,25 @@ TreeItem[] {
   return tree
 }
 
-export function getTreeStatus(modified?: BaseItem, original?: BaseItem): TreeStatus {
-  if (studioFlags.dev) {
+export function getTreeStatus(draftItem: DraftItem): TreeStatus {
+  if (draftItem.status === DraftStatus.Pristine) {
     return TreeStatus.Opened
   }
 
-  if (!original && !modified) {
-    throw new Error('Unconsistent state: both modified and original are undefined')
-  }
-
-  if (!original) {
-    return TreeStatus.Created
-  }
-
-  if (!modified) {
+  if (draftItem.status === DraftStatus.Deleted) {
     return TreeStatus.Deleted
   }
 
-  if (modified.id !== original.id) {
-    return TreeStatus.Renamed
+  if (draftItem.status === DraftStatus.Updated) {
+    return TreeStatus.Updated
   }
 
-  if (original.extension === ContentFileExtension.Markdown) {
-    if (!isEqual(original as DatabasePageItem, modified as DatabasePageItem)) {
-      return TreeStatus.Updated
+  if (draftItem.status === DraftStatus.Created) {
+    const { original, modified } = draftItem
+    if (original && modified && original.id !== modified.id) {
+      return TreeStatus.Renamed
     }
-  }
-  else {
-    if (JSON.stringify(original) !== JSON.stringify(modified)) {
-      return TreeStatus.Updated
-    }
+    return TreeStatus.Created
   }
 
   return TreeStatus.Opened

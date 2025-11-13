@@ -24,6 +24,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     selectByFsPath,
     unselect,
     load,
+    getStatus,
   } = useDraftBase('media', host, git, storage)
 
   async function upload(parentFsPath: string, file: File) {
@@ -131,5 +132,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, git: Ret
     unselect,
     upload,
     listAsRawFiles,
+    getStatus,
   }
 })

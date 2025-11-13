@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { findDescendantsFromFsPath, getDraftStatus } from '../../../src/utils/draft'
+import { findDescendantsFromFsPath } from '../../../src/utils/draft'
 import { draftItemsList } from '../../../test/mocks/draft'
-import { dbItemsList } from '../../../test/mocks/database'
-import { DraftStatus } from '../../../src/types'
 
 describe('findDescendantsFromFsPath', () => {
   it('returns exact match for a root level file', () => {
@@ -48,45 +46,5 @@ describe('findDescendantsFromFsPath', () => {
 
     expect(descendants).toHaveLength(1)
     expect(descendants[0].fsPath).toBe('1.getting-started/1.advanced/1.studio.md')
-  })
-})
-
-describe('getDraftStatus', () => {
-  it('returns Deleted status when modified item is undefined', () => {
-    const original = dbItemsList[0] // landing/index.md
-
-    expect(getDraftStatus(undefined, original)).toBe(DraftStatus.Deleted)
-  })
-
-  it('returns Created status when original is undefined', () => {
-    const modified = dbItemsList[1] // docs/1.getting-started/2.introduction.md
-
-    expect(getDraftStatus(modified, undefined)).toBe(DraftStatus.Created)
-  })
-
-  it('returns Created status when original has different id', () => {
-    const original = dbItemsList[0] // landing/index.md
-    const modified = dbItemsList[1] // docs/1.getting-started/2.introduction.md
-
-    expect(getDraftStatus(modified, original)).toBe(DraftStatus.Created)
-  })
-
-  it('returns Updated status when markdown content is different', () => {
-    const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
-    const modified = {
-      ...original,
-      body: {
-        type: 'minimark',
-        value: ['text', 'Modified'],
-      },
-    }
-
-    expect(getDraftStatus(modified, original)).toBe(DraftStatus.Updated)
-  })
-
-  it('returns Pristine status when markdown content is identical', () => {
-    const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
-
-    expect(getDraftStatus(original, original)).toBe(DraftStatus.Pristine)
   })
 })

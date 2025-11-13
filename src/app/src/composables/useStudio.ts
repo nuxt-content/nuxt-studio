@@ -7,11 +7,10 @@ import { useDraftMedias } from './useDraftMedias'
 import { ref } from 'vue'
 import { useTree } from './useTree'
 import type { RouteLocationNormalized } from 'vue-router'
-import type { StudioHost, GitOptions } from '../types'
+import type { StudioHost, GitOptions, DatabaseItem } from '../types'
 import { StudioFeature } from '../types'
 import { documentStorage, mediaStorage, nullStorageDriver } from '../utils/storage'
 import { useHooks } from './useHooks'
-import { getDraftStatus } from '../utils/draft'
 import { useStudioState } from './useStudioState'
 
 export const studioFlags = {
@@ -44,7 +43,7 @@ export const useStudio = createSharedComposable(() => {
 
   host.on.mounted(async () => {
     if (studioFlags.dev) {
-      initDevelopmentMode(host, draftDocuments, draftMedias, documentTree, mediaTree)
+      initDevelopmentMode(host, documentTree, mediaTree)
     }
 
     await draftDocuments.load()
@@ -81,7 +80,7 @@ export const useStudio = createSharedComposable(() => {
   }
 })
 
-function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof useDraftDocuments>, draftMedias: ReturnType<typeof useDraftMedias>, documentTree: ReturnType<typeof useTree>, mediaTree: ReturnType<typeof useTree>) {
+function initDevelopmentMode(host: StudioHost, documentTree: ReturnType<typeof useTree>, mediaTree: ReturnType<typeof useTree>) {
   const hooks = useHooks()
 
   // Disable browser storages
@@ -89,20 +88,20 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
   mediaStorage.mount('/', nullStorageDriver)
 
   host.on.documentUpdate(async (fsPath: string, type: 'remove' | 'update') => {
-    const item = draftDocuments.list.value.find(item => item.fsPath === fsPath)
+    const item = documentTree.draft.list.value.find(item => item.fsPath === fsPath)
 
     if (type === 'remove') {
       if (item) {
-        await draftDocuments.remove([fsPath])
+        await documentTree.draft.remove([fsPath])
       }
     }
     else if (item) {
       // Update draft if the document is not focused or the current item is not the one that was updated
       if (!window.document.hasFocus() || documentTree.currentItem.value?.fsPath !== fsPath) {
-        const document = await host.document.get(fsPath)
+        const document = await host.document.db.get(fsPath)
         item.modified = document
         item.original = document
-        item.status = getDraftStatus(document, item.original)
+        item.status = mediaTree.draft.getStatus(document as DatabaseItem, item.original as DatabaseItem)
         item.version = item.version ? item.version + 1 : 1
       }
     }
@@ -111,11 +110,11 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
   })
 
   host.on.mediaUpdate(async (fsPath: string, type: 'remove' | 'update') => {
-    const item = draftMedias.list.value.find(item => item.fsPath === fsPath)
+    const item = mediaTree.draft.list.value.find(item => item.fsPath === fsPath)
 
     if (type === 'remove') {
       if (item) {
-        await draftMedias.remove([fsPath])
+        await mediaTree.draft.remove([fsPath])
       }
     }
     else if (item) {
@@ -123,7 +122,7 @@ function initDevelopmentMode(host: StudioHost, draftDocuments: ReturnType<typeof
         const media = await host.media.get(fsPath)
         item.modified = media
         item.original = media
-        item.status = getDraftStatus(media, item.original)
+        item.status = mediaTree.draft.getStatus(media, item.original)
         item.version = item.version ? item.version + 1 : 1
       }
     }
