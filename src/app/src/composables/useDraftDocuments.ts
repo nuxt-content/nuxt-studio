@@ -1,7 +1,6 @@
 import type { DatabaseItem, DraftItem, StudioHost, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGit } from './useGit'
-import { getDraftStatus } from '../utils/draft'
 import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
@@ -22,6 +21,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     selectByFsPath,
     unselect,
     load,
+    getStatus,
   } = useDraftBase<DatabaseItem>('document', host, git, storage)
 
   const hooks = useHooks()
@@ -35,7 +35,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     }
 
     const oldStatus = existingItem.status
-    existingItem.status = getDraftStatus(document, existingItem.original as DatabaseItem, host.document.utils.areEqual)
+    existingItem.status = getStatus(document, existingItem.original as DatabaseItem)
     existingItem.modified = document
 
     await storage.setItem(fsPath, existingItem)
@@ -145,5 +145,6 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, git: 
     load,
     selectByFsPath,
     unselect,
+    getStatus,
   }
 })

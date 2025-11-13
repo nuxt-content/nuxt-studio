@@ -1,6 +1,5 @@
-import type { DatabaseItem, MediaItem, DraftItem, BaseItem, ContentConflict, StudioHost } from '../types'
-import { DraftStatus, ContentFileExtension } from '../types'
-import { studioFlags } from '../composables/useStudio'
+import type { DatabaseItem, MediaItem, DraftItem, ContentConflict, StudioHost } from '../types'
+import { DraftStatus } from '../types'
 import { fromBase64ToUTF8 } from '../utils/string'
 import { isMediaFile } from './file'
 
@@ -43,42 +42,6 @@ export async function checkConflict(host: StudioHost, draftItem: DraftItem<Datab
     githubContent,
     localContent,
   }
-}
-
-export function getDraftStatus(modified: BaseItem, original: BaseItem, comparisonMethod: (org: DatabaseItem, mod: DatabaseItem) => boolean): DraftStatus {
-  if (studioFlags.dev) {
-    return DraftStatus.Pristine
-  }
-
-  if (!modified && !original) {
-    throw new Error('Unconsistent state: both modified and original are undefined')
-  }
-
-  if (!modified) {
-    return DraftStatus.Deleted
-  }
-
-  if (!original || original.id !== modified.id) {
-    return DraftStatus.Created
-  }
-
-  if (original.extension === ContentFileExtension.Markdown) {
-    if (!comparisonMethod(original as DatabaseItem, modified as DatabaseItem)) {
-      return DraftStatus.Updated
-    }
-  }
-  else if (typeof original === 'object' && typeof modified === 'object') {
-    if (!comparisonMethod(original as DatabaseItem, modified as DatabaseItem)) {
-      return DraftStatus.Updated
-    }
-  }
-  else {
-    if (JSON.stringify(original) !== JSON.stringify(modified)) {
-      return DraftStatus.Updated
-    }
-  }
-
-  return DraftStatus.Pristine
 }
 
 export function findDescendantsFromFsPath(list: DraftItem[], fsPath: string): DraftItem[] {
