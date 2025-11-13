@@ -107,7 +107,7 @@ export default defineNuxtModule<ModuleOptions>({
         clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
       },
     },
-    dev: true
+    dev: true,
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
