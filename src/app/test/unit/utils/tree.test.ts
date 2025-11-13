@@ -11,8 +11,6 @@ import type { DatabaseItem } from '../../../src/types/database'
 import { joinURL, withLeadingSlash } from 'ufo'
 import { VirtualMediaCollectionName } from '../../../src/utils/media'
 
-const areDocumentsEqual = (document1: DatabaseItem, document2: DatabaseItem) => JSON.stringify(document1) === JSON.stringify(document2)
-
 describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock
   const result: TreeItem[] = [
@@ -48,7 +46,7 @@ describe('buildTree of documents with one level of depth', () => {
   ]
 
   it('Without draft', () => {
-    const tree = buildTree(dbItemsList, null, areDocumentsEqual)
+    const tree = buildTree(dbItemsList, null)
     expect(tree).toStrictEqual(result as TreeItem[])
   })
 
@@ -62,7 +60,7 @@ describe('buildTree of documents with one level of depth', () => {
       modified: createdDbItem,
     }]
 
-    const tree = buildTree(dbItemsList, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsList, draftList)
 
     expect(tree).toStrictEqual([
       {
@@ -84,7 +82,7 @@ describe('buildTree of documents with one level of depth', () => {
 
     const dbItemsListWithoutDeletedDbItem = dbItemsList.filter(item => item.id !== deletedDbItem.id)
 
-    const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList)
 
     expect(tree).toStrictEqual([
       { ...result[0] },
@@ -118,7 +116,7 @@ describe('buildTree of documents with one level of depth', () => {
 
     const dbItemsListWithoutDeletedDbItem = dbItemsList.filter(item => item.id !== deletedDbItem.id)
 
-    const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList)
 
     expect(tree).toStrictEqual([
       result[0],
@@ -156,7 +154,7 @@ describe('buildTree of documents with one level of depth', () => {
       },
     }]
 
-    const tree = buildTree(dbItemsList, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree = [
       result[0],
@@ -192,7 +190,7 @@ describe('buildTree of documents with one level of depth', () => {
       modified: openedDbItem,
     }]
 
-    const tree = buildTree(dbItemsList, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree = [
       result[0],
@@ -225,7 +223,7 @@ describe('buildTree of documents with one level of depth', () => {
       modified: openedDbItem2,
     }]
 
-    const tree = buildTree(dbItemsList, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree = [
       result[0],
@@ -269,7 +267,7 @@ describe('buildTree of documents with one level of depth', () => {
     const dbItemsWithoutDeletedWithCreated = dbItemsList.filter(item => item.id !== deletedDbItem.id)
     dbItemsWithoutDeletedWithCreated.push(createdDbItem)
 
-    const tree = buildTree(dbItemsWithoutDeletedWithCreated, draftList, areDocumentsEqual)
+    const tree = buildTree(dbItemsWithoutDeletedWithCreated, draftList)
 
     expect(tree).toStrictEqual([
       result[0],
@@ -327,7 +325,7 @@ describe('buildTree of documents with two levels of depth', () => {
   ]
 
   it('Without draft', () => {
-    const tree = buildTree(nestedDbItemsList, null, areDocumentsEqual)
+    const tree = buildTree(nestedDbItemsList, null)
     expect(tree).toStrictEqual(result)
   })
 
@@ -347,7 +345,7 @@ describe('buildTree of documents with two levels of depth', () => {
       },
     }]
 
-    const tree = buildTree(nestedDbItemsList, draftList, areDocumentsEqual)
+    const tree = buildTree(nestedDbItemsList, draftList)
 
     expect(tree).toStrictEqual([{
       ...result[0],
@@ -375,7 +373,7 @@ describe('buildTree of documents with two levels of depth', () => {
       },
     }]
 
-    const tree = buildTree(nestedDbItemsList, draftList, areDocumentsEqual)
+    const tree = buildTree(nestedDbItemsList, draftList)
 
     expect(tree).toStrictEqual([{
       ...result[0],
@@ -409,7 +407,7 @@ describe('buildTree of documents with two levels of depth', () => {
     // Remove the deleted item from the nestedDbItemsList
     const nestedDbItemsListWithoutDeletedDbItem = nestedDbItemsList.filter(item => item.id !== deletedDbItem.id)
 
-    const tree = buildTree(nestedDbItemsListWithoutDeletedDbItem, draftList, areDocumentsEqual)
+    const tree = buildTree(nestedDbItemsListWithoutDeletedDbItem, draftList)
 
     expect(tree).toStrictEqual([{
       ...result[0],
@@ -477,7 +475,7 @@ describe('buildTree of documents with language prefixed', () => {
   ]
 
   it('Without draft', () => {
-    const tree = buildTree(languagePrefixedDbItemsList, null, areDocumentsEqual)
+    const tree = buildTree(languagePrefixedDbItemsList, null)
     expect(tree).toStrictEqual(result)
   })
 })
@@ -513,7 +511,7 @@ describe('buildTree of medias', () => {
       modified: gitkeepDbItem,
     }]
 
-    const tree = buildTree([gitkeepDbItem, mediaDbItem], draftList, areDocumentsEqual)
+    const tree = buildTree([gitkeepDbItem, mediaDbItem], draftList)
 
     expect(tree).toHaveLength(1)
     expect(tree[0]).toHaveProperty('fsPath', mediaFolderName)
@@ -529,59 +527,91 @@ describe('buildTree of medias', () => {
 })
 
 describe('getTreeStatus', () => {
-  it('draft is CREATED if originalDatabaseItem is not defined', () => {
-    const modified: DatabaseItem = dbItemsList[0] // index.md
+  it('should return OPENED when draft status is Pristine', () => {
+    const draftItem: DraftItem = {
+      fsPath: 'index.md',
+      status: DraftStatus.Pristine,
+      original: dbItemsList[0],
+      modified: dbItemsList[0],
+    }
 
-    const status = getTreeStatus(modified, undefined as never, areDocumentsEqual)
-    expect(status).toBe(TreeStatus.Created)
-  })
-
-  it('draft is OPENED if originalDatabaseItem is defined and is the same as draftedDocument', () => {
-    const original: DatabaseItem = dbItemsList[0] // index.md
-
-    const status = getTreeStatus(original, original, areDocumentsEqual)
+    const status = getTreeStatus(draftItem)
     expect(status).toBe(TreeStatus.Opened)
   })
 
-  it('draft is UPDATED if originalDatabaseItem is defined and one of its data field is different from draftedDocument', () => {
+  it('should return DELETED when draft status is Deleted', () => {
+    const draftItem: DraftItem = {
+      fsPath: 'index.md',
+      status: DraftStatus.Deleted,
+      original: dbItemsList[0],
+      modified: undefined,
+    }
+
+    const status = getTreeStatus(draftItem)
+    expect(status).toBe(TreeStatus.Deleted)
+  })
+
+  it('should return UPDATED when draft status is Updated', () => {
     const original: DatabaseItem = dbItemsList[0]
     const modified: DatabaseItem = {
       ...original,
       title: 'New title',
     }
 
-    const status = getTreeStatus(modified, original, areDocumentsEqual)
-    expect(status).toBe(TreeStatus.Updated)
-  })
-
-  it('draft is UPDATED if originalDatabaseItem is defined and its body is different from draftedDocument', () => {
-    const original: DatabaseItem = dbItemsList[0]
-    const modified: DatabaseItem = {
-      ...original,
-      body: { type: 'minimark', value: ['New body'] },
+    const draftItem: DraftItem = {
+      fsPath: 'index.md',
+      status: DraftStatus.Updated,
+      original,
+      modified,
     }
 
-    const status = getTreeStatus(modified, original, areDocumentsEqual)
+    const status = getTreeStatus(draftItem)
     expect(status).toBe(TreeStatus.Updated)
   })
 
-  it('draft is RENAMED if originalDatabaseItem is defined and id is different from draftedDocument', () => {
+  it('should return RENAMED when draft status is Created and original.id differs from modified.id', () => {
     const original: DatabaseItem = dbItemsList[0] // index.md
     const modified: DatabaseItem = {
       ...original,
       id: 'renamed.md',
     }
 
-    const status = getTreeStatus(modified, original, areDocumentsEqual)
+    const draftItem: DraftItem = {
+      fsPath: 'renamed.md',
+      status: DraftStatus.Created,
+      original,
+      modified,
+    }
+
+    const status = getTreeStatus(draftItem)
     expect(status).toBe(TreeStatus.Renamed)
   })
 
-  it('draft is DELETED if modifiedDatabaseItem is not defined', () => {
-    const original: DatabaseItem = dbItemsList[0] // index.md
-    const modified: DatabaseItem = undefined as never
+  it('should return CREATED when draft status is Created without original', () => {
+    const draftItem: DraftItem = {
+      fsPath: 'index.md',
+      status: DraftStatus.Created,
+      original: undefined,
+      modified: dbItemsList[0],
+    }
 
-    const status = getTreeStatus(modified, original, areDocumentsEqual)
-    expect(status).toBe(TreeStatus.Deleted)
+    const status = getTreeStatus(draftItem)
+    expect(status).toBe(TreeStatus.Created)
+  })
+
+  it('should return CREATED when draft status is Created with original that has same id', () => {
+    const original: DatabaseItem = dbItemsList[0]
+    const modified: DatabaseItem = dbItemsList[0]
+
+    const draftItem: DraftItem = {
+      fsPath: 'index.md',
+      status: DraftStatus.Created,
+      original,
+      modified,
+    }
+
+    const status = getTreeStatus(draftItem)
+    expect(status).toBe(TreeStatus.Created)
   })
 })
 

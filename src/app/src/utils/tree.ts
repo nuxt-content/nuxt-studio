@@ -1,8 +1,6 @@
 import {
-  ContentFileExtension,
   DraftStatus,
   TreeStatus,
-  type DatabasePageItem,
   type DraftItem,
   type TreeItem,
 } from '../types'
@@ -27,7 +25,7 @@ export const COLOR_UI_STATUS_MAP: { [key in TreeStatus]?: string } = {
   [TreeStatus.Opened]: 'neutral',
 } as const
 
-export function buildTree(dbItems: BaseItem[], draftList: DraftItem[] | null, comparisonMethod: (document1: DatabasePageItem, document2: DatabasePageItem) => boolean):
+export function buildTree(dbItems: BaseItem[], draftList: DraftItem[] | null):
 TreeItem[] {
   const tree: TreeItem[] = []
   const directoryMap = new Map<string, TreeItem>()
@@ -91,7 +89,7 @@ TreeItem[] {
 
       const draftFileItem = draftList?.find(draft => draft.fsPath === dbItem.fsPath)
       if (draftFileItem) {
-        fileItem.status = getTreeStatus(draftFileItem.modified!, draftFileItem.original!, comparisonMethod)
+        fileItem.status = getTreeStatus(draftFileItem)
       }
 
       tree.push(fileItem)
@@ -148,7 +146,7 @@ TreeItem[] {
 
     const draftFileItem = draftList?.find(draft => draft.fsPath === dbItem.fsPath)
     if (draftFileItem) {
-      fileItem.status = getTreeStatus(draftFileItem.modified!, draftFileItem.original!, comparisonMethod)
+      fileItem.status = getTreeStatus(draftFileItem)
     }
 
     if (dbItem.path) {
@@ -163,36 +161,25 @@ TreeItem[] {
   return tree
 }
 
-export function getTreeStatus(modified: BaseItem, original: BaseItem, comparisonMethod: (document1: DatabasePageItem, document2: DatabasePageItem) => boolean): TreeStatus {
-  if (studioFlags.dev) {
+export function getTreeStatus(draftItem: DraftItem): TreeStatus {
+  if (draftItem.status === DraftStatus.Pristine) {
     return TreeStatus.Opened
   }
 
-  if (!original && !modified) {
-    throw new Error('Unconsistent state: both modified and original are undefined')
-  }
-
-  if (!original) {
-    return TreeStatus.Created
-  }
-
-  if (!modified) {
+  if (draftItem.status === DraftStatus.Deleted) {
     return TreeStatus.Deleted
   }
 
-  if (modified.id !== original.id) {
-    return TreeStatus.Renamed
+  if (draftItem.status === DraftStatus.Updated) {
+    return TreeStatus.Updated
   }
 
-  if (original.extension === ContentFileExtension.Markdown) {
-    if (!comparisonMethod(original as DatabasePageItem, modified as DatabasePageItem)) {
-      return TreeStatus.Updated
+  if (draftItem.status === DraftStatus.Created) {
+    const { original, modified } = draftItem
+    if (original && modified && original.id !== modified.id) {
+      return TreeStatus.Renamed
     }
-  }
-  else {
-    if (JSON.stringify(original) !== JSON.stringify(modified)) {
-      return TreeStatus.Updated
-    }
+    return TreeStatus.Created
   }
 
   return TreeStatus.Opened
