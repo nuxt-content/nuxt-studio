@@ -62,7 +62,7 @@ export async function setupI18n(
       return `
         export default defineNuxtPlugin(() => {
           window.__NUXT_STUDIO_I18N_MESSAGES__ = ${JSON.stringify(finalMessages)}
-          window.__NUXT_STUDIO_DEFAULT_LOCALE__ = '${defaultLocale}'
+          window.__NUXT_STUDIO_DEFAULT_LOCALE__ = ${JSON.stringify(defaultLocale)}
         })
       `
     },
