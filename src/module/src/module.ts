@@ -160,7 +160,6 @@ export default defineNuxtModule<ModuleOptions>({
     )
 
     // --- VITE PLUGIN ---
-    // This plugin provides the messages to be imported *by our new Nuxt plugin*
     const virtualModuleName = 'virtual:studio-i18n-messages'
     const resolvedVirtualModuleId = '\0' + virtualModuleName
 
@@ -178,21 +177,24 @@ export default defineNuxtModule<ModuleOptions>({
       },
     } as Plugin)
 
-    // This plugin will run in the Nuxt context, import the virtual messages,
-    // and attach them to the window.
     addTemplate({
       filename: 'studio-i18n-plugin.client.mjs',
-      getContents: () => `
+      getContents: () => {
+        const defaultLocale = options.i18n?.defaultLocale || 'en'
+
+        return `
         import messages from 'virtual:studio-i18n-messages'
         
         export default defineNuxtPlugin(() => {
           // @ts-ignore
           window.__NUXT_STUDIO_I18N_MESSAGES__ = messages
+          // @ts-ignore
+          window.__NUXT_STUDIO_DEFAULT_LOCALE__ = '${defaultLocale}'
         })
-      `,
+      `
+      },
     })
 
-    // Register the new plugin
     addPlugin(resolve(nuxt.options.buildDir, 'studio-i18n-plugin.client.mjs'))
 
     if (!nuxt.options.dev) {
