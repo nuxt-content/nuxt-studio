@@ -40,6 +40,8 @@ export const useStudio = createSharedComposable(() => {
   const mediaTree = useTree(StudioFeature.Media, host, draftMedias)
   const context = useContext(host, git, documentTree, mediaTree)
 
+  ui.setLocale(host.meta.defaultLocale)
+
   host.on.mounted(async () => {
     if (devMode.value) {
       initDevelopmentMode()

@@ -6,7 +6,7 @@ import styles from './assets/css/main.css?inline'
 import { createHead } from '@unhead/vue/client'
 import { generateColors, tailwindColors } from './utils/colors'
 import { refineTailwindStyles } from './utils/styles.ts'
-import { createStudioI18n } from './i18n'
+import { createI18n } from 'vue-i18n'
 import App from './app.vue'
 import Content from './pages/content.vue'
 import Media from './pages/media.vue'
@@ -54,8 +54,14 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
 
         app.use(router)
 
-        // @ts-expect-error - Global variable defined in plugin
-        const i18n = createStudioI18n(window.__NUXT_STUDIO_DEFAULT_LOCALE__, window.__NUXT_STUDIO_I18N_MESSAGES__)
+        const i18n = createI18n({
+          legacy: false,
+          locale: 'en',
+          fallbackLocale: 'en',
+          globalInjection: true,
+        })
+
+        app.provide('i18n', i18n)
 
         app.use(i18n)
 
