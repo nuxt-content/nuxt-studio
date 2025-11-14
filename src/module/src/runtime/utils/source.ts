@@ -32,8 +32,8 @@ export function getCollectionSourceById(id: string, sources: ResolvedCollectionS
 
     let fsPath
     const [fixPart] = source.include.includes('*') ? source.include.split('*') : ['', source.include]
-    const fixed = withoutTrailingSlash(withoutLeadingSlash(fixPart || '/'))
-    if (fixed === prefix) {
+    const fixed = withoutTrailingSlash(fixPart || '/')
+    if (withoutLeadingSlash(fixed) === withoutLeadingSlash(prefix)) {
       fsPath = prefixAndPath
     }
     else {
