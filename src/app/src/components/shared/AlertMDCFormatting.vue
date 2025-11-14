@@ -20,7 +20,7 @@ function toggleAction() {
 
 <template>
   <UAlert
-    title="Formatting applied to align with MDC syntax standard."
+    :title="$t('studio.alert.mdcFormatting')"
     color="info"
     variant="soft"
     orientation="horizontal"

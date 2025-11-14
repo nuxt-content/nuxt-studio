@@ -7,6 +7,7 @@ import { useStudio } from '../../composables/useStudio'
 import { useMonaco } from '../../composables/useMonaco'
 import { useMonacoDiff } from '../../composables/useMonacoDiff'
 import { fromBase64ToUTF8 } from '../../utils/string'
+import { useI18n } from 'vue-i18n'
 import { areContentEqual } from '../../utils/content'
 
 const props = defineProps({
@@ -23,6 +24,7 @@ const props = defineProps({
 
 const document = defineModel<DatabasePageItem>()
 const { mediaTree, host, ui } = useStudio()
+const { t } = useI18n()
 
 const editorRef = ref<HTMLElement>()
 const diffEditorRef = ref<HTMLElement>()
@@ -53,7 +55,7 @@ const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
   readOnly: props.readOnly,
   colorMode: ui.colorMode,
   onSetup: async (monaco) => {
-    setupSuggestion(monaco.monaco, host.meta.components(), mediaTree.root.value)
+    setupSuggestion(monaco.monaco, host.meta.components(), mediaTree.root.value, t)
   },
   onChange: (newContent) => {
     if (props.readOnly) {

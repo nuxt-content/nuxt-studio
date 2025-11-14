@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../composables/useStudio'
 import type { StudioFeature } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
@@ -8,20 +9,21 @@ import { useStudioState } from '../../composables/useStudioState'
 const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
+const { t } = useI18n()
 const { setLocation, devMode } = useStudioState()
 
-const items = [
+const items = computed(() => [
   {
-    label: 'Content',
+    label: t('studio.nav.content'),
     value: 'content',
     to: '/content',
   },
   {
-    label: 'Media',
+    label: t('studio.nav.media'),
     value: 'media',
     to: '/media',
   },
-]
+])
 
 const current = computed({
   get: () => route.name as string,
@@ -53,7 +55,7 @@ const current = computed({
 
     <UButton
       v-if="!devMode"
-      label="Review"
+      :label="$t('studio.buttons.review')"
       color="neutral"
       :variant="context.draftCount.value > 0 ? 'solid' : 'soft'"
       to="/review"

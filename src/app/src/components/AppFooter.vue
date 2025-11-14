@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStudio } from '../composables/useStudio'
 import { useStudioState } from '../composables/useStudioState'
 import type { DropdownMenuItem } from '@nuxt/ui'
@@ -7,6 +8,7 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 const { ui, host, git } = useStudio()
 const { devMode, preferences, updatePreference, unsetActiveLocation } = useStudioState()
 const user = host.user.get()
+const { t } = useI18n()
 
 // const showTechnicalMode = computed({
 //   get: () => preferences.value.showTechnicalMode,
@@ -31,7 +33,7 @@ const userMenuItems = computed(() => [
       ]
     : undefined,
   [{
-    label: 'Sign out',
+    label: t('studio.buttons.signOut'),
     icon: 'i-lucide-log-out',
     onClick: () => {
       fetch('/__nuxt_studio/auth/session', { method: 'delete' }).then(() => {
@@ -40,6 +42,12 @@ const userMenuItems = computed(() => [
     },
   }],
 ].filter(Boolean) as DropdownMenuItem[][])
+
+const syncTooltipText = computed(() => {
+  return preferences.value.syncEditorAndRoute
+    ? t('studio.tooltips.unlinkEditor')
+    : t('studio.tooltips.linkEditor')
+})
 
 function closeStudio() {
   unsetActiveLocation()
@@ -70,7 +78,7 @@ function closeStudio() {
         >
           <USwitch
             v-model="showTechnicalMode"
-            label="Developer view"
+            :label="$t('studio.footer.developer_view')"
             size="xs"
             :ui="{ root: 'w-full flex-row-reverse justify-between', wrapper: 'ms-0' }"
           />
@@ -88,7 +96,7 @@ function closeStudio() {
 
     <div class="flex items-center">
       <UTooltip
-        :text="preferences.syncEditorAndRoute ? 'Unlink editor and preview' : 'Link editor and preview'"
+        :text="syncTooltipText"
         :delay-duration="0"
       >
         <UButton

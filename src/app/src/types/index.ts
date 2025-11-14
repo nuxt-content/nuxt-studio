@@ -21,6 +21,7 @@ export interface StudioHost {
   meta: {
     dev: boolean
     components: () => ComponentMeta[]
+    defaultLocale: string
   }
   on: {
     routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void

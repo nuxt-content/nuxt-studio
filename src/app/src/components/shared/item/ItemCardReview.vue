@@ -54,7 +54,7 @@ function toggleOpen() {
               {{ fileName }}
             </span>
             <UBadge
-              :label="draftItem.status"
+              :label="$t(`studio.review.${draftItem.status.toLowerCase()}`)"
               :color="statusColor"
               variant="soft"
               size="xs"
