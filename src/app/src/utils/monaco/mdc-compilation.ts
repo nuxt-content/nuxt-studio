@@ -163,7 +163,7 @@ function findComponentProps(componentName: string, components: ComponentMeta[]) 
 }
 
 function normalizeText(str: string) {
-  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036F]/g, '').replace(' ', '-')
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036F]/g, '').replace(/ /g, '-')
 }
 
 function getGlobalCompletionItems(monaco: Monaco, range: IRange, trigger = '/', t: TFunction): CompletionItem[] {
