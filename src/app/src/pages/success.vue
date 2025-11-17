@@ -71,7 +71,7 @@ onMounted(() => {
           :plural="changeCount"
         >
           <template #count>
-            <span class="font-semibold text-default">{{ changeCount }}</span>
+            <span class="font-semibold text-default">{{ changeCount }} &nbsp;</span>
           </template>
 
           <template #branch>
