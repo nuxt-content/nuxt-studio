@@ -41,7 +41,8 @@
       "title": "Changements à valider",
       "created": "Créé",
       "updated": "Modifié",
-      "deleted": "Supprimé"
+      "deleted": "Supprimé",
+      "renamed": "Renommé"
     },
     "publishSuccess": {
       "title": "Changements publiés",

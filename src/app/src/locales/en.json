@@ -41,6 +41,7 @@
       "title": "Review changes",
       "created": "Created",
       "updated": "Updated",
+      "renamed": "Renamed",
       "deleted": "Deleted"
     },
     "publishSuccess": {
