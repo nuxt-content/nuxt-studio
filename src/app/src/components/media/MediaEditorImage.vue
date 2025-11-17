@@ -145,7 +145,7 @@ const remotePath = computed(() => {
           :name="gitProvider.icon"
           class="w-3.5 h-3.5"
         />
-        <span>{{ $t('studio.media.providerPath', gitProvider.name) }}</span>
+        <span>{{ $t('studio.media.providerPath', { providerName: gitProvider.name }) }}</span>
       </div>
       <p class="text-xs font-mono text-highlighted truncate">
         {{ remoteFile.path }}

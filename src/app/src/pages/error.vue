@@ -66,7 +66,7 @@ function retry() {
 
       <UAlert
         icon="i-lucide-alert-triangle"
-        :title="$t('studio.publish.errorTitle', gitProvider.name)"
+        :title="$t('studio.publish.errorTitle', { providerName: gitProvider.name })"
         :description="errorMessage"
         color="error"
         variant="soft"

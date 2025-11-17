@@ -118,7 +118,7 @@ useMonacoDiff(diffEditorRef, {
           </dl>
 
           <p class="text-muted text-xs mb-2">
-            {{ $t('studio.conflict.description', gitProvider.name) }}
+            {{ $t('studio.conflict.description', { providerName: gitProvider.name }) }}
           </p>
         </div>
       </div>
