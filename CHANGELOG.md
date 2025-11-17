@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.0.0-alpha.2](https://github.com/nuxt-content/studio/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2025-11-17)
+
+### Features
+
+* **app:** add internationalization (i18n) support ([#70](https://github.com/nuxt-content/studio/issues/70)) ([5d2099c](https://github.com/nuxt-content/studio/commit/5d2099c5a95d865fb55c1e82a50721a8eeebdd25))
+* **dev:** enable studio in development mode without auth ([#94](https://github.com/nuxt-content/studio/issues/94)) ([953c364](https://github.com/nuxt-content/studio/commit/953c3647d63812581a724a8f4d60bcc58f395a5d))
+* **github:** allow defining custom redirect_url ([#52](https://github.com/nuxt-content/studio/issues/52)) ([1d249a3](https://github.com/nuxt-content/studio/commit/1d249a33bcf05ee44a387c7b89ffdf3d38087662))
+* **i18n:** diff toggle button in MDC alert ([#106](https://github.com/nuxt-content/studio/issues/106)) ([5ee50fe](https://github.com/nuxt-content/studio/commit/5ee50fe27862759d28dc15ebbb5d213043e316d9))
+* **i18n:** internationalize Monaco completion snippets ([#102](https://github.com/nuxt-content/studio/issues/102)) ([044cb07](https://github.com/nuxt-content/studio/commit/044cb0739b55c74b0c8357c434468df96a7ef2e0))
+* **oauth:** add `repository.private` option for public repos ([#49](https://github.com/nuxt-content/studio/issues/49)) ([5a40a43](https://github.com/nuxt-content/studio/commit/5a40a430694b6780fdc8fee9b7845fcae0e851d3))
+* **oauth:** gitlab support ([#72](https://github.com/nuxt-content/studio/issues/72)) ([43106e7](https://github.com/nuxt-content/studio/commit/43106e73bd3da6b3ea20c5318333850a7ffc99d0))
+* **review:** ability to resize review card editor ([#66](https://github.com/nuxt-content/studio/issues/66)) ([9161170](https://github.com/nuxt-content/studio/commit/9161170cf771228bb2d636352f9d7af2234fe26f))
+
+### Bug Fixes
+
+* **app:** only navigate to treeitems with routePath ([#74](https://github.com/nuxt-content/studio/issues/74)) ([ba7ce0b](https://github.com/nuxt-content/studio/commit/ba7ce0b797a33645ed6fb36fdae044057cfcac90))
+* **app:** use local element to render overlay elements ([#86](https://github.com/nuxt-content/studio/issues/86)) ([136d1cd](https://github.com/nuxt-content/studio/commit/136d1cd56fe69f3ad5e635165d0d552cf24bde1e))
+* **content:** handle item prefix as string ([#93](https://github.com/nuxt-content/studio/issues/93)) ([75f56ad](https://github.com/nuxt-content/studio/commit/75f56ad660ed758bc4f5a7087e8d6055169f47c1))
+* **dev:** load development host on dev mode ([#107](https://github.com/nuxt-content/studio/issues/107)) ([6dac3e3](https://github.com/nuxt-content/studio/commit/6dac3e39c49fa4c3db699bd2fbca8ed85e8a42f2))
+* **dev:** remove unnecessary utils import ([#73](https://github.com/nuxt-content/studio/issues/73)) ([93eb23b](https://github.com/nuxt-content/studio/commit/93eb23bbaa5efe2f1f4b8801862d33602ee84e1d))
+* **editor:** create portal for monaco overflow widgets ([#67](https://github.com/nuxt-content/studio/issues/67)) ([1a5e48b](https://github.com/nuxt-content/studio/commit/1a5e48bb78b6c53ca9a54e4c47a1e96a6e3a4814))
+* **editor:** prevent indefinite editor resizing ([#62](https://github.com/nuxt-content/studio/issues/62)) ([48b03b1](https://github.com/nuxt-content/studio/commit/48b03b1dec8f017accce459aeb6246ef8d1f43ac))
+* **editor:** watch for colorMode change on diff-editor ([#64](https://github.com/nuxt-content/studio/issues/64)) ([a2d0a13](https://github.com/nuxt-content/studio/commit/a2d0a13bee94cb495ca22d51029a30445947ce00))
+* **i18n:** add missing trad ([8351e61](https://github.com/nuxt-content/studio/commit/8351e61a739f71cf537314be754d2b37e1526c6a))
+* **module:** ignore leading slash on source prefix check ([554218a](https://github.com/nuxt-content/studio/commit/554218a528bc2d97ee1bdcb1f20d5406c99cf539))
+* **studio:** prevent mixing active files between media and content pages ([#63](https://github.com/nuxt-content/studio/issues/63)) ([b82cf7a](https://github.com/nuxt-content/studio/commit/b82cf7ad45be99d3a8c828b239557325219a68ea))
+* **styles:** improve dark mode text contrast ([#101](https://github.com/nuxt-content/studio/issues/101)) ([1f2e861](https://github.com/nuxt-content/studio/commit/1f2e861e5ef49ca30a8de866fc78bf971476bef2))
+* **success:** wording space ([79ed12b](https://github.com/nuxt-content/studio/commit/79ed12b6a7262c31392558b1bc7c056992d7a7ec))
+
+### Performance Improvements
+
+* **module:** do not call api on every visit for session validation ([#96](https://github.com/nuxt-content/studio/issues/96)) ([b9eb292](https://github.com/nuxt-content/studio/commit/b9eb292b8a534a1c97758d911ca8a8587e0d04cb))
+
 ## [1.0.0-alpha.1](https://github.com/nuxt-content/studio/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2025-11-05)
 
 ### Features
