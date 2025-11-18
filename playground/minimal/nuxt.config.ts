@@ -12,6 +12,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-08-26',
   studio: {
     repository: {
+      provider: 'github',
       owner: 'nuxt-content',
       repo: 'studio',
       branch: 'main',

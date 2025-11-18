@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     dev: false,
     route: '/admin',
     repository: {
+      provider: 'github',
       owner: 'nuxt-content',
       repo: 'studio',
       branch: 'main',
