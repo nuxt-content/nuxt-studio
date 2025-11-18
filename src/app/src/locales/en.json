@@ -118,26 +118,26 @@
         "duplicate": "duplicate"
       },
       "labels": {
-        "create-document": "New file",
-        "create-document-folder": "New folder",
-        "create-media-folder": "New media folder",
-        "rename-item": "Rename",
-        "delete-item": "Delete",
-        "upload-media": "Upload media",
-        "duplicate-item": "Duplicate",
-        "revert-item": "Revert changes",
-        "publish-branch": "Publish branch"
+        "createDocument": "New file",
+        "createDocumentFolder": "New folder",
+        "createMediaFolder": "New media folder",
+        "renameItem": "Rename",
+        "deleteItem": "Delete",
+        "uploadMedia": "Upload media",
+        "duplicateItem": "Duplicate",
+        "revertItem": "Revert changes",
+        "publishBranch": "Publish branch"
       },
       "tooltips": {
-        "revert-item": "Revert changes",
-        "create-document": "Create a new file",
-        "upload-media": "Upload media",
-        "create-document-folder": "Create a new folder",
-        "create-media-folder": "Create a new folder",
-        "rename-item": "Rename file",
-        "duplicate-item": "Duplicate file",
-        "delete-item": "Delete file",
-        "publish-branch": "Publish branch"
+        "createDocument": "Create a new file",
+        "createDocumentFolder": "Create a new folder",
+        "createMediaFolder": "Create a new folder",
+        "renameItem": "Rename file",
+        "deleteItem": "Delete file",
+        "uploadMedia": "Upload media",
+        "duplicateItem": "Duplicate file",
+        "revertItem": "Revert changes",
+        "publishBranch": "Publish branch"
       }
     },
     "items": {

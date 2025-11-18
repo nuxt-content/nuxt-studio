@@ -151,7 +151,7 @@ const tooltipText = computed(() => {
   if (validationErrors.value.length > 0) {
     return validationErrors.value[0]?.message
   }
-  return t(`studio.actions.labels.${props.actionId}`)
+  return t(action.value.label)
 })
 
 const handleClickOutside = (event: MouseEvent) => {
