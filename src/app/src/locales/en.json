@@ -58,7 +58,8 @@
       "reloadButton": "Reload"
     },
     "footer": {
-      "developer_view": "Developer view"
+      "developer_view": "Developer view",
+      "localFilesystem": "Using local filesystem"
     },
     "alert": {
       "mdcFormatting": "Formatting applied to align with MDC syntax standard."

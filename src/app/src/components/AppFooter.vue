@@ -63,7 +63,7 @@ function closeStudio() {
       v-if="devMode"
       class="ml-2 text-xs text-muted"
     >
-      Using local filesystem
+      {{ $t('studio.footer.localFilesystem') }}
     </span>
     <UDropdownMenu
       v-else

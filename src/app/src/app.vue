@@ -138,7 +138,7 @@ router.beforeEach((to, from) => {
             color="neutral"
             variant="outline"
             class="bg-transparent backdrop-blur-md px-2"
-            label="Edit this page"
+            :label="$t('studio.buttons.edit')"
             @click="editContentFile(activeDocuments[0].fsPath)"
           />
         </UFieldGroup>
