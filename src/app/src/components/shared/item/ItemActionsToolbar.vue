@@ -28,7 +28,7 @@ const getActionTooltip = (action: StudioAction<StudioItemActionId>, isPending: b
     const verb = action.id.split('-')[0]
     return t('studio.actions.confirmAction', { action: t(`studio.actions.verbs.${verb}`, verb) })
   }
-  return action.tooltip ? t(action.tooltip, action.tooltip) : t(`studio.actions.labels.${action.id}`, action.id)
+  return action.tooltip ? t(action.tooltip) : t(action.label)
 }
 
 const actions = computed(() => {

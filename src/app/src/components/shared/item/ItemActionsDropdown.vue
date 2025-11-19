@@ -38,10 +38,6 @@ watch(context.actionInProgress, (actionInProgress) => {
   }
 })
 
-const getActionLabel = (action: StudioAction<StudioItemActionId>) => {
-  return t(`studio.actions.labels.${action.id}`, action.label || action.id)
-}
-
 const getPendingActionLabel = (action: StudioAction<StudioItemActionId> | null) => {
   if (!action) return ''
   const verb = action.id.split('-')[0]
@@ -68,7 +64,7 @@ const actions = computed<DropdownMenuItem[]>(() => {
 
     return {
       ...action,
-      label: isPending ? getPendingActionLabel(pendingAction.value) : getActionLabel(action),
+      label: isPending ? getPendingActionLabel(pendingAction.value) : t(action.label),
       icon,
       color: isPending ? (isDeleteAction ? 'error' : 'secondary') : 'neutral',
       slot: isPending ? 'pending-action' : undefined,

@@ -118,26 +118,26 @@
         "duplicate": "dupliquer"
       },
       "labels": {
-        "create-document": "Nouveau fichier",
-        "create-document-folder": "Nouveau dossier",
-        "create-media-folder": "Nouveau dossier média",
-        "rename-item": "Renommer",
-        "delete-item": "Supprimer",
-        "upload-media": "Téléverser un média",
-        "duplicate-item": "Dupliquer",
-        "revert-item": "Annuler les modifications",
-        "publish-branch": "Publier la branche"
+        "createDocument": "Nouveau fichier",
+        "createDocumentFolder": "Nouveau dossier",
+        "createMediaFolder": "Nouveau dossier média",
+        "renameItem": "Renommer",
+        "deleteItem": "Supprimer",
+        "uploadMedia": "Téléverser un média",
+        "duplicateItem": "Dupliquer",
+        "revertItem": "Annuler les changements",
+        "publishBranch": "Publier la branche"
       },
       "tooltips": {
-        "revert-item": "Annuler les modifications",
-        "create-document": "Créer un nouveau fichier",
-        "upload-media": "Téléverser un média",
-        "create-document-folder": "Créer un nouveau dossier",
-        "create-media-folder": "Créer un nouveau dossier",
-        "rename-item": "Renommer le fichier",
-        "duplicate-item": "Dupliquer le fichier",
-        "delete-item": "Supprimer le fichier",
-        "publish-branch": "Publier la branche"
+        "createDocument": "Créer un nouveau fichier",
+        "createDocumentFolder": "Créer un nouveau dossier",
+        "createMediaFolder": "Créer un nouveau dossier média",
+        "renameItem": "Renommer le fichier",
+        "deleteItem": "Supprimer le fichier",
+        "uploadMedia": "Téléverser un média",
+        "duplicateItem": "Dupliquer le fichier",
+        "revertItem": "Annuler les modifications",
+        "publishBranch": "Publier la branche"
       }
     },
     "items": {

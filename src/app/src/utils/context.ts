@@ -6,59 +6,59 @@ export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDo
 export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction<StudioItemActionId>[] = [
   {
     id: StudioItemActionId.RevertItem,
-    label: 'studio.actions.labels.revert-item',
+    label: 'studio.actions.labels.revertItem',
     icon: 'i-lucide-undo',
-    tooltip: 'studio.actions.tooltips.revert-item',
+    tooltip: 'studio.actions.tooltips.revertItem',
   },
   {
     id: StudioItemActionId.CreateDocument,
-    label: 'studio.actions.labels.create-document',
+    label: 'studio.actions.labels.createDocument',
     icon: 'i-lucide-file-plus',
-    tooltip: 'studio.actions.tooltips.create-document',
+    tooltip: 'studio.actions.tooltips.createDocument',
   },
   {
     id: StudioItemActionId.UploadMedia,
-    label: 'studio.actions.labels.upload-media',
+    label: 'studio.actions.labels.uploadMedia',
     icon: 'i-lucide-upload',
-    tooltip: 'studio.actions.tooltips.upload-media',
+    tooltip: 'studio.actions.tooltips.uploadMedia',
   },
   {
     id: StudioItemActionId.CreateDocumentFolder,
-    label: 'studio.actions.labels.create-document-folder',
+    label: 'studio.actions.labels.createDocumentFolder',
     icon: 'i-lucide-folder-plus',
-    tooltip: 'studio.actions.tooltips.create-document-folder',
+    tooltip: 'studio.actions.tooltips.createDocumentFolder',
   },
   {
     id: StudioItemActionId.CreateMediaFolder,
-    label: 'studio.actions.labels.create-media-folder',
+    label: 'studio.actions.labels.createMediaFolder',
     icon: 'i-lucide-folder-plus',
-    tooltip: 'studio.actions.tooltips.create-media-folder',
+    tooltip: 'studio.actions.tooltips.createMediaFolder',
   },
   {
     id: StudioItemActionId.RenameItem,
-    label: 'studio.actions.labels.rename-item',
+    label: 'studio.actions.labels.renameItem',
     icon: 'i-lucide-pencil',
-    tooltip: 'studio.actions.tooltips.rename-item',
+    tooltip: 'studio.actions.tooltips.renameItem',
   },
   {
     id: StudioItemActionId.DuplicateItem,
-    label: 'studio.actions.labels.duplicate-item',
+    label: 'studio.actions.labels.duplicateItem',
     icon: 'i-lucide-copy',
-    tooltip: 'studio.actions.tooltips.duplicate-item',
+    tooltip: 'studio.actions.tooltips.duplicateItem',
   },
   {
     id: StudioItemActionId.DeleteItem,
-    label: 'studio.actions.labels.delete-item',
+    label: 'studio.actions.labels.deleteItem',
     icon: 'i-lucide-trash',
-    tooltip: 'studio.actions.tooltips.delete-item',
+    tooltip: 'studio.actions.tooltips.deleteItem',
   },
 ] as const
 
 export const STUDIO_BRANCH_ACTION_DEFINITIONS: StudioAction<StudioBranchActionId>[] = [{
   id: StudioBranchActionId.PublishBranch,
-  label: 'studio.actions.labels.publish-branch',
+  label: 'studio.actions.labels.publishBranch',
   icon: 'i-lucide-rocket',
-  tooltip: 'studio.actions.tooltips.publish-branch',
+  tooltip: 'studio.actions.tooltips.publishBranch',
 }] as const
 
 export function computeItemActions(itemActions: StudioAction<StudioItemActionId>[], item: TreeItem | null, feature: StudioFeature | null): StudioAction<StudioItemActionId>[] {
