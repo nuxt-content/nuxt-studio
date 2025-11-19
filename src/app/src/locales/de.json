@@ -46,7 +46,7 @@
     },
     "publishSuccess": {
       "title": "Änderungen veröffentlicht",
-      "summary": "{count} change published on {branch} of {repo} repository | {count} changes published on {branch} of {repo} repository",
+      "summary": "{count} Änderung veröffentlicht auf {branch} von {repo} Repository | {count} Änderungen veröffentlicht auf {branch} von {repo} Repository",
       "alertTitleWaiting": "Warte auf Deployment...",
       "alertTitleComplete": "Deployment abgeschlossen",
       "alertDescWaiting": "Die Webseite muss deployed werden, damit Änderungen im Studio sichtbar sind.",
