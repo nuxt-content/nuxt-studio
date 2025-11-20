@@ -6,6 +6,7 @@ export interface StudioConfig {
   syncEditorAndRoute: boolean
   showTechnicalMode: boolean
   editorMode: EditorMode
+  debug: boolean
 }
 
 export interface StudioLocation {
