@@ -180,7 +180,16 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
     return [key.trim(), String(value).trim()]
   }).filter(([key]) => Boolean(String(key).trim()))
 
-  if (node.type === 'paragraph' && node.content!.length > 0) {
+  if (node.type === 'paragraph') {
+    if (!node.content || node.content!.length === 0) {
+      return {
+        type: 'element',
+        tag: 'p',
+        children: [],
+        props: {},
+      }
+    }
+
     return createParagraphElement(node, propsArray, rest)
   }
 
@@ -257,14 +266,14 @@ export const createParagraphElement = (node: JSONContent, propsArray: string[][]
     return block.content.flatMap(tiptapNodeToMDC)
   }) as MDCElement[]
 
-  // const mergedChildren = mergeSiblingsWithSameTag(children.flat(), Object.values(markToTag))
+  const mergedChildren = mergeSiblingsWithSameTag(children.flat(), Object.values(markToTag))
 
   return {
     type: 'element',
     tag: 'p',
     ...rest,
     props: Object.fromEntries(propsArray),
-    children,
+    children: mergedChildren,
   }
 }
 
@@ -339,40 +348,40 @@ function createListItemElement(node: JSONContent) {
 }
 
 // Merge adjacent children with the same tag if separated by a single space text node
-// function mergeSiblingsWithSameTag(children: MarkdownNode[], allowedTags: string[]): MarkdownNode[] {
-//   if (!Array.isArray(children)) return children
-//   const merged: MarkdownNode[] = []
-//   let i = 0
-//   while (i < children.length) {
-//     const current = children[i]
-//     const next = children[i + 1]
-//     const afterNext = children[i + 2]
-//     // Check if current and afterNext are elements with the same tag, tag is in allowedTags, and next is a single space text node
-//     if (
-//       current && afterNext
-//       && current.type === 'element' && afterNext.type === 'element'
-//       && current.tag === afterNext.tag
-//       && allowedTags.includes(current.tag)
-//       && next && next.type === 'text' && next.value === ' '
-//     ) {
-//       // Merge their children with a space in between
-//       merged.push({
-//         ...current,
-//         children: [
-//           ...(current.children || []),
-//           { type: 'text', value: ' ' },
-//           ...(afterNext.children || []),
-//         ],
-//       })
-//       i += 3 // Skip next and afterNext
-//     }
-//     else {
-//       merged.push(current)
-//       i++
-//     }
-//   }
-//   return merged
-// }
+function mergeSiblingsWithSameTag(children: MDCNode[], allowedTags: string[]): MDCNode[] {
+  if (!Array.isArray(children)) return children
+  const merged: MDCNode[] = []
+  let i = 0
+  while (i < children.length) {
+    const current = children[i]
+    const next = children[i + 1]
+    const afterNext = children[i + 2]
+    // Check if current and afterNext are elements with the same tag, tag is in allowedTags, and next is a single space text node
+    if (
+      current && afterNext
+      && current.type === 'element' && afterNext.type === 'element'
+      && current.tag === afterNext.tag
+      && allowedTags.includes(current.tag)
+      && next && next.type === 'text' && next.value === ' '
+    ) {
+      // Merge their children with a space in between
+      merged.push({
+        ...current,
+        children: [
+          ...(current.children || []),
+          { type: 'text', value: ' ' },
+          ...(afterNext.children || []),
+        ],
+      })
+      i += 3 // Skip next and afterNext
+    }
+    else {
+      merged.push(current)
+      i++
+    }
+  }
+  return merged
+}
 
 function getNodeContent(node: JSONContent) {
   if (node.type === 'text') {

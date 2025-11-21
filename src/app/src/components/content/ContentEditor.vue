@@ -76,5 +76,4 @@ const document = computed<DatabasePageItem>({
       :read-only="readOnly"
     />
   </div>
-  <!-- <MDCEditorAST v-model="document" /> -->
 </template>

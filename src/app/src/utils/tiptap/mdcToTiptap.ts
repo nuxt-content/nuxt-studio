@@ -38,6 +38,7 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   'li': node => createTipTapNode(node as MDCElement, 'listItem', { children: [{ type: 'element', tag: 'p', children: (node as MDCElement).children }] }),
   'blockquote': node => createTipTapNode(node as MDCElement, 'blockquote'),
   'binding': node => createTipTapNode(node as MDCElement, 'binding', { children: [{ type: 'text', value: (node as MDCElement).props?.value || '' }] }),
+  'hr': node => createTipTapNode(node as MDCElement, 'horizontalRule'),
 }
 
 // export async function markdownToTiptap(markdown: string) {
@@ -66,7 +67,7 @@ const mdcToTiptapMap: MDCToTipTapMap = {
 //   }
 // }
 
-export function mdcToTiptap(body: MDCRoot, data: string) {
+export function mdcToTiptap(body: MDCRoot, _data: string) {
   // Remove invalid text node which added by table syntax
   body.children = (body.children || []).filter(child => child.type !== 'text')
 
@@ -100,6 +101,7 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, _parent?: MDCNode): JSO
   }
 
   /** Custom elements */
+  // return createTipTapNode(node as MDCElement, 'unknown', { attrs: { tag: type } })
 
   // If parent is a paragraph, then element should be inline
   // if ((parent as MDCElement)?.tag === 'p' || (node as MDCElement).props?.__mdc_inline === 'true') {
@@ -224,6 +226,7 @@ function createTipTapNode(node: MDCElement, type: string, extra: Record<string, 
   if (children || (node as MDCElement).children) {
     tiptapNode.content = (children as Array<MDCElement> || (node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node))
   }
+
   return tiptapNode
 }
 
@@ -235,13 +238,13 @@ function createTemplateNode(node: MDCElement) {
 
 function createPreNode(node: MDCElement) {
   // Remove trailing newline from last line
-  if (node.tag === 'pre') {
-    const lastLine = (node.children as Array<MDCElement>)?.[0]?.children?.at(-1)
-    const lastSpan = (lastLine as Array<MDCElement>)?.at(-1)
-    if (lastSpan) {
-      lastSpan.children[0].value = lastSpan.children[0].value.replace(/\n$/, '')
-    }
-  }
+  // if (node.tag === 'pre') {
+  //   const lastLine = (node.children as Array<MDCElement>)?.[0]?.children?.at(-1)
+  //   const lastSpan = (lastLine as Array<MDCElement>)?.at(-1)
+  //   if (lastSpan) {
+  //     lastSpan.children[0].value = lastSpan.children[0].value.replace(/\n$/, '')
+  //   }
+  // }
 
   const tiptapNode = createTipTapNode(node, 'codeBlock', {
     attrs: {

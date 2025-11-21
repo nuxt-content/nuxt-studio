@@ -1,17 +1,16 @@
 <script setup lang="ts">
-// import { upperFirst } from 'scule'
-// import type { EditorToolbarItem } from '@nuxt/ui/runtime/components/EditorToolbar.vue.d.ts'
-// import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
-// import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
-// import { mapEditorItems } from '@nuxt/ui/utils/editor'
+import { upperFirst } from 'scule'
+import type { EditorToolbarItem } from '@nuxt/ui/runtime/components/EditorToolbar.vue.d.ts'
+import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
+import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
+import { mapEditorItems } from '@nuxt/ui/utils/editor'
 // import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
 // import { ImageUpload } from '../../utils/editor/image-upload'
 import { ref, watch, computed } from 'vue'
-// import type { Editor } from '@tiptap/core'
+import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { PropType } from 'vue'
 import type { MDCRoot } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
-import type { JSONContent } from '@tiptap/vue-3'
 import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
@@ -94,9 +93,13 @@ watch(tiptapJSON, async (json) => {
 
   document.value = updatedDocument
 
+  // Debug: Capture current state
   if (debug.value) {
     currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
-    currentMDC.value = mdc
+    currentMDC.value = {
+      body: updatedDocument.body as unknown as MDCRoot,
+      data: omit(updatedDocument, reservedKeys) as Record<string, unknown>,
+    }
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string
   }
 
@@ -112,232 +115,222 @@ watch(tiptapJSON, async (json) => {
 //   },
 // }
 
-// const toolbarItems = [[{
-//   kind: 'undo',
-//   icon: 'i-lucide-undo',
-// }, {
-//   kind: 'redo',
-//   icon: 'i-lucide-redo',
-// }], [{
-//   kind: 'dropdown',
-//   icon: 'i-lucide-heading',
-//   ui: {
-//     label: 'text-xs',
-//   },
-//   items: [{
-//     type: 'label',
-//     label: 'Headings',
-//   }, {
-//     kind: 'heading',
-//     level: 1,
-//     icon: 'i-lucide-heading',
-//     label: 'Heading 1',
-//   }, {
-//     kind: 'heading',
-//     level: 2,
-//     icon: 'i-lucide-heading-2',
-//     label: 'Heading 2',
-//   }, {
-//     kind: 'heading',
-//     level: 3,
-//     icon: 'i-lucide-heading-3',
-//     label: 'Heading 3',
-//   }, {
-//     kind: 'heading',
-//     level: 4,
-//     icon: 'i-lucide-heading-4',
-//     label: 'Heading 4',
-//   }],
-// }, {
-//   kind: 'dropdown',
-//   icon: 'i-lucide-list',
-//   items: [{
-//     kind: 'bulletList',
-//     icon: 'i-lucide-list',
-//     label: 'Bullet List',
-//   }, {
-//     kind: 'orderedList',
-//     icon: 'i-lucide-list-ordered',
-//     label: 'Ordered List',
-//   }],
-// }, {
-//   kind: 'blockquote',
-//   icon: 'i-lucide-text-quote',
-// }, {
-//   kind: 'codeBlock',
-//   icon: 'i-lucide-square-code',
-// }, {
-//   kind: 'horizontalRule',
-//   icon: 'i-lucide-separator-horizontal',
-// }, {
-//   kind: 'paragraph',
-//   icon: 'i-lucide-type',
-// }], [{
-//   kind: 'mark',
-//   mark: 'bold',
-//   icon: 'i-lucide-bold',
-// }, {
-//   kind: 'mark',
-//   mark: 'italic',
-//   icon: 'i-lucide-italic',
-// }, {
-//   kind: 'mark',
-//   mark: 'underline',
-//   icon: 'i-lucide-underline',
-// }, {
-//   kind: 'mark',
-//   mark: 'strike',
-//   icon: 'i-lucide-strikethrough',
-// }, {
-//   kind: 'mark',
-//   mark: 'code',
-//   icon: 'i-lucide-code',
-// }, {
-//   kind: 'slot',
-//   slot: 'link' as const,
+const toolbarItems = [[{
+  kind: 'undo',
+  icon: 'i-lucide-undo',
+}, {
+  kind: 'redo',
+  icon: 'i-lucide-redo',
+}], [{
+  kind: 'dropdown',
+  icon: 'i-lucide-heading',
+  ui: {
+    label: 'text-xs',
+  },
+  items: [{
+    type: 'label',
+    label: 'Headings',
+  }, {
+    kind: 'heading',
+    level: 1,
+    icon: 'i-lucide-heading',
+    label: 'Heading 1',
+  }, {
+    kind: 'heading',
+    level: 2,
+    icon: 'i-lucide-heading-2',
+    label: 'Heading 2',
+  }, {
+    kind: 'heading',
+    level: 3,
+    icon: 'i-lucide-heading-3',
+    label: 'Heading 3',
+  }, {
+    kind: 'heading',
+    level: 4,
+    icon: 'i-lucide-heading-4',
+    label: 'Heading 4',
+  }],
+}, {
+  kind: 'dropdown',
+  icon: 'i-lucide-list',
+  items: [{
+    kind: 'bulletList',
+    icon: 'i-lucide-list',
+    label: 'Bullet List',
+  }, {
+    kind: 'orderedList',
+    icon: 'i-lucide-list-ordered',
+    label: 'Ordered List',
+  }],
+}, {
+  kind: 'blockquote',
+  icon: 'i-lucide-text-quote',
+}, {
+  kind: 'codeBlock',
+  icon: 'i-lucide-square-code',
+}, {
+  kind: 'paragraph',
+  icon: 'i-lucide-type',
+}], [{
+  kind: 'mark',
+  mark: 'bold',
+  icon: 'i-lucide-bold',
+}, {
+  kind: 'mark',
+  mark: 'italic',
+  icon: 'i-lucide-italic',
+}, {
+  kind: 'mark',
+  mark: 'strike',
+  icon: 'i-lucide-strikethrough',
+}, {
+  kind: 'mark',
+  mark: 'code',
+  icon: 'i-lucide-code',
+}, {
+  kind: 'slot',
+  slot: 'link' as const,
+}]] satisfies EditorToolbarItem[][]
+
+const suggestionItems: EditorSuggestionMenuItem[][] = [[{
+  type: 'label',
+  label: 'Style',
+}, {
+  kind: 'paragraph',
+  label: 'Paragraph',
+  icon: 'i-lucide-type',
+}, {
+  kind: 'heading',
+  level: 1,
+  label: 'Heading 1',
+  icon: 'i-lucide-heading-1',
+}, {
+  kind: 'heading',
+  level: 2,
+  label: 'Heading 2',
+  icon: 'i-lucide-heading-2',
+}, {
+  kind: 'heading',
+  level: 3,
+  label: 'Heading 3',
+  icon: 'i-lucide-heading-3',
+}, {
+  kind: 'bulletList',
+  label: 'Bullet List',
+  icon: 'i-lucide-list',
+}, {
+  kind: 'orderedList',
+  label: 'Numbered List',
+  icon: 'i-lucide-list-ordered',
+}, {
+  kind: 'blockquote',
+  label: 'Blockquote',
+  icon: 'i-lucide-text-quote',
+}, {
+  kind: 'codeBlock',
+  label: 'Code Block',
+  icon: 'i-lucide-square-code',
+}], [{
+  type: 'label',
+  label: 'Insert',
+}, {
+//   kind: 'emoji',
+//   label: 'Emoji',
+//   icon: 'i-lucide-smile-plus',
 // }, {
 //   kind: 'image',
+//   label: 'Image',
 //   icon: 'i-lucide-image',
-// }]] satisfies EditorToolbarItem[][]
-
-// const suggestionItems: EditorSuggestionMenuItem[][] = [[{
-//   type: 'label',
-//   label: 'Style',
 // }, {
-//   kind: 'paragraph',
-//   label: 'Paragraph',
-//   icon: 'i-lucide-type',
-// }, {
-//   kind: 'heading',
-//   level: 1,
-//   label: 'Heading 1',
-//   icon: 'i-lucide-heading-1',
-// }, {
-//   kind: 'heading',
-//   level: 2,
-//   label: 'Heading 2',
-//   icon: 'i-lucide-heading-2',
-// }, {
-//   kind: 'heading',
-//   level: 3,
-//   label: 'Heading 3',
-//   icon: 'i-lucide-heading-3',
-// }, {
-//   kind: 'bulletList',
-//   label: 'Bullet List',
-//   icon: 'i-lucide-list',
-// }, {
-//   kind: 'orderedList',
-//   label: 'Numbered List',
-//   icon: 'i-lucide-list-ordered',
-// }, {
-//   kind: 'blockquote',
-//   label: 'Blockquote',
-//   icon: 'i-lucide-text-quote',
-// }, {
-//   kind: 'codeBlock',
-//   label: 'Code Block',
-//   icon: 'i-lucide-square-code',
-// }], [{
-//   type: 'label',
-//   label: 'Insert',
-// }, {
-// //   kind: 'emoji',
-// //   label: 'Emoji',
-// //   icon: 'i-lucide-smile-plus',
-// // }, {
-// //   kind: 'image',
-// //   label: 'Image',
-// //   icon: 'i-lucide-image',
-// // }, {
-//   kind: 'horizontalRule',
-//   label: 'Horizontal Rule',
-//   icon: 'i-lucide-separator-horizontal',
-// }]]
+  kind: 'horizontalRule',
+  label: 'Horizontal Rule',
+  icon: 'i-lucide-separator-horizontal',
+}]]
 
 // const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(emoji => !emoji.name.startsWith('regional_indicator_'))
 
-// const selectedNode = ref<any>(null)
+const selectedNode = ref<JSONContent | null>(null)
 
-// const handleItems = (editor: Editor): DropdownMenuItem[][] => {
-//   if (!selectedNode.value) {
-//     return []
-//   }
+const handleItems = (editor: Editor): DropdownMenuItem[][] => {
+  if (!selectedNode.value) {
+    return []
+  }
 
-//   return mapEditorItems(editor, [[
-//     {
-//       type: 'label',
-//       label: upperFirst(selectedNode.value.node.type),
-//     },
-//     {
-//       label: 'Turn into',
-//       icon: 'i-lucide-repeat-2',
-//       children: [
-//         { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
-//         { kind: 'heading', level: 1, label: 'Heading 1', icon: 'i-lucide-heading-1' },
-//         { kind: 'heading', level: 2, label: 'Heading 2', icon: 'i-lucide-heading-2' },
-//         { kind: 'heading', level: 3, label: 'Heading 3', icon: 'i-lucide-heading-3' },
-//         { kind: 'heading', level: 4, label: 'Heading 4', icon: 'i-lucide-heading-4' },
-//         { kind: 'bulletList', label: 'Bullet List', icon: 'i-lucide-list' },
-//         { kind: 'orderedList', label: 'Ordered List', icon: 'i-lucide-list-ordered' },
-//         { kind: 'blockquote', label: 'Blockquote', icon: 'i-lucide-text-quote' },
-//         { kind: 'codeBlock', label: 'Code Block', icon: 'i-lucide-square-code' },
-//       ],
-//     },
-//     {
-//       kind: 'clearFormatting',
-//       pos: selectedNode.value?.pos,
-//       label: 'Reset formatting',
-//       icon: 'i-lucide-rotate-ccw',
-//     },
-//   ], [
-//     {
-//       kind: 'duplicate',
-//       pos: selectedNode.value?.pos,
-//       label: 'Duplicate',
-//       icon: 'i-lucide-copy',
-//     },
-//     {
-//       label: 'Copy to clipboard',
-//       icon: 'i-lucide-clipboard',
-//       onSelect: async () => {
-//         if (!selectedNode.value) return
+  return mapEditorItems(editor, [[
+    {
+      type: 'label',
+      label: upperFirst(selectedNode.value.node.type),
+    },
+    {
+      label: 'Turn into',
+      icon: 'i-lucide-repeat-2',
+      children: [
+        { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
+        { kind: 'heading', level: 1, label: 'Heading 1', icon: 'i-lucide-heading-1' },
+        { kind: 'heading', level: 2, label: 'Heading 2', icon: 'i-lucide-heading-2' },
+        { kind: 'heading', level: 3, label: 'Heading 3', icon: 'i-lucide-heading-3' },
+        { kind: 'heading', level: 4, label: 'Heading 4', icon: 'i-lucide-heading-4' },
+        { kind: 'bulletList', label: 'Bullet List', icon: 'i-lucide-list' },
+        { kind: 'orderedList', label: 'Ordered List', icon: 'i-lucide-list-ordered' },
+        { kind: 'blockquote', label: 'Blockquote', icon: 'i-lucide-text-quote' },
+        { kind: 'codeBlock', label: 'Code Block', icon: 'i-lucide-square-code' },
+      ],
+    },
+    {
+      kind: 'clearFormatting',
+      pos: selectedNode.value?.pos,
+      label: 'Reset formatting',
+      icon: 'i-lucide-rotate-ccw',
+    },
+  ], [
+    {
+      kind: 'duplicate',
+      pos: selectedNode.value?.pos,
+      label: 'Duplicate',
+      icon: 'i-lucide-copy',
+    },
+    {
+      label: 'Copy to clipboard',
+      icon: 'i-lucide-clipboard',
+      onSelect: async () => {
+        if (!selectedNode.value) return
 
-//         const pos = selectedNode.value.pos
-//         const node = editor.state.doc.nodeAt(pos)
-//         if (node) {
-//           await navigator.clipboard.writeText(node.textContent)
-//         }
-//       },
-//     },
-//   ], [
-//     {
-//       kind: 'moveUp',
-//       pos: selectedNode.value?.pos,
-//       label: 'Move up',
-//       icon: 'i-lucide-arrow-up',
-//     },
-//     {
-//       kind: 'moveDown',
-//       pos: selectedNode.value?.pos,
-//       label: 'Move down',
-//       icon: 'i-lucide-arrow-down',
-//     },
-//   ], [
-//     {
-//       kind: 'delete',
-//       pos: selectedNode.value?.pos,
-//       label: 'Delete',
-//       icon: 'i-lucide-trash',
-//     },
-//   ]],
-//   // , customHandlers
-//   ) as DropdownMenuItem[][]
-// }
+        const pos = selectedNode.value.pos
+        const node = editor.state.doc.nodeAt(pos)
+        if (node) {
+          await navigator.clipboard.writeText(node.textContent)
+        }
+      },
+    },
+  ], [
+    {
+      kind: 'moveUp',
+      pos: selectedNode.value?.pos,
+      label: 'Move up',
+      icon: 'i-lucide-arrow-up',
+    },
+    {
+      kind: 'moveDown',
+      pos: selectedNode.value?.pos,
+      label: 'Move down',
+      icon: 'i-lucide-arrow-down',
+    },
+  ], [
+    {
+      kind: 'delete',
+      pos: selectedNode.value?.pos,
+      label: 'Delete',
+      icon: 'i-lucide-trash',
+    },
+  ]],
+  // , customHandlers
+  ) as DropdownMenuItem[][]
+}
 </script>
 
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col my-4">
     <!-- Debug Panel -->
     <ContentEditorTipTapDebug
       v-if="preferences.debug"
@@ -348,27 +341,17 @@ watch(tiptapJSON, async (json) => {
       :current-mdc="currentMDC"
       :current-content="currentContent"
     />
-
-    <!-- v-slot="{ editor }" -->
     <UEditor
+      v-slot="{ editor }"
       v-model="tiptapJSON"
-      :extensions="[
-        // Emoji,
-        // ImageUpload,
-      ]"
       content-type="json"
       placeholder="Write, type '/' for commands..."
-      class="min-h-0 flex-1"
-      :ui="{ content: 'max-w-2xl mx-auto' }"
     >
-      <!-- <UEditorToolbar
+      <UEditorToolbar
         :editor="editor"
         :items="toolbarItems"
         layout="bubble"
-        :should-show="({ editor, state, view }) => {
-          if (editor.isActive('imageUpload') || editor.isActive('image')) {
-            return false
-          }
+        :should-show="({ state, view }) => {
           if (!view.hasFocus()) {
             return false
           }
@@ -380,11 +363,11 @@ watch(tiptapJSON, async (json) => {
         <template #link>
           <EditorLinkPopover :editor="editor" />
         </template>
-      </UEditorToolbar> -->
+      </UEditorToolbar>
 
       <!-- <UEditorToolbar /> for image -->
 
-      <!-- <UEditorDragHandle
+      <UEditorDragHandle
         v-slot="{ ui }"
         :editor="editor"
         @node-change="selectedNode = $event"
@@ -407,12 +390,12 @@ watch(tiptapJSON, async (json) => {
             :class="ui.handle()"
           />
         </UDropdownMenu>
-      </UEditorDragHandle> -->
+      </UEditorDragHandle>
 
-      <!-- <UEditorSuggestionMenu
+      <UEditorSuggestionMenu
         :editor="editor"
         :items="suggestionItems"
-      /> -->
+      />
       <!-- :items="mentionItems" -->
       <!-- <UEditorEmojiMenu
         :editor="editor"

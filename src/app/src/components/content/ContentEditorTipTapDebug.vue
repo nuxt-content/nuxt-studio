@@ -41,31 +41,6 @@ const formattedCurrentMDC = computed(() => props.currentMdc ? JSON.stringify(pro
 <template>
   <div class="border-b border-default bg-elevated p-4 overflow-auto max-h-[600px]">
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-      <!-- Initial Document -->
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <UBadge
-                color="neutral"
-                variant="outline"
-                size="xs"
-              >
-                Initial
-              </UBadge>
-              <h3 class="text-sm font-semibold text-highlighted">
-                MDC JSON
-              </h3>
-            </div>
-            <CopyButton :content="formattedInitialMDC" />
-          </div>
-        </template>
-
-        <pre
-          class="text-xs text-muted overflow-auto max-h-[250px] p-3 bg-default rounded-md border border-default"
-        >{{ formattedInitialMDC || 'No data' }}</pre>
-      </UCard>
-
       <!-- Initial Markdown Content -->
       <UCard>
         <template #header>
@@ -89,6 +64,31 @@ const formattedCurrentMDC = computed(() => props.currentMdc ? JSON.stringify(pro
         <pre
           class="text-xs text-muted overflow-auto max-h-[250px] p-3 bg-default rounded-md border border-default whitespace-pre-wrap"
         >{{ formattedInitialContent }}</pre>
+      </UCard>
+
+      <!-- Initial Document -->
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <UBadge
+                color="neutral"
+                variant="outline"
+                size="xs"
+              >
+                Initial
+              </UBadge>
+              <h3 class="text-sm font-semibold text-highlighted">
+                MDC JSON
+              </h3>
+            </div>
+            <CopyButton :content="formattedInitialMDC" />
+          </div>
+        </template>
+
+        <pre
+          class="text-xs text-muted overflow-auto max-h-[250px] p-3 bg-default rounded-md border border-default"
+        >{{ formattedInitialMDC || 'No data' }}</pre>
       </UCard>
 
       <!-- Initial TipTap JSON -->
