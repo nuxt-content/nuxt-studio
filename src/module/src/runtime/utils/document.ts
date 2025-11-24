@@ -302,9 +302,8 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
 
   // Remove nofollow from links
   visit(document.body, (node: unknown) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: unknown) => {
-    if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
-      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-    }
+    // TODO: handle rel custom properties
+    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
   })
 
   let body = document.body as never as MarkdownRoot
@@ -364,9 +363,8 @@ export async function generateContentFromMarkdownDocument(document: DatabasePage
 
   // Remove nofollow from links
   visit(body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
-    if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
-      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-    }
+    // TODO: handle rel custom properties
+    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
   })
 
   const markdown = await stringifyMarkdown(body, removeReservedKeysFromDocument(document), {

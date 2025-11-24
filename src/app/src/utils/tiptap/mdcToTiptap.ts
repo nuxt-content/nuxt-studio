@@ -11,6 +11,7 @@ const tagToMark: Record<string, string> = {
   em: 'italic',
   del: 'strike',
   code: 'code',
+  a: 'link',
 }
 
 const mdcToTiptapMap: MDCToTipTapMap = {
@@ -26,7 +27,6 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   'pre': node => createPreNode(node as MDCElement),
   'p': node => createParagraphNode(node as MDCElement),
   'span': node => createTipTapNode(node as MDCElement, 'span-style', { attrs: { tag: 'span' } }),
-  'a': node => createLinkNode(node as MDCElement),
   'h1': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
   'h2': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
   'h3': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
@@ -146,7 +146,19 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, _parent?: MDCNode): JSO
 
 /* Create nodes methods */
 export function createMark(node: MDCNode, mark: string, accumulatedMarks: { type: string, attrs?: object }[] = []): JSONContent[] {
-  const marks = [...accumulatedMarks, { type: mark, attrs: (node as MDCElement).props }]
+  const attrs = { ...(node as MDCElement).props }
+
+  // Link attributes
+  if (mark === 'link' && attrs.href) {
+    const href = String(attrs.href)
+    const isExternal = href.startsWith('http://') || href.startsWith('https://')
+    if (isExternal) {
+      attrs.target = attrs.target || '_blank'
+      attrs.rel = attrs.rel || 'noopener noreferrer nofollow'
+    }
+  }
+
+  const marks = [...accumulatedMarks, { type: mark, attrs }]
 
   function getNodeContent(node: MDCNode) {
     if (node.type === 'text') {
@@ -272,11 +284,6 @@ function createParagraphNode(node: MDCElement) {
     return node.children?.map(child => mdcToTiptapMap.img(child))
   }
 
-  // If children is a link that only contains an image, do not create a paragraph
-  if (node.children?.length === 1 && (node.children?.[0] as MDCElement).tag === 'a' && ((node.children?.[0] as MDCElement).children?.[0] as MDCElement).tag === 'img') {
-    return node.children?.map(child => mdcToTiptapMap.a(child))
-  }
-
   node.children = node.children?.filter(child => !(child.type === 'text' && !child.value)) || []
 
   // Flatten children if any are arrays (e.g., from createMark)
@@ -289,10 +296,4 @@ function createParagraphNode(node: MDCElement) {
     content,
     attrs: node.props,
   }
-}
-
-function createLinkNode(node: MDCElement) {
-  const containsImage = node.children?.some(child => (child as MDCElement).tag === 'img')
-  const type = containsImage ? 'link-block-element' : 'link-element'
-  return createTipTapNode(node, type, { attrs: { tag: 'a' } })
 }

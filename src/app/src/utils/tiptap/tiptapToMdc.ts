@@ -27,8 +27,9 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'element': createElement,
   'inline-element': createElement,
   'span-style': createElement,
-  'link-element': createElement,
-  'link-block-element': createElement,
+  'link': createLinkElement,
+  // 'link-element': createElement,
+  // 'link-block-element': createElement,
   'text': createTextElement,
   'comment': (node: JSONContent) => ({ type: 'comment', value: node.attrs!.text }),
   'listItem': createListItemElement,
@@ -101,7 +102,6 @@ export function tiptapNodeToMDC(node: JSONContent): MDCRoot | MDCNode | MDCNode[
     return tiptapToMDCMap[node.type!](node)
   }
 
-  // fallback to unknown node
   // TODO: all unknown nodes should be handled
 
   return {
@@ -311,6 +311,17 @@ function createImageElement(node: JSONContent): MDCElement {
   else {
     return createElement(node, 'img', { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
   }
+}
+
+function createLinkElement(node: JSONContent): MDCElement {
+  const { href, target, rel, class: className, ...otherAttrs } = node.attrs || {}
+  const linkProps: Record<string, string> = {}
+  if (href) linkProps.href = href
+  if (target) linkProps.target = target
+  if (rel) linkProps.rel = rel
+  if (className) linkProps.class = className
+  Object.assign(linkProps, otherAttrs)
+  return { type: 'element', tag: 'a', props: linkProps, children: node.children || [] }
 }
 
 function createTextElement(node: JSONContent): MDCText | MDCText[] {
