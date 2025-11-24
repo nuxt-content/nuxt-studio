@@ -106,7 +106,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
   const host: StudioHost = {
     meta: {
       dev: false,
-      components: () => meta.componentsMeta.value,
+      components: meta.components.value,
       defaultLocale: useRuntimeConfig().public.studio.i18n?.defaultLocale || 'en',
     },
     on: {

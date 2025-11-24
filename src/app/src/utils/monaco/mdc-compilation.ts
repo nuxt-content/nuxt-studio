@@ -13,11 +13,11 @@ const projectMedias = ref<TreeItem[]>([])
 
 export const setupSuggestion = (
   monaco: typeof import('modern-monaco/editor-core'),
-  componentsMeta: ComponentMeta[],
+  components: ComponentMeta[],
   treeMedia: TreeItem[],
   t: TFunction,
 ) => {
-  projectComponents.value = componentsMeta
+  projectComponents.value = components
   projectMedias.value = treeMedia
 
   // @ts-expect-error Return prevent duplicate registration
@@ -304,8 +304,8 @@ function getGlobalCompletionItems(monaco: Monaco, range: IRange, trigger = '/', 
   ]
 }
 
-function getProjectCompletionItems(monaco: Monaco, range: IRange, trigger = '/', componentsMeta: ComponentMeta[], t: TFunction): CompletionItem[] {
-  const componentsItems: CompletionItem[] = componentsMeta.map((comp) => {
+function getProjectCompletionItems(monaco: Monaco, range: IRange, trigger = '/', components: ComponentMeta[], t: TFunction): CompletionItem[] {
+  const componentsItems: CompletionItem[] = components.map((comp) => {
     let tabIndex = 1
     const isBlock = comp.meta.slots?.length
 

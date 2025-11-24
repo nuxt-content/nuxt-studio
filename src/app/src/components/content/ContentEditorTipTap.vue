@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { upperFirst } from 'scule'
-import type { EditorToolbarItem } from '@nuxt/ui/runtime/components/EditorToolbar.vue.d.ts'
-import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 // import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
-import type { EditorHandlers } from '@nuxt/ui'
 import { ref, watch, computed } from 'vue'
 import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { PropType } from 'vue'
@@ -18,6 +15,9 @@ import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
 import type { DraftItem, DatabasePageItem } from '../../types'
 import { omit } from '../../utils/object'
+import { Element } from '../../utils/tiptap/extensions/element'
+import { Slot } from '../../utils/tiptap/extensions/slot'
+import { standardToolbarItems, standardSuggestionItems, standardElements, headingItems, listItems, codeBlockItem } from '../../utils/tiptap/editor'
 
 const props = defineProps({
   draftItem: {
@@ -103,149 +103,42 @@ watch(tiptapJSON, async (json) => {
   // const generatedContent = await host.document.generate.contentFromDocument(updatedDocument
 })
 
-const customHandlers: EditorHandlers = {
+const componentItems = computed(() => {
+  return host.meta.components.map(component => ({
+    kind: component.name,
+    type: undefined as never,
+    label: component.name,
+    icon: standardElements[component.name].icon || 'i-lucide-box',
+  }))
+})
+
+const customHandlers = computed(() => ({
   image: {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'image-picker' }),
     isActive: (editor: Editor) => editor.isActive('image-picker'),
     isDisabled: undefined,
   },
-} as EditorHandlers
+  ...componentItems.value.map(item => ({
+    [item.kind]: {
+      canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
+      execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
+      isActive: (editor: Editor) => editor.isActive(item.kind),
+      isDisabled: undefined,
+    },
+  })),
+}))
 
-const toolbarItems = [[{
-  kind: 'undo',
-  icon: 'i-lucide-undo',
-}, {
-  kind: 'redo',
-  icon: 'i-lucide-redo',
-}], [{
-  kind: 'dropdown',
-  icon: 'i-lucide-heading',
-  ui: {
-    label: 'text-xs',
-  },
-  items: [{
-    type: 'label',
-    label: 'Headings',
-  }, {
-    kind: 'heading',
-    level: 1,
-    icon: 'i-lucide-heading',
-    label: 'Heading 1',
-  }, {
-    kind: 'heading',
-    level: 2,
-    icon: 'i-lucide-heading-2',
-    label: 'Heading 2',
-  }, {
-    kind: 'heading',
-    level: 3,
-    icon: 'i-lucide-heading-3',
-    label: 'Heading 3',
-  }, {
-    kind: 'heading',
-    level: 4,
-    icon: 'i-lucide-heading-4',
-    label: 'Heading 4',
-  }],
-}, {
-  kind: 'dropdown',
-  icon: 'i-lucide-list',
-  items: [{
-    kind: 'bulletList',
-    icon: 'i-lucide-list',
-    label: 'Bullet List',
-  }, {
-    kind: 'orderedList',
-    icon: 'i-lucide-list-ordered',
-    label: 'Ordered List',
-  }],
-}, {
-  kind: 'blockquote',
-  icon: 'i-lucide-text-quote',
-}, {
-  kind: 'codeBlock',
-  icon: 'i-lucide-square-code',
-}, {
-  kind: 'paragraph',
-  icon: 'i-lucide-type',
-}], [{
-  kind: 'mark',
-  mark: 'bold',
-  icon: 'i-lucide-bold',
-}, {
-  kind: 'mark',
-  mark: 'italic',
-  icon: 'i-lucide-italic',
-}, {
-  kind: 'mark',
-  mark: 'strike',
-  icon: 'i-lucide-strikethrough',
-}, {
-  kind: 'mark',
-  mark: 'code',
-  icon: 'i-lucide-code',
-}, {
-  kind: 'slot',
-  slot: 'link' as const,
-}]] satisfies EditorToolbarItem[][]
-
-const suggestionItems: EditorSuggestionMenuItem[][] = [[{
-  type: 'label',
-  label: 'Style',
-}, {
-  kind: 'paragraph',
-  label: 'Paragraph',
-  icon: 'i-lucide-type',
-}, {
-  kind: 'heading',
-  level: 1,
-  label: 'Heading 1',
-  icon: 'i-lucide-heading-1',
-}, {
-  kind: 'heading',
-  level: 2,
-  label: 'Heading 2',
-  icon: 'i-lucide-heading-2',
-}, {
-  kind: 'heading',
-  level: 3,
-  label: 'Heading 3',
-  icon: 'i-lucide-heading-3',
-}, {
-  kind: 'bulletList',
-  label: 'Bullet List',
-  icon: 'i-lucide-list',
-}, {
-  kind: 'orderedList',
-  label: 'Numbered List',
-  icon: 'i-lucide-list-ordered',
-}, {
-  kind: 'blockquote',
-  label: 'Blockquote',
-  icon: 'i-lucide-text-quote',
-}, {
-  kind: 'codeBlock',
-  label: 'Code Block',
-  icon: 'i-lucide-square-code',
-}], [{
-  type: 'label',
-  label: 'Insert',
-}, {
-//   kind: 'emoji',
-//   label: 'Emoji',
-//   icon: 'i-lucide-smile-plus',
-// }, {
-  kind: 'image',
-  label: 'Image',
-  icon: 'i-lucide-image',
-}, {
-  kind: 'horizontalRule',
-  label: 'Horizontal Rule',
-  icon: 'i-lucide-separator-horizontal',
-}]]
-
-// const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(emoji => !emoji.name.startsWith('regional_indicator_'))
+const suggestionItems = computed(() => [
+  ...standardSuggestionItems,
+  [
+    {
+      type: 'label',
+      label: 'Components',
+    },
+    ...componentItems.value,
+  ],
+])
 
 const selectedNode = ref<JSONContent | null>(null)
 
@@ -254,74 +147,74 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
     return []
   }
 
-  return mapEditorItems(editor, [[
-    {
-      type: 'label',
-      label: upperFirst(selectedNode.value.node.type),
-    },
-    {
-      label: 'Turn into',
-      icon: 'i-lucide-repeat-2',
-      children: [
-        { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
-        { kind: 'heading', level: 1, label: 'Heading 1', icon: 'i-lucide-heading-1' },
-        { kind: 'heading', level: 2, label: 'Heading 2', icon: 'i-lucide-heading-2' },
-        { kind: 'heading', level: 3, label: 'Heading 3', icon: 'i-lucide-heading-3' },
-        { kind: 'heading', level: 4, label: 'Heading 4', icon: 'i-lucide-heading-4' },
-        { kind: 'bulletList', label: 'Bullet List', icon: 'i-lucide-list' },
-        { kind: 'orderedList', label: 'Ordered List', icon: 'i-lucide-list-ordered' },
-        { kind: 'blockquote', label: 'Blockquote', icon: 'i-lucide-text-quote' },
-        { kind: 'codeBlock', label: 'Code Block', icon: 'i-lucide-square-code' },
-      ],
-    },
-    {
-      kind: 'clearFormatting',
-      pos: selectedNode.value?.pos,
-      label: 'Reset formatting',
-      icon: 'i-lucide-rotate-ccw',
-    },
-  ], [
-    {
-      kind: 'duplicate',
-      pos: selectedNode.value?.pos,
-      label: 'Duplicate',
-      icon: 'i-lucide-copy',
-    },
-    {
-      label: 'Copy to clipboard',
-      icon: 'i-lucide-clipboard',
-      onSelect: async () => {
-        if (!selectedNode.value) return
-
-        const pos = selectedNode.value.pos
-        const node = editor.state.doc.nodeAt(pos)
-        if (node) {
-          await navigator.clipboard.writeText(node.textContent)
-        }
+  return mapEditorItems(editor, [
+    [
+      {
+        type: 'label',
+        label: upperFirst(selectedNode.value.node.type),
       },
-    },
-  ], [
-    {
-      kind: 'moveUp',
-      pos: selectedNode.value?.pos,
-      label: 'Move up',
-      icon: 'i-lucide-arrow-up',
-    },
-    {
-      kind: 'moveDown',
-      pos: selectedNode.value?.pos,
-      label: 'Move down',
-      icon: 'i-lucide-arrow-down',
-    },
-  ], [
-    {
-      kind: 'delete',
-      pos: selectedNode.value?.pos,
-      label: 'Delete',
-      icon: 'i-lucide-trash',
-    },
-  ]],
-  customHandlers,
+      {
+        label: 'Turn into',
+        icon: 'i-lucide-repeat-2',
+        children: [
+          { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
+          ...headingItems,
+          ...listItems,
+          ...codeBlockItem,
+        ],
+      },
+      {
+        kind: 'clearFormatting',
+        pos: selectedNode.value?.pos,
+        label: 'Reset formatting',
+        icon: 'i-lucide-rotate-ccw',
+      },
+    ],
+    [
+      {
+        kind: 'duplicate',
+        pos: selectedNode.value?.pos,
+        label: 'Duplicate',
+        icon: 'i-lucide-copy',
+      },
+      {
+        label: 'Copy to clipboard',
+        icon: 'i-lucide-clipboard',
+        onSelect: async () => {
+          if (!selectedNode.value) return
+
+          const pos = selectedNode.value.pos
+          const node = editor.state.doc.nodeAt(pos)
+          if (node) {
+            await navigator.clipboard.writeText(node.textContent)
+          }
+        },
+      },
+    ],
+    [
+      {
+        kind: 'moveUp',
+        pos: selectedNode.value?.pos,
+        label: 'Move up',
+        icon: 'i-lucide-arrow-up',
+      },
+      {
+        kind: 'moveDown',
+        pos: selectedNode.value?.pos,
+        label: 'Move down',
+        icon: 'i-lucide-arrow-down',
+      },
+    ],
+    [
+      {
+        kind: 'delete',
+        pos: selectedNode.value?.pos,
+        label: 'Delete',
+        icon: 'i-lucide-trash',
+      },
+    ],
+  ],
+  customHandlers.value,
   ) as DropdownMenuItem[][]
 }
 </script>
@@ -341,12 +234,12 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
       class="my-4"
       content-type="json"
       :handlers="customHandlers"
-      :extensions="[ImagePicker]"
+      :extensions="[ImagePicker, Element, Slot]"
       placeholder="Write, type '/' for commands..."
     >
       <UEditorToolbar
         :editor="editor"
-        :items="toolbarItems"
+        :items="standardToolbarItems"
         layout="bubble"
         :should-show="({ state, view }) => {
           if (!view.hasFocus()) {

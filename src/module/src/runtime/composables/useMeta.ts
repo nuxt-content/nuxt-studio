@@ -3,7 +3,7 @@ import type { ComponentMeta } from 'nuxt-studio/app'
 import { ref, shallowRef } from 'vue'
 
 export const useHostMeta = createSharedComposable(() => {
-  const componentsMeta = shallowRef<ComponentMeta[]>([])
+  const components = shallowRef<ComponentMeta[]>([])
   const meta = ref<ComponentMeta>()
 
   async function fetch() {
@@ -12,12 +12,12 @@ export const useHostMeta = createSharedComposable(() => {
       headers: { 'content-type': 'application/json' },
     }).catch(() => ({ components: [] }))
 
-    componentsMeta.value = data.components || []
+    components.value = data.components || []
   }
 
   return {
     meta,
     fetch,
-    componentsMeta,
+    components,
   }
 })
