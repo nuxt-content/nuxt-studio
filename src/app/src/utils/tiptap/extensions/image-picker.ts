@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
-import EditorExtensionImagePicker from '../../../components/editor/extension/EditorExtensionImagePicker.vue'
+import TiptapExtensionImagePicker from '../../../components/tiptap/extension/TiptapExtensionImagePicker.vue'
 
 declare module '@tiptap/vue-3' {
   interface Commands<ReturnType> {
@@ -26,7 +26,7 @@ export const ImagePicker = Node.create({
     return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'image-picker' })]
   },
   addNodeView() {
-    return VueNodeViewRenderer(EditorExtensionImagePicker)
+    return VueNodeViewRenderer(TiptapExtensionImagePicker)
   },
   addCommands() {
     return {

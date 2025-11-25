@@ -257,7 +257,7 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
       >
         <!-- :should-show="shouldShowBubbleMenu" -->
         <template #link>
-          <EditorLinkPopover :editor="editor" />
+          <TipTapLinkPopover :editor="editor" />
         </template>
       </UEditorToolbar>
 

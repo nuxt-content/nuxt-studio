@@ -5,7 +5,7 @@ import { VueNodeViewRenderer } from '@tiptap/vue-3'
 // import { filteredWrappingInputRule } from '../../utils/inputRules/filteredWrappingInputRule'
 // import { tiptapCurrentNode } from '../../utils/tiptap'
 // import NodeView from './NodeView.vue'
-import EditorExtensionSlot from '../../../components/editor/extension/EditorExtensionSlot.vue'
+import TiptapExtensionSlot from '../../../components/tiptap/extension/TiptapExtensionSlot.vue'
 
 export interface ElementOptions {
   HTMLAttributes: Record<string, unknown>
@@ -156,6 +156,6 @@ export const Slot = Node.create<ElementOptions>({
   },
 
   addNodeView() {
-    return VueNodeViewRenderer(EditorExtensionSlot)
+    return VueNodeViewRenderer(TiptapExtensionSlot)
   },
 })

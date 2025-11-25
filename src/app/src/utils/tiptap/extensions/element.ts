@@ -1,7 +1,7 @@
 import { Node, mergeAttributes, InputRule } from '@tiptap/core'
 import type { Content } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
-import EditorExtensionElement from '../../../components/editor/extension/EditorExtensionElement.vue'
+import TiptapExtensionElement from '../../../components/tiptap/extension/TiptapExtensionElement.vue'
 
 export interface ElementOptions {
   HTMLAttributes: Record<string, unknown>
@@ -121,6 +121,6 @@ export const Element = Node.create<ElementOptions>({
   },
 
   addNodeView() {
-    return VueNodeViewRenderer(EditorExtensionElement)
+    return VueNodeViewRenderer(TiptapExtensionElement)
   },
 })
