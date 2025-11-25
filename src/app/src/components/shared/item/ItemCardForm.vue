@@ -340,7 +340,7 @@ async function onSubmit() {
                 <UButton
                   color="neutral"
                   variant="ghost"
-                  icon="i-ph-x"
+                  icon="i-lucide-x"
                   :aria-label="$t('studio.aria.cancel')"
                   size="xs"
                   square
@@ -365,7 +365,7 @@ async function onSubmit() {
                   >
                     <UIcon
                       v-if="!isLoading"
-                      name="i-ph-check"
+                      name="i-lucide-check"
                       class="size-4"
                     />
                   </UButton>

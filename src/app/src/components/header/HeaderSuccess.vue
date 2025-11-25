@@ -15,7 +15,7 @@ function goBack() {
       :kbds="['esc']"
     >
       <UButton
-        icon="i-ph-arrow-left"
+        icon="i-lucide-arrow-left"
         color="neutral"
         variant="soft"
         size="sm"

@@ -41,9 +41,9 @@ export const CONTENT_EXTENSIONS = [
 ]
 
 export const FILE_ICONS = {
-  md: 'i-ph-markdown-logo',
-  yaml: 'i-fluent-document-yml-20-regular',
-  yml: 'i-fluent-document-yml-20-regular',
+  md: 'i-lucide-file-text',
+  yaml: 'i-lucide-file-code',
+  yml: 'i-lucide-file-code',
   json: 'i-lucide-file-json',
   ...IMAGE_EXTENSIONS.reduce((acc, ext) => ({ ...acc, [ext]: 'i-lucide-file-image' }), {}),
   ...VIDEO_EXTENSIONS.reduce((acc, ext) => ({ ...acc, [ext]: 'i-lucide-file-video' }), {}),

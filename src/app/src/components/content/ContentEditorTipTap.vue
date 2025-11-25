@@ -14,9 +14,9 @@ import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
 import type { DraftItem, DatabasePageItem } from '../../types'
-import { omit } from '../../utils/object'
 import { Element } from '../../utils/tiptap/extensions/element'
 import { Slot } from '../../utils/tiptap/extensions/slot'
+import { Frontmatter } from '../../utils/tiptap/extensions/frontmatter'
 import { standardToolbarItems, standardSuggestionItems, standardElements, headingItems, listItems, codeBlockItem } from '../../utils/tiptap/editor'
 
 const props = defineProps({
@@ -39,7 +39,6 @@ const currentContent = ref<string>()
 const { host } = useStudio()
 const { preferences } = useStudioState()
 
-const reservedKeys = ['id', 'fsPath', 'stem', 'extension', '__hash__', 'path', 'body', 'meta', 'rawbody']
 const debug = computed(() => preferences.value.debug)
 
 // Trigger on document changes
@@ -50,7 +49,9 @@ watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
 }, { immediate: true })
 
 async function setEditorJSON(document: DatabasePageItem) {
-  tiptapJSON.value = mdcToTiptap(document.body as unknown as MDCRoot, '')
+  const frontmatterJson = host.document.utils.removeReservedKeys(document)
+
+  tiptapJSON.value = mdcToTiptap(document.body as unknown as MDCRoot, frontmatterJson)
 
   // Debug: Capture initial state
   if (debug.value && !currentMDC.value) {
@@ -58,7 +59,7 @@ async function setEditorJSON(document: DatabasePageItem) {
     const generatedContent = await generateContentFromDocument(document) || ''
     currentMDC.value = {
       body: document.body as unknown as MDCRoot,
-      data: omit(document, reservedKeys) as Record<string, unknown>,
+      data: frontmatterJson,
     }
     currentContent.value = generatedContent
     currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
@@ -95,7 +96,7 @@ watch(tiptapJSON, async (json) => {
     currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
     currentMDC.value = {
       body: updatedDocument.body as unknown as MDCRoot,
-      data: omit(updatedDocument, reservedKeys) as Record<string, unknown>,
+      data: host.document.utils.removeReservedKeys(updatedDocument),
     }
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string
   }
@@ -247,7 +248,12 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
       class="my-4"
       content-type="json"
       :handlers="customHandlers"
-      :extensions="[ImagePicker, Element, Slot]"
+      :extensions="[
+        Frontmatter,
+        ImagePicker,
+        Element,
+        Slot,
+      ]"
       placeholder="Write, type '/' for commands..."
     >
       <UEditorToolbar
@@ -255,13 +261,10 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
         :items="standardToolbarItems"
         layout="bubble"
       >
-        <!-- :should-show="shouldShowBubbleMenu" -->
         <template #link>
-          <TipTapLinkPopover :editor="editor" />
+          <TiptapLinkPopover :editor="editor" />
         </template>
       </UEditorToolbar>
-
-      <!-- <UEditorToolbar /> for image -->
 
       <UEditorDragHandle
         v-slot="{ ui }"
@@ -292,11 +295,6 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
         :editor="editor"
         :items="suggestionItems"
       />
-      <!-- :items="mentionItems" -->
-      <!-- <UEditorEmojiMenu
-        :editor="editor"
-        :items="emojiItems"
-      /> -->
     </UEditor>
   </div>
 </template>

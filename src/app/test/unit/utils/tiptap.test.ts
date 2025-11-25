@@ -30,6 +30,12 @@ describe('paragraph', () => {
       type: 'doc',
       content: [
         {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
           type: 'paragraph',
           content: [
             { type: 'text', text: 'This is a simple paragraph' },
@@ -41,7 +47,7 @@ describe('paragraph', () => {
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
     expect(document.body).toMatchObject(expectedMDCJSON)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, '')
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
@@ -76,6 +82,12 @@ describe('paragraph', () => {
       type: 'doc',
       content: [
         {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
           type: 'horizontalRule',
         },
       ],
@@ -84,7 +96,7 @@ describe('paragraph', () => {
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
     expect(document.body).toMatchObject(expectedMDCJSON)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, '')
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
@@ -133,6 +145,12 @@ describe('paragraph', () => {
       type: 'doc',
       content: [
         {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
           type: 'paragraph',
           attrs: {},
           content: [
@@ -158,7 +176,7 @@ describe('paragraph', () => {
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
     expect(document.body).toMatchObject(expectedMDCJSON)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, '')
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
@@ -174,86 +192,71 @@ describe('paragraph', () => {
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
-// describe('marks', () => {
-//   test('***x** y*', async () => {
-//     const inputContent = '***x** y*'
-//     const mdc = await generateDocumentFromContent('test.md', inputContent) as DatabasePageItem
 
-//     const tiptapJSON: JSONContent = await mdcToTiptap(mdc.body as unknown as MDCRoot, '')
-//     const mdcJSON = await tiptapToMDC(tiptapJSON)
+describe('frontmatter', () => {
+  test('simple frontmatter with title and description', async () => {
+    const inputContent = `---
+title: Test Page
+description: This is a test
+---
 
-//     const document = {
-//       id: 'test.md',
-//       stem: 'test',
-//       extension: 'md',
-//       meta: {},
-//       body: mdcJSON.body as unknown as MarkdownRoot,
-//       ...mdcJSON.data,
-//     } as DatabasePageItem
+This is content`
 
-//     const outputContent = await generateContentFromDocument(document)
+    const expectedFrontmatterJson = {
+      title: 'Test Page',
+      description: 'This is a test',
+    }
 
-//     expect(outputContent).toBe(inputContent)
-//   })
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            { type: 'text', value: 'This is content' },
+          ],
+        },
+      ],
+    }
 
-//   test('*y **x***', async () => {
-//     const mdc = await markdownToMDC('*y **x***')
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: expectedFrontmatterJson,
+          },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'This is content' },
+          ],
+        },
+      ],
+    }
 
-//     const tiptap = await mdcToTiptap(mdc['body'], mdc['frontmatter'] || {})
-//     const out = await tiptapToMDC(tiptap)
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.title).toBe('Test Page')
+    expect(document.description).toBe('This is a test')
 
-//     const stringify = useMDCMarkdownGenerator()
-//     const markdown = await stringify.generate(out.body)
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, expectedFrontmatterJson)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-//     expect(markdown.trim()).toBe('*y **x***')
-//   })
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    expect(generatedMdcJSON.data).toMatchObject(expectedFrontmatterJson)
 
-//   test('**x**', async () => {
-//     const mdc = await markdownToMDC('**x**')
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
 
-//     const tiptap = await mdcToTiptap(mdc['body'], mdc['frontmatter'] || {})
-//     const out = await tiptapToMDC(tiptap)
+    const outputContent = await generateContentFromDocument(generatedDocument)
 
-//     const stringify = useMDCMarkdownGenerator()
-//     const markdown = await stringify.generate(out.body)
-
-//     expect(markdown.trim()).toBe('**x**')
-//   })
-
-//   test('**`x`**', async () => {
-//     const mdc = await markdownToMDC('**`x`**')
-
-//     const tiptap = await mdcToTiptap(mdc['body'], mdc['frontmatter'] || {})
-//     const out = await tiptapToMDC(tiptap)
-
-//     const stringify = useMDCMarkdownGenerator()
-//     const markdown = await stringify.generate(out.body)
-
-//     expect(markdown.trim()).toBe('**`x`**')
-//   })
-
-//   test('~~**x**~~', async () => {
-//     const mdc = await markdownToMDC('~~**x**~~')
-
-//     const tiptap = await mdcToTiptap(mdc['body'], mdc['frontmatter'] || {})
-//     const out = await tiptapToMDC(tiptap)
-
-//     const stringify = useMDCMarkdownGenerator()
-//     const markdown = await stringify.generate(out.body)
-
-//     expect(markdown.trim()).toBe('~~**x**~~')
-//   })
-
-//   // ~~**`x`**~~
-//   test('~~**`x`**~~', async () => {
-//     const mdc = await markdownToMDC('~~**`x`**~~')
-
-//     const tiptap = await mdcToTiptap(mdc['body'], mdc['frontmatter'] || {})
-//     const out = await tiptapToMDC(tiptap)
-
-//     const stringify = useMDCMarkdownGenerator()
-//     const markdown = await stringify.generate(out.body)
-
-//     expect(markdown.trim()).toBe('~~**`x`**~~')
-//   })
-// })
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+})

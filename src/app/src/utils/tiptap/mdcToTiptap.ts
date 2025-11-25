@@ -67,17 +67,17 @@ const mdcToTiptapMap: MDCToTipTapMap = {
 //   }
 // }
 
-export function mdcToTiptap(body: MDCRoot, _data: string) {
+export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
   // Remove invalid text node which added by table syntax
   body.children = (body.children || []).filter(child => child.type !== 'text')
 
   const tree = mdcNodeToTiptap(body)
 
   tree.content = [
-    // {
-    //   type: 'frontmatter',
-    //   attrs: { frontmatter: data },
-    // },
+    {
+      type: 'frontmatter',
+      attrs: { frontmatter },
+    },
     ...((isEmpty(tree.content) ? [{ type: 'paragraph', content: [] }] : tree.content) as JSONContent[]),
   ]
 

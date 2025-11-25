@@ -60,10 +60,10 @@ const actions = computed<DropdownMenuItem[][]>(() => {
 
     let icon = action.icon
     if (isLoading) {
-      icon = 'i-ph-circle-notch'
+      icon = 'i-lucide-loader-circle'
     }
     else if (isPending) {
-      icon = isDeleteAction ? 'i-ph-x' : 'i-ph-check'
+      icon = isDeleteAction ? 'i-lucide-x' : 'i-lucide-check'
     }
 
     return {
@@ -141,10 +141,10 @@ const pendingActionLabel = computed(() => getPendingActionLabel(pendingAction.va
     <UButton
       color="neutral"
       variant="ghost"
-      icon="i-ph-dots-three-vertical"
+      icon="i-lucide-ellipsis-vertical"
       :aria-label="t('studio.aria.openActions')"
       square
-      size="sm"
+      size="xs"
       class="cursor-pointer"
       @click="$event.stopPropagation()"
     />

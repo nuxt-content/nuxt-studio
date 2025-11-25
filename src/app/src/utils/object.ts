@@ -35,3 +35,15 @@ export function omit(obj: Record<string, unknown>, keys: string | string[]) {
   return Object.fromEntries(Object.entries(obj)
     .filter(([key]) => !keys.includes(key)))
 }
+
+export function replaceNullWithEmptyString(obj: Record<string, unknown>): Record<string, unknown> {
+  for (const key in obj) {
+    if (obj[key] === null) {
+      obj[key] = ''
+    }
+    else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      obj[key] = replaceNullWithEmptyString(obj[key] as Record<string, unknown>)
+    }
+  }
+  return obj
+}

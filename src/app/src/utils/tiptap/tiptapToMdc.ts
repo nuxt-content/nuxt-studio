@@ -1,6 +1,5 @@
 // import type { MarkdownNode, MarkdownRoot, Toc } from '@nuxt/content'
 import type { JSONContent } from '@tiptap/vue-3'
-import { parseFrontMatter } from 'remark-mdc'
 import Slugger from 'github-slugger'
 // import rehypeShiki from '@nuxtjs/mdc/dist/runtime/highlighter/rehype'
 // import { createShikiHighlighter } from '@nuxtjs/mdc/runtime/highlighter/shiki'
@@ -67,8 +66,12 @@ export async function tiptapToMDC(node: JSONContent) {
     const fm = _node.content?.[fmIndex]
     _node.content?.splice(fmIndex, 1)
     try {
-      const { data } = parseFrontMatter(`---\n${fm.attrs?.frontmatter || ''}\n---`)
-      mdc.data = data
+      if (fm.attrs?.frontmatter && typeof fm.attrs.frontmatter === 'object') {
+        mdc.data = fm.attrs.frontmatter
+      }
+      else {
+        mdc.data = {}
+      }
     }
     catch (error) {
       mdc.data = {
