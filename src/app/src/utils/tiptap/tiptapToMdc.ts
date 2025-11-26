@@ -166,15 +166,15 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
   const { props = {}, ...rest } = extra as { props: object }
 
   // If text has been enclosed in a paragraph mannualy in 'mdcToTiptap', we need to remove the paragraph in mdc
-  if (node.attrs?.props?.__tiptapWrap) {
-    if (node.content!.length === 1 && node.content![0]?.type === 'slot') {
-      const slot = node.content![0]
-      if (slot.content!.length === 1 && slot.content![0]?.type === 'paragraph') {
-        slot.content = slot.content![0].content
-      }
-    }
-    delete node.attrs.props.__tiptapWrap
-  }
+  // if (node.attrs?.props?.__tiptapWrap) {
+  //   if (node.content!.length === 1 && node.content![0]?.type === 'slot') {
+  //     const slot = node.content![0]
+  //     if (slot.content!.length === 1 && slot.content![0]?.type === 'paragraph') {
+  //       slot.content = slot.content![0].content
+  //     }
+  //   }
+  //   delete node.attrs.props.__tiptapWrap
+  // }
 
   const propsArray = Object.entries({ ...node.attrs?.props, ...props }).map(([key, value]) => {
     if (key === 'className') {

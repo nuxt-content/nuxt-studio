@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import { upperFirst, titleCase } from 'scule'
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
-import { mapEditorItems } from '@nuxt/ui/utils/editor'
 // import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
-import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
-import { ref, watch, computed } from 'vue'
-import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { PropType } from 'vue'
+import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { MDCRoot } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
+import type { DraftItem, DatabasePageItem } from '../../types'
+import { mapEditorItems } from '@nuxt/ui/utils/editor'
+import { ref, watch, computed } from 'vue'
+import { upperFirst, titleCase } from 'scule'
 import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import type { DraftItem, DatabasePageItem } from '../../types'
+import { standardToolbarItems, standardSuggestionItems, standardNuxtUIComponents, headingItems, listItems, codeBlockItem } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
+import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
 import { Slot } from '../../utils/tiptap/extensions/slot'
 import { Frontmatter } from '../../utils/tiptap/extensions/frontmatter'
 import { CodeBlock } from '../../utils/tiptap/extensions/code-block'
-import { standardToolbarItems, standardSuggestionItems, standardElements, headingItems, listItems, codeBlockItem } from '../../utils/tiptap/editor'
+import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
 
 const props = defineProps({
   draftItem: {
@@ -110,7 +111,7 @@ const componentItems = computed(() => {
     kind: component.name,
     type: undefined as never,
     label: titleCase(component.name),
-    icon: standardElements[component.name]?.icon || 'i-lucide-box',
+    icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
   }))
 })
 
@@ -243,6 +244,7 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
       :current-mdc="currentMDC"
       :current-content="currentContent"
     />
+
     <UEditor
       v-slot="{ editor }"
       v-model="tiptapJSON"
@@ -256,6 +258,7 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
         Frontmatter,
         ImagePicker,
         Element,
+        InlineElement,
         Slot,
         CodeBlock,
       ]"

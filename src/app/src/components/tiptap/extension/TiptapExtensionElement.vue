@@ -5,7 +5,7 @@ import { NodeViewWrapper, NodeViewContent, nodeViewProps } from '@tiptap/vue-3'
 import { titleCase, kebabCase } from 'scule'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { useStudio } from '../../../composables/useStudio'
-import { standardElements } from '../../../utils/tiptap/editor'
+import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
 
 const nodeProps = defineProps(nodeViewProps)
 
@@ -24,11 +24,12 @@ const componentName = computed(() => titleCase(componentTag.value).replace(/^U /
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const hasSlots = computed(() => nodeProps.node.content.size > 0)
 const componentProps = computed(() => nodeProps.node.attrs.props || {})
-const componentMeta = computed(() => host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(node.value.attrs?.tag)))
+const componentMeta = computed(() => host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
 
-const standardElement = computed(() => standardElements[componentTag.value])
-const displayName = computed(() => standardElement.value?.name || componentName.value)
-const displayIcon = computed(() => standardElement.value?.icon || 'i-lucide-box')
+// Nuxt UI Components bindings
+const nuxtUIComponent = computed(() => standardNuxtUIComponents[componentTag.value])
+const displayName = computed(() => nuxtUIComponent.value?.name || componentName.value)
+const displayIcon = computed(() => nuxtUIComponent.value?.icon || 'i-lucide-box')
 
 const availableSlots = computed(() => componentMeta.value?.meta.slots.map(s => s.name) || ['default'])
 const usedSlots = computed(() => {

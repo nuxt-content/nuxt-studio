@@ -104,7 +104,7 @@ export const standardSuggestionItems = [
   ],
 ] satisfies EditorSuggestionMenuItem[][]
 
-export const standardElements: Record<string, { name: string, icon: string }> = {
+export const standardNuxtUIComponents: Record<string, { name: string, icon: string }> = {
   'icon-menu-toggle': { name: 'Icon Menu Toggle', icon: 'i-lucide-menu' },
   'accordion': { name: 'Accordion', icon: 'i-lucide-chevron-down' },
   'accordion-item': { name: 'Accordion Item', icon: 'i-lucide-minus' },

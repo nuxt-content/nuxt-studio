@@ -84,7 +84,7 @@ export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>)
   return tree
 }
 
-export function mdcNodeToTiptap(node: MDCRoot | MDCNode, _parent?: MDCNode): JSONContent {
+export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSONContent {
   const type = node.type === 'element' ? node.tag! : node.type
 
   // Remove duplicate boolean props
@@ -100,24 +100,23 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, _parent?: MDCNode): JSO
     return mdcToTiptapMap[type](node)
   }
 
-  /** Custom elements */
-  // return createTipTapNode(node as MDCElement, 'unknown', { attrs: { tag: type } })
+  /** Custom vue components (Elements) */
 
   // If parent is a paragraph, then element should be inline
-  // if ((parent as MDCElement)?.tag === 'p' || (node as MDCElement).props?.__mdc_inline === 'true') {
-  //   return createTipTapNode(node, 'inline-element', { attrs: { tag: type } })
-  // }
+  if ((parent as MDCElement)?.tag === 'p') {
+    return createTipTapNode(node as MDCElement, 'inline-element', { attrs: { tag: type } })
+  }
 
   // In tiptap side only, inside element, text must be enclosed in a paragraph
-  if (node.type === 'element' && node.children?.[0]?.type === 'text') {
-    node.props!.__tiptapWrap = true
-    node.children = [{
-      type: 'element',
-      tag: 'p',
-      children: node.children,
-      props: {},
-    }]
-  }
+  // if (node.type === 'element' && node.children?.[0]?.type === 'text') {
+  //   node.props!.__tiptapWrap = true
+  //   node.children = [{
+  //     type: 'element',
+  //     tag: 'p',
+  //     children: node.children,
+  //     props: {},
+  //   }]
+  // }
 
   const children = [...((node as MDCElement).children || []).filter(child => (child as MDCElement).tag === 'template')]
   const defaultSlotChildren = ((node as MDCElement).children || []).filter(child => (child as MDCElement).tag !== 'template')

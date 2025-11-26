@@ -21,7 +21,7 @@ export function isDeepEqual(obj1: Record<string, unknown>, obj2: Record<string, 
   return true
 }
 
-export function isEmpty(obj: Array<unknown> | Record<string, unknown> | string | boolean | number | undefined): boolean {
+export function isEmpty(obj: Array<unknown> | Array<Record<string, unknown>> | Record<string, unknown> | string | boolean | number | undefined): boolean {
   if (obj === undefined || obj === null || obj === '' || obj === false) return true
 
   if (Array.isArray(obj)) {
