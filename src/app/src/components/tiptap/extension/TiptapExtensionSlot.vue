@@ -2,8 +2,6 @@
 import { ref, computed } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { titleCase } from 'scule'
-// import { pascalCase } from 'scule'
-// import { tiptapChildrenNodes, tiptapParentNode } from '../../utils/tiptap'
 import { useStudio } from '../../../composables/useStudio'
 
 const nodeProps = defineProps(nodeViewProps)
@@ -46,35 +44,27 @@ function deleteSlot() {
     return true
   })
 }
-
-function createSlot(_name: string) {
-  // slots.push({ label: titleCase(name), value: name })
-}
 </script>
 
 <template>
   <NodeViewWrapper as="div">
     <div class="my-2">
-      <!-- Slot Selector Header -->
       <div
         v-if="showSlotSelection"
         class="flex items-center gap-2 mb-2 group"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
       >
-        <!-- Slot Name Selector -->
         <USelectMenu
           v-model="slotName"
           :items="availableSlots"
           :disabled="!isEditable"
-          create-item
           placeholder="Search or create a slot..."
           size="xs"
           :ui="{
             base: 'font-mono text-xs text-muted hover:text-default uppercase cursor-pointer ring-0',
             leading: 'ps-0',
           }"
-          @create="createSlot"
         >
           <template #leading>
             <span class="text-muted">#</span>
@@ -91,7 +81,6 @@ function createSlot(_name: string) {
           </template>
         </USelectMenu>
 
-        <!-- Delete Slot Button -->
         <UTooltip text="Delete slot">
           <UButton
             variant="ghost"
@@ -105,7 +94,6 @@ function createSlot(_name: string) {
         </UTooltip>
       </div>
 
-      <!-- Slot Content -->
       <div
         class="pl-5 border-l-2 border-dashed border-default"
       >

@@ -99,14 +99,11 @@ function _updateProps(props: Record<string, unknown>) {
       class="my-3"
       :contenteditable="false"
     >
-      <!-- Component Header -->
       <div
         class="group flex items-center justify-between px-2 py-1.5 rounded-md border border-transparent hover:border-muted hover:bg-muted/50 cursor-pointer transition-all duration-150"
         @click="onToggleCollapse"
       >
-        <!-- Left: Icon + Name -->
         <div class="flex items-center gap-2">
-          <!-- Collapse/Expand Icon for components with slots -->
           <UIcon
             v-if="hasSlots"
             :name="collapsed ? 'i-lucide-chevron-right' : 'i-lucide-chevron-down'"
@@ -114,7 +111,6 @@ function _updateProps(props: Record<string, unknown>) {
             class="text-muted group-hover:text-default transition-all duration-150"
             :class="{ 'text-dimmed': collapsed }"
           />
-          <!-- Component Icon -->
           <UIcon
             v-else
             :name="displayIcon"
@@ -123,7 +119,6 @@ function _updateProps(props: Record<string, unknown>) {
             :class="{ 'text-dimmed': collapsed }"
           />
 
-          <!-- Component Name -->
           <span
             class="text-xs font-mono font-medium text-muted group-hover:text-default transition-colors duration-150"
             :class="{ 'text-dimmed': collapsed }"
@@ -131,7 +126,6 @@ function _updateProps(props: Record<string, unknown>) {
             {{ displayName }}
           </span>
 
-          <!-- Props Count Badge -->
           <UBadge
             v-if="Object.keys(componentProps).length > 0"
             color="neutral"
@@ -142,9 +136,7 @@ function _updateProps(props: Record<string, unknown>) {
           </UBadge>
         </div>
 
-        <!-- Right: Action Buttons -->
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-          <!-- Add Slot -->
           <UTooltip text="Add slot">
             <UButton
               v-if="slots.length > 1"
@@ -158,7 +150,6 @@ function _updateProps(props: Record<string, unknown>) {
             />
           </UTooltip>
 
-          <!-- Edit Props -->
           <UPopover v-model:open="openPropsPopover">
             <UTooltip
               text="Edit props"
@@ -184,7 +175,6 @@ function _updateProps(props: Record<string, unknown>) {
             </template>
           </UPopover>
 
-          <!-- Delete Component -->
           <UTooltip text="Delete">
             <UButton
               variant="ghost"
@@ -199,7 +189,6 @@ function _updateProps(props: Record<string, unknown>) {
         </div>
       </div>
     </div>
-    <!-- Component Content (Slots) -->
     <div
       v-if="hasSlots"
       v-show="!collapsed"
