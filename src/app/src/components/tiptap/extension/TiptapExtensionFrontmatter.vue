@@ -55,7 +55,7 @@ watch(frontmatter, () => {
 <template>
   <NodeViewWrapper as="div">
     <div
-      class="group mb-3 transition-all duration-150"
+      class="group mt-4 mb-3 transition-all duration-150"
       contenteditable="false"
     >
       <div
@@ -88,7 +88,7 @@ watch(frontmatter, () => {
         :min-height="100"
         :max-height="500"
         :initial-height="100"
-        class="mt-1 border-l-2 border-dashed border-muted bg-muted/30 overflow-hidden"
+        class="mt-1 border-l-2 shadow-xs border-dashed border-muted bg-muted/30 overflow-hidden"
       >
         <div
           ref="editorRef"

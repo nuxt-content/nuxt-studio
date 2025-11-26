@@ -248,7 +248,7 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
     <UEditor
       v-slot="{ editor }"
       v-model="tiptapJSON"
-      class="my-4"
+      class="mb-4"
       content-type="json"
       :handlers="customHandlers"
       :starter-kit="{
