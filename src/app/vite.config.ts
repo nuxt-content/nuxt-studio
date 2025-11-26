@@ -25,6 +25,18 @@ export default defineConfig({
         colors: {
           neutral: 'neutral',
         },
+        button: {
+          variants: {
+            size: {
+              '2xs': {
+                base: 'p-1 text-xs gap-1',
+                leadingIcon: 'size-3',
+                leadingAvatarSize: '3xs',
+                trailingIcon: 'size-3',
+              },
+            },
+          },
+        },
         pageCard: {
           slots: {
             wrapper: 'min-w-0',

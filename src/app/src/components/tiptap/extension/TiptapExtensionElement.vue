@@ -149,7 +149,8 @@ function _updateProps(props: Record<string, unknown>) {
             <UButton
               v-if="slots.length > 1"
               variant="ghost"
-              size="xs"
+              size="2xs"
+              class="text-muted hover:text-default"
               icon="i-lucide-plus"
               :disabled="!isEditable"
               aria-label="Add slot"
@@ -165,7 +166,8 @@ function _updateProps(props: Record<string, unknown>) {
             >
               <UButton
                 variant="ghost"
-                size="xs"
+                size="2xs"
+                class="text-muted hover:text-default"
                 icon="i-lucide-settings"
                 :disabled="!isEditable"
                 aria-label="Edit props"
@@ -175,9 +177,6 @@ function _updateProps(props: Record<string, unknown>) {
 
             <template #content>
               <UCard>
-                <div class="text-sm font-medium text-highlighted mb-3">
-                  Component Props
-                </div>
                 <div class="text-xs text-muted">
                   Props editor will be implemented soon...
                 </div>
@@ -189,7 +188,8 @@ function _updateProps(props: Record<string, unknown>) {
           <UTooltip text="Delete">
             <UButton
               variant="ghost"
-              size="xs"
+              size="2xs"
+              class="text-muted hover:text-default"
               icon="i-lucide-trash"
               :disabled="!isEditable"
               aria-label="Delete"

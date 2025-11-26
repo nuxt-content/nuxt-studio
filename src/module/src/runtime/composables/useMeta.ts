@@ -15,50 +15,64 @@ export const useHostMeta = createSharedComposable(() => {
     // Markdown elements to exclude (in kebab-case)
     const markdownElements = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'p', 'li', 'ul', 'ol', 'blockquote', 'code', 'code-block', 'image', 'video', 'link', 'hr', 'img', 'pre', 'em', 'bold', 'italic', 'strike', 'strong', 'tr', 'thead', 'tbody', 'tfoot', 'th', 'td'])
 
-    const componentNames = new Set<string>()
-    const filteredComponents: ComponentMeta[] = []
+    const renamedComponents: ComponentMeta[] = []
 
     for (const component of (data.components || [])) {
-      // Skip .d.vue.ts files
-      if (component.path.endsWith('.d.vue.ts')) continue
-
       // Remove "Prose" prefix
-      const name = component.name.startsWith('Prose') ? component.name.slice(5) : component.name
+      let name = component.name
+      if (component.name.startsWith('Prose')) {
+        name = name.slice(5)
+      }
 
-      componentNames.add(name)
+      if (component.path.endsWith('.d.vue.ts')) {
+        name = name.slice(0, -4)
+      }
 
-      filteredComponents.push({
+      renamedComponents.push({
         ...component,
         name,
       })
     }
 
-    // Filter U-prefixed and markdown elements, then convert to kebab-case
-    const result: ComponentMeta[] = []
-    for (const component of filteredComponents) {
+    const processedComponents = new Map<string, ComponentMeta>()
+
+    for (const component of renamedComponents) {
       // Remove duplicated U-prefixed components
       if (component.name.startsWith('U')) {
         const nameWithoutU = component.name.slice(1)
-        if (componentNames.has(nameWithoutU) || result.some(c => c.name === component.name)) continue
+        if (renamedComponents.find(c => c.name === nameWithoutU)) continue
       }
 
       // Convert to kebab-case
       const kebabName = kebabCase(component.name)
 
-      // Remove duplicated components
-      if (result.find(c => c.name === kebabName)) continue
-
       // Filter out markdown elements
       if (markdownElements.has(kebabName)) continue
 
+      // Handle duplicates
+      const existing = processedComponents.get(kebabName)
+      if (existing) {
+        if (existing.path.endsWith('.d.vue.ts')) {
+          continue
+        }
+
+        // Prioritize .d.vue.ts versions for more accurate metadata
+        processedComponents.set(kebabName, {
+          ...component,
+          name: kebabName,
+        })
+
+        continue
+      }
+
       // Add component
-      result.push({
+      processedComponents.set(kebabName, {
         ...component,
         name: kebabName,
       })
     }
 
-    components.value = result
+    components.value = Array.from(processedComponents.values())
   }
 
   return {

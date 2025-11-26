@@ -95,7 +95,8 @@ function createSlot(_name: string) {
         <UTooltip text="Delete slot">
           <UButton
             variant="ghost"
-            size="xs"
+            size="2xs"
+            class="text-muted hover:text-default"
             icon="i-lucide-trash"
             :disabled="!isEditable || isLastRemainingSlot"
             aria-label="Delete slot"
