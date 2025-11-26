@@ -1,5 +1,4 @@
 import { Node, mergeAttributes } from '@tiptap/core'
-import type { EditorView } from 'prosemirror-view'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 // import { Selection } from '@tiptap/pm/state'
 // import { filteredWrappingInputRule } from '../../utils/inputRules/filteredWrappingInputRule'
@@ -40,29 +39,29 @@ export const Slot = Node.create<ElementOptions>({
     }
   },
 
-  extendNodeSchema() {
-    return {
-      disableDropCursor(editorView: EditorView, _pos: unknown, event: DragEvent) {
-        if (editorView.dragging && editorView.dragging.slice) {
-          const pos = editorView.posAtCoords({ left: event.clientX, top: event.clientY })
-          const node = pos && pos.inside >= 0 && editorView.state.doc.nodeAt(pos.inside)
+  // extendNodeSchema() {
+  //   return {
+  //     disableDropCursor(editorView: EditorView, _pos: unknown, event: DragEvent) {
+  //       if (editorView.dragging && editorView.dragging.slice) {
+  //         const pos = editorView.posAtCoords({ left: event.clientX, top: event.clientY })
+  //         const node = pos && pos.inside >= 0 && editorView.state.doc.nodeAt(pos.inside)
 
-          const nodeType = node ? node?.type?.name || '' : ''
-          const sliceType = editorView.dragging.slice.content.firstChild?.type.name
-          // let parent: Node
-          // editorView.state.doc.descendants((_node, _pos, _parent, _index) => {
-          //   if (node === _node) {
-          //     parent = _parent as unknown as Node
-          //   }
-          // })
+  //         const nodeType = node ? node?.type?.name || '' : ''
+  //         const sliceType = editorView.dragging.slice.content.firstChild?.type.name
+  //         let parent
+  //         editorView.state.doc.descendants((_node, _pos, _parent, _index) => {
+  //           if (node === _node) {
+  //             parent = _parent as unknown as Node
+  //           }
+  //         })
 
-          if (sliceType === 'slot' && nodeType === 'slot') {
-            return true
-          }
-        }
-      },
-    }
-  },
+  //         if (sliceType === 'slot' && nodeType === 'slot') {
+  //           return true
+  //         }
+  //       }
+  //     },
+  //   }
+  // },
 
   addAttributes() {
     return {
@@ -107,13 +106,12 @@ export const Slot = Node.create<ElementOptions>({
   addCommands() {
     return {
       // Copy from and update from https://github.com/ueberdosis/tiptap/blob/develop/packages/core/src/extensions/keymap.ts#L13
-      handleSlotBackspace: () => ({ editor, commands }) => {
+      handleSlotBackspace: () => () => {
+        return false
         // const node = tiptapCurrentNode(editor)
         // if (node?.type.name !== 'slot') {
         //   return false
         // }
-
-        return false
 
         // return commands.first(({ commands }) => [
         //   () => commands.undoInputRule(),

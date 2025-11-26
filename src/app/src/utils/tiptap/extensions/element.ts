@@ -10,9 +10,6 @@ export interface ElementOptions {
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     Element: {
-      /**
-       * Toggle a Element
-       */
       setElement: (tag: string, slot?: string) => ReturnType
     }
   }
