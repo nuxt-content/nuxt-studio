@@ -107,18 +107,23 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
     return createTipTapNode(node as MDCElement, 'inline-element', { attrs: { tag: type } })
   }
 
-  // In tiptap side only, inside element, text must be enclosed in a paragraph
-  // if (node.type === 'element' && node.children?.[0]?.type === 'text') {
-  //   node.props!.__tiptapWrap = true
-  //   node.children = [{
-  //     type: 'element',
-  //     tag: 'p',
-  //     children: node.children,
-  //     props: {},
-  //   }]
-  // }
+  /**
+   * In tiptap side only, inside element, text must be enclosed in a paragraph
+   * 
+   * Note: without having the wrapper paragraph, contents of an element can't be
+   * modified, TipTap depend on the paragraph to allow text editing.
+   */
+  if (node.type === 'element' && node.children?.[0]?.type === 'text') {
+    node.props!.__tiptapWrap = true
+    node.children = [{
+      type: 'element',
+      tag: 'p',
+      children: node.children,
+      props: {},
+    }]
+  }
 
-  const children = moveNoneTemplateChildrenToDefaultSlot(((node as MDCElement).children || []) as MDCElement[])
+  const children = ((node as MDCElement).children || []) as MDCElement[] // moveNoneTemplateChildrenToDefaultSlot(((node as MDCElement).children || []) as MDCElement[])
 
   return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
 }
@@ -285,30 +290,30 @@ function createParagraphNode(node: MDCElement) {
  * @param children The children of the node
  * @returns
  */
-function moveNoneTemplateChildrenToDefaultSlot(children: MDCElement[]) {
-  const noneTemplateChildren = children.filter(child => (child as MDCElement).tag !== 'template')
-  if (noneTemplateChildren.length) {
-    children = children.filter(child => (child as MDCElement).tag === 'template')
+// function moveNoneTemplateChildrenToDefaultSlot(children: MDCElement[]) {
+//   const noneTemplateChildren = children.filter(child => (child as MDCElement).tag !== 'template')
+//   if (noneTemplateChildren.length) {
+//     children = children.filter(child => (child as MDCElement).tag === 'template')
 
-    let defaultSlot = children.find(child => (child as MDCElement).props?.['v-slot:default']) as MDCElement
-    if (!defaultSlot) {
-      defaultSlot = {
-        type: 'element',
-        tag: 'template',
-        props: {
-          'v-slot:default': '',
-        },
-        children: [],
-      }
-      children.unshift(defaultSlot)
-    }
+//     let defaultSlot = children.find(child => (child as MDCElement).props?.['v-slot:default']) as MDCElement
+//     if (!defaultSlot) {
+//       defaultSlot = {
+//         type: 'element',
+//         tag: 'template',
+//         props: {
+//           'v-slot:default': '',
+//         },
+//         children: [],
+//       }
+//       children.unshift(defaultSlot)
+//     }
 
-    // append none template children to default slot
-    defaultSlot.children = [
-      ...(defaultSlot.children || []),
-      ...noneTemplateChildren,
-    ]
-  }
+//     // append none template children to default slot
+//     defaultSlot.children = [
+//       ...(defaultSlot.children || []),
+//       ...noneTemplateChildren,
+//     ]
+//   }
 
-  return children
-}
+//   return children
+// }
