@@ -283,7 +283,7 @@ function createParagraphNode(node: MDCElement) {
  * The children that are not wrapped in a slot are appended to the default slot.
  *
  * @param children The children of the node
- * @returns 
+ * @returns
  */
 function moveNoneTemplateChildrenToDefaultSlot(children: MDCElement[]) {
   const noneTemplateChildren = children.filter(child => (child as MDCElement).tag !== 'template')
