@@ -8,15 +8,14 @@ import type { MDCRoot, Toc } from '@nuxtjs/mdc'
 import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
 import type { DraftItem, DatabasePageItem } from '../../types'
 import type { MarkdownRoot } from '@nuxt/content'
-import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import type { EditorCustomHandlers } from '@nuxt/ui'
 import { ref, watch, computed } from 'vue'
-import { upperFirst, titleCase } from 'scule'
+import { titleCase } from 'scule'
 import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import { standardToolbarItems, standardSuggestionItems, standardNuxtUIComponents, headingItems, listItems, codeBlockItem } from '../../utils/tiptap/editor'
+import { standardToolbarItems, standardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
 import { Slot } from '../../utils/tiptap/extensions/slot'
@@ -70,19 +69,6 @@ async function setEditorJSON(document: DatabasePageItem) {
     currentContent.value = generatedContent
     currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
   }
-
-  // TODO: conflicts detection
-  // isAutomaticFormattingDetected.value = false
-  // if (props.draftItem.original && props.draftItem.remoteFile?.content) {
-  //   const localOriginal = await generateContentFromDocument(props.draftItem.original as DatabaseItem) as string
-  //   const remoteOriginal = props.draftItem.remoteFile.encoding === 'base64' ? fromBase64ToUTF8(props.draftItem.remoteFile.content!) : props.draftItem.remoteFile.content!
-
-  //   isAutomaticFormattingDetected.value = !areContentEqual(localOriginal, remoteOriginal)
-  //   if (isAutomaticFormattingDetected.value) {
-  //     originalContent.value = remoteOriginal
-  //     formattedContent.value = localOriginal
-  //   }
-  // }
 }
 
 // TipTap to Markdown
@@ -155,91 +141,12 @@ const suggestionItems = computed(() => [
 ] satisfies EditorSuggestionMenuItem[][])
 
 const selectedNode = ref<JSONContent | null>(null)
-
-// // eslint-disable-next-line @typescript-eslint/no-explicit-any
-// const shouldShowBubbleMenu = ({ state, view }: any) => {
-//   if (!view.hasFocus()) {
-//     return false
-//   }
-//   const { selection } = state
-//   const { empty } = selection
-//   return !empty
-// }
-
 const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
   if (!selectedNode.value) {
     return []
   }
 
-  return mapEditorItems(editor, [
-    [
-      {
-        type: 'label',
-        label: upperFirst(selectedNode.value.node.type),
-      },
-      {
-        label: 'Turn into',
-        icon: 'i-lucide-repeat-2',
-        children: [
-          { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
-          ...headingItems,
-          ...listItems,
-          ...codeBlockItem,
-        ],
-      },
-      {
-        kind: 'clearFormatting',
-        pos: selectedNode.value?.pos,
-        label: 'Reset formatting',
-        icon: 'i-lucide-rotate-ccw',
-      },
-    ],
-    [
-      {
-        kind: 'duplicate',
-        pos: selectedNode.value?.pos,
-        label: 'Duplicate',
-        icon: 'i-lucide-copy',
-      },
-      {
-        label: 'Copy to clipboard',
-        icon: 'i-lucide-clipboard',
-        onSelect: async () => {
-          if (!selectedNode.value) return
-
-          const pos = selectedNode.value.pos
-          const node = editor.state.doc.nodeAt(pos)
-          if (node) {
-            await navigator.clipboard.writeText(node.textContent)
-          }
-        },
-      },
-    ],
-    [
-      {
-        kind: 'moveUp',
-        pos: selectedNode.value?.pos,
-        label: 'Move up',
-        icon: 'i-lucide-arrow-up',
-      },
-      {
-        kind: 'moveDown',
-        pos: selectedNode.value?.pos,
-        label: 'Move down',
-        icon: 'i-lucide-arrow-down',
-      },
-    ],
-    [
-      {
-        kind: 'delete',
-        pos: selectedNode.value?.pos,
-        label: 'Delete',
-        icon: 'i-lucide-trash',
-      },
-    ],
-  ],
-  customHandlers.value,
-  ) as DropdownMenuItem[][]
+  return computeStandardDragActions(editor, selectedNode.value)
 }
 </script>
 

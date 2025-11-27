@@ -1,5 +1,9 @@
 import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.js'
 import type { EditorToolbarItem } from '@nuxt/ui/runtime/components/EditorToolbar.vue.js'
+import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
+import type { Editor, JSONContent } from '@tiptap/vue-3'
+import { mapEditorItems } from '@nuxt/ui/utils/editor'
+import { upperFirst } from 'scule'
 
 import { omit } from '../object'
 
@@ -132,4 +136,74 @@ export const standardNuxtUIComponents: Record<string, { name: string, icon: stri
   'note': { name: 'Note', icon: 'i-lucide-info' },
   'tip': { name: 'Tip', icon: 'i-lucide-lightbulb' },
   'warning': { name: 'Warning', icon: 'i-lucide-alert-triangle' },
+}
+
+export function computeStandardDragActions(editor: Editor, selectedNode: JSONContent): DropdownMenuItem[][] {
+  return mapEditorItems(editor, [
+    [
+      {
+        type: 'label',
+        label: upperFirst(selectedNode.node.type),
+      },
+      {
+        label: 'Turn into',
+        icon: 'i-lucide-repeat-2',
+        children: [
+          { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
+          ...headingItems,
+          ...listItems,
+          ...codeBlockItem,
+        ],
+      },
+      {
+        kind: 'clearFormatting',
+        pos: selectedNode?.pos,
+        label: 'Reset formatting',
+        icon: 'i-lucide-rotate-ccw',
+      },
+    ],
+    [
+      {
+        kind: 'duplicate',
+        pos: selectedNode?.pos,
+        label: 'Duplicate',
+        icon: 'i-lucide-copy',
+      },
+      {
+        label: 'Copy to clipboard',
+        icon: 'i-lucide-clipboard',
+        onSelect: async () => {
+          if (!selectedNode) return
+
+          const pos = selectedNode.pos
+          const node = editor.state.doc.nodeAt(pos)
+          if (node) {
+            await navigator.clipboard.writeText(node.textContent)
+          }
+        },
+      },
+    ],
+    [
+      {
+        kind: 'moveUp',
+        pos: selectedNode?.pos,
+        label: 'Move up',
+        icon: 'i-lucide-arrow-up',
+      },
+      {
+        kind: 'moveDown',
+        pos: selectedNode?.pos,
+        label: 'Move down',
+        icon: 'i-lucide-arrow-down',
+      },
+    ],
+    [
+      {
+        kind: 'delete',
+        pos: selectedNode?.pos,
+        label: 'Delete',
+        icon: 'i-lucide-trash',
+      },
+    ],
+  ]) as DropdownMenuItem[][]
 }
