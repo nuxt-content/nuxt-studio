@@ -60,7 +60,7 @@
     "@nuxt/eslint-config": "^1.10.0",
     "@nuxt/kit": "^4.2.1",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@af197af",
+    "@nuxt/ui": "^4.2.1",
     "@octokit/types": "^15.0.1",
     "@release-it/conventional-changelog": "^10.0.1",
     "@tailwindcss/typography": "^0.5.19",
@@ -87,7 +87,8 @@
   },
   "resolutions": {
     "remark-mdc": "3.8.1",
-    "nuxt-component-meta": "^0.14.2"
+    "nuxt-component-meta": "^0.14.2",
+    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@1a78d48"
   },
   "packageManager": "pnpm@10.21.0",
   "keywords": [
