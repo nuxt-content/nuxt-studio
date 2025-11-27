@@ -6,7 +6,7 @@ settings:
 
 overrides:
   remark-mdc: 3.8.1
-  nuxt-component-meta: ^0.14.2
+  nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@0d125c6
   '@nuxt/ui': https://pkg.pr.new/@nuxt/ui@1a78d48
 
 importers:
@@ -32,8 +32,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
       nuxt-component-meta:
-        specifier: ^0.14.2
-        version: 0.14.2(magicast@0.5.1)
+        specifier: https://pkg.pr.new/nuxt-component-meta@0d125c6
+        version: https://pkg.pr.new/nuxt-component-meta@0d125c6(magicast@0.5.1)
       unstorage:
         specifier: 1.17.1
         version: 1.17.1(db0@0.3.4(better-sqlite3@12.4.1))(idb-keyval@6.2.2)(ioredis@5.8.2)
@@ -5393,8 +5393,9 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
-  nuxt-component-meta@0.14.2:
-    resolution: {integrity: sha512-pxEnARUzRmq3zbOm8fJkWLPR8mL82NeP5Pu/iYff4otl6jPJwgC1Cbpz3Z77HlVeYVtzhSpQRsCSo/+296CwYw==}
+  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@0d125c6:
+    resolution: {tarball: https://pkg.pr.new/nuxt-component-meta@0d125c6}
+    version: 0.14.2
     hasBin: true
 
   nuxt-define@1.0.0:
@@ -8313,7 +8314,7 @@ snapshots:
       minimark: 0.2.0
       minimatch: 10.1.1
       modern-tar: 0.6.1
-      nuxt-component-meta: 0.14.2(magicast@0.5.1)
+      nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@0d125c6(magicast@0.5.1)
       nypm: 0.6.2
       ohash: 2.0.11
       pathe: 2.0.3
@@ -8373,7 +8374,7 @@ snapshots:
       minimark: 0.2.0
       minimatch: 10.1.1
       modern-tar: 0.7.2
-      nuxt-component-meta: 0.14.2(magicast@0.5.1)
+      nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@0d125c6(magicast@0.5.1)
       nypm: 0.6.2
       ohash: 2.0.11
       pathe: 2.0.3
@@ -13765,7 +13766,7 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
-  nuxt-component-meta@0.14.2(magicast@0.5.1):
+  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@0d125c6(magicast@0.5.1):
     dependencies:
       '@nuxt/kit': 4.2.1(magicast@0.5.1)
       citty: 0.1.6
