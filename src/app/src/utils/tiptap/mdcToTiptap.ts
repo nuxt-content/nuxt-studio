@@ -41,32 +41,6 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   'hr': node => createTipTapNode(node as MDCElement, 'horizontalRule'),
 }
 
-// export async function markdownToTiptap(markdown: string) {
-//   const mdc = await markdownToMDC(markdown)
-//   const { data } = parseFrontMatter(markdown)
-
-//   if (mdc.body && mdc.body.children?.[mdc.body.children?.length - 1]?.tag === 'style') {
-//     // Remove shiki highlight styles from tree
-//     mdc.body.children = mdc.body.children.filter(n => n.tag !== 'style')
-//   }
-
-//   return mdcToTiptap(mdc.body, data)
-// }
-
-// function parseFrontMatter(content: string) {
-//   let data: string = ''
-//   if (content.startsWith(FRONTMATTER_DELIMITER)) {
-//     const idx = content.indexOf('\n' + FRONTMATTER_DELIMITER)
-//     if (idx !== -1) {
-//       data = content.slice(4, idx)
-//     }
-//   }
-//   return {
-//     content,
-//     data,
-//   }
-// }
-
 export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
   // Remove invalid text node which added by table syntax
   body.children = (body.children || []).filter(child => child.type !== 'text')
@@ -100,7 +74,7 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
     return mdcToTiptapMap[type](node)
   }
 
-  /** Custom vue components (Elements) */
+  /** Custom vue components case (Elements) */
 
   // If parent is a paragraph, then element should be inline
   if ((parent as MDCElement)?.tag === 'p') {
@@ -123,7 +97,8 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
     }]
   }
 
-  const children = ((node as MDCElement).children || []) as MDCElement[] // moveNoneTemplateChildrenToDefaultSlot(((node as MDCElement).children || []) as MDCElement[])
+  // const children = ((node as MDCElement).children || []) as MDCElement[]
+  const children = wrapChildrenWithinSlot(((node as MDCElement).children || []) as MDCElement[])
 
   return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
 }
@@ -229,6 +204,16 @@ function createTipTapNode(node: MDCElement, type: string, extra: Record<string, 
 function createTemplateNode(node: MDCElement) {
   const name = Object.keys(node.props || {}).find(prop => prop?.startsWith('v-slot:'))?.replace('v-slot:', '') || 'default'
 
+  // Wrap text children in paragraph (TipTap requires text to be in block nodes)
+  if (node.children?.[0]?.type === 'text') {
+    node.children = [{
+      type: 'element',
+      tag: 'p',
+      children: node.children,
+      props: {},
+    }]
+  }
+
   return createTipTapNode(node, 'slot', { attrs: { name } })
 }
 
@@ -283,37 +268,33 @@ function createParagraphNode(node: MDCElement) {
 }
 
 /**
- * This function makes sure that all children (children of an element) are
+ * This function makes sure that all children of an element are
  * wrapped in a slot.
  * The children that are not wrapped in a slot are appended to the default slot.
- *
- * @param children The children of the node
- * @returns
  */
-// function moveNoneTemplateChildrenToDefaultSlot(children: MDCElement[]) {
-//   const noneTemplateChildren = children.filter(child => (child as MDCElement).tag !== 'template')
-//   if (noneTemplateChildren.length) {
-//     children = children.filter(child => (child as MDCElement).tag === 'template')
+function wrapChildrenWithinSlot(children: MDCElement[]) {
+  const noneSlotChildren = children.filter(child => (child as MDCElement).tag !== 'template')
+  if (noneSlotChildren.length) {
+    children = children.filter(child => (child as MDCElement).tag === 'template')
 
-//     let defaultSlot = children.find(child => (child as MDCElement).props?.['v-slot:default']) as MDCElement
-//     if (!defaultSlot) {
-//       defaultSlot = {
-//         type: 'element',
-//         tag: 'template',
-//         props: {
-//           'v-slot:default': '',
-//         },
-//         children: [],
-//       }
-//       children.unshift(defaultSlot)
-//     }
+    let defaultSlot = children.find(child => (child as MDCElement).props?.['v-slot:default']) as MDCElement
+    if (!defaultSlot) {
+      defaultSlot = {
+        type: 'element',
+        tag: 'template',
+        props: {
+          'v-slot:default': '',
+        },
+        children: [],
+      }
+      children.unshift(defaultSlot)
+    }
 
-//     // append none template children to default slot
-//     defaultSlot.children = [
-//       ...(defaultSlot.children || []),
-//       ...noneTemplateChildren,
-//     ]
-//   }
+    defaultSlot.children = [
+      ...(defaultSlot.children || []),
+      ...noneSlotChildren,
+    ]
+  }
 
-//   return children
-// }
+  return children
+}

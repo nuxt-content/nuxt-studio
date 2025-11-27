@@ -172,6 +172,11 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
       if (slot.content!.length === 1 && slot.content![0]?.type === 'paragraph') {
         slot.content = slot.content![0].content
       }
+
+      // Unwrap default slot: move slot content directly to parent
+      if (slot.attrs?.name === 'default') {
+        nodeContent = slot.content || []
+      }
     }
     delete node.attrs.props.__tiptapWrap
   }

@@ -431,3 +431,269 @@ This is content`
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
+
+describe('elements', () => {
+  test('block element with named default slot', async () => {
+    const inputContent = `::button
+#default
+Hello
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'button',
+          props: {},
+          children: [
+            {
+              type: 'text',
+              value: 'Hello',
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'button',
+            props: {
+              __tiptapWrap: true, // This is added by mdcToTiptap to wrap the content in a paragraph
+            },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  'v-slot:default': '',
+                },
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: {},
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test.only('block element with unnamed default slot', async () => {
+    const inputContent = `::button
+Hello
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'button',
+          props: {},
+          children: [
+            {
+              type: 'text',
+              value: 'Hello',
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'button',
+            props: {
+              __tiptapWrap: true, // This is added by mdcToTiptap to wrap the content in a paragraph
+            },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  'v-slot:default': '',
+                },
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: {},
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with named custom slot', async () => {
+    const inputContent = `::button
+#custom
+Hello
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'button',
+          children: [
+            {
+              type: 'element',
+              tag: 'template',
+              children: [
+                {
+                  type: 'text',
+                  value: 'Hello',
+                },
+              ],
+              props: {
+                'v-slot:custom': '',
+              },
+            },
+          ],
+          props: {},
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'button',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'custom',
+                props: {
+                  'v-slot:custom': '',
+                },
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+})

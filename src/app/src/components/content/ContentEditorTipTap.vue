@@ -93,7 +93,7 @@ watch(tiptapJSON, async (json) => {
   if (debug.value) {
     currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
     currentMDC.value = {
-      body: updatedDocument.body as unknown as MDCRoot,
+      body,
       data: host.document.utils.removeReservedKeys(updatedDocument),
     }
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string

@@ -36,6 +36,7 @@ const usedSlots = computed(() => {
   const slots = (node.value.content?.content || []) as ProseMirrorNode[]
   return slots.map(s => s.attrs.name)
 })
+const hasUnusedSlots = computed(() => availableSlots.value.some(s => !usedSlots.value.includes(s)))
 
 function onToggleCollapse(event: Event) {
   event.stopPropagation()
@@ -140,7 +141,7 @@ function _updateProps(props: Record<string, unknown>) {
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
           <UTooltip text="Add slot">
             <UButton
-              v-if="slots.length > 1"
+              v-if="slots.length > 1 && hasUnusedSlots"
               variant="ghost"
               size="2xs"
               class="text-muted hover:text-default"
