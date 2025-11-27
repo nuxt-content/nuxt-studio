@@ -701,4 +701,92 @@ Hello
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
+
+  test('block element with props', async () => {
+    const inputContent = `::block-element{color="neutral"}
+Hello
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'block-element',
+          props: {
+            color: 'neutral',
+          },
+          children: [
+            {
+              type: 'text',
+              value: 'Hello',
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'block-element',
+            props: {
+              __tiptapWrap: true,
+              color: 'neutral',
+            },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  'v-slot:default': '',
+                },
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
 })
