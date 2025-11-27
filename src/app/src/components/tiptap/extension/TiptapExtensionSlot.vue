@@ -59,11 +59,11 @@ function deleteSlot() {
           v-model="slotName"
           :items="availableSlots"
           :disabled="!isEditable"
+          :content="{ align: 'start' }"
           placeholder="Search or create a slot..."
           size="xs"
           :ui="{
             base: 'font-mono text-xs text-muted hover:text-default uppercase cursor-pointer ring-0',
-            leading: 'ps-0',
           }"
         >
           <template #leading>

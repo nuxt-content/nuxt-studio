@@ -5,7 +5,7 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import styles from './assets/css/main.css?inline'
 import { createHead } from '@unhead/vue/client'
 import { generateColors, tailwindColors } from './utils/colors'
-import { refineTailwindStyles } from './utils/styles.ts'
+import { convertPropertyToVar } from './utils/styles'
 import { createI18n } from 'vue-i18n'
 import App from './app.vue'
 import Content from './pages/content.vue'
@@ -81,7 +81,7 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
       styles: [
         tailwindColors,
         generateColors(),
-        refineTailwindStyles(styles),
+        convertPropertyToVar(styles),
       ],
     },
   ) as VueElementConstructor

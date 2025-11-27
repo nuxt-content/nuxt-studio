@@ -1,9 +1,5 @@
 export function refineTailwindStyles(styles: string) {
   styles = convertPropertyToVar(styles)
-  // Replace :root, html, and body with :host
-  styles = styles.replace(/:root/g, ':host')
-    .replace(/([^-])html/g, '$1:host')
-    .replace(/([^-])body/g, '$1:host')
 
   return styles
 }
