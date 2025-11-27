@@ -91,7 +91,7 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
   Object.entries((node as MDCElement).props || {}).forEach(([key, value]) => {
     if (key.startsWith(':') && value === 'true') {
       const propKey = key.replace(/^:/, '')
-      delete (node as MDCElement).props![propKey]
+      Reflect.deleteProperty((node as MDCElement).props!, propKey)
     }
   })
 

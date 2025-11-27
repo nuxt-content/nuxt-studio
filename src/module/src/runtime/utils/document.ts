@@ -11,6 +11,7 @@ import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import destr from 'destr'
 import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
 import { stringify } from 'minimark/stringify'
+import type { MinimarkTree } from 'minimark'
 // import type { ParsedContentFile } from '@nuxt/content'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import type { Node } from 'unist'
@@ -382,6 +383,14 @@ export async function generateContentFromMarkdownDocument(document: DatabasePage
   })
 
   return typeof markdown === 'string' ? markdown.replace(/&#x2A;/g, '*') : markdown
+}
+
+export function cleanupDocumentBeforeReturning(document: DatabaseItem) {
+  if ((document.body as unknown as MinimarkTree)?.type === 'minimark') {
+    document.body = withoutLastStyles(document.body as MarkdownRoot)
+  }
+
+  return document
 }
 
 function generateStemFromId(id: string) {

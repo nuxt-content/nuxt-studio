@@ -3,7 +3,7 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { normalizeDocument, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, removeReservedKeysFromDocument } from './utils/document'
+import { normalizeDocument, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, removeReservedKeysFromDocument, cleanupDocumentBeforeReturning } from './utils/document'
 import { kebabCase } from 'scule'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository, MarkdownParsingOptions } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -203,10 +203,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
             return undefined
           }
 
-          return {
+          return cleanupDocumentBeforeReturning({
             ...item,
             fsPath,
-          }
+          })
         },
         list: async (): Promise<DatabaseItem[]> => {
           const collections = Object.values(useContentCollections()).filter(collection => collection.name !== 'info')
@@ -217,10 +217,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
               const source = getCollectionSourceById(document.id, collection.source)
               const fsPath = generateFsPathFromId(document.id, source!)
 
-              return {
+              return cleanupDocumentBeforeReturning({
                 ...document,
                 fsPath,
-              }
+              })
             })
           }))
 
@@ -243,10 +243,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           await host.document.db.upsert(fsPath, normalizedDocument)
 
-          return {
+          return cleanupDocumentBeforeReturning({
             ...normalizedDocument,
             fsPath,
-          }
+          })
         },
         upsert: async (fsPath: string, document: CollectionItemBase) => {
           const collectionInfo = getCollectionByFilePath(fsPath, useContentCollections())
