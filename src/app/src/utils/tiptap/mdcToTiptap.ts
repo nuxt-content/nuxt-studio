@@ -118,31 +118,9 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
   //   }]
   // }
 
-  // const children = [...((node as MDCElement).children || []).filter(child => (child as MDCElement).tag === 'template')]
-  // console.log('children', children)
-  // const defaultSlotChildren = ((node as MDCElement).children || []).filter(child => (child as MDCElement).tag !== 'template')
-  // if (defaultSlotChildren.length) {
-  //   console.log('defaultSlotChildren', defaultSlotChildren)
-  //   const defaultSlot = children.find(child => (child as MDCElement).attributes?.['v-slot:default']) as MDCElement
-  //   if (defaultSlot) {
-  //     defaultSlot.children = [
-  //       ...(defaultSlot.children || []),
-  //       ...defaultSlotChildren,
-  //     ]
-  //   }
-  //   else {
-  //     children.unshift({
-  //       type: 'element',
-  //       tag: 'template',
-  //       attributes: {
-  //         'v-slot:default': '',
-  //       },
-  //       children: defaultSlotChildren,
-  //     })
-  //   }
-  // }
+  const children = moveNoneTemplateChildrenToDefaultSlot(((node as MDCElement).children || []) as MDCElement[])
 
-  return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children: (node as MDCElement).children || [] })
+  return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
 }
 
 /* Create nodes methods */
@@ -297,4 +275,40 @@ function createParagraphNode(node: MDCElement) {
     content,
     attrs: node.props,
   }
+}
+
+/**
+ * This function makes sure that all children (children of an element) are
+ * wrapped in a slot.
+ * The children that are not wrapped in a slot are appended to the default slot.
+ *
+ * @param children The children of the node
+ * @returns 
+ */
+function moveNoneTemplateChildrenToDefaultSlot(children: MDCElement[]) {
+  const noneTemplateChildren = children.filter(child => (child as MDCElement).tag !== 'template')
+  if (noneTemplateChildren.length) {
+    children = children.filter(child => (child as MDCElement).tag === 'template')
+
+    let defaultSlot = children.find(child => (child as MDCElement).props?.['v-slot:default']) as MDCElement
+    if (!defaultSlot) {
+      defaultSlot = {
+        type: 'element',
+        tag: 'template',
+        props: {
+          'v-slot:default': '',
+        },
+        children: [],
+      }
+      children.unshift(defaultSlot)
+    }
+
+    // append none template children to default slot
+    defaultSlot.children = [
+      ...(defaultSlot.children || []),
+      ...noneTemplateChildren,
+    ]
+  }
+
+  return children
 }
