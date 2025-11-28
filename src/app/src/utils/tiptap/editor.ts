@@ -5,7 +5,7 @@ import type { Editor, JSONContent } from '@tiptap/vue-3'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import { upperFirst } from 'scule'
 
-import { omit } from '../object'
+import { isEmpty, omit } from '../object'
 
 export const headingItems = [
   { kind: 'heading', level: 1, label: 'Heading 1', icon: 'i-lucide-heading-1' },
@@ -206,4 +206,12 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
       },
     ],
   ]) as DropdownMenuItem[][]
+}
+
+export function removeLastEmptyParagraph(jsonContent: JSONContent) {
+  const lastChild = jsonContent!.content![jsonContent!.content!.length - 1]
+  if (lastChild.type === 'paragraph' && isEmpty(lastChild.content)) {
+    jsonContent!.content = jsonContent!.content!.slice(0, -1)
+  }
+  return jsonContent
 }

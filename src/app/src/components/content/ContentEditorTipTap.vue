@@ -15,7 +15,7 @@ import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import { standardToolbarItems, standardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions } from '../../utils/tiptap/editor'
+import { standardToolbarItems, standardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
 import { Slot } from '../../utils/tiptap/extensions/slot'
@@ -73,10 +73,12 @@ async function setEditorJSON(document: DatabasePageItem) {
 
 // TipTap to Markdown
 watch(tiptapJSON, async (json) => {
-  const { body, data } = await tiptapToMDC(json!)
+  const cleanedTiptap = removeLastEmptyParagraph(json!)
+
+  const { body, data } = await tiptapToMDC(cleanedTiptap)
 
   const compressedBody: MarkdownRoot = compressTree(body)
-  const toc: Toc = generateToc(body, {} as Toc)
+  const toc: Toc = generateToc(body, { searchDepth: 2, depth: 2 } as Toc)
 
   const updatedDocument: DatabasePageItem = {
     ...document.value!,
@@ -91,7 +93,7 @@ watch(tiptapJSON, async (json) => {
 
   // Debug: Capture current state
   if (debug.value) {
-    currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
+    currentTiptap.value = cleanedTiptap
     currentMDC.value = {
       body,
       data: host.document.utils.removeReservedKeys(updatedDocument),
