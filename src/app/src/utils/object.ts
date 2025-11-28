@@ -31,7 +31,7 @@ export function isEmpty(obj: Array<unknown> | Array<Record<string, unknown>> | R
   return Object.keys(obj as Record<string, unknown>).length === 0 || Object.values(obj as Record<string, unknown>).every(value => value === null || value === undefined)
 }
 
-export function omit(obj: Record<string, unknown>, keys: string | string[]) {
+export function omit(obj: Record<string, unknown>, keys: string[]) {
   return Object.fromEntries(Object.entries(obj)
     .filter(([key]) => !keys.includes(key)))
 }

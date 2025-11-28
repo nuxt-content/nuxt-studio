@@ -61,10 +61,10 @@ export const standardToolbarItems = [
       icon: 'i-lucide-list',
       items: listItems,
     },
-    ...codeBlockItem.map(item => (omit(item, 'label') as EditorSuggestionMenuItem)),
+    ...codeBlockItem.map(item => (omit(item, ['label']) as EditorSuggestionMenuItem)),
   ],
   [
-    ...markItems.map(item => (omit(item, 'label') as EditorSuggestionMenuItem)),
+    ...markItems.map(item => (omit(item, ['label']) as EditorSuggestionMenuItem)),
     {
       kind: 'slot',
       slot: 'link' as const,

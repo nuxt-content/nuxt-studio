@@ -146,7 +146,7 @@ export function createMark(node: MDCNode, mark: string, accumulatedMarks: { type
     }]
   }
 
-  return (node as MDCElement).children?.map((child) => {
+  return ((node as MDCElement).children || []).map((child) => {
     if (child.type === 'text') {
       return {
         type: 'text',

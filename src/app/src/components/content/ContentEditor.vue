@@ -127,7 +127,6 @@ const language = computed(() => {
           v-if="preferences.editorMode === 'tiptap' && document.extension === ContentFileExtension.Markdown"
           v-model="document"
           :draft-item="draftItem"
-          :read-only="readOnly"
           class="flex-1"
         />
         <ContentEditorCode
