@@ -47,8 +47,8 @@ const handleUpload = () => {
 <template>
   <UModal
     :open="open"
-    title="Select Image"
-    description="Choose an image from your media library"
+    :title="$t('studio.mediaPicker.title')"
+    :description="$t('studio.mediaPicker.description')"
     @update:open="(value: boolean) => !value && emit('cancel')"
   >
     <template #body>
@@ -61,7 +61,7 @@ const handleUpload = () => {
           class="size-8 mx-auto mb-2"
         />
         <p class="text-sm">
-          No images available in your media library
+          {{ $t('studio.mediaPicker.noImagesAvailable') }}
         </p>
       </div>
 
@@ -97,7 +97,7 @@ const handleUpload = () => {
         icon="i-lucide-upload"
         @click="handleUpload"
       >
-        Upload
+        {{ $t('studio.mediaPicker.upload') }}
       </UButton>
     </template>
   </UModal>

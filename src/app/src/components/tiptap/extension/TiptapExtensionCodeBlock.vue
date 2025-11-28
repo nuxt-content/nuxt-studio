@@ -43,7 +43,7 @@ const filename = computed({
           v-model="filename"
           :disabled="!isEditable"
           class="flex-1 font-mono text-xs min-w-0 max-w-1/3"
-          placeholder="filename.js"
+          :placeholder="$t('studio.tiptap.codeBlock.filenamePlaceholder')"
           size="xs"
         />
       </div>

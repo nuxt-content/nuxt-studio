@@ -60,7 +60,7 @@ function deleteSlot() {
           :items="availableSlots"
           :disabled="!isEditable"
           :content="{ align: 'start' }"
-          placeholder="Search or create a slot..."
+          :placeholder="$t('studio.tiptap.slot.searchPlaceholder')"
           size="xs"
           :ui="{
             base: 'font-mono text-xs text-muted hover:text-default uppercase cursor-pointer ring-0',
@@ -76,19 +76,19 @@ function deleteSlot() {
 
           <template #empty>
             <div class="text-xs text-muted py-2">
-              No predefined slots available
+              {{ $t('studio.tiptap.slot.noSlotsAvailable') }}
             </div>
           </template>
         </USelectMenu>
 
-        <UTooltip text="Delete slot">
+        <UTooltip :text="$t('studio.tiptap.slot.deleteSlot')">
           <UButton
             variant="ghost"
             size="2xs"
             class="text-muted hover:text-default"
             icon="i-lucide-trash"
             :disabled="!isEditable || isLastRemainingSlot"
-            aria-label="Delete slot"
+            :aria-label="$t('studio.tiptap.slot.deleteSlot')"
             @click="deleteSlot"
           />
         </UTooltip>

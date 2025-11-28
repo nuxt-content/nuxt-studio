@@ -94,7 +94,7 @@ function closeStudio() {
         >
           <USwitch
             :model-value="preferences.debug"
-            label="Debug Mode"
+            :label="$t('studio.footer.debugMode')"
             size="xs"
             :ui="{ root: 'w-full flex-row-reverse justify-between', wrapper: 'ms-0' }"
             @update:model-value="updatePreference('debug', $event)"

@@ -2,6 +2,7 @@
 import { computed, ref, watch, reactive } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { kebabCase, titleCase } from 'scule'
+import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../../composables/useStudio'
 import { isEmpty } from '../../../utils/object'
 import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
@@ -9,6 +10,7 @@ import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
 const nodeProps = defineProps(nodeViewProps)
 
 const { host } = useStudio()
+const { t } = useI18n()
 
 const isEditable = ref(true) // TODO: Connect to editor state
 const isEditingProps = ref(false)
@@ -44,21 +46,21 @@ const displayIcon = computed(() => nuxtUIComponent.value?.icon || 'i-lucide-box'
 const items = computed(() => [
   [
     {
-      label: 'Edit content',
+      label: t('studio.tiptap.inlineElement.editContent'),
       icon: 'i-lucide-type',
       onClick: () => onEdit('content'),
       inactive: isEmpty(defaultSlot.value as never),
       disabled: isEmpty(defaultSlot.value as never),
     },
     {
-      label: 'Edit props',
+      label: t('studio.tiptap.inlineElement.editProps'),
       icon: 'i-lucide-settings',
       onClick: () => onEdit('props'),
     },
   ].filter(Boolean),
   [
     {
-      label: 'Delete',
+      label: t('studio.tiptap.inlineElement.delete'),
       icon: 'i-lucide-trash-2',
       color: 'error' as const,
       onClick: onDelete,
@@ -153,7 +155,7 @@ watch(() => contentForm.text, (slotText) => {
           <div v-if="isEditingContent">
             <UFormField
               name="content"
-              :label="`Edit ${displayName} content`"
+              :label="$t('studio.tiptap.inlineElement.editContentLabel', { name: displayName })"
               :hint="defaultSlot?.description"
             >
               <UInput
@@ -161,7 +163,7 @@ watch(() => contentForm.text, (slotText) => {
                 :disabled="!isEditable"
                 size="xs"
                 autofocus
-                placeholder="Enter content..."
+                :placeholder="$t('studio.tiptap.inlineElement.enterContentPlaceholder')"
                 @keypress.enter="isPopoverOpen = false"
               />
             </UFormField>
@@ -176,7 +178,7 @@ watch(() => contentForm.text, (slotText) => {
               class="size-3.5 text-muted"
             />
             <span class="font-medium text-xs text-muted tracking-tight">
-              Properties editor coming soon
+              {{ $t('studio.tiptap.inlineElement.propsEditorComingSoon') }}
             </span>
           </div>
         </div>

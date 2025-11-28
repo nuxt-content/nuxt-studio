@@ -11,6 +11,7 @@ import type { MarkdownRoot } from '@nuxt/content'
 import type { EditorCustomHandlers } from '@nuxt/ui'
 import { ref, watch, computed } from 'vue'
 import { titleCase } from 'scule'
+import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
@@ -35,6 +36,7 @@ const document = defineModel<DatabasePageItem>()
 
 const { host } = useStudio()
 const { preferences } = useStudioState()
+const { t } = useI18n()
 
 const tiptapJSON = ref<JSONContent>()
 
@@ -132,7 +134,7 @@ const suggestionItems = computed(() => [
   [
     {
       type: 'label',
-      label: 'Components',
+      label: t('studio.tiptap.editor.components'),
     },
     ...componentItems.value,
   ],
@@ -175,7 +177,7 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
         Slot,
         CodeBlock,
       ]"
-      placeholder="Write, type '/' for commands..."
+      :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
       <UEditorToolbar
         :editor="editor"

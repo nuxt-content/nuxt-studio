@@ -134,12 +134,12 @@ function _updateProps(props: Record<string, unknown>) {
             variant="subtle"
             size="xs"
           >
-            {{ Object.keys(componentProps).length }} {{ Object.keys(componentProps).length === 1 ? 'prop' : 'props' }}
+            {{ Object.keys(componentProps).length }} {{ Object.keys(componentProps).length === 1 ? $t('studio.tiptap.element.prop') : $t('studio.tiptap.element.props') }}
           </UBadge>
         </div>
 
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-          <UTooltip text="Add slot">
+          <UTooltip :text="$t('studio.tiptap.element.addSlot')">
             <UButton
               v-if="slots.length > 1 && hasUnusedSlots"
               variant="ghost"
@@ -147,14 +147,14 @@ function _updateProps(props: Record<string, unknown>) {
               class="text-muted hover:text-default"
               icon="i-lucide-plus"
               :disabled="!isEditable"
-              aria-label="Add slot"
+              :aria-label="$t('studio.tiptap.element.addSlot')"
               @click="onAddSlot"
             />
           </UTooltip>
 
           <UPopover v-model:open="openPropsPopover">
             <UTooltip
-              text="Edit props"
+              :text="$t('studio.tiptap.element.editProps')"
               :disabled="openPropsPopover"
             >
               <UButton
@@ -163,7 +163,7 @@ function _updateProps(props: Record<string, unknown>) {
                 class="text-muted hover:text-default"
                 icon="i-lucide-settings"
                 :disabled="!isEditable"
-                aria-label="Edit props"
+                :aria-label="$t('studio.tiptap.element.editProps')"
                 @click.stop
               />
             </UTooltip>
@@ -171,20 +171,20 @@ function _updateProps(props: Record<string, unknown>) {
             <template #content>
               <UCard>
                 <div class="text-xs text-muted">
-                  Props editor will be implemented soon...
+                  {{ $t('studio.tiptap.element.propsEditorComingSoon') }}
                 </div>
               </UCard>
             </template>
           </UPopover>
 
-          <UTooltip text="Delete">
+          <UTooltip :text="$t('studio.tiptap.element.delete')">
             <UButton
               variant="ghost"
               size="2xs"
               class="text-muted hover:text-default"
               icon="i-lucide-trash"
               :disabled="!isEditable"
-              aria-label="Delete"
+              :aria-label="$t('studio.tiptap.element.delete')"
               @click="onDelete"
             />
           </UTooltip>
