@@ -88,16 +88,21 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
    * modified, TipTap depend on the paragraph to allow text editing.
    */
   if (node.type === 'element' && node.children?.[0]?.type === 'text') {
-    node.props!.__tiptapWrap = true
-    node.children = [{
-      type: 'element',
-      tag: 'p',
-      children: node.children,
-      props: {},
-    }]
+    node = {
+      ...node,
+      props: {
+        ...node.props,
+        __tiptapWrap: true,
+      },
+      children: [{
+        type: 'element',
+        tag: 'p',
+        children: node.children,
+        props: {},
+      }],
+    }
   }
 
-  // const children = ((node as MDCElement).children || []) as MDCElement[]
   const children = wrapChildrenWithinSlot(((node as MDCElement).children || []) as MDCElement[])
 
   return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })

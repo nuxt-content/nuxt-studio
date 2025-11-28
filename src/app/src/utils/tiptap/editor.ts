@@ -211,7 +211,11 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
 export function removeLastEmptyParagraph(jsonContent: JSONContent) {
   const lastChild = jsonContent!.content![jsonContent!.content!.length - 1]
   if (lastChild.type === 'paragraph' && isEmpty(lastChild.content)) {
-    jsonContent!.content = jsonContent!.content!.slice(0, -1)
+    return {
+      ...jsonContent,
+      content: jsonContent!.content!.slice(0, -1),
+    }
   }
+
   return jsonContent
 }
