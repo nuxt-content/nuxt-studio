@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
-import { titleCase } from 'scule'
 import { useStudio } from '../../../composables/useStudio'
 
 const nodeProps = defineProps(nodeViewProps)
@@ -68,10 +67,6 @@ function deleteSlot() {
         >
           <template #leading>
             <span class="text-muted">#</span>
-          </template>
-
-          <template #label>
-            {{ titleCase(slotName) }}
           </template>
 
           <template #empty>

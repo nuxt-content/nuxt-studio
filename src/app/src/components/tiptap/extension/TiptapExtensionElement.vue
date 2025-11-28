@@ -90,9 +90,9 @@ function addSlot(name: string) {
 }
 
 // TODO: Implement props editor component and use this function
-function _updateProps(props: Record<string, unknown>) {
-  nodeProps.updateAttributes({ props })
-}
+// function _updateProps(props: Record<string, unknown>) {
+//   nodeProps.updateAttributes({ props })
+// }
 </script>
 
 <template>

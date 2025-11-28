@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../../composables/useStudio'
 import { isEmpty } from '../../../utils/object'
 import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
+import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
 
 const nodeProps = defineProps(nodeViewProps)
 
@@ -43,7 +44,7 @@ const nuxtUIComponent = computed(() => standardNuxtUIComponents[componentTag.val
 const displayName = computed(() => nuxtUIComponent.value?.name || componentName.value)
 const displayIcon = computed(() => nuxtUIComponent.value?.icon || 'i-lucide-box')
 
-const items = computed(() => [
+const items = computed<DropdownMenuItem[][]>(() => [
   [
     {
       label: t('studio.tiptap.inlineElement.editContent'),
@@ -119,7 +120,7 @@ watch(() => contentForm.text, (slotText) => {
       <template #item="{ item }">
         <span
           class="truncate"
-          :class="{ 'text-muted': item.inactive }"
+          :class="{ 'text-muted': item.inactive as boolean }"
         >
           {{ item.label }}
         </span>
