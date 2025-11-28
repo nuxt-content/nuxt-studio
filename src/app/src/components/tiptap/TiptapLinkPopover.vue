@@ -17,8 +17,15 @@ const disabled = computed(() => {
   return selection.empty && !props.editor.isActive('link')
 })
 
+let currentEditor: Editor
+let updateUrlCallback: (() => void)
+
 watch(() => props.editor, (editor) => {
   if (!editor) return
+
+  if (currentEditor && updateUrlCallback) {
+    currentEditor.off('selectionUpdate', updateUrlCallback)
+  }
 
   const updateUrl = () => {
     const { href } = editor.getAttributes('link')
@@ -28,10 +35,15 @@ watch(() => props.editor, (editor) => {
   updateUrl()
   editor.on('selectionUpdate', updateUrl)
 
-  onBeforeUnmount(() => {
-    editor.off('selectionUpdate', updateUrl)
-  })
+  currentEditor = editor
+  updateUrlCallback = updateUrl
 }, { immediate: true })
+
+onBeforeUnmount(() => {
+  if (currentEditor && updateUrlCallback) {
+    currentEditor.off('selectionUpdate', updateUrlCallback)
+  }
+})
 
 watch(active, (isActive) => {
   if (isActive && props.autoOpen) {
