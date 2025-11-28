@@ -50,7 +50,7 @@
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "js-yaml": "^4.1.1",
-    "nuxt-component-meta": "^0.14.2",
+    "nuxt-component-meta": "^0.15.0",
     "unstorage": "1.17.1"
   },
   "devDependencies": {
@@ -86,8 +86,7 @@
     "zod": "^4.1.12"
   },
   "resolutions": {
-    "nuxt-component-meta": "https://pkg.pr.new/nuxt-component-meta@0d125c6",
-    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@1a78d48"
+    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@0a59a15"
   },
   "packageManager": "pnpm@10.21.0",
   "keywords": [
