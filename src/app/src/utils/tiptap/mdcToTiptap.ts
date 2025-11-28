@@ -1,4 +1,3 @@
-// import type { MarkdownNode, ParsedContent } from '@nuxt/content'
 import type { JSONContent } from '@tiptap/vue-3'
 import { isEmpty } from '../../utils/object'
 import type { MDCNode, MDCElement, MDCText, MDCComment, MDCRoot } from '@nuxtjs/mdc'
@@ -62,19 +61,23 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
   const type = node.type === 'element' ? node.tag! : node.type
 
   // Remove duplicate boolean props
-  Object.entries((node as MDCElement).props || {}).forEach(([key, value]) => {
-    if (key.startsWith(':') && value === 'true') {
-      const propKey = key.replace(/^:/, '')
-      Reflect.deleteProperty((node as MDCElement).props!, propKey)
-    }
-  })
+  // Object.entries((node as MDCElement).props || {}).forEach(([key, value]) => {
+  //   if (key.startsWith(':') && value === 'true') {
+  //     const propKey = key.replace(/^:/, '')
+  //     Reflect.deleteProperty((node as MDCElement).props!, propKey)
+  //   }
+  // })
 
-  /** Known elements */
+  /**
+   * Known ndoe types
+   */
   if (mdcToTiptapMap[type]) {
     return mdcToTiptapMap[type](node)
   }
 
-  /** Custom vue components case (Elements) */
+  /**
+   * Custom vue components (Elements)
+   */
 
   // If parent is a paragraph, then element should be inline
   if ((parent as MDCElement)?.tag === 'p') {
