@@ -9,7 +9,7 @@
       "review": "Review",
       "publish": "Publish",
       "back": "Back",
-      "backToCode": "Back to code",
+      "backToEdition": "Back to edition",
       "seeChanges": "See what's changed"
     },
     "headings": {
@@ -59,7 +59,8 @@
     },
     "footer": {
       "developer_view": "Developer view",
-      "localFilesystem": "Using local filesystem"
+      "localFilesystem": "Using local filesystem",
+      "debugMode": "Debug Mode"
     },
     "alert": {
       "mdcFormatting": "Formatting applied to align with MDC syntax standard."
@@ -86,7 +87,9 @@
       "nameEmpty": "Name cannot be empty",
       "nameEndsWithDot": "Name cannot end with '.'",
       "nameStartsWithSlash": "Name cannot start with '/'",
-      "nameExists": "Name already exists"
+      "nameExists": "Name already exists",
+      "prefixDigitsOnly": "Prefix must be a string containing only digits",
+      "prefixNonNegativeInteger": "Prefix must be a non-negative integer"
     },
     "media": {
       "altFilePreview": "File preview",
@@ -128,7 +131,9 @@
         "duplicateItem": "Duplicate",
         "revertItem": "Revert changes",
         "publishBranch": "Publish branch",
-        "openGitProvider": "Open on {providerName}"
+        "openGitProvider": "Open on {providerName}",
+        "switchToTipTap": "Use visual editor",
+        "switchToCode": "Use code editor"
       },
       "tooltips": {
         "createDocument": "Create a new file",
@@ -187,6 +192,48 @@
         "required": "required",
         "default": "default"
       }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Write, type '/' for commands...",
+        "components": "Components"
+      },
+      "element": {
+        "addSlot": "Add slot",
+        "editProps": "Edit props",
+        "delete": "Delete",
+        "prop": "prop",
+        "props": "props",
+        "propsEditorComingSoon": "Props editor will be implemented soon..."
+      },
+      "slot": {
+        "searchPlaceholder": "Search or create a slot...",
+        "deleteSlot": "Delete slot",
+        "noSlotsAvailable": "No predefined slots available"
+      },
+      "inlineElement": {
+        "editContent": "Edit content",
+        "editProps": "Edit props",
+        "delete": "Delete",
+        "editContentLabel": "Edit {name} content",
+        "enterContentPlaceholder": "Enter content...",
+        "propsEditorComingSoon": "Properties editor coming soon"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filename.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Paste a link...",
+        "applyLink": "Apply link",
+        "openInNewWindow": "Open in new window",
+        "removeLink": "Remove link"
+      }
+    },
+    "mediaPicker": {
+      "title": "Select Image",
+      "description": "Choose an image from your media library",
+      "noImagesAvailable": "No images available in your media library",
+      "upload": "Upload"
     }
   }
 }

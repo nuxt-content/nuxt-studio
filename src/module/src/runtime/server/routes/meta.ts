@@ -1,10 +1,8 @@
 import type { ComponentMeta } from 'vue-component-meta'
 import { eventHandler, useSession } from 'h3'
-import type { RuntimeConfig } from '@nuxt/content'
-import { useRuntimeConfig, useAppConfig, createError } from '#imports'
+import { useRuntimeConfig, createError } from '#imports'
 // @ts-expect-error import does exist
 import components from '#nuxt-component-meta/nitro'
-import { collections, gitInfo, appConfigSchema } from '#content/preview'
 
 interface NuxtComponentMeta {
   pascalName: string
@@ -14,16 +12,18 @@ interface NuxtComponentMeta {
 }
 
 export default eventHandler(async (event) => {
-  const session = await useSession(event, {
-    name: 'studio-session',
-    password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
-  })
-
-  if (!session?.data?.user) {
-    throw createError({
-      statusCode: 404,
-      message: 'Not found',
+  if (!import.meta.dev) {
+    const session = await useSession(event, {
+      name: 'studio-session',
+      password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
     })
+
+    if (!session?.data?.user) {
+      throw createError({
+        statusCode: 404,
+        message: 'Not found',
+      })
+    }
   }
 
   const mappedComponents = (Object.values(components) as NuxtComponentMeta[])
@@ -39,17 +39,7 @@ export default eventHandler(async (event) => {
       }
     })
 
-  const appConfig = useAppConfig()
-  const runtimeConfig = useRuntimeConfig()
-  const { content } = runtimeConfig
-  const { version } = content as RuntimeConfig['content']
-
   return {
-    version,
-    gitInfo,
-    collections,
-    appConfigSchema,
-    appConfig,
     components: mappedComponents,
   }
 })

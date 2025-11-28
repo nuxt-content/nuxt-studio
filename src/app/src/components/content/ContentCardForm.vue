@@ -25,7 +25,7 @@ const fileIcon = computed(() => {
     return getFileIcon(props.renamedItem.fsPath)
   }
 
-  return 'i-ph-markdown-logo'
+  return 'i-simple-icons-markdown'
 })
 </script>
 

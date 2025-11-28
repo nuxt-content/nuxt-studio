@@ -68,7 +68,7 @@ const schema = computed(() => z.object({
   prefix: z.preprocess(
     val => val === '' ? null : val,
     z.string()
-      .regex(/^\d+$/, 'Prefix must be a string containing only digits')
+      .regex(/^\d+$/, t('studio.validation.prefixDigitsOnly'))
       .refine(
         (prefix: string | null | undefined) => {
           if (prefix === null || prefix === undefined) {
@@ -79,7 +79,7 @@ const schema = computed(() => z.object({
 
           return Number.isInteger(num) && num >= 0
         },
-        'Prefix must be a non-negative integer',
+        t('studio.validation.prefixNonNegativeInteger'),
       )
       .nullish(),
   ),
@@ -340,7 +340,7 @@ async function onSubmit() {
                 <UButton
                   color="neutral"
                   variant="ghost"
-                  icon="i-ph-x"
+                  icon="i-lucide-x"
                   :aria-label="$t('studio.aria.cancel')"
                   size="xs"
                   square
@@ -365,7 +365,7 @@ async function onSubmit() {
                   >
                     <UIcon
                       v-if="!isLoading"
-                      name="i-ph-check"
+                      name="i-lucide-check"
                       class="size-4"
                     />
                   </UButton>

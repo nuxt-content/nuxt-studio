@@ -1,7 +1,7 @@
 import type { CollectionInfo, CollectionItemBase, MarkdownRoot, PageCollectionItemBase } from '@nuxt/content'
 import { getOrderedSchemaKeys } from './collection'
 import { pathMetaTransform } from './path-meta'
-import type { DatabaseItem, DatabasePageItem } from 'nuxt-studio/app'
+import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import { doObjectsMatch, omit, pick } from './object'
 import { ContentFileExtension } from '../types/content'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
@@ -11,6 +11,7 @@ import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import destr from 'destr'
 import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
 import { stringify } from 'minimark/stringify'
+import type { MinimarkTree } from 'minimark'
 // import type { ParsedContentFile } from '@nuxt/content'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import type { Node } from 'unist'
@@ -20,7 +21,7 @@ const reservedKeys = ['id', 'fsPath', 'stem', 'extension', '__hash__', 'path', '
 /*
 ** Normalization utils
 */
-export function normalizeDocument(id: string, collectionInfo: CollectionInfo, document: CollectionItemBase) {
+export function applyCollectionSchema(id: string, collectionInfo: CollectionInfo, document: CollectionItemBase) {
   const parsedContent = [
     pathMetaTransform,
   ].reduce((acc, fn) => collectionInfo.type === 'page' ? fn(acc as PageCollectionItemBase) : acc, { ...document, id } as PageCollectionItemBase)
@@ -57,6 +58,16 @@ export function normalizeDocument(id: string, collectionInfo: CollectionInfo, do
   }
 
   return result
+}
+
+export function sanitizeDocument(document: DatabaseItem) {
+  if ((document.body as unknown as MinimarkTree)?.type === 'minimark') {
+    document.body = withoutLastStyles(document.body as MarkdownRoot)
+  }
+
+  // remove the codeblock token and convert highlighted code blocks to plain code blocks
+
+  return document
 }
 
 export function pickReservedKeysFromDocument(document: DatabaseItem): DatabaseItem {
@@ -220,12 +231,12 @@ export function areDocumentsEqual(document1: Record<string, unknown>, document2:
 /*
 ** Generation utils
 */
-export async function generateDocumentFromContent(id: string, content: string): Promise<DatabaseItem | null> {
+export async function generateDocumentFromContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
   const extension = getFileExtension(id)
 
   if (extension === ContentFileExtension.Markdown) {
-    return await generateDocumentFromMarkdownContent(id, content)
+    return await generateDocumentFromMarkdownContent(id, content, options)
   }
 
   if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
@@ -286,7 +297,7 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
   } as DatabaseItem
 }
 
-export async function generateDocumentFromMarkdownContent(id: string, content: string): Promise<DatabaseItem> {
+export async function generateDocumentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
   const document = await parseMarkdown(content, {
     remark: {
       plugins: {
@@ -301,12 +312,14 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
 
   // Remove nofollow from links
   visit(document.body, (node: unknown) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: unknown) => {
-    if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
-      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-    }
+    // TODO: handle rel custom properties
+    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
   })
 
-  const body = document.body.type === 'root' ? compressTree(document.body) : document.body as never as MarkdownRoot
+  let body = document.body as never as MarkdownRoot
+  if (options.compress && document.body.type === 'root') {
+    body = compressTree(document.body)
+  }
 
   const result = {
     id,
@@ -360,9 +373,8 @@ export async function generateContentFromMarkdownDocument(document: DatabasePage
 
   // Remove nofollow from links
   visit(body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
-    if ((node as MDCElement).props?.rel?.join(' ') === 'nofollow') {
-      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-    }
+    // TODO: handle rel custom properties
+    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
   })
 
   const markdown = await stringifyMarkdown(body, removeReservedKeysFromDocument(document), {

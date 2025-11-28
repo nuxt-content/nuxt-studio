@@ -3,9 +3,9 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { normalizeDocument, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, removeReservedKeysFromDocument } from './utils/document'
+import { applyCollectionSchema, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, removeReservedKeysFromDocument, sanitizeDocument } from './utils/document'
 import { kebabCase } from 'scule'
-import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
+import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository, MarkdownParsingOptions } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
 import { clearError, getAppManifest, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections, useRuntimeConfig } from '#imports'
@@ -106,7 +106,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
   const host: StudioHost = {
     meta: {
       dev: false,
-      components: () => meta.componentsMeta.value,
+      getComponents: () => meta.components.value,
       defaultLocale: useRuntimeConfig().public.studio.i18n?.defaultLocale || 'en',
     },
     on: {
@@ -197,14 +197,16 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           const id = generateIdFromFsPath(fsPath, collectionInfo)
           const item = await useContentCollectionQuery(collectionInfo.name).where('id', '=', id).first()
 
+          // item.meta = {}
+
           if (!item) {
             return undefined
           }
 
-          return {
+          return sanitizeDocument({
             ...item,
             fsPath,
-          }
+          })
         },
         list: async (): Promise<DatabaseItem[]> => {
           const collections = Object.values(useContentCollections()).filter(collection => collection.name !== 'info')
@@ -215,10 +217,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
               const source = getCollectionSourceById(document.id, collection.source)
               const fsPath = generateFsPathFromId(document.id, source!)
 
-              return {
+              return sanitizeDocument({
                 ...document,
                 fsPath,
-              }
+              })
             })
           }))
 
@@ -237,14 +239,14 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo!)
           const document = await generateDocumentFromContent(id, content)
-          const normalizedDocument = normalizeDocument(id, collectionInfo, document!)
+          const normalizedDocument = applyCollectionSchema(id, collectionInfo, document!)
 
           await host.document.db.upsert(fsPath, normalizedDocument)
 
-          return {
+          return sanitizeDocument({
             ...normalizedDocument,
             fsPath,
-          }
+          })
         },
         upsert: async (fsPath: string, document: CollectionItemBase) => {
           const collectionInfo = getCollectionByFilePath(fsPath, useContentCollections())
@@ -254,7 +256,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo)
 
-          const normalizedDocument = normalizeDocument(id, collectionInfo, document)
+          const normalizedDocument = applyCollectionSchema(id, collectionInfo, document)
 
           await useContentDatabaseAdapter(collectionInfo.name).exec(generateRecordDeletion(collectionInfo, id))
           await useContentDatabaseAdapter(collectionInfo.name).exec(generateRecordInsert(collectionInfo, normalizedDocument))
@@ -296,7 +298,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
       },
       generate: {
-        documentFromContent: async (id: string, content: string) => generateDocumentFromContent(id, content),
+        documentFromContent: async (id: string, content: string, options: MarkdownParsingOptions = { compress: true }) => generateDocumentFromContent(id, content, options),
         contentFromDocument: async (document: DatabaseItem) => generateContentFromDocument(document),
       },
     },
