@@ -208,6 +208,12 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
     return createParagraphElement(node, propsArray, rest)
   }
 
+  // Automatically unwrap the element children if it has only one child and the child is the default slot
+  // This logic reverts `wrapChildrenWithinSlot` in `mdcToTiptap`
+  if (nodeContent.length === 1 && nodeContent[0]?.type === 'slot' && nodeContent[0].attrs?.name === 'default') {
+    nodeContent = nodeContent[0].content || []
+  }
+
   return {
     type: 'element',
     tag: tag || node.attrs?.tag,
