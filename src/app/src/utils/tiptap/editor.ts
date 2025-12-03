@@ -141,11 +141,30 @@ export const standardNuxtUIComponents: Record<string, { name: string, icon: stri
 }
 
 export function computeStandardDragActions(editor: Editor, selectedNode: JSONContent, t: TFunction): DropdownMenuItem[][] {
+  const type = selectedNode.node.type
+  let label: string = upperFirst(type)
+
+  // Map known types to their translation keys
+  const typeTranslationMap: Record<string, string> = {
+    paragraph: 'studio.tiptap.suggestion.paragraph',
+    heading: 'studio.tiptap.toolbar.headings',
+    bulletList: 'studio.tiptap.toolbar.bulletList',
+    orderedList: 'studio.tiptap.toolbar.orderedList',
+    blockquote: 'studio.tiptap.toolbar.blockquote',
+    codeBlock: 'studio.tiptap.toolbar.codeBlock',
+    image: 'studio.tiptap.suggestion.image',
+    horizontalRule: 'studio.tiptap.suggestion.horizontalRule',
+  }
+
+  if (typeTranslationMap[type]) {
+    label = t(typeTranslationMap[type])
+  }
+
   return mapEditorItems(editor, [
     [
       {
         type: 'label',
-        label: upperFirst(selectedNode.node.type),
+        label,
       },
       {
         label: t('studio.tiptap.drag.turnInto'),
