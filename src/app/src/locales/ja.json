@@ -198,6 +198,37 @@
         "placeholder": "何か書いてください。コマンドは '/' を入力...",
         "components": "コンポーネント"
       },
+      "toolbar": {
+        "h1": "見出し 1",
+        "h2": "見出し 2",
+        "h3": "見出し 3",
+        "h4": "見出し 4",
+        "bulletList": "箇条書きリスト",
+        "orderedList": "番号付きリスト",
+        "blockquote": "引用ブロック",
+        "codeBlock": "コードブロック",
+        "bold": "太字",
+        "italic": "斜体",
+        "strike": "打ち消し線",
+        "code": "コード",
+        "headings": "見出し"
+      },
+      "suggestion": {
+        "style": "スタイル",
+        "paragraph": "段落",
+        "insert": "挿入",
+        "image": "画像",
+        "horizontalRule": "水平線"
+      },
+      "drag": {
+        "turnInto": "変換",
+        "resetFormatting": "書式をリセット",
+        "duplicate": "複製",
+        "copyToClipboard": "クリップボードにコピー",
+        "moveUp": "上に移動",
+        "moveDown": "下に移動",
+        "delete": "削除"
+      },
       "element": {
         "addSlot": "スロットを追加",
         "editProps": "プロパティを編集",
