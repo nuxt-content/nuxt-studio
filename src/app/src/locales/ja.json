@@ -203,7 +203,7 @@
         "h2": "見出し 2",
         "h3": "見出し 3",
         "h4": "見出し 4",
-        "bulletList": "箇条書きリスト",
+        "bulletList": "箇条書き",
         "orderedList": "番号付きリスト",
         "blockquote": "引用ブロック",
         "codeBlock": "コードブロック",
