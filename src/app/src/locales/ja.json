@@ -238,7 +238,7 @@
         "propsEditorComingSoon": "プロパティエディタはまもなく実装されます"
       },
       "slot": {
-        "searchPlaceholder": "スロットを検索...",
+        "searchPlaceholder": "スロットを検索または作成...",
         "deleteSlot": "スロットを削除",
         "noSlotsAvailable": "利用可能なスロットがありません"
       },
