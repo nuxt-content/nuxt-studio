@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, useLogger, addServerHandler, addTemplate } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addTemplate } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
 import { defu } from 'defu'
 import { resolve } from 'node:path'
@@ -7,6 +7,7 @@ import { createStorage } from 'unstorage'
 import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
+import { validateAuthConfig } from './auth'
 
 interface BaseRepository {
   /**
@@ -44,7 +45,7 @@ interface GitLabRepository extends BaseRepository {
   instanceUrl?: string
 }
 
-interface ModuleOptions {
+export interface ModuleOptions {
   /**
    * The route to access the studio login page.
    * @default '/_studio'
@@ -92,7 +93,7 @@ interface ModuleOptions {
     }
     /**
      * The Google OAuth credentials.
-     * Note: When using Google OAuth, you must set STUDIO_MODERATORS to a comma-separated
+     * Note: When using Google OAuth, you must set STUDIO_GOOGLE_MODERATORS to a comma-separated
      * list of authorized email addresses, and either STUDIO_GITHUB_TOKEN or STUDIO_GITLAB_TOKEN
      * to push changes to your repository.
      */
@@ -137,7 +138,6 @@ interface ModuleOptions {
   }
 }
 
-const logger = useLogger('nuxt-studio')
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-studio',
@@ -184,25 +184,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     if (!nuxt.options.dev && !nuxt.options._prepare) {
-      const provider = options.repository?.provider || 'github'
-      const hasGitHubAuth = options.auth?.github?.clientId && options.auth?.github?.clientSecret
-      const hasGitLabAuth = options.auth?.gitlab?.applicationId && options.auth?.gitlab?.applicationSecret
-      const hasGoogleAuth = options.auth?.google?.clientId && options.auth?.google?.clientSecret
-
-      if (provider === 'github' && !hasGitHubAuth && !hasGoogleAuth) {
-        logger.warn([
-          'In order to authenticate users, you need to set up a GitHub OAuth application.',
-          'Please set the `STUDIO_GITHUB_CLIENT_ID` and `STUDIO_GITHUB_CLIENT_SECRET` environment variables,',
-          'Alternatively, you can set up a Google OAuth application and set the `STUDIO_GOOGLE_CLIENT_ID` and `STUDIO_GOOGLE_CLIENT_SECRET` environment variables alongside with `STUDIO_GITHUB_TOKEN` to push changes to the repository.',
-        ].join(' '))
-      }
-      else if (provider === 'gitlab' && !hasGitLabAuth) {
-        logger.warn([
-          'In order to authenticate users, you need to set up a GitLab OAuth application.',
-          'Please set the `STUDIO_GITLAB_APPLICATION_ID` and `STUDIO_GITLAB_APPLICATION_SECRET` environment variables,',
-          'Alternatively, you can set up a Google OAuth application and set the `STUDIO_GOOGLE_CLIENT_ID` and `STUDIO_GOOGLE_CLIENT_SECRET` environment variables alongside with `STUDIO_GITLAB_TOKEN` to push changes to the repository.',
-        ].join(' '))
-      }
+      validateAuthConfig(options)
     }
 
     // Enable checkoutOutdatedBuildInterval to detect new deployments

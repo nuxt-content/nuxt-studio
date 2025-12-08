@@ -179,7 +179,7 @@ export default eventHandler(async (event: H3Event) => {
     user.email = primaryEmail.email
   }
 
-  const moderators = process.env.STUDIO_MODERATORS?.split(',') || []
+  const moderators = process.env.STUDIO_GITHUB_MODERATORS?.split(',') || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,
