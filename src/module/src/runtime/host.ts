@@ -340,16 +340,16 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       },
       unregisterServiceWorker: () => {
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(regs => {
-            regs.forEach(reg => {
+          navigator.serviceWorker.getRegistrations().then((regs) => {
+            regs.forEach((reg) => {
               // This is the URL you used in navigator.serviceWorker.register('/my-sw.js')
-              const scriptURL = reg.active?.scriptURL 
-                || reg.waiting?.scriptURL 
-                || reg.installing?.scriptURL;
-              
+              const scriptURL = reg.active?.scriptURL
+                || reg.waiting?.scriptURL
+                || reg.installing?.scriptURL
+
               // Check for exact match or contains
               if (scriptURL && scriptURL.endsWith(`/sw.js?${serviceWorkerVersion}`)) {
-                reg.unregister();
+                reg.unregister()
               }
             })
           })
