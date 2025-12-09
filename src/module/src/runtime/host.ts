@@ -303,7 +303,6 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         contentFromDocument: async (document: DatabaseItem) => generateContentFromDocument(document),
       },
     },
-
     media: {
       get: async (fsPath: string): Promise<MediaItem> => {
         return await publicAssetsStorage.getItem(generateMediaIdFromFsPath(fsPath)) as MediaItem
@@ -334,6 +333,28 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       navigateTo: (path: string) => {
         useRouter().push(path)
       },
+      registerServiceWorker: () => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register(`/sw.js?${serviceWorkerVersion}`)
+        }
+      },
+      unregisterServiceWorker: () => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(reg => {
+              // This is the URL you used in navigator.serviceWorker.register('/my-sw.js')
+              const scriptURL = reg.active?.scriptURL 
+                || reg.waiting?.scriptURL 
+                || reg.installing?.scriptURL;
+              
+              // Check for exact match or contains
+              if (scriptURL && scriptURL.endsWith(`/sw.js?${serviceWorkerVersion}`)) {
+                reg.unregister();
+              }
+            })
+          })
+        }
+      },
     },
   }
 
@@ -348,9 +369,6 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         localDatabaseAdapter = _localDatabaseAdapter
         isMounted.value = true
       }).then(() => {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register(`/sw.js?${serviceWorkerVersion}`)
-        }
         return meta.fetch()
       })
 
