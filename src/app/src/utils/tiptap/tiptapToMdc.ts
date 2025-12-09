@@ -1,17 +1,17 @@
-// import type { MarkdownNode, MarkdownRoot, Toc } from '@nuxt/content'
 import type { JSONContent } from '@tiptap/vue-3'
 import Slugger from 'github-slugger'
-// import rehypeShiki from '@nuxtjs/mdc/dist/runtime/highlighter/rehype'
-// import { createShikiHighlighter } from '@nuxtjs/mdc/runtime/highlighter/shiki'
-// import { bundledThemes, bundledLanguages as bundledLangs, createJavaScriptRegexEngine } from 'shiki'
-// import { visit } from 'unist-util-visit'
-import type { MDCElement, MDCNode, MDCRoot, MDCText } from '@nuxtjs/mdc'
-// import type { RehypeMarkdownNode } from '../types'
-
-let slugs = new Slugger()
-// let shikiHighlighter: Highlighter
+import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText } from '@nuxtjs/mdc'
+import rehypeShiki from '@nuxtjs/mdc/dist/runtime/highlighter/rehype'
+import { createShikiHighlighter } from '@nuxtjs/mdc/runtime/highlighter/shiki'
+import { bundledThemes, bundledLanguages as bundledLangs, createJavaScriptRegexEngine } from 'shiki'
+import { visit } from 'unist-util-visit'
+import type { SyntaxHighlightTheme } from '../../types/content'
 
 type TiptapToMDCMap = Record<string, (node: JSONContent) => MDCRoot | MDCNode | MDCNode[]>
+
+interface TiptapToMDCOptions {
+  highlightTheme?: SyntaxHighlightTheme
+}
 
 const markToTag: Record<string, string> = {
   bold: 'strong',
@@ -49,8 +49,16 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'br': (node: JSONContent) => createElement(node, 'br'),
 }
 
-/* Parsing methods */
-export async function tiptapToMDC(node: JSONContent): Promise<{ body: MDCRoot, data: Record<string, unknown> }> {
+let slugs = new Slugger()
+let shikiHighlighter: Highlighter | undefined
+
+/*
+ ***************************************************************
+ ******************** Parsing methods **************************
+ ***************************************************************
+ */
+
+export async function tiptapToMDC(node: JSONContent, options?: TiptapToMDCOptions): Promise<{ body: MDCRoot, data: Record<string, unknown> }> {
   // re-create slugs
   slugs = new Slugger()
 
@@ -81,7 +89,7 @@ export async function tiptapToMDC(node: JSONContent): Promise<{ body: MDCRoot, d
 
   mdc.body = tiptapNodeToMDC(nodeCopy) as MDCRoot
 
-  // await applyShikiSyntaxHighlighting(mdc.body)
+  await applyShikiSyntaxHighlighting(mdc.body, options?.highlightTheme)
 
   return mdc
 }
@@ -115,82 +123,9 @@ export function tiptapNodeToMDC(node: JSONContent): MDCRoot | MDCNode | MDCNode[
   }
 }
 
-// async function applyShikiSyntaxHighlighting(mdc: MarkdownRoot) {
-//   // convert tag to tagName and props to properties to be compatible with rehype
-//   // TODO: we may refactor tiptapToMDC to use tagName and properties instead of tag and props to avoid this step
-//   visit(
-//     mdc,
-//     (n: MarkdownNode) => n.tag !== undefined,
-//     (n: MarkdownNode) => { Object.assign(n, { tagName: n.tag, properties: n.props }) },
-//   )
-
-//   if (typeof useProjects !== 'undefined') {
-//     const { project } = useProjects()
-//     if (project.value) {
-//       const { meta } = useProjectMeta(project.value)
-//       const theme = meta.value?.content?.highlight?.theme || { default: 'github-light', dark: 'github-dark' }
-
-//       if (!shikiHighlighter) {
-//         shikiHighlighter = createShikiHighlighter({ bundledThemes, bundledLangs, engine: createJavaScriptRegexEngine({ forgiving: true }) })
-//       }
-//       const shikit = rehypeShiki({ theme, highlighter: shikiHighlighter })
-//       // highlight code blocks
-//       await shikit(mdc as never)
-//     }
-//   }
-
-//   // convert back tagName to tag and properties to props to be compatible with MDC
-//   visit(
-//     mdc,
-//     (n: MarkdownNode) => (n as RehypeMarkdownNode).tagName !== undefined,
-//     (n: MarkdownNode) => { Object.assign(n, { tag: (n as RehypeMarkdownNode).tagName, props: (n as RehypeMarkdownNode).properties, tagName: undefined, properties: undefined }) },
-//   )
-
-//   // remove empty newline text nodes
-//   visit(
-//     mdc,
-//     (n: MarkdownNode) => n.tag === 'pre',
-//     (n: MarkdownNode) => {
-//       n.children[0].children = n.children[0].children.filter((child: MarkdownNode) => child.type !== 'text' || child.value.trim())
-//     },
-//   )
-// }
-
-/* Create element methods */
-
-/**
- * Unwrap a single child if it matches the specified type
- */
-function unwrapParagraph(content: JSONContent[]): JSONContent[] {
-  if (content.length === 1 && content[0]?.type === 'paragraph') {
-    return content[0].content || []
-  }
-  return content
-}
-
-/**
- * Unwrap a default slot's content directly to parent level
- */
-function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
-  if (content.length === 1 && content[0]?.type === 'slot' && content[0].attrs?.name === 'default') {
-    return content[0].content || []
-  }
-  return content
-}
-
-/**
- * Process and normalize element props, converting className to class
- */
-function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string]> {
-  return Object.entries({ ...nodeProps, ...extraProps })
-    .map(([key, value]) => {
-      if (key === 'className') {
-        return ['class', typeof value === 'string' ? value : (value as Array<string>).join(' ')] as [string, string]
-      }
-      return [key.trim(), String(value).trim()] as [string, string]
-    })
-    .filter(([key]) => Boolean(String(key).trim()))
-}
+/***************************************************************
+ *********************** Create element methods ****************
+ ***************************************************************/
 
 function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MDCElement {
   const { props = {}, ...rest } = extra as { props: object }
@@ -390,7 +325,77 @@ function createListItemElement(node: JSONContent) {
   return createElement(node, 'li')
 }
 
-// Merge adjacent children with the same tag if separated by a single space text node
+/***************************************************************
+ ******************** Utility methods **************************
+ ***************************************************************/
+
+async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlightTheme = { default: 'github-light', dark: 'github-dark' }) {
+  // @ts-expect-error MDCNode is not compatible with the type of the visitor
+  // Convert tag to tagName and props to properties to be compatible with rehype
+  visit(mdc, (n: MDCNode) => n.tag !== undefined, (n: MDCNode) => Object.assign(n, { tagName: n.tag, properties: n.props }))
+
+  if (!shikiHighlighter) {
+    shikiHighlighter = createShikiHighlighter({ bundledThemes, bundledLangs, engine: createJavaScriptRegexEngine({ forgiving: true }) })
+  }
+
+  // Highlight code blocks
+  const shikit = rehypeShiki({ theme: theme as never, highlighter: shikiHighlighter })
+  await shikit(mdc as never)
+
+  // Convert back tagName to tag and properties to props to be compatible with MDC
+  visit(
+    mdc,
+    (n: unknown) => (n as Element).tagName !== undefined,
+    (n: unknown) => { Object.assign(n as MDCNode, { tag: (n as Element).tagName, props: (n as Element).properties, tagName: undefined, properties: undefined }) },
+  )
+
+  // Remove empty newline text nodes
+  visit(
+    mdc,
+    (n: unknown) => (n as MDCElement).tag === 'pre',
+    (n: unknown) => {
+      ((n as MDCElement).children[0] as MDCElement).children = ((n as MDCElement).children[0] as MDCElement).children.filter((child: MDCNode) => child.type !== 'text' || child.value.trim())
+    },
+  )
+}
+
+/**
+ * Unwrap a single child if it matches the specified type
+ */
+function unwrapParagraph(content: JSONContent[]): JSONContent[] {
+  if (content.length === 1 && content[0]?.type === 'paragraph') {
+    return content[0].content || []
+  }
+  return content
+}
+
+/**
+ * Unwrap a default slot's content directly to parent level
+ */
+function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
+  if (content.length === 1 && content[0]?.type === 'slot' && content[0].attrs?.name === 'default') {
+    return content[0].content || []
+  }
+  return content
+}
+
+/**
+ * Process and normalize element props, converting className to class
+ */
+function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string]> {
+  return Object.entries({ ...nodeProps, ...extraProps })
+    .map(([key, value]) => {
+      if (key === 'className') {
+        return ['class', typeof value === 'string' ? value : (value as Array<string>).join(' ')] as [string, string]
+      }
+      return [key.trim(), String(value).trim()] as [string, string]
+    })
+    .filter(([key]) => Boolean(String(key).trim()))
+}
+
+/**
+ * Merge adjacent children with the same tag if separated by a single space text node
+ */
 function mergeSiblingsWithSameTag(children: MDCNode[], allowedTags: string[]): MDCNode[] {
   if (!Array.isArray(children)) return children
   const merged: MDCNode[] = []
