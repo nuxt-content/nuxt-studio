@@ -3,6 +3,8 @@ import { eventHandler, useSession } from 'h3'
 import { useRuntimeConfig, createError } from '#imports'
 // @ts-expect-error import does exist
 import components from '#nuxt-component-meta/nitro'
+// @ts-expect-error import does exist
+import { highlight } from '#mdc-imports'
 
 interface NuxtComponentMeta {
   pascalName: string
@@ -40,6 +42,7 @@ export default eventHandler(async (event) => {
     })
 
   return {
+    highlightTheme: highlight?.theme || { default: 'github-light', dark: 'github-dark', light: 'github-light' },
     components: mappedComponents,
   }
 })
