@@ -18,10 +18,12 @@ const handleImageSelect = (image: TreeItem) => {
       .focus()
       .deleteRange({ from: pos, to: pos + 1 })
       .insertContent({
-        type: 'image',
+        type: 'video',
         attrs: {
           src: image.routePath,
-          alt: image.name,
+          props: {
+            src: image.routePath,
+          },
         },
       })
       .run()
@@ -51,7 +53,7 @@ const handleCancel = () => {
       :open="isOpen"
       @select="handleImageSelect"
       @cancel="handleCancel"
-      type="image"
+      type="video"
     />
   </NodeViewWrapper>
 </template>

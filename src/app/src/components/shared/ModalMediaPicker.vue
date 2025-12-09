@@ -1,26 +1,36 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStudio } from '../../composables/useStudio'
-import { isImageFile } from '../../utils/file'
+import { isImageFile, isVideoFile } from '../../utils/file'
 import { Image } from '@unpic/vue'
 import type { TreeItem } from '../../types'
 import { StudioFeature } from '../../types'
 
 const { mediaTree, context } = useStudio()
 
-defineProps<{ open: boolean }>()
+const props = defineProps<{ open: boolean, type: 'image' | 'video' }>()
 
 const emit = defineEmits<{
   select: [image: TreeItem]
   cancel: []
 }>()
 
+const isValidFileType = (item: TreeItem) => {
+  if (props.type === 'image') {
+    return isImageFile(item.fsPath)
+  }
+  if (props.type === 'video') {
+    return isVideoFile(item.fsPath)
+  }
+  return false
+}
+
 const imageFiles = computed(() => {
   const images: TreeItem[] = []
 
   const collectImages = (items: TreeItem[]) => {
     for (const item of items) {
-      if (item.type === 'file' && isImageFile(item.fsPath)) {
+      if (item.type === 'file' && isValidFileType(item)) {
         images.push(item)
       }
       if (item.children) {

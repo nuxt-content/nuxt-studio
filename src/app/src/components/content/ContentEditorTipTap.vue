@@ -19,6 +19,8 @@ import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
 import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
+import { VideoPicker } from '../../utils/tiptap/extensions/video-picker'
+import { Video } from '../../utils/tiptap/extensions/video'
 import { Slot } from '../../utils/tiptap/extensions/slot'
 import { Frontmatter } from '../../utils/tiptap/extensions/frontmatter'
 import { CodeBlock } from '../../utils/tiptap/extensions/code-block'
@@ -116,6 +118,12 @@ const customHandlers = computed(() => ({
     isActive: (editor: Editor) => editor.isActive('image-picker'),
     isDisabled: undefined,
   },
+  video: {
+    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'video-picker' }),
+    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'video-picker' }),
+    isActive: (editor: Editor) => editor.isActive('video-picker'),
+    isDisabled: undefined,
+  },
   ...Object.fromEntries(
     componentItems.value.map(item => [
       item.kind,
@@ -173,6 +181,8 @@ const toolbarItems = computed(() => getStandardToolbarItems(t))
       :extensions="[
         Frontmatter,
         ImagePicker,
+        VideoPicker,
+        Video,
         Element,
         InlineElement,
         Slot,
