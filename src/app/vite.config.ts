@@ -77,5 +77,11 @@ export default defineConfig({
       formats: ['es'],
     },
     sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      mangle: {
+        reserved: ['h'], // Reserve 'h' to avoid conflicts
+      },
+    },
   },
 })
