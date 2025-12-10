@@ -21,6 +21,7 @@ const { t } = useI18n()
 
 const isLoading = ref(false)
 const formRef = ref<HTMLDivElement>()
+const nameInputRef = ref<{ inputRef: HTMLInputElement }>()
 const openTooltip = ref(false)
 
 const props = defineProps({
@@ -184,7 +185,8 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   setTimeout(() => {
     document.addEventListener('click', handleClickOutside)
-  }, 0)
+    nameInputRef.value?.inputRef?.focus()
+  }, 300)
 })
 
 onUnmounted(() => {
@@ -260,7 +262,7 @@ async function onSubmit() {
             <div class="flex items-start gap-3">
               <div
                 v-if="!isDirectory"
-                class="relative flex-shrink-0 w-12 h-12"
+                class="relative shrink-0 w-12 h-12"
               >
                 <div class="w-full h-full bg-size-[24px_24px] bg-position-[0_0,0_12px,12px_-12px,-12px_0] rounded-lg overflow-hidden bg-elevated">
                   <slot name="thumbnail" />
@@ -299,9 +301,9 @@ async function onSubmit() {
                       <span />
                     </template>
                     <UInput
+                      ref="nameInputRef"
                       v-model="state.name"
                       variant="soft"
-                      autofocus
                       :placeholder="$t('studio.placeholders.fileName')"
                       class="w-full h-5"
                       size="xs"
