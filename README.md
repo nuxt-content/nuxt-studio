@@ -59,15 +59,17 @@ Originally offered as a standalone premium platform at https://nuxt.studio, Stud
 
 > **Note**: This alpha release provides both a Monaco code editor and a TipTap visual WYSIWYG editor for Markdown content. You can switch between them at any time.
 
-### 1. Module Installation
+### 1. Install
 
-Install the module in your Nuxt application with one command:
+Install the module in your Nuxt application:
 
 ```bash
 npx nuxi module add nuxt-studio@alpha
 ```
 
-Add it to your `nuxt.config` and configure your repository.
+### 2. Configure
+
+Add it to your `nuxt.config.ts` and configure your repository:
 
 ```ts
 export default defineNuxtConfig({
@@ -75,59 +77,85 @@ export default defineNuxtConfig({
     '@nuxt/content',
     'nuxt-studio'
   ],
+  
   studio: {
-    // Your configuration
+    // Studio admin route (default: '/_studio')
+    route: '/_studio',
+    
+    // Git repository configuration (owner and repo are required)
     repository: {
-      provider: 'github', // default: only GitHub supported currently
-      owner: 'your-username', // your GitHub owner
-      repo: 'your-repo', // your GitHub repository name
-      branch: 'main',
-      rootDir: '' // optional: location of your content app
+      provider: 'github', // 'github' or 'gitlab'
+      owner: 'your-username', // your GitHub/GitLab username or organization
+      repo: 'your-repo', // your repository name
+      branch: 'main', // the branch to commit to (default: main)
     }
   }
 })
 ```
 
-### 2. Create a GitHub OAuth App
+### 3. Dev Mode
+
+🚀 **That's all you need to enable Studio locally!**
+
+Run your Nuxt app and navigate to `/_studio` to start editing. Any file changes will be synchronized in real time with the file system.
+
+> **Note**: The publish system is only available in production mode. Use your classical workflow (IDE, CLI, GitHub Desktop...) to publish your changes locally.
+
+### 4. Production Mode
+
+To enable publishing directly from your production website, you need to configure OAuth authentication.
+
+#### Create a GitHub OAuth App
 
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
 2. Click **"New OAuth App"**
 3. Fill in the application details:
    - **Application name**: Your App Name
    - **Homepage URL**: Your website homepage URL
-   - **Authorization callback URL**: `${YOUR_WEBSITE_URL}/${options.route}/auth/github` (default: `${YOUR_WEBSITE_URL}/_studio/auth/github`)
+   - **Authorization callback URL**: `${YOUR_WEBSITE_URL}/_studio/auth/github`
 4. Copy the **Client ID** and generate a **Client Secret**
-5. Add them to your deployment environment variables (see next section)
-
-### 3. Environment Variables
-
-Nuxt Studio requires environment variables for authentication and publication on your repository.
-
-Add the previsously generated Client ID and Client Secret to your deployment environment variables.
+5. Add them to your deployment environment variables:
 
 ```bash
 STUDIO_GITHUB_CLIENT_ID=your_github_client_id
 STUDIO_GITHUB_CLIENT_SECRET=your_github_client_secret
 ```
 
-## Configuration
+> **Note**: GitLab is also supported. See the [providers documentation](https://content.nuxt.com/docs/studio/providers) for setup instructions.
 
-Configure Nuxt Studio in your `nuxt.config.ts`:
+#### Deployment
+
+Nuxt Studio requires server-side routes for authentication. Your site must be **deployed on a platform that supports SSR** using `nuxt build`.
+
+If you want to pre-render all your pages, use hybrid rendering:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['nuxt-studio'],
+  nitro: {
+    prerender: {
+      routes: ['/'],
+      crawlLinks: true
+    }
+  }
+})
+```
+
+## Configuration Options
+
+```ts
+export default defineNuxtConfig({
   studio: {
     // Studio admin login route
     route: '/_studio', // default
 
-    // Git repository configuration (required)
+    // Git repository configuration
     repository: {
-      provider: 'github', // only GitHub is supported currently (default)
-      owner: 'your-username', // your GitHub owner
-      repo: 'your-repo', // your GitHub repository name
-      branch: 'main', // your GitHub branch
-      rootDir: '' // optional: root directory for
+      provider: 'github', // 'github' or 'gitlab' (default: 'github')
+      owner: 'your-username', // your GitHub/GitLab owner (required)
+      repo: 'your-repo', // your repository name (required)
+      branch: 'main', // branch to commit to (default: 'main')
+      rootDir: '', // subdirectory for monorepos (default: '')
+      private: true, // request access to private repos (default: true)
     },
   }
 })
