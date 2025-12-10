@@ -78,6 +78,8 @@ export interface StudioHost {
     getManifestId: () => Promise<string>
     requestRerender: () => void
     navigateTo: (path: string) => void
+    registerServiceWorker: () => void
+    unregisterServiceWorker: () => void
   }
 }
 

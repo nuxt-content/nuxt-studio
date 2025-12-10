@@ -40,6 +40,7 @@ const userMenuItems = computed(() => [
     icon: 'i-lucide-log-out',
     onClick: () => {
       fetch('/__nuxt_studio/auth/session', { method: 'delete' }).then(() => {
+        host.app.unregisterServiceWorker()
         window.location.reload()
       })
     },

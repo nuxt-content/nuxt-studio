@@ -45,6 +45,8 @@ export const useStudio = createSharedComposable(() => {
   ui.setLocale(host.meta.defaultLocale)
 
   host.on.mounted(async () => {
+    host.app.registerServiceWorker()
+
     if (devMode.value) {
       initDevelopmentMode()
     }
