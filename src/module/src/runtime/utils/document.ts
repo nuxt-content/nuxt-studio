@@ -367,11 +367,11 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
   }
 
   // Do not need to calculate path meta information for data collections
-  if (options.collection?.type === 'data') {
-    return result as DatabaseItem
+  if (options.collection?.type === 'page') {
+    return pathMetaTransform(result as PageCollectionItemBase) as DatabaseItem
   }
 
-  return pathMetaTransform(result as PageCollectionItemBase) as DatabaseItem
+  return result as DatabaseItem
 }
 
 export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
