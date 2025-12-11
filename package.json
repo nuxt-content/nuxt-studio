@@ -88,6 +88,7 @@
     "zod": "^4.1.12"
   },
   "resolutions": {
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@b8c5225",
     "nuxt-component-meta": "^0.15.0",
     "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@049b182"
   },
