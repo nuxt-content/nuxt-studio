@@ -226,10 +226,11 @@ pnpm lint
 - [x] Development mode (**experimental**)
 - [x] Git integration
 - [x] Real-time preview
+- [x] Google OAuth authentication
 
 ### 🚧 Phase 2 - Beta (In Development)
-- [ ] Google OAuth authentication
 - [ ] Frontmatter edition as form (schema-based)
+- [ ] YAML and JSON edition as form (schema-based)
 - [ ] Vue Component props editor (visual interface)
 
 ### 🔮 Future
