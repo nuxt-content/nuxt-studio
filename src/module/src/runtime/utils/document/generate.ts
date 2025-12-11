@@ -12,7 +12,7 @@ import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { removeReservedKeysFromDocument } from './schema'
-import { remarkEmojiPlugin } from '../../../../../app/src/utils/emoji'
+import { remarkEmojiPlugin } from 'nuxt-studio/app/utils'
 
 export async function generateDocumentFromContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
