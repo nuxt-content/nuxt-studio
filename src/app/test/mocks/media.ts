@@ -45,7 +45,9 @@ export const mockFileToDataUrl = () => {
     }, 0)
   })
 
-  global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as unknown as typeof FileReader
+  global.FileReader = vi.fn().mockImplementation(function () {
+    return mockFileReader
+  }) as never
 
   return mockFileReader
 }
