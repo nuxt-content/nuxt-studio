@@ -82,6 +82,7 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
 
 export async function generateDocumentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
   const document = await parseMarkdown(content, {
+    contentHeading: options.collectionType === 'page',
     highlight: {
       theme: useHostMeta().highlightTheme.value,
     },
@@ -161,7 +162,7 @@ export async function generateContentFromJSONDocument(document: DatabaseItem): P
   return JSON.stringify(removeReservedKeysFromDocument(document), null, 2)
 }
 
-export async function generateContentFromMarkdownDocument(document: DatabasePageItem): Promise<string | null> {
+export async function generateContentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
   // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
   const body = document.body.type === 'minimark' ? decompressTree(document.body) : (document.body as MDCRoot)
 
