@@ -1,10 +1,10 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import { isEmpty } from '../../utils/object'
 import type { MDCNode, MDCElement, MDCText, MDCComment, MDCRoot } from '@nuxtjs/mdc'
+import { EMOJI_REGEXP, getEmojiUnicode } from '../emoji'
 
 type MDCToTipTapMap = Record<string, (node: MDCRoot | MDCNode) => JSONContent>
 
-// const FRONTMATTER_DELIMITER = '---'
 const tagToMark: Record<string, string> = {
   strong: 'bold',
   em: 'italic',
@@ -16,7 +16,7 @@ const tagToMark: Record<string, string> = {
 const mdcToTiptapMap: MDCToTipTapMap = {
   ...Object.fromEntries(Object.entries(tagToMark).map(([key, value]) => [key, node => createMark(node as MDCNode, value)])),
   root: node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
-  text: node => ({ type: 'text', text: (node as MDCText).value }),
+  text: node => createTextNode(node as MDCText),
   comment: node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
   img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
@@ -273,6 +273,44 @@ function createParagraphNode(node: MDCElement) {
     content,
     attrs: isEmpty(node.props) ? undefined : node.props,
   }
+}
+
+function createTextNode(node: MDCText) {
+  const text = (node as MDCText).value
+  const nodes: { type: string, text: string }[] = []
+  let lastIndex = 0
+
+  // Split the text using the emoji regexp, keeping the match in the result array
+  text.replace(EMOJI_REGEXP, (match: string, offset: number) => {
+    // Add text before the emoji
+    if (lastIndex < offset) {
+      nodes.push({
+        type: 'text',
+        text: text.slice(lastIndex, offset),
+      })
+    }
+
+    // Add the emoji text node
+    const emojiUnicode = getEmojiUnicode(match.substring(1, match.length - 1))
+    nodes.push({
+      type: 'text',
+      text: emojiUnicode || match,
+    })
+
+    lastIndex = offset + match.length
+
+    return ''
+  })
+
+  // Add any remaining text after the last emoji
+  if (lastIndex < text.length) {
+    nodes.push({
+      type: 'text',
+      text: text.slice(lastIndex),
+    })
+  }
+
+  return nodes.length === 0 ? { type: 'text', text } : nodes
 }
 
 /**

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
 import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
-// import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
+import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
 import type { PropType } from 'vue'
 import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { MDCRoot, Toc } from '@nuxtjs/mdc'
@@ -9,6 +9,7 @@ import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
 import type { DraftItem, DatabasePageItem } from '../../types'
 import type { MarkdownRoot } from '@nuxt/content'
 import type { EditorCustomHandlers } from '@nuxt/ui'
+import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmojiMenu.vue.d.ts'
 import { ref, watch, computed } from 'vue'
 import { titleCase } from 'scule'
 import { useI18n } from 'vue-i18n'
@@ -152,6 +153,10 @@ const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
 }
 
 const toolbarItems = computed(() => getStandardToolbarItems(t))
+
+const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
+  emoji => !emoji.name.startsWith('regional_indicator_'),
+)
 </script>
 
 <template>
@@ -184,6 +189,7 @@ const toolbarItems = computed(() => getStandardToolbarItems(t))
         InlineElement,
         Slot,
         CodeBlock,
+        Emoji,
       ]"
       :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
@@ -225,6 +231,11 @@ const toolbarItems = computed(() => getStandardToolbarItems(t))
       <UEditorSuggestionMenu
         :editor="editor"
         :items="suggestionItems"
+      />
+
+      <UEditorEmojiMenu
+        :editor="editor"
+        :items="emojiItems"
       />
     </UEditor>
   </div>
