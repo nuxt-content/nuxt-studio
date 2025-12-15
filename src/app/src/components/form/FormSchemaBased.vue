@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { FormTree } from '../../../types'
+import type { FormTree } from '../../types'
 import type { PropType } from 'vue'
 import type { Draft07 } from '@nuxt/content'
-import { buildFormTreeFromSchema, applyValuesToFormTree, getUpdatedTreeItem } from '../../../utils/form'
-import { applyValueByPath } from '../../../utils/object'
+import { buildFormTreeFromSchema, applyValuesToFormTree, getUpdatedTreeItem } from '../../utils/form'
+import { applyValueByPath } from '../../utils/object'
 
 const props = defineProps({
   collectionName: {

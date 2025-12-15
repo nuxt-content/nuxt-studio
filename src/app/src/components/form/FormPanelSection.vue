@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FormItem, FormTree } from '../../../types'
+import type { FormItem, FormTree } from '../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { titleCase } from 'scule'
-import type { FormItem, FormTree } from '../../../types'
+import type { FormItem, FormTree } from '../../types'
 import type { PropType } from 'vue'
 import { computed, ref, watch } from 'vue'
-import { applyValueById } from '../../../utils/form'
+import { applyValueById } from '../../utils/form'
 
 const props = defineProps({
   formItem: {
