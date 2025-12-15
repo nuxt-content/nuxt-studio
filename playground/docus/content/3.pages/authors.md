@@ -21,4 +21,14 @@ pages: defineCollection({
 
 ## Authors list
 
-Fetch from data collection:
+Fetch from data collection
+
+```[content.config.ts]
+authors: defineCollection({
+    type: 'data',
+    source: {
+      include: 'authors/**/*',
+    },
+    schema: createAuthorsSchema(),
+  }),
+```

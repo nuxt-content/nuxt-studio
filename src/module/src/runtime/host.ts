@@ -362,6 +362,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         }
       },
     },
+    collection: {
+      getByFsPath: (fsPath: string) => getCollectionByFilePath(fsPath, useContentCollections()),
+    },
   }
 
   ;(async () => {

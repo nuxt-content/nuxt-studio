@@ -5,6 +5,7 @@ import type { MediaItem } from './media'
 import type { Repository } from './git'
 import type { ComponentMeta } from './component'
 import type { MarkdownParsingOptions, SyntaxHighlightTheme } from './content'
+import type { CollectionInfo } from '@nuxt/content'
 
 export * from './file'
 export * from './item'
@@ -18,6 +19,7 @@ export * from './component'
 export * from './config'
 export * from './media'
 export * from './content'
+export * from './form'
 
 export interface StudioHost {
   meta: {
@@ -70,6 +72,9 @@ export interface StudioHost {
     list: () => Promise<MediaItem[]>
     upsert: (fsPath: string, media: MediaItem) => Promise<void>
     delete: (fsPath: string) => Promise<void>
+  }
+  collection: {
+    getByFsPath: (fsPath: string) => CollectionInfo | undefined
   }
   user: {
     get: () => StudioUser
