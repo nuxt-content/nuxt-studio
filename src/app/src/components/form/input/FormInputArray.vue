@@ -67,61 +67,38 @@ function saveStringEditing() {
 function updateObjectItem(index: number, value: Record<string, unknown>) {
   model.value = model.value.map((item, i) => i === index ? value : item)
 }
-
-function toggleExpand(index: number) {
-  activeIndex.value = activeIndex.value === index ? null : index
-}
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div>
     <!-- Array of Objects -->
     <template v-if="itemsType === 'object'">
-      <div
+      <Collapsible
         v-for="item in items"
         :key="item.index"
-        class="group/item rounded-lg border border-default overflow-hidden"
+        :open="activeIndex === item.index"
+        :label="item.label"
+        class="group/item"
+        @update:open="(open: boolean) => activeIndex = open ? item.index : null"
       >
-        <button
-          type="button"
-          class="flex items-center justify-between w-full px-3 py-2 text-left bg-elevated hover:bg-accented transition-colors"
-          @click="toggleExpand(item.index)"
-        >
-          <div class="flex items-center gap-2">
-            <div class="flex items-center justify-center size-4 rounded bg-muted transition-colors">
-              <UIcon
-                name="i-lucide-chevron-right"
-                class="size-2.5 text-muted transition-transform duration-200"
-                :class="{ 'rotate-90': activeIndex === item.index }"
-              />
-            </div>
-            <span class="text-xs font-medium text-highlighted tracking-tight">
-              {{ item.label }}
-            </span>
-          </div>
-
+        <template #actions>
           <UButton
             variant="ghost"
             color="neutral"
-            size="xs"
-            icon="i-lucide-trash-2"
+            size="2xs"
+            icon="i-lucide-trash"
             class="opacity-0 group-hover/item:opacity-100 transition-opacity"
             aria-label="Delete item"
             @click.stop="deleteItem(item.index)"
           />
-        </button>
+        </template>
 
-        <div
-          v-if="activeIndex === item.index"
-          class="px-3 py-3 border-t border-default bg-default"
-        >
-          <FormInputObject
-            :model-value="item.value"
-            :children="formItem.children"
-            @update:model-value="(v: Record<string, unknown>) => updateObjectItem(item.index, v)"
-          />
-        </div>
-      </div>
+        <FormInputObject
+          :model-value="item.value"
+          :children="formItem.children"
+          @update:model-value="updateObjectItem(item.index, $event)"
+        />
+      </Collapsible>
     </template>
 
     <!-- Array of Strings -->
@@ -132,7 +109,7 @@ function toggleExpand(index: number) {
           :key="item.label"
           variant="subtle"
           color="neutral"
-          size="md"
+          size="sm"
           class="group/badge flex items-center gap-3 px-2 py-1 min-w-0"
         >
           <UInput
