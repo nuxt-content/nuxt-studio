@@ -28,7 +28,6 @@ const duration = ref(0)
 onMounted(() => {
   if (videoRef.value) {
     videoRef.value.onloadedmetadata = () => {
-      console.log('videoRef.value', videoRef.value)
       videoDimensions.value = {
         width: videoRef.value?.videoWidth || 0,
         height: videoRef.value?.videoHeight || 0,

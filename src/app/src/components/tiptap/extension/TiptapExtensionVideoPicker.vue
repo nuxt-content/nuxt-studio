@@ -9,7 +9,7 @@ const props = defineProps<NodeViewProps>()
 
 const isOpen = ref(true)
 
-const handleImageSelect = (image: TreeItem) => {
+const handleVideoSelect = (video: TreeItem) => {
   const pos = props.getPos()
 
   if (typeof pos === 'number') {
@@ -20,9 +20,9 @@ const handleImageSelect = (image: TreeItem) => {
       .insertContent({
         type: 'video',
         attrs: {
-          src: image.routePath,
+          src: video.routePath,
           props: {
-            src: image.routePath,
+            src: video.routePath,
           },
         },
       })
@@ -52,7 +52,7 @@ const handleCancel = () => {
     <ModalMediaPicker
       :open="isOpen"
       type="video"
-      @select="handleImageSelect"
+      @select="handleVideoSelect"
       @cancel="handleCancel"
     />
   </NodeViewWrapper>
