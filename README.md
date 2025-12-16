@@ -85,9 +85,7 @@ To enable publishing directly from your production website, you need to configur
 
 #### Choose your Oauth provider
 
-::tip{to="https://content.nuxt.com/docs/studio/providers"}
-Browse the official documentation to configure the provider you want to use.
-::
+> [Browse the official documentation to configure the provider you want to use.](https://content.nuxt.com/docs/studio/providers)
 
 #### Deployment
 
@@ -131,10 +129,7 @@ export default defineNuxtConfig({
 
 You can start contributing by cloning the repository and using the playground in dev mode (set `dev` option to `true`).
 
-::note
-#default
-If you want to contribute with production mode you must create a local GitHub OAuth App (pointing to `http://localhost:3000` as callback URL).
-::
+> If you want to contribute with production mode you must create a local GitHub OAuth App (pointing to `http://localhost:3000` as callback URL).
 
 ### Development Setup
 
@@ -213,6 +208,7 @@ pnpm lint
 ### 🚧 Phase 2 - Beta (In Development)
 
 - [ ] Vue Component props editor (visual interface)
+- [ ] Provide utilities to allow users to handle their own authentication
 
 ### 🔮 Future
 
