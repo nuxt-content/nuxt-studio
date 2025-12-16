@@ -104,6 +104,14 @@ export default defineNuxtConfig({
 })
 ```
 
+#### Open Studio
+
+Once deployed, log in Studio by navigating to your configured route (default: /_studio):
+
+1. Click the button corresponding to your Oauth provider if it does not directly redirect to the OAuth app authorization page
+2. Authorize the OAuth application
+3. You'll be redirected back to Studio ready to edit your content
+
 ## Configuration Options
 
 ```ts
