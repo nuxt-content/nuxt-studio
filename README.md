@@ -1,6 +1,6 @@
 # Nuxt Studio
 
-![npm version](https://img.shields.io/npm/v/nuxt-studio/alpha.svg?style=flat\&colorA=020420\&colorB=EEEEEE)![npm downloads](https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat\&colorA=020420\&colorB=EEEEEE)![License](https://img.shields.io/npm/l/nuxt-studio.svg?style=flat\&colorA=020420\&colorB=EEEEEE)
+![npm version](https://img.shields.io/npm/v/nuxt-studio/beta.svg?style=flat\&colorA=020420\&colorB=EEEEEE)![npm downloads](https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat\&colorA=020420\&colorB=EEEEEE)![License](https://img.shields.io/npm/l/nuxt-studio.svg?style=flat\&colorA=020420\&colorB=EEEEEE)
 
 Visual edition in production for your [Nuxt Content](https://content.nuxt.com) website.
 

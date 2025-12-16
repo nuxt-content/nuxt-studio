@@ -35,7 +35,7 @@
     "dev:app": "vite src/app --port 5151",
     "dev:build": "nuxi build playground/docus",
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus",
-    "release": "release-it --preRelease=alpha --npm.tag=alpha",
+    "release": "release-it --preRelease=beta --npm.tag=beta",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck && vue-tsc -p src/app/tsconfig.app.json",
     "verify": "pnpm run dev:prepare && pnpm run lint && pnpm run prepack && pnpm run typecheck && pnpm run test",
