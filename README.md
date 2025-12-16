@@ -49,7 +49,7 @@ npx nuxi module add nuxt-studio@beta
 
 🚀 **That's all you need to enable Studio locally!**
 
-Run your Nuxt app and navigate to `/_studio` to start editing. Any file changes will be synchronized in real time with the file system.
+Run your Nuxt app and you will see a floating button on bottom left for editing your content. Any file changes will be synchronized in real time with the file system.
 
 > **Note**: The publish system is only available in production mode. Use your classical workflow (IDE, CLI, GitHub Desktop...) to publish your changes locally.
 
