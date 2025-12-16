@@ -15,6 +15,7 @@ const MEDIA_EXTENSIONS = [
   'jpeg',
   'svg',
   'webp',
+  'avif',
   'ico',
   'gif',
   'mp4',

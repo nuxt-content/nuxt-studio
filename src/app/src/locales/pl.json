@@ -275,6 +275,21 @@
         "notAvailable": "Brak dostępnych wideo w bibliotece mediów",
         "upload": "Prześlij"
       }
+    },
+    "form": {
+      "array": {
+        "addItem": "Dodaj {label}",
+        "deleteItem": "Usuń element",
+        "editItem": "Edytuj element",
+        "unsupportedType": "Typ tablicy {type} nie jest obsługiwany"
+      },
+      "object": {
+        "noProperties": "Brak zdefiniowanych właściwości",
+        "enterPlaceholder": "Wprowadź {field}..."
+      },
+      "section": {
+        "propertyCount": "1 właściwość | {count} właściwości"
+      }
     }
   }
 }

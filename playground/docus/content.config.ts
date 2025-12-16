@@ -19,6 +19,7 @@ const createAuthorsSchema = () => z.object({
   }),
   to: z.string(),
   username: z.string(),
+  modules: z.array(z.string()),
 })
 
 const collections: Record<string, DefinedCollection> = {

@@ -40,6 +40,7 @@ const userMenuItems = computed(() => [
     icon: 'i-lucide-log-out',
     onClick: () => {
       fetch('/__nuxt_studio/auth/session', { method: 'delete' }).then(() => {
+        host.app.unregisterServiceWorker()
         window.location.reload()
       })
     },
@@ -90,7 +91,7 @@ function closeStudio() {
       <template #debug-mode>
         <div
           class="w-full"
-          @click.stop="updatePreference('debug', !preferences.debug)"
+          @click.stop
         >
           <USwitch
             :model-value="preferences.debug"

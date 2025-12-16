@@ -275,6 +275,21 @@
         "notAvailable": "No videos available in your media library",
         "upload": "Upload"
       }
+    },
+    "form": {
+      "array": {
+        "addItem": "Add {label}",
+        "deleteItem": "Delete item",
+        "editItem": "Edit item",
+        "unsupportedType": "Array type {type} not supported"
+      },
+      "object": {
+        "noProperties": "No properties defined",
+        "enterPlaceholder": "Enter {field}..."
+      },
+      "section": {
+        "propertyCount": "1 property | {count} properties"
+      }
     }
   }
 }

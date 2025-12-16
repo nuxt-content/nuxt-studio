@@ -275,6 +275,21 @@
         "notAvailable": "媒体库中没有可用视频",
         "upload": "上传"
       }
+    },
+    "form": {
+      "array": {
+        "addItem": "添加{label}",
+        "deleteItem": "删除项目",
+        "editItem": "编辑项目",
+        "unsupportedType": "不支持数组类型 {type}"
+      },
+      "object": {
+        "noProperties": "未定义属性",
+        "enterPlaceholder": "输入{field}..."
+      },
+      "section": {
+        "propertyCount": "1 个属性 | {count} 个属性"
+      }
     }
   }
 }

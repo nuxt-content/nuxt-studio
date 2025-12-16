@@ -274,6 +274,21 @@
         "notAvailable": "メディアライブラリに利用可能なビデオがありません",
         "upload": "アップロード"
       }
+    },
+    "form": {
+      "array": {
+        "addItem": "{label}を追加",
+        "deleteItem": "アイテムを削除",
+        "editItem": "アイテムを編集",
+        "unsupportedType": "配列タイプ {type} はサポートされていません"
+      },
+      "object": {
+        "noProperties": "プロパティが定義されていません",
+        "enterPlaceholder": "{field}を入力..."
+      },
+      "section": {
+        "propertyCount": "1 プロパティ | {count} プロパティ"
+      }
     }
   }
 }

@@ -71,7 +71,7 @@ export const createMockHost = (): StudioHost => ({
     },
     generate: {
       documentFromContent: vi.fn().mockImplementation(async (id: string, content: string) => {
-        return generateDocumentFromContent(id, content)
+        return generateDocumentFromContent(id, content, { collectionType: 'page', compress: true })
       }),
       contentFromDocument: vi.fn().mockImplementation(async (document: DatabaseItem) => {
         return generateContentFromDocument(document)
@@ -140,6 +140,9 @@ export const createMockHost = (): StudioHost => ({
     owner: 'test-owner',
     name: 'test-repo',
     branch: 'main',
+  },
+  collection: {
+    getByFsPath: vi.fn().mockReturnValue(undefined),
   },
 } as never)
 

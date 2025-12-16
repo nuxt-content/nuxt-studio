@@ -275,6 +275,21 @@
           "notAvailable": "Mediakirjastosta ei löydy videoita",
           "upload": "Lataa"
         }
+      },
+      "form": {
+        "array": {
+          "addItem": "Lisää {label}",
+          "deleteItem": "Poista kohde",
+          "editItem": "Muokkaa kohdetta",
+          "unsupportedType": "Taulukkotyyppiä {type} ei tueta"
+        },
+        "object": {
+          "noProperties": "Ei määritettyjä ominaisuuksia",
+          "enterPlaceholder": "Syötä {field}..."
+        },
+        "section": {
+          "propertyCount": "1 ominaisuus | {count} ominaisuutta"
+        }
       }
     }
   }
