@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.0-beta.0](///compare/v1.0.0-alpha.4...v1.0.0-beta.0) (2025-12-16)
+
+### Features
+
+* **editor:** emoji integration ([#171](undefined/undefined/undefined/issues/171)) c4d0655
+* **editor:** form editor for YAML/JSON and frontmatter ([#178](undefined/undefined/undefined/issues/178)) 9aa2a8d
+* **editor:** upload and display video ([#162](undefined/undefined/undefined/issues/162)) 594a5b0
+* **i18n:** add Arabic (ar) locale ([#168](undefined/undefined/undefined/issues/168)) b50f513
+* **i18n:** add Ukrainian (ua) locale ([#177](undefined/undefined/undefined/issues/177)) 2b4ee9a
+* **media:** add AVIF to the supported image file types ([#174](undefined/undefined/undefined/issues/174)) d3d0e6c
+* **state:** set tiptap editor mode as default 3cf5541
+
+### Bug Fixes
+
+* **document:** avoid page fields for data types ([#173](undefined/undefined/undefined/issues/173)) ca77b97
+* **document:** do not apply `page` meta information in `data` collections ([#167](undefined/undefined/undefined/issues/167)) a607691
+* **document:** ignore empty lines in compare ([#169](undefined/undefined/undefined/issues/169)) 0453f4e
+* **editor:** relative links must no be targetted as _blank ([#170](undefined/undefined/undefined/issues/170)) 8d18ec7
+* **module:** optimize debug and extend as deps of nuxt studio ([#175](undefined/undefined/undefined/issues/175)) eb5334e
+
 ## [1.0.0-alpha.4](https://github.com/nuxt-content/studio/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2025-12-10)
 
 ### Features
