@@ -106,9 +106,7 @@ export default eventHandler(async (event) => {
     }
 
     await setStudioUserSession(event, {
-      provider: 'github',
       providerId: 'local-playground-user',
-      accessToken: 'local-token',
       name: 'Playground User',
       avatar: 'https://avatars.githubusercontent.com/u/1010101?v=4',
       email: 'playground@example.com',
