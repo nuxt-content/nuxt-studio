@@ -15,7 +15,7 @@ import { useHostMeta } from './composables/useMeta'
 import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media'
 import { getCollectionSourceById } from './utils/source'
 
-const serviceWorkerVersion = 'v0.0.2'
+const serviceWorkerVersion = 'v0.0.3'
 
 function getSidebarWidth(): number {
   let sidebarWidth = 440
@@ -361,6 +361,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           })
         }
       },
+    },
+    collection: {
+      getByFsPath: (fsPath: string) => getCollectionByFilePath(fsPath, useContentCollections()),
     },
   }
 

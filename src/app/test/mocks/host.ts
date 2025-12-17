@@ -141,6 +141,9 @@ export const createMockHost = (): StudioHost => ({
     name: 'test-repo',
     branch: 'main',
   },
+  collection: {
+    getByFsPath: vi.fn().mockReturnValue(undefined),
+  },
 } as never)
 
 export const clearMockHost = () => {

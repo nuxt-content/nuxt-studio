@@ -1,6 +1,6 @@
 {
   "name": "nuxt-studio",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-beta.0",
   "description": "Nuxt Studio for Nuxt Content",
   "private": false,
   "repository": {
@@ -35,7 +35,7 @@
     "dev:app": "vite src/app --port 5151",
     "dev:build": "nuxi build playground/docus",
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus",
-    "release": "release-it --preRelease=alpha --npm.tag=alpha",
+    "release": "release-it --preRelease=beta --npm.tag=beta",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck && vue-tsc -p src/app/tsconfig.app.json",
     "verify": "pnpm run dev:prepare && pnpm run lint && pnpm run prepack && pnpm run typecheck && pnpm run test",
@@ -89,7 +89,7 @@
     "zod": "^4.1.13"
   },
   "resolutions": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@c5cc00c",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@9b4b4f2",
     "nuxt-component-meta": "^0.15.0",
     "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@049b182"
   },
