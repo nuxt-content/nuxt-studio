@@ -1,0 +1,296 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "Rediger denne sida",
+      "retryPublish": "Prøv publisering på nytt",
+      "reloadApp": "Last inn applikasjonen på nytt",
+      "reload": "Last inn på nytt",
+      "signOut": "Logg ut",
+      "review": "Gå gjennom",
+      "publish": "Publiser",
+      "back": "Tilbake",
+      "backToEdition": "Tilbake til redigering",
+      "seeChanges": "Sjå kva som er endra"
+    },
+    "headings": {
+      "directories": "Mapper",
+      "files": "Filer",
+      "media": "Media",
+      "pageSettings": "Sideinnstillingar"
+    },
+    "tooltips": {
+      "toggleStudio": "Vis/skjul Studio",
+      "unlinkEditor": "Kopla frå redigering og førehandsvising",
+      "linkEditor": "Kopla redigering og førehandsvising",
+      "copiedToClipboard": "Kopiert til utklippstavla",
+      "copyToClipboard": "Kopier til utklippstavla",
+      "publishChanges": "Publiser endringar",
+      "backToContent": "Tilbake til innhald"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "Ein ukjend feil oppstod"
+      }
+    },
+    "publish": {
+      "failedTitle": "Publisering mislukkast",
+      "summary": "på {branch} i {repo}",
+      "errorTitle": "Feil under publisering via {providerName}",
+      "failedGeneric": "Klarte ikkje å publisere endringane"
+    },
+    "review": {
+      "title": "Gå gjennom endringar",
+      "created": "Oppretta",
+      "updated": "Oppdatert",
+      "renamed": "Endra namn",
+      "deleted": "Sletta"
+    },
+    "publishSuccess": {
+      "title": "Endringar publiserte",
+      "summary": "{count} endring publisert på {branch} i {repo} | {count} endringar publiserte på {branch} i {repo}",
+      "alertTitleWaiting": "Ventar på utrulling …",
+      "alertTitleComplete": "Utrulling fullført",
+      "alertDescWaiting": "Nettsida må rullast ut før endringane vert synlege i Studio.",
+      "alertDescComplete": "Ein ny versjon av nettsida di er rulla ut. Oppdater applikasjonen for å sjå endringane i Studio."
+    },
+    "newVersionBanner": {
+      "title": "Ny versjon av nettsida oppdaga",
+      "description": "Ein ny versjon av nettsida di er rulla ut. Last inn applikasjonen på nytt for å sjå dei nyaste endringane.",
+      "reloadButton": "Last inn på nytt"
+    },
+    "footer": {
+      "developer_view": "Utviklarvising",
+      "localFilesystem": "Brukar lokalt filsystem",
+      "debugMode": "Feilsøkingsmodus"
+    },
+    "alert": {
+      "mdcFormatting": "Formatering er brukt for å samsvara med MDC-syntaksstandarden."
+    },
+    "conflict": {
+      "title": "Konflikt oppdaga",
+      "repository": "Repo",
+      "branch": "Grein",
+      "file": "Fil",
+      "description": "Innhaldet på {providerName} skil seg frå versjonen på nettsida di. Sørg for at dei nyaste endringane er rulla ut og oppdater sida.",
+      "websiteVersion": "Nettside"
+    },
+    "nav": {
+      "content": "Innhald",
+      "media": "Media"
+    },
+    "placeholders": {
+      "commitMessage": "Commit-melding",
+      "order": "Nr.",
+      "fileName": "Filnamn"
+    },
+    "validation": {
+      "commitRequired": "Commit-melding er påkravd",
+      "nameEmpty": "Namn kan ikkje vere tomt",
+      "nameEndsWithDot": "Namn kan ikkje avsluttast med \".\"",
+      "nameStartsWithSlash": "Namn kan ikkje starte med \"/\"",
+      "nameExists": "Namnet finst allereie",
+      "prefixDigitsOnly": "Prefiks må vere ein streng som berre inneheld siffer",
+      "prefixNonNegativeInteger": "Prefiks må vere eit ikkje-negativt heiltal"
+    },
+    "media": {
+      "altFilePreview": "Førehandsvising av fil",
+      "altImagePreview": "Førehandsvising av bilete",
+      "playAudio": "Spel av lyd",
+      "audioTagNotSupported": "Nettlesaren din støttar ikkje audio-taggen.",
+      "playVideo": "Spel av video",
+      "videoTagNotSupported": "Nettlesaren din støttar ikkje video-taggen.",
+      "metaWidth": "Breidd",
+      "metaHeight": "Høgd",
+      "metaType": "Type",
+      "metaDuration": "Lengd",
+      "metaSize": "Storleik",
+      "fileName": "Filnamn",
+      "publicPath": "Offentleg sti",
+      "providerPath": "{providerName}-sti",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "Opne handlingar",
+      "cancel": "Avbryt",
+      "submit": "Send inn"
+    },
+    "actions": {
+      "confirmAction": "Klikk igjen for å {action}",
+      "verbs": {
+        "create": "opprette",
+        "delete": "slette",
+        "rename": "endre namn",
+        "upload": "laste opp",
+        "duplicate": "duplisere"
+      },
+      "labels": {
+        "createDocument": "Ny fil",
+        "createDocumentFolder": "Ny mappe",
+        "createMediaFolder": "Ny mediamappe",
+        "renameItem": "Endre namn",
+        "deleteItem": "Slett",
+        "uploadMedia": "Last opp media",
+        "duplicateItem": "Dupliser",
+        "revertItem": "Tilbakestill endringar",
+        "publishBranch": "Publiser grein",
+        "openGitProvider": "Opne i {providerName}",
+        "switchToTipTap": "Bruk visuell redigerar",
+        "switchToCode": "Bruk kode-redigerar"
+      },
+      "tooltips": {
+        "createDocument": "Opprett ei ny fil",
+        "createDocumentFolder": "Opprett ei ny mappe",
+        "createMediaFolder": "Opprett ei ny mappe",
+        "renameItem": "Endre namn på fil",
+        "deleteItem": "Slett fil",
+        "uploadMedia": "Last opp media",
+        "duplicateItem": "Dupliser fil",
+        "revertItem": "Tilbakestill endringar",
+        "publishBranch": "Publiser grein"
+      }
+    },
+    "items": {
+      "itemCount": "1 element | {count} element"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "Overskrift 1",
+        "h2": "Overskrift 2",
+        "h3": "Overskrift 3"
+      },
+      "styles": {
+        "bold": "Feit",
+        "italic": "Kursiv"
+      },
+      "lists": {
+        "bulleted": "Punktliste",
+        "numbered": "Nummerert liste"
+      },
+      "other": {
+        "emojis": "Emoji",
+        "blockquote": "Sitatblokk",
+        "code": "Kode",
+        "inlineCode": "Inline-kode",
+        "link": "Lenkje",
+        "image": "Bilete"
+      },
+      "writeSomething": "Skriv noko",
+      "snippets": {
+        "title": "tittel",
+        "item1": "Element 1",
+        "item2": "Element 2",
+        "language": "språk",
+        "code": "kode",
+        "link": "lenkje",
+        "alt": "alt",
+        "src": "src",
+        "value": "verdi"
+      },
+      "docs": {
+        "path": "Sti i prosjektet:",
+        "props": "Props",
+        "slots": "Slots",
+        "type": "type",
+        "required": "påkravd",
+        "default": "standard"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Skriv, tast '/' for kommandoar …",
+        "components": "Komponentar"
+      },
+      "toolbar": {
+        "h1": "Overskrift 1",
+        "h2": "Overskrift 2",
+        "h3": "Overskrift 3",
+        "h4": "Overskrift 4",
+        "bulletList": "Punktliste",
+        "orderedList": "Nummerert liste",
+        "blockquote": "Sitatblokk",
+        "codeBlock": "Kodeblokk",
+        "bold": "Feit",
+        "italic": "Kursiv",
+        "strike": "Gjennomstreking",
+        "code": "Kode",
+        "headings": "Overskrifter"
+      },
+      "suggestion": {
+        "style": "Stil",
+        "paragraph": "Avsnitt",
+        "insert": "Set inn",
+        "image": "Bilete",
+        "video": "Video",
+        "horizontalRule": "Horisontal linje"
+      },
+      "drag": {
+        "turnInto": "Gjer om til",
+        "resetFormatting": "Tilbakestill formatering",
+        "duplicate": "Dupliser",
+        "copyToClipboard": "Kopier til utklippstavla",
+        "moveUp": "Flytt opp",
+        "moveDown": "Flytt ned",
+        "delete": "Slett"
+      },
+      "element": {
+        "addSlot": "Legg til slot",
+        "editProps": "Rediger props",
+        "delete": "Slett",
+        "prop": "prop",
+        "props": "props",
+        "propsEditorComingSoon": "Props-redigerar kjem snart …"
+      },
+      "slot": {
+        "searchPlaceholder": "Søk etter eller opprett ein slot …",
+        "deleteSlot": "Slett slot",
+        "noSlotsAvailable": "Ingen førehandsdefinerte slots tilgjengelege"
+      },
+      "inlineElement": {
+        "editContent": "Rediger innhald",
+        "editProps": "Rediger props",
+        "delete": "Slett",
+        "editContentLabel": "Rediger innhald for {name}",
+        "enterContentPlaceholder": "Skriv inn innhald …",
+        "propsEditorComingSoon": "Eigenskapar-redigerar kjem snart"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filnamn.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Lim inn ei lenkje …",
+        "applyLink": "Bruk lenkje",
+        "openInNewWindow": "Opne i nytt vindauge",
+        "removeLink": "Fjern lenkje"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "Vel bilete",
+        "description": "Vel eit bilete frå mediebiblioteket ditt",
+        "notAvailable": "Ingen bilete tilgjengelege i mediebiblioteket",
+        "upload": "Last opp"
+      },
+      "video": {
+        "title": "Vel video",
+        "description": "Vel ein video frå mediebiblioteket ditt",
+        "notAvailable": "Ingen videoar tilgjengelege i mediebiblioteket",
+        "upload": "Last opp"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "Legg til {label}",
+        "deleteItem": "Slett element",
+        "editItem": "Rediger element",
+        "unsupportedType": "Array-typen {type} er ikkje støtta"
+      },
+      "object": {
+        "noProperties": "Ingen eigenskapar definerte",
+        "enterPlaceholder": "Skriv inn {field} …"
+      },
+      "section": {
+        "propertyCount": "1 eigenskap | {count} eigenskapar"
+      }
+    }
+  }
+}
