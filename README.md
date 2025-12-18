@@ -81,36 +81,33 @@ export default defineNuxtConfig({
 
 ### 4. Production Mode
 
-To enable publishing directly from your production website, you need to configure OAuth authentication.
+To enable publishing directly from your production website, you need to configure:
 
-#### Choose your Oauth provider
+#### Git Provider
 
-> [Browse the official documentation to configure the provider you want to use.](https://content.nuxt.com/docs/studio/providers)
+Configure where your content is stored (GitHub or GitLab repository). See the [repository configuration](#configuration-options) above.
+
+> [📖 Git Providers Documentation](https://content.nuxt.com/docs/studio/git-providers)
+
+#### Auth Provider
+
+Configure how users authenticate to access Studio. Choose from GitHub, GitLab, Google OAuth, or custom authentication.
+
+```bash
+# Example with GitHub OAuth
+STUDIO_GITHUB_CLIENT_ID=<your_client_id>
+STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
+```
+
+> [📖 Auth Providers Documentation](https://content.nuxt.com/docs/studio/auth-providers)
 
 #### Deployment
 
 Nuxt Studio requires server-side routes for authentication. Your site must be **deployed on a platform that supports SSR** using `nuxt build`.
 
-If you want to pre-render all your pages, use hybrid rendering:
-
-```ts
-export default defineNuxtConfig({
-  nitro: {
-    prerender: {
-      routes: ['/'],
-      crawlLinks: true
-    }
-  }
-})
-```
-
 #### Open Studio
 
-Once deployed, log in Studio by navigating to your configured route (default: /_studio):
-
-1. Click the button corresponding to your Oauth provider if it does not directly redirect to the OAuth app authorization page
-2. Authorize the OAuth application
-3. You'll be redirected back to Studio ready to edit your content
+Once deployed, navigate to your configured route (default: `/_studio`) and authenticate to start editing.
 
 ## Configuration Options
 
@@ -196,7 +193,7 @@ pnpm lint
 
 ## Roadmap
 
-### ✅ Phase 1 - Alpha (Current)
+### ✅ Phase 1 - Alpha (Completed)
 
 - [x] Monaco code editor
 - [x] TipTap visual editor with MDC support (default mode)
@@ -212,11 +209,11 @@ pnpm lint
 - [x] Git integration
 - [x] Real-time preview
 - [x] Internationalization (16 languages)
+- [x] Custom authentication utilities
 
-### 🚧 Phase 2 - Beta (In Development)
+### 🚧 Phase 2 - Beta (Current)
 
 - [ ] Vue Component props editor (visual interface)
-- [ ] Provide utilities to allow users to handle their own authentication
 
 ### 🔮 Future
 
