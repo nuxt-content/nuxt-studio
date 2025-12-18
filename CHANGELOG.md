@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.1](///compare/v1.0.0-beta.0...v1.0.0-beta.1) (2025-12-18)
+
+### Features
+
+* **auth:** provide utility for custom authentication ([#181](undefined/undefined/undefined/issues/181)) 3e1b64f
+* **i18n:** add Norwegian (nb-no) locale ([#187](undefined/undefined/undefined/issues/187)) f8fcb7b
+* **i18n:** add Norwegian Nynorsk (nn-no) translation ([#188](undefined/undefined/undefined/issues/188)) c59a26c
+
+### Bug Fixes
+
+* **sidebar:** apply left margin style to fixed elements ([#189](undefined/undefined/undefined/issues/189)) 6e97ce8
+
 ## [1.0.0-beta.0](///compare/v1.0.0-alpha.4...v1.0.0-beta.0) (2025-12-16)
 
 ### Features
