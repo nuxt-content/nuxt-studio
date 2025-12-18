@@ -1,6 +1,8 @@
 # Nuxt Studio
 
-![npm version](https://img.shields.io/npm/v/nuxt-studio/beta.svg?style=flat\&colorA=020420\&colorB=EEEEEE)![npm downloads](https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat\&colorA=020420\&colorB=EEEEEE)![License](https://img.shields.io/npm/l/nuxt-studio.svg?style=flat\&colorA=020420\&colorB=EEEEEE)
+[![npm version][npm-version-src]][npm-version-href]
+[![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![License][license-src]][license-href]
 
 Visual edition in production for your [Nuxt Content](https://content.nuxt.com) website.
 
@@ -234,3 +236,12 @@ pnpm lint
 ## License
 
 Published under the [MIT](LICENSE) license.
+
+[npm-version-src]: https://img.shields.io/npm/v/nuxt-studio/beta.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-version-href]: https://npmjs.com/package/nuxt-studio
+
+[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-downloads-href]: https://npm.chart.dev/nuxt-studio
+
+[license-src]: https://img.shields.io/npm/l/nuxt-studio.svg?style=flat&colorA=020420&colorB=00DC82
+[license-href]: https://npmjs.com/package/nuxt-studio
