@@ -1,10 +1,10 @@
 import type { GitProviderType } from './git'
 
 export interface StudioUser {
-  providerId: string
+  providerId?: string
   accessToken: string
   name: string
-  avatar: string
+  avatar?: string
   email: string
   provider: GitProviderType | 'google'
 }
