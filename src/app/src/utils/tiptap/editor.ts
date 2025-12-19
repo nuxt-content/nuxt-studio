@@ -71,6 +71,10 @@ export const getStandardToolbarItems = (t: TFunction) => [
       kind: 'slot',
       slot: 'link' as const,
     },
+    {
+      kind: 'slot',
+      slot: 'span-style' as const,
+    },
   ],
 ] satisfies EditorToolbarItem[][]
 

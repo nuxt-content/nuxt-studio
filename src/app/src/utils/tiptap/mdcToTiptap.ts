@@ -13,6 +13,14 @@ const tagToMark: Record<string, string> = {
   a: 'link',
 }
 
+const isValidAttr = (value?: string | null) => {
+  if (!value) return false
+  const trimmed = String(value).trim()
+  if (!trimmed) return false
+  const lower = trimmed.toLowerCase()
+  return lower !== 'null' && lower !== 'undefined'
+}
+
 const mdcToTiptapMap: MDCToTipTapMap = {
   ...Object.fromEntries(Object.entries(tagToMark).map(([key, value]) => [key, node => createMark(node as MDCNode, value)])),
   root: node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
@@ -25,7 +33,19 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   template: node => createTemplateNode(node as MDCElement),
   pre: node => createPreNode(node as MDCElement),
   p: node => createParagraphNode(node as MDCElement),
-  // 'span': node => createTipTapNode(node as MDCElement, 'span-style', { attrs: { tag: 'span' } }),
+  span: node => {
+    const spanStyle = (node as MDCElement).props?.style
+    const spanClass = (node as MDCElement).props?.class || (node as MDCElement).props?.className
+    const spanAttrs = {
+      style: isValidAttr(spanStyle) ? String(spanStyle).trim() : undefined,
+      class: isValidAttr(spanClass) ? String(spanClass).trim() : undefined,
+    }
+    const cleanedNode = { ...(node as MDCElement), props: { ...(node as MDCElement).props } }
+    delete (cleanedNode.props as Record<string, unknown>).style
+    delete (cleanedNode.props as Record<string, unknown>).class
+    delete (cleanedNode.props as Record<string, unknown>).className
+    return createTipTapNode(cleanedNode as MDCElement, 'span-style', { attrs: spanAttrs })
+  },
   h1: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
   h2: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
   h3: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
@@ -113,7 +133,7 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
 
 /* Create nodes methods */
 export function createMark(node: MDCNode, mark: string, accumulatedMarks: { type: string, attrs?: object }[] = []): JSONContent[] {
-  const attrs = { ...(node as MDCElement).props }
+  let attrs = { ...(node as MDCElement).props }
 
   // Link attributes
   if (mark === 'link' && attrs.href) {

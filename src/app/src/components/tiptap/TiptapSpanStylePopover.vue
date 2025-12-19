@@ -1,0 +1,154 @@
+<script setup lang="ts">
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import type { Editor } from '@tiptap/vue-3'
+
+const props = defineProps<{
+  editor: Editor
+}>()
+
+const open = ref(false)
+const styleValue = ref('')
+const classValue = ref('')
+
+const active = computed(() => props.editor?.isActive('span-style'))
+const disabled = computed(() => {
+  if (!props.editor?.isEditable) return true
+  const { selection } = props.editor.state
+  return selection.empty && !props.editor.isActive('span-style')
+})
+
+let currentEditor: Editor | undefined
+let selectionListener: (() => void) | undefined
+
+const syncAttributes = () => {
+  const attrs = props.editor.getAttributes('span-style')
+  styleValue.value = attrs?.style || ''
+  classValue.value = attrs?.class || ''
+}
+
+watch(
+  () => props.editor,
+  (editor) => {
+    if (!editor) return
+    if (currentEditor && selectionListener) {
+      currentEditor.off('selectionUpdate', selectionListener)
+    }
+
+    syncAttributes()
+    selectionListener = () => syncAttributes()
+    editor.on('selectionUpdate', selectionListener)
+    currentEditor = editor
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  if (currentEditor && selectionListener) {
+    currentEditor.off('selectionUpdate', selectionListener)
+  }
+})
+
+const applySpanStyle = () => {
+  const attrs = {
+    style: styleValue.value.trim() || undefined,
+    class: classValue.value.trim() || undefined,
+  }
+
+  if (active.value) {
+    props.editor.chain().focus().updateSpanStyle(attrs).run()
+  }
+  else {
+    props.editor.chain().focus().setSpanStyle(attrs).run()
+  }
+  open.value = false
+}
+
+const removeSpanStyle = () => {
+  props.editor.chain().focus().unsetSpanStyle().run()
+  styleValue.value = ''
+  classValue.value = ''
+  open.value = false
+}
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    applySpanStyle()
+  }
+}
+</script>
+
+<template>
+  <UPopover
+    v-model:open="open"
+    :portal="false"
+    :ui="{ base: 'z-[9998]', content: 'p-3 w-64 z-[9999]' }"
+  >
+    <UButton
+      icon="i-lucide-paintbrush"
+      color="neutral"
+      active-color="primary"
+      variant="ghost"
+      active-variant="soft"
+      size="sm"
+      :active="active"
+      :disabled="disabled"
+      :class="[open && 'bg-elevated']"
+      :title="$t('studio.tiptap.spanStyle.label')"
+    />
+
+    <template #content>
+      <div class="flex flex-col gap-2">
+        <UFormField
+          name="style"
+          :label="$t('studio.tiptap.spanStyle.styleLabel')"
+        >
+          <UInput
+            v-model="styleValue"
+            variant="outline"
+            size="sm"
+            autofocus
+            :placeholder="$t('studio.tiptap.spanStyle.stylePlaceholder')"
+            @keydown="handleKeyDown"
+          />
+        </UFormField>
+
+        <UFormField
+          name="class"
+          :label="$t('studio.tiptap.spanStyle.classLabel')"
+        >
+          <UInput
+            v-model="classValue"
+            variant="outline"
+            size="sm"
+            :placeholder="$t('studio.tiptap.spanStyle.classPlaceholder')"
+            @keydown="handleKeyDown"
+          />
+        </UFormField>
+
+        <div class="flex items-center justify-end gap-2">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :disabled="!styleValue && !classValue && !active"
+            :title="$t('studio.tiptap.spanStyle.remove')"
+            @click="removeSpanStyle"
+          >
+            {{ $t('studio.tiptap.spanStyle.remove') }}
+          </UButton>
+          <UButton
+            color="primary"
+            size="sm"
+            :disabled="!styleValue && !classValue"
+            :title="$t('studio.tiptap.spanStyle.apply')"
+            @click="applySpanStyle"
+          >
+            {{ $t('studio.tiptap.spanStyle.apply') }}
+          </UButton>
+        </div>
+      </div>
+    </template>
+  </UPopover>
+</template>
+

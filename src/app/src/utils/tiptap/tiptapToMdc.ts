@@ -21,11 +21,26 @@ const markToTag: Record<string, string> = {
   code: 'code',
 }
 
+const isValidAttr = (value?: string | null) => {
+  if (!value) return false
+  const trimmed = String(value).trim()
+  if (!trimmed) return false
+  const lower = trimmed.toLowerCase()
+  return lower !== 'null' && lower !== 'undefined'
+}
+
+const cleanSpanProps = (attrs?: Record<string, unknown> | null) => {
+  const props: Record<string, string> = {}
+  if (isValidAttr(attrs?.style as string)) props.style = String(attrs!.style).trim()
+  if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) props.class = String((attrs as Record<string, unknown>).class).trim()
+  return props
+}
+
 const tiptapToMDCMap: TiptapToMDCMap = {
   'doc': (node: JSONContent) => ({ type: 'root', children: (node.content || []).flatMap(tiptapNodeToMDC) } as MDCRoot),
   'element': createElement,
   'inline-element': createElement,
-  'span-style': createElement,
+  'span-style': (node: JSONContent) => createElement(node, 'span', { props: cleanSpanProps(node.attrs as Record<string, unknown>) }),
   'link': createLinkElement,
   // 'link-element': createElement,
   // 'link-block-element': createElement,
@@ -174,34 +189,46 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
 }
 
 export const createParagraphElement = (node: JSONContent, propsArray: string[][], rest: object = {}): MDCElement => {
-  const blocks: Array<{ mark: string, content: JSONContent[] }> = []
+  const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
-  let currentBlockMarkType: string | null = null
+  let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
+
+  const getMarkInfo = (child: JSONContent): { type: string, attrs?: Record<string, unknown> } | null => {
+    if (child.type === 'text' && child.marks?.length === 1 && child.marks?.[0]?.type) {
+      return child.marks[0] as { type: string, attrs?: Record<string, unknown> }
+    }
+
+    if (
+      child.type === 'link-element'
+      && child.content
+      && child.content.length === 1
+      && child.content[0].type === 'text'
+      && child.content[0].marks?.length === 1
+      && child.content[0].marks?.[0]?.type
+    ) {
+      return child.content[0].marks?.[0] as { type: string, attrs?: Record<string, unknown> }
+    }
+
+    return null
+  }
+
+  const sameMark = (markA: { type: string, attrs?: Record<string, unknown> } | null, markB: { type: string, attrs?: Record<string, unknown> } | null) => {
+    if (!markA && !markB) return true
+    if (!markA || !markB) return false
+    return markA.type === markB.type && JSON.stringify(markA.attrs || {}) === JSON.stringify(markB.attrs || {})
+  }
 
   // Separate children into blocks based on number of marks (1 or not one)
   node.content!.forEach((child) => {
-    let markType = null
-    if (
-    // Text node with only one mark
-      (child.type === 'text' && child.marks?.length === 1 && child.marks?.[0]?.type)
-      // Link node with only one text child with only one mark
-      || (child.type === 'link-element'
-        && child.content
-        && child.content.length === 1
-        && child.content[0].type === 'text'
-        && child.content[0].marks?.length === 1
-        && child.content[0].marks?.[0]?.type)
-    ) {
-      markType = child.marks?.[0]?.type || child.content?.[0]?.marks?.[0]?.type
-    }
+    const mark = getMarkInfo(child)
 
     // If the current mark count is different from the previous block, start a new block
-    if (markType !== currentBlockMarkType) {
+    if (!sameMark(mark, currentBlockMark)) {
       if (currentBlockContent.length > 0) {
-        blocks.push({ mark: currentBlockMarkType!, content: currentBlockContent })
+        blocks.push({ mark: currentBlockMark, content: currentBlockContent })
       }
       currentBlockContent = []
-      currentBlockMarkType = markType!
+      currentBlockMark = mark
     }
 
     // Add the child to the current block
@@ -210,12 +237,12 @@ export const createParagraphElement = (node: JSONContent, propsArray: string[][]
 
   // Push the last block to blocks
   if (currentBlockContent.length > 0) {
-    blocks.push({ mark: currentBlockMarkType!, content: currentBlockContent })
+    blocks.push({ mark: currentBlockMark, content: currentBlockContent })
   }
 
   const children = blocks.map((block) => {
     // If the block has more than one child and a mark
-    if (block.content.length > 1 && block.mark && markToTag[block.mark]) {
+    if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
       // Remove all marks from children
       block.content.forEach((child: JSONContent) => {
         if (child.type === 'text') {
@@ -226,11 +253,13 @@ export const createParagraphElement = (node: JSONContent, propsArray: string[][]
         }
       })
 
+      const props = block.mark.attrs && Object.keys(block.mark.attrs).length > 0 ? { props: block.mark.attrs } : {}
       // Encapsulate children in a new element with the mark
       return {
         type: 'element',
-        tag: markToTag[block.mark],
+        tag: markToTag[block.mark.type],
         children: block.content.flatMap(tiptapNodeToMDC),
+        ...props,
       }
     }
 
@@ -414,6 +443,7 @@ function mergeSiblingsWithSameTag(children: MDCNode[], allowedTags: string[]): M
       && current.type === 'element' && afterNext.type === 'element'
       && current.tag === afterNext.tag
       && allowedTags.includes(current.tag)
+      && JSON.stringify(current.props || {}) === JSON.stringify(afterNext.props || {})
       && next && next.type === 'text' && next.value === ' '
     ) {
       // Merge their children with a space in between

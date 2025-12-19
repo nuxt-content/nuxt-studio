@@ -261,6 +261,15 @@
         "applyLink": "Apply link",
         "openInNewWindow": "Open in new window",
         "removeLink": "Remove link"
+      },
+      "spanStyle": {
+        "label": "Span style",
+        "styleLabel": "Inline style",
+        "stylePlaceholder": "e.g. color: tomato; font-weight: 600;",
+        "classLabel": "Classes",
+        "classPlaceholder": "Space separated classes",
+        "apply": "Apply",
+        "remove": "Remove"
       }
     },
     "mediaPicker": {
