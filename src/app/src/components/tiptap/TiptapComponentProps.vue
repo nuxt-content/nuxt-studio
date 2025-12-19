@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, unref, onMounted } from 'vue'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { PropType } from 'vue'
 import { pascalCase, titleCase, kebabCase, flatCase } from 'scule'
@@ -21,61 +21,30 @@ const props = defineProps({
 
 const { host } = useStudio()
 
+// Nested form state for arrays/objects displayed as overlays
+const formTree = ref<FormTree>({})
+const nestedForm = ref<{ key: string, type: 'array' | 'object' } | null>(null)
+
 // Get component metadata
 const componentTag = computed(() => props.node?.attrs?.tag || props.node?.type?.name)
 const componentName = computed(() => pascalCase(componentTag.value))
-const componentMeta = computed(() =>
-  host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value)),
-)
-const componentMetaProps = computed(() => componentMeta.value?.meta?.props || [])
 
-console.log('componentMeta.value', componentMeta.value)
-console.log('componentMetaProps.value', componentMetaProps.value)
-console.log('props.node', props.node)
+// Get component metadata from host meta
+const componentMeta = computed(() => {
+  const meta = host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value))
 
-// Form state
-const formTree = ref<FormTree>({})
-
-// Nested editor state
-const nestedEditor = ref<{ key: string, type: 'array' | 'object' } | null>(null)
-
-// Ensure class prop exists in form tree
-function ensureProps(tree: FormTree): FormTree {
-  // Always add class prop by default
-  if (!tree.class) {
-    tree.class = {
-      id: `#${flatCase(componentName.value)}/class`,
-      key: 'class',
-      title: 'Class',
-      value: props.node?.attrs?.props?.class || '',
-      type: 'string',
-      default: '',
-    }
+  // Add callout props to all shortcuts (tip, warning, note, caution)
+  if (meta?.nuxtUI && ['tip', 'warning', 'note', 'caution'].includes(meta.name)) {
+    const calloutMeta = host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase('callout'))
+    meta.meta.props.push(...(calloutMeta?.meta.props || []))
   }
 
-  // Always remove __tiptapWrap prop by default
-  if (tree[':__tiptapWrap']) {
-    Reflect.deleteProperty(tree, ':__tiptapWrap')
-  }
-
-  return tree
-}
-
-// Initialize form tree on mount
-onMounted(() => {
-  if (!props.node) return
-  formTree.value = ensureProps(buildFormTreeFromProps(props.node, componentMetaProps.value))
+  return meta
 })
 
-// Sync with collaboration updates
-watch(() => props.node, (updatedNode: ProseMirrorNode | undefined) => {
-  if (!updatedNode) return
-
-  const updatedTree = buildFormTreeFromProps(updatedNode, componentMetaProps.value)
-
-  if (Object.keys(updatedTree).length) {
-    formTree.value = ensureProps(updatedTree)
-  }
+onMounted(() => {
+  const tree = componentMeta.value ? buildFormTreeFromProps(unref(props.node), componentMeta.value) : {}
+  formTree.value = normalizePropsTree(tree)
 })
 
 // Convert form tree to props object for saving
@@ -119,12 +88,12 @@ const visibleProps = computed(() =>
 )
 
 // Open nested editor for arrays/objects
-function openNestedEditor(prop: FormItem, type: 'array' | 'object') {
-  nestedEditor.value = { key: prop.key!, type }
+function openNestedForm(prop: FormItem, type: 'array' | 'object') {
+  nestedForm.value = { key: prop.key!, type }
 }
 
-function closeNestedEditor() {
-  nestedEditor.value = null
+function closeNestedForm() {
+  nestedForm.value = null
 }
 
 // Get input placeholder based on type
@@ -137,6 +106,27 @@ function getPlaceholder(prop: FormItem): string {
     default:
       return ''
   }
+}
+
+function normalizePropsTree(tree: FormTree): FormTree {
+  // Always add class prop by default
+  if (!tree.class) {
+    tree.class = {
+      id: `#${flatCase(componentName.value)}/class`,
+      key: 'class',
+      title: 'Class',
+      value: props.node?.attrs?.props?.class || '',
+      type: 'string',
+      default: '',
+    }
+  }
+
+  // Always remove __tiptapWrap prop by default
+  if (tree[':__tiptapWrap']) {
+    Reflect.deleteProperty(tree, ':__tiptapWrap')
+  }
+
+  return tree
 }
 </script>
 
@@ -166,9 +156,9 @@ function getPlaceholder(prop: FormItem): string {
 
           <!-- Input -->
           <div class="w-2/3 flex items-center gap-2">
-            <!-- Nested editor overlay for arrays/objects -->
-            <template v-if="nestedEditor?.key === prop.key">
-              <div class="fixed inset-0 bg-elevated z-50 flex flex-col p-4 overflow-y-auto">
+            <!-- Nested form overlay for arrays/objects -->
+            <template v-if="nestedForm?.key === prop.key">
+              <div class="fixed inset-0 bg-default z-50 flex flex-col p-4 overflow-y-auto rounded-lg">
                 <div class="flex items-center justify-between mb-4">
                   <span class="text-sm font-mono font-semibold text-highlighted">
                     {{ prop.title }}
@@ -179,12 +169,12 @@ function getPlaceholder(prop: FormItem): string {
                     color="neutral"
                     variant="ghost"
                     aria-label="Close"
-                    @click="closeNestedEditor"
+                    @click="closeNestedForm"
                   />
                 </div>
 
                 <FormInputArray
-                  v-if="nestedEditor?.type === 'array'"
+                  v-if="nestedForm?.type === 'array'"
                   class="flex-1"
                   :model-value="(prop.value as unknown[])"
                   :form-item="prop.arrayItemForm"
@@ -192,7 +182,7 @@ function getPlaceholder(prop: FormItem): string {
                 />
 
                 <FormInputObject
-                  v-else-if="nestedEditor?.type === 'object'"
+                  v-else-if="nestedForm?.type === 'object'"
                   class="flex-1"
                   :model-value="(prop.value as Record<string, unknown>)"
                   :children="prop.children || {}"
@@ -215,7 +205,7 @@ function getPlaceholder(prop: FormItem): string {
                   color="neutral"
                   variant="link"
                   :label="`Edit ${prop.type}`"
-                  @click="openNestedEditor(prop, prop.type as 'array' | 'object')"
+                  @click="openNestedForm(prop, prop.type as 'array' | 'object')"
                 />
               </div>
             </template>

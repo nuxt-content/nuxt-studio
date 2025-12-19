@@ -3,7 +3,10 @@ import { hasProtocol } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
-import type { PropertyMeta } from 'vue-component-meta'
+import type { ComponentMeta } from '../../types/component'
+import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
+
+const HIDDEN_PROPS = ['ui', 'as', 'activeClass', 'inactiveClass', 'exactActiveClass', 'ariaCurrentValue', 'href', 'rel', 'noRel', 'prefetch', 'prefetchOn', 'noPrefetch', 'prefetchedClass', 'replace', 'exact', 'exactQuery', 'exactHash', 'external', 'onClick', 'viewTransition', 'loading', 'loadingIcon', 'as', 'activeColor', 'activeVariant', 'loading', 'loadingIcon', 'loadingAuto', 'disabled', 'active', 'leading', 'trailing', 'customize']
 
 // https://developer.mozilla.org/fr/docs/Web/HTML/Element/video#attributs
 // const videoProps = [
@@ -64,7 +67,9 @@ import type { PropertyMeta } from 'vue-component-meta'
 //   },
 // ] as Array<PropertyMeta>
 
-export const buildFormTreeFromProps = (node: ProseMirrorNode, props: PropertyMeta[]): FormTree => {
+export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: ComponentMeta): FormTree => {
+  const isNuxtUIComponent = componentMeta.nuxtUI ?? false
+  const props = componentMeta.meta.props
   const nodeProps = node?.attrs?.props || {}
   const formTree: FormTree = {}
   const componentName = pascalCase(node?.attrs?.tag)
@@ -152,7 +157,7 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, props: PropertyMet
       formTree[key].hidden = true
     }
 
-    if (hideProp(formTree[key])) {
+    if (hideProp(formTree[key], isNuxtUIComponent)) {
       formTree[key].hidden = true
     }
 
@@ -160,7 +165,7 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, props: PropertyMet
       const children = formTree[key].type === 'array' ? formTree[key].arrayItemForm?.children : formTree[key].children
       if (children) {
         for (const childKey in children) {
-          if (hideProp(children[childKey], formTree[key])) {
+          if (hideProp(children[childKey], isNuxtUIComponent)) {
             children[childKey].hidden = true
           }
         }
@@ -354,7 +359,7 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
     if (['icon', 'trailingIcon', 'leadingIcon'].includes(key)) {
       type = 'icon'
     }
-    else if (componentId === '#u_icon' && key === 'name') {
+    else if (componentId === '#icon' && key === 'name') {
       type = 'icon'
     }
   }
@@ -373,9 +378,10 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
   else if (typeof prop.schema === 'object' && prop.schema?.kind === 'object') {
     type = 'object'
   }
-  else if (typeof prop.schema === 'object' && prop.schema?.kind === 'enum') {
-    // @ts-expect-error existing type
-    const objectSchema = Object.values((prop.schema as Schema)?.schema).find(s => s.kind === 'object' && !s.type.includes('string'))
+  else if (typeof prop.schema === 'object' && prop.schema?.kind === 'enum' && prop.schema.schema) {
+    const objectSchema = Object.values(prop.schema.schema).find((s: PropertyMetaSchema) => {
+      return typeof s === 'object' && s.kind === 'object' && !s.type.includes('string')
+    })
     if (objectSchema) {
       type = level > 0 ? 'string' : 'object'
     }
@@ -392,16 +398,15 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
   return { type, options }
 }
 
-const hideProp = (prop: FormItem, parent?: FormItem) => {
+const hideProp = (prop: FormItem, isNuxtUIComponent: boolean) => {
   const key = prop.key!.replace(':', '')
-  const componentId = parent ? parent.id.split('/')[0] : prop.id.split('/')[0]
 
   // Hide some props only for Nuxt UI components
-  if (!componentId.startsWith('#u_') && !componentId.startsWith('#prose_')) {
+  if (!isNuxtUIComponent) {
     return false
   }
 
-  if (['ui', 'as', 'activeClass', 'inactiveClass', 'exactActiveClass', 'ariaCurrentValue', 'href', 'rel', 'noRel', 'prefetch', 'prefetchOn', 'noPrefetch', 'prefetchedClass', 'replace', 'exact', 'exactQuery', 'exactHash', 'external', 'onClick', 'viewTransition', 'loading', 'loadingIcon', 'as', 'activeColor', 'activeVariant', 'loading', 'loadingIcon', 'loadingAuto', 'disabled', 'active', 'leading', 'trailing', 'customize', ':__tiptapWrap'].includes(key)) {
+  if (HIDDEN_PROPS.includes(key)) {
     return true
   }
 

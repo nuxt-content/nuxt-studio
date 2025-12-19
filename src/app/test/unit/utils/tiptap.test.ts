@@ -4,45 +4,61 @@ import type { JSType } from 'untyped'
 import type { PropertyMeta } from 'vue-component-meta'
 import { buildFormTreeFromProps, convertStringToArray, convertStringToValue } from '../../../src/utils/tiptap/props'
 import { buttonPropsSchema, iconPropsSchema } from '../../mocks/props'
+import type { ComponentMeta } from '../../../src/types/component'
 
 describe('props', () => {
-  test('convertStringToArray', () => {
-    // eslint-disable-next-line no-useless-escape
-    expect(convertStringToArray('\"horizontal\" | \"vertical\" | undefined')).toEqual(['horizontal', 'vertical'])
+  describe('convertStringToArray', () => {
+    test('should convert string to array', () => {
+      // eslint-disable-next-line no-useless-escape
+      expect(convertStringToArray('\"horizontal\" | \"vertical\" | undefined')).toEqual(['horizontal', 'vertical'])
+    })
   })
 
-  test('convertStringToValue', () => {
-    // String type tests
-    expect(convertStringToValue('\'vertical\'', 'string')).toEqual('vertical')
-    expect(convertStringToValue('"horizontal"', 'string')).toEqual('horizontal')
-    expect(convertStringToValue('plain text', 'string')).toEqual('plain text')
-    expect(convertStringToValue('', 'string')).toEqual('')
+  describe('convertStringToValue', () => {
+    test('should convert multiple types of strings to value', () => {
+      // String type tests
+      expect(convertStringToValue('\'vertical\'', 'string')).toEqual('vertical')
+      expect(convertStringToValue('"horizontal"', 'string')).toEqual('horizontal')
+      expect(convertStringToValue('plain text', 'string')).toEqual('plain text')
+      expect(convertStringToValue('', 'string')).toEqual('')
 
-    // Boolean type tests
-    expect(convertStringToValue('true', 'boolean')).toEqual(true)
-    expect(convertStringToValue('false', 'boolean')).toEqual(false)
-    expect(convertStringToValue('invalid', 'boolean')).toEqual(false)
-    expect(convertStringToValue('', 'boolean')).toEqual(false)
+      // Boolean type tests
+      expect(convertStringToValue('true', 'boolean')).toEqual(true)
+      expect(convertStringToValue('false', 'boolean')).toEqual(false)
+      expect(convertStringToValue('invalid', 'boolean')).toEqual(false)
+      expect(convertStringToValue('', 'boolean')).toEqual(false)
 
-    // Number type tests
-    expect(convertStringToValue('100', 'number')).toEqual(100)
-    expect(convertStringToValue('-50', 'number')).toEqual(-50)
-    expect(convertStringToValue('0', 'number')).toEqual(0)
-    expect(convertStringToValue('invalid', 'number')).toEqual(null)
-    expect(convertStringToValue('', 'number')).toEqual(null)
+      // Number type tests
+      expect(convertStringToValue('100', 'number')).toEqual(100)
+      expect(convertStringToValue('-50', 'number')).toEqual(-50)
+      expect(convertStringToValue('0', 'number')).toEqual(0)
+      expect(convertStringToValue('invalid', 'number')).toEqual(null)
+      expect(convertStringToValue('', 'number')).toEqual(null)
 
-    // Object type tests
-    expect(convertStringToValue('{"key": "value"}', 'object')).toEqual({ key: 'value' })
-    expect(convertStringToValue('{"number": 42, "boolean": true}', 'object')).toEqual({ number: 42, boolean: true })
-    expect(convertStringToValue('{"array": [1, 2, 3]}', 'object')).toEqual({ array: [1, 2, 3] })
-    expect(convertStringToValue('invalid json', 'object')).toEqual({})
-    expect(convertStringToValue('', 'object')).toEqual({})
+      // Object type tests
+      expect(convertStringToValue('{"key": "value"}', 'object')).toEqual({ key: 'value' })
+      expect(convertStringToValue('{"number": 42, "boolean": true}', 'object')).toEqual({ number: 42, boolean: true })
+      expect(convertStringToValue('{"array": [1, 2, 3]}', 'object')).toEqual({ array: [1, 2, 3] })
+      expect(convertStringToValue('invalid json', 'object')).toEqual({})
+      expect(convertStringToValue('', 'object')).toEqual({})
 
-    // Default case (unknown type)
-    expect(convertStringToValue('any value', 'array' as JSType)).toEqual([])
+      // Default case (unknown type)
+      expect(convertStringToValue('any value', 'array' as JSType)).toEqual([])
+    })
   })
 
   describe('buildFormTreeFromProps', () => {
+    const createComponentMeta = (props: PropertyMeta[], options: { nuxtUI?: boolean } = {}): ComponentMeta => ({
+      name: 'TestComponent',
+      path: '/path/to/component',
+      nuxtUI: options.nuxtUI ?? false,
+      meta: {
+        props,
+        slots: [],
+        events: [],
+      },
+    })
+
     test('generate JSType props from meta', () => {
       const props: PropertyMeta[] = [
         {
@@ -203,7 +219,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(emptyNode, props)).toEqual({
+      expect(buildFormTreeFromProps(emptyNode, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         'as': {
           id: '#u_pagehero/as',
           key: 'as',
@@ -294,7 +310,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         'as': {
           id: '#u_pagehero/as',
           key: 'as',
@@ -386,7 +402,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         'label': {
           id: '#u_button/label',
           key: 'label',
@@ -446,14 +462,14 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         name: {
           id: '#u_icon/name',
           key: 'name',
           title: 'Name',
           value: '',
           custom: false,
-          type: 'icon',
+          type: 'string',
           default: '',
         },
         mode: {
@@ -603,7 +619,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(emptyNode, props)).toEqual({
+      expect(buildFormTreeFromProps(emptyNode, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         ':avatar': {
           id: '#u_pagehero/:avatar',
           key: ':avatar',
@@ -690,7 +706,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         ':avatar': {
           id: '#u_pagehero/:avatar',
           key: ':avatar',
@@ -832,7 +848,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props))).toEqual({
         ':features': {
           id: '#templatefeatures/:features',
           key: ':features',
@@ -923,7 +939,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props, { nuxtUI: true }))).toEqual({
         ':links': {
           id: '#u_button/:links',
           key: ':links',
@@ -1007,7 +1023,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props))).toEqual({
         ':names': {
           id: '#authors/:names',
           key: ':names',
@@ -1040,7 +1056,7 @@ describe('props', () => {
         },
       } as unknown as ProseMirrorNode
 
-      expect(buildFormTreeFromProps(node, props)).toEqual({
+      expect(buildFormTreeFromProps(node, createComponentMeta(props))).toEqual({
         as: {
           id: '#unicorn/as', // should not cointain _ since it's not ui component
           key: 'as',
