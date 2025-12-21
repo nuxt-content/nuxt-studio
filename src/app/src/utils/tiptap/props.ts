@@ -348,11 +348,14 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
   const options: string[] = []
   const propType = typeof prop.schema === 'string' ? prop.schema.replace(' | undefined', '') : prop.schema?.type?.replace(' | undefined', '')
 
-  if (level > 1) {
-    type = 'string'
-  }
   if (propType === 'boolean') {
     type = 'boolean'
+  }
+  else if (propType === 'number') {
+    type = 'number'
+  }
+  else if (level > 1) {
+    type = 'string'
   }
   else if (propType === 'string' || propType.includes('string | ') || propType.includes(' | string')) {
     type = 'string'
@@ -362,9 +365,6 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
     else if (componentId === '#icon' && key === 'name') {
       type = 'icon'
     }
-  }
-  else if (propType === 'number') {
-    type = 'number'
   }
   else if (propType.includes('[]')) {
     type = level > 0 ? 'string' : 'array'
