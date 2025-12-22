@@ -261,6 +261,15 @@
         "applyLink": "应用链接",
         "openInNewWindow": "在新窗口中打开",
         "removeLink": "移除链接"
+      },
+      "spanStyle": {
+        "label": "Span 样式",
+        "stylePlaceholder": "样式：例如 color: tomato; font-weight: 600;",
+        "classPlaceholder": "类：用空格分隔",
+        "apply": "应用",
+        "applyStyles": "应用样式",
+        "applyClasses": "应用类",
+        "remove": "移除"
       }
     },
     "mediaPicker": {

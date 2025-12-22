@@ -260,6 +260,15 @@
         "applyLink": "تطبيق الرابط",
         "openInNewWindow": "فتح في نافذة جديدة",
         "removeLink": "إزالة الرابط"
+      },
+      "spanStyle": {
+        "label": "نمط السبان",
+        "stylePlaceholder": "الأنماط: مثال color: tomato; font-weight: 600;",
+        "classPlaceholder": "الفئات: مفصولة بمسافات",
+        "apply": "تطبيق",
+        "applyStyles": "تطبيق الأنماط",
+        "applyClasses": "تطبيق الفئات",
+        "remove": "إزالة"
       }
     },
     "mediaPicker": {

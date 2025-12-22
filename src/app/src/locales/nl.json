@@ -261,6 +261,15 @@
         "applyLink": "Link toepassen",
         "openInNewWindow": "Openen in nieuw venster",
         "removeLink": "Link verwijderen"
+      },
+      "spanStyle": {
+        "label": "Span-stijl",
+        "stylePlaceholder": "Stijlen: bijv. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Klassen: gescheiden door spaties",
+        "apply": "Toepassen",
+        "applyStyles": "Stijlen toepassen",
+        "applyClasses": "Klassen toepassen",
+        "remove": "Verwijderen"
       }
     },
     "mediaPicker": {

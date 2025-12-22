@@ -260,6 +260,15 @@
         "applyLink": "Застосувати посилання",
         "openInNewWindow": "Відкрити в новому вікні",
         "removeLink": "Видалити посилання"
+      },
+      "spanStyle": {
+        "label": "Стиль span",
+        "stylePlaceholder": "Стилі: напр. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Класи: розділені пробілами",
+        "apply": "Застосувати",
+        "applyStyles": "Застосувати стилі",
+        "applyClasses": "Застосувати класи",
+        "remove": "Видалити"
       }
     },
     "mediaPicker": {
