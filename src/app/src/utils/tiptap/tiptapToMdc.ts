@@ -47,7 +47,11 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'codeBlock': (node: JSONContent) => createCodeBlockElement(node),
   'image': (node: JSONContent) => createImageElement(node),
   'video': (node: JSONContent) => createElement(node, 'video'),
-  'binding': (node: JSONContent) => ({ type: 'element', tag: 'binding', props: { value: (node.content?.[0].text || '').trim() }, children: [] }),
+  'binding': (node: JSONContent) => {
+    const defaultValue = (node.attrs as Record<string, unknown> | undefined)?.defaultValue as string
+    const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
+    return { type: 'element', tag: 'binding', props: { defaultValue, value }, children: [] }
+  },
   'br': (node: JSONContent) => createElement(node, 'br'),
 }
 

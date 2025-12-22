@@ -29,6 +29,7 @@ import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
+import { Binding } from '../../utils/tiptap/extensions/binding'
 
 const props = defineProps({
   draftItem: {
@@ -203,6 +204,7 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         Slot,
         CodeBlock,
         Emoji,
+        Binding,
       ]"
       :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
