@@ -69,8 +69,8 @@ export const Binding = Node.create<BindingAttrs>({
   addInputRules() {
     return [
       new InputRule({
-        // eslint-disable-next-line regexp/no-unused-capturing-group
-        find: /\{\{\s*([^\|\s}]+)\s*(?:\|\|\s*([^}]+))?\s*}}$/,
+        // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
+        find: /\{\{\s*([^|\s}]+)\s*(?:\|\|\s*([^}]+)\s*)?\}\}$/,
         handler: ({ state, range, match }) => {
           const [, name, def] = match as RegExpMatchArray
           const attrs = sanitize({ value: name, defaultValue: def })
