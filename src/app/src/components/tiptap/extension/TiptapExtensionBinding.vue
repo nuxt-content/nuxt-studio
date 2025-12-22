@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch, onBeforeUnmount } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { NodeViewWrapper, NodeViewContent, nodeViewProps } from '@tiptap/vue-3'
 
 const props = defineProps(nodeViewProps)
@@ -12,31 +12,22 @@ const valueAttr = ref('')
 const defaultValueAttr = ref('')
 
 const syncAttributes = () => {
-  const attrs = props.editor.getAttributes('binding')
-  valueAttr.value = attrs?.value || ''
-  defaultValueAttr.value = attrs?.defaultValue || ''
+  valueAttr.value = props.node.attrs.value || ''
+  defaultValueAttr.value = props.node.attrs.defaultValue || ''
 }
 
-// Selection listener helps to get the attributes of the binding when the user is selecting the binding
-let selectionListener
-watch(() => props.editor, (editor) => {
-  if (!editor) return
-  if (selectionListener) editor.off('selectionUpdate', selectionListener)
-  syncAttributes()
-  selectionListener = () => syncAttributes()
-  editor.on('selectionUpdate', selectionListener)
-}, { immediate: true })
-
-onBeforeUnmount(() => {
-  if (selectionListener) props.editor.off('selectionUpdate', selectionListener)
-})
+watch(
+  () => [props.node.attrs.value, props.node.attrs.defaultValue],
+  () => syncAttributes(),
+  { immediate: true },
+)
 
 const applyBinding = () => {
   const attrs = {
     value: valueAttr.value.trim() || undefined,
     defaultValue: defaultValueAttr.value.trim() || undefined,
   }
-  props.editor.chain().focus().updateAttributes('binding', attrs).run()
+  props.updateAttributes(attrs)
   isPopoverOpen.value = false
 }
 
