@@ -24,16 +24,24 @@ export function validateAuthConfig(options: ModuleOptions): void {
       ].join(' '))
     }
 
+    // PAT required for Google OAuth
     if (!hasGitToken) {
       logger.warn([
         `The \`STUDIO_${providerUpperCase}_TOKEN\` environment variable is required when using Google OAuth with ${providerUpperCase} provider.`,
         `This token is used to push changes to the repository when using Google OAuth.`,
       ].join(' '))
     }
-  } // Google OAuth disabled
+  }
+  // Google OAuth disabled
   else {
+    // Custom authentication is working with PAT and do not need to set up OAuth
+    if (hasGitToken) {
+      return
+    }
+
+    // GitHub or GitLab OAuth required
     const missingProviderEnv = provider === 'github' ? !hasGitHubAuth : !hasGitLabAuth
-    if (missingProviderEnv && !hasGitToken) {
+    if (missingProviderEnv) {
       logger.error([
         `In order to authenticate users, you need to set up a ${providerUpperCase} OAuth application.`,
         `Please set the \`STUDIO_${providerUpperCase}_CLIENT_ID\` and \`STUDIO_${providerUpperCase}_CLIENT_SECRET\` environment variables,`,
