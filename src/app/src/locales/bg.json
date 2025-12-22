@@ -261,6 +261,15 @@
         "applyLink": "Прилагане на връзка",
         "openInNewWindow": "Отваряне в нов прозорец",
         "removeLink": "Премахване на връзката"
+      },
+      "spanStyle": {
+        "label": "Стил на span",
+        "stylePlaceholder": "Стилове: напр. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Класове: разделени с интервали",
+        "apply": "Приложи",
+        "applyStyles": "Приложи стилове",
+        "applyClasses": "Приложи класове",
+        "remove": "Премахни"
       }
     },
     "mediaPicker": {

@@ -261,6 +261,15 @@
         "applyLink": "Bruk lenke",
         "openInNewWindow": "Åpne i nytt vindu",
         "removeLink": "Fjern lenke"
+      },
+      "spanStyle": {
+        "label": "Span-stil",
+        "stylePlaceholder": "Stiler: f.eks. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Klasser: atskilt med mellomrom",
+        "apply": "Bruk",
+        "applyStyles": "Bruk stiler",
+        "applyClasses": "Bruk klasser",
+        "remove": "Fjern"
       }
     },
     "mediaPicker": {

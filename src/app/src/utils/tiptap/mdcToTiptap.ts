@@ -2,6 +2,7 @@ import type { JSONContent } from '@tiptap/vue-3'
 import { isEmpty } from '../../utils/object'
 import type { MDCNode, MDCElement, MDCText, MDCComment, MDCRoot } from '@nuxtjs/mdc'
 import { EMOJI_REGEXP, getEmojiUnicode } from '../emoji'
+import { isValidAttr } from './props'
 
 type MDCToTipTapMap = Record<string, (node: MDCRoot | MDCNode) => JSONContent>
 
@@ -25,7 +26,7 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   template: node => createTemplateNode(node as MDCElement),
   pre: node => createPreNode(node as MDCElement),
   p: node => createParagraphNode(node as MDCElement),
-  // 'span': node => createTipTapNode(node as MDCElement, 'span-style', { attrs: { tag: 'span' } }),
+  span: node => createSpanStyleNode(node as MDCElement),
   h1: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
   h2: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
   h3: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
@@ -311,6 +312,22 @@ function createTextNode(node: MDCText) {
   }
 
   return nodes.length === 0 ? { type: 'text', text } : nodes
+}
+
+function createSpanStyleNode(node: MDCElement) {
+  const spanStyle = (node as MDCElement).props?.style
+  const spanClass = (node as MDCElement).props?.class || (node as MDCElement).props?.className
+  const spanAttrs = {
+    style: isValidAttr(spanStyle) ? String(spanStyle).trim() : undefined,
+    class: isValidAttr(spanClass) ? String(spanClass).trim() : undefined,
+  }
+  const cleanedNode = { ...(node as MDCElement), props: { ...(node as MDCElement).props } }
+
+  delete (cleanedNode.props as Record<string, unknown>).style
+  delete (cleanedNode.props as Record<string, unknown>).class
+  delete (cleanedNode.props as Record<string, unknown>).className
+
+  return createTipTapNode(cleanedNode as MDCElement, 'span-style', { attrs: spanAttrs })
 }
 
 /**
