@@ -7,11 +7,16 @@ export function validateAuthConfig(options: ModuleOptions): void {
   const provider = options.repository?.provider || 'github'
   const providerUpperCase = provider.toUpperCase()
 
+  // Git Token is enough for custom authentication
+  const hasGitToken = process.env.STUDIO_GITHUB_TOKEN || process.env.STUDIO_GITLAB_TOKEN
+  if (hasGitToken) {
+    return
+  }
+
   const hasGitHubAuth = options.auth?.github?.clientId && options.auth?.github?.clientSecret
   const hasGitLabAuth = options.auth?.gitlab?.applicationId && options.auth?.gitlab?.applicationSecret
   const hasGoogleAuth = options.auth?.google?.clientId && options.auth?.google?.clientSecret
   const hasGoogleModerators = (process.env.STUDIO_GOOGLE_MODERATORS?.split(',') || []).length > 0
-  const hasGitToken = process.env.STUDIO_GITHUB_TOKEN || process.env.STUDIO_GITLAB_TOKEN
 
   // Google OAuth enabled
   if (hasGoogleAuth) {
@@ -24,7 +29,7 @@ export function validateAuthConfig(options: ModuleOptions): void {
       ].join(' '))
     }
 
-    // PAT required for Google OAuth
+    // PAT required for pushing changes to the repository
     if (!hasGitToken) {
       logger.warn([
         `The \`STUDIO_${providerUpperCase}_TOKEN\` environment variable is required when using Google OAuth with ${providerUpperCase} provider.`,
@@ -32,14 +37,8 @@ export function validateAuthConfig(options: ModuleOptions): void {
       ].join(' '))
     }
   }
-  // Google OAuth disabled
+  // Google OAuth disabled => GitHub or GitLab OAuth required
   else {
-    // Custom authentication is working with PAT and do not need to set up OAuth
-    if (hasGitToken) {
-      return
-    }
-
-    // GitHub or GitLab OAuth required
     const missingProviderEnv = provider === 'github' ? !hasGitHubAuth : !hasGitLabAuth
     if (missingProviderEnv) {
       logger.error([
