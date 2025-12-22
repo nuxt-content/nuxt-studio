@@ -261,6 +261,15 @@
           "applyLink": "Käytä linkkiä",
           "openInNewWindow": "Avaa uudessa ikkunassa",
           "removeLink": "Poista linkki"
+        },
+        "spanStyle": {
+          "label": "Span-tyyli",
+          "stylePlaceholder": "Tyylit: esim. color: tomato; font-weight: 600;",
+          "classPlaceholder": "Luokat: välilyönnillä erotettuna",
+          "apply": "Käytä",
+          "applyStyles": "Käytä tyylejä",
+          "applyClasses": "Käytä luokkia",
+          "remove": "Poista"
         }
       },
       "mediaPicker": {

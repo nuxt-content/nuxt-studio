@@ -260,6 +260,15 @@
         "applyLink": "リンクを適用",
         "openInNewWindow": "新しいウィンドウで開く",
         "removeLink": "リンクを削除"
+      },
+      "spanStyle": {
+        "label": "スパンスタイル",
+        "stylePlaceholder": "スタイル: 例 color: tomato; font-weight: 600;",
+        "classPlaceholder": "クラス: スペース区切り",
+        "apply": "適用",
+        "applyStyles": "スタイルを適用",
+        "applyClasses": "クラスを適用",
+        "remove": "削除"
       }
     },
     "mediaPicker": {

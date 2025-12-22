@@ -261,6 +261,15 @@
         "applyLink": "Terapkan tautan",
         "openInNewWindow": "Buka di jendela baru",
         "removeLink": "Hapus tautan"
+      },
+      "spanStyle": {
+        "label": "Gaya span",
+        "stylePlaceholder": "Gaya: contoh color: tomato; font-weight: 600;",
+        "classPlaceholder": "Kelas: dipisah spasi",
+        "apply": "Terapkan",
+        "applyStyles": "Terapkan gaya",
+        "applyClasses": "Terapkan kelas",
+        "remove": "Hapus"
       }
     },
     "mediaPicker": {
