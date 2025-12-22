@@ -17,6 +17,7 @@ const syncAttributes = () => {
   defaultValueAttr.value = attrs?.defaultValue || ''
 }
 
+// Selection listener helps to get the attributes of the binding when the user is selecting the binding
 let selectionListener
 watch(() => props.editor, (editor) => {
   if (!editor) return
