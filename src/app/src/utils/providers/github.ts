@@ -4,20 +4,78 @@ import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, Commit
 import { StudioFeature } from '../../types'
 import { DraftStatus } from '../../types/draft'
 
+interface GitHubUser {
+  login: string
+  email: string | null
+  name: string | null
+}
+
+const NUXT_STUDIO_COAUTHOR = 'Co-authored-by: Nuxt Studio <noreply@nuxt.studio>'
+
 export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail } = options
   const gitFiles: Record<string, GitFile> = {}
 
   // Support both token formats: "token {token}" for fine grained PATs, "Bearer {token}" for OAuth PATs
-  const authHeader = token.startsWith('github_pat_') ? `token ${token}` : `Bearer ${token}`
+  const isPAT = token.startsWith('github_pat_')
+  const authHeader = isPAT ? `token ${token}` : `Bearer ${token}`
 
-  const $api = ofetch.create({
+  const $repositoryApi = ofetch.create({
     baseURL: `https://api.github.com/repos/${owner}/${repo}`,
     headers: {
       Authorization: authHeader,
       Accept: 'application/vnd.github.v3+json',
     },
   })
+
+  const $userApi = ofetch.create({
+    baseURL: 'https://api.github.com',
+    headers: {
+      Authorization: authHeader,
+      Accept: 'application/vnd.github.v3+json',
+    },
+  })
+
+  // Cache for authenticated user info (PAT owner)
+  let cachedPATUser: GitHubUser | null = null
+
+  /**
+   * Fetch the authenticated user associated with the current token
+   * Used for PAT tokens to get the token owner's info
+   */
+  async function fetchAuthenticatedUser(): Promise<GitHubUser | null> {
+    if (cachedPATUser) {
+      return cachedPATUser
+    }
+
+    try {
+      const user = await $userApi('/user')
+
+      // If email is not public, try to fetch from emails endpoint
+      let email = user.email
+      if (!email) {
+        try {
+          const emails = await $userApi('/user/emails')
+          const primaryEmail = emails.find((e: { primary: boolean, verified: boolean }) => e.primary && e.verified)
+          email = primaryEmail?.email || emails.find((e: { verified: boolean }) => e.verified)?.email || null
+        }
+        catch {
+          return null
+        }
+      }
+
+      cachedPATUser = {
+        login: user.login,
+        email,
+        name: user.name || user.login,
+      }
+
+      return cachedPATUser
+    }
+    catch {
+      return null
+    }
+  }
 
   async function fetchFile(path: string, { cached = false }: { cached?: boolean } = {}): Promise<GitFile | null> {
     path = joinURL(rootDir, path)
@@ -29,7 +87,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     }
 
     try {
-      const ghResponse = await $api(`/contents/${path}?ref=${branch}`)
+      const ghResponse = await $repositoryApi(`/contents/${path}?ref=${branch}`)
       const ghFile: GitFile = {
         ...ghResponse,
         provider: 'github' as const,
@@ -58,7 +116,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     }
   }
 
-  function commitFiles(files: RawFile[], message: string): Promise<CommitResult | null> {
+  async function commitFiles(files: RawFile[], message: string): Promise<CommitResult | null> {
     if (!token) {
       return Promise.resolve(null)
     }
@@ -67,24 +125,50 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
       .filter(file => file.status !== DraftStatus.Pristine)
       .map(file => ({ ...file, path: joinURL(rootDir, file.path) }))
 
+    const coAuthors: string[] = [NUXT_STUDIO_COAUTHOR]
+
+    let commitAuthorName = authorName
+    let commitAuthorEmail = authorEmail
+
+    // For PAT tokens, use the PAT owner's info for the commit author
+    // This ensures the commit email is associated with a GitHub account
+    if (isPAT) {
+      const patUser = await fetchAuthenticatedUser()
+      if (patUser?.email) {
+        // Add the original user (who performed the action) as co-author if different from PAT owner
+        if (authorEmail && authorEmail !== patUser.email) {
+          coAuthors.push(`Co-authored-by: ${authorName} <${authorEmail}>`)
+        }
+
+        // Use PAT owner as the commit author
+        commitAuthorName = patUser.name || patUser.login
+        commitAuthorEmail = patUser.email
+      }
+    }
+
+    // Build commit message with co-authors
+    const fullMessage = coAuthors.length > 0
+      ? `${message}\n\n${coAuthors.join('\n')}`
+      : message
+
     return commitFilesToGitHub({
       owner,
       repo,
       branch,
       files,
-      message,
-      authorName,
-      authorEmail,
+      message: fullMessage,
+      authorName: commitAuthorName,
+      authorEmail: commitAuthorEmail,
     })
   }
 
   async function commitFilesToGitHub({ owner, repo, branch, files, message, authorName, authorEmail }: CommitFilesOptions) {
     // Get latest commit SHA
-    const refData = await $api(`/git/refs/heads/${branch}`)
+    const refData = await $repositoryApi(`/git/refs/heads/${branch}`)
     const latestCommitSha = refData.object.sha
 
     // Get base tree SHA
-    const commitData = await $api(`/git/commits/${latestCommitSha}`)
+    const commitData = await $repositoryApi(`/git/commits/${latestCommitSha}`)
     const baseTreeSha = commitData.tree.sha
 
     // Create blobs and prepare tree
@@ -101,7 +185,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
       }
       else {
         // For new/modified files, create blob and use its sha
-        const blobData = await $api(`/git/blobs`, {
+        const blobData = await $repositoryApi(`/git/blobs`, {
           method: 'POST',
           body: JSON.stringify({
             content: file.content,
@@ -118,7 +202,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     }
 
     // Create new tree
-    const treeData = await $api(`/git/trees`, {
+    const treeData = await $repositoryApi(`/git/trees`, {
       method: 'POST',
       body: JSON.stringify({
         base_tree: baseTreeSha,
@@ -127,7 +211,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     })
 
     // Create new commit
-    const newCommit = await $api(`/git/commits`, {
+    const newCommit = await $repositoryApi(`/git/commits`, {
       method: 'POST',
       body: JSON.stringify({
         message,
@@ -142,7 +226,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     })
 
     // Update branch ref
-    await $api(`/git/refs/heads/${branch}`, {
+    await $repositoryApi(`/git/refs/heads/${branch}`, {
       method: 'PATCH',
       body: JSON.stringify({ sha: newCommit.sha }),
     })
