@@ -12,6 +12,8 @@ const { context, gitProvider } = useStudio()
 const { preferences, updatePreference } = useStudioState()
 const { t } = useI18n()
 const fileInputRef = ref<HTMLInputElement>()
+
+// @ts-expect-error vue-tsc error in cli
 const toolbarRef = ref<HTMLElement>()
 const pendingAction = ref<StudioAction<StudioItemActionId> | null>(null)
 const loadingAction = ref<StudioAction<StudioItemActionId> | null>(null)
