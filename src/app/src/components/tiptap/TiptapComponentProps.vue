@@ -153,7 +153,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
             <!-- Nested form overlay for arrays/objects -->
             <template v-if="nestedForm?.key === prop.key">
               <div class="fixed inset-0 bg-default z-50 flex flex-col p-3 overflow-y-auto rounded-lg">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-2">
                   <span class="text-sm font-mono font-semibold text-highlighted">
                     {{ prop.title }}
                   </span>
@@ -209,6 +209,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
               <USwitch
                 :model-value="Boolean(prop.value)"
                 :disabled="prop.disabled"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
@@ -220,7 +221,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
                 :items="prop.options"
                 :disabled="prop.disabled"
                 class="w-full"
-                size="sm"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
@@ -233,7 +234,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
                 :placeholder="getPlaceholder(prop)"
                 :disabled="prop.disabled"
                 class="w-full"
-                size="sm"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
@@ -245,7 +246,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
                 :placeholder="getPlaceholder(prop)"
                 :disabled="prop.disabled"
                 class="w-full"
-                size="sm"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>

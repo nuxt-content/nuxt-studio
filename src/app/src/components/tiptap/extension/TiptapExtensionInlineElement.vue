@@ -73,13 +73,13 @@ function handleKeyDown(event: KeyboardEvent) {
 <template>
   <NodeViewWrapper as="span">
     <div
-      class="group inline-flex items-center gap-1 border border-default rounded-md text-muted px-2 mx-0.5 hover:bg-muted transition-colors cursor-pointer"
+      class="group inline-flex items-center gap-1 border border-default rounded-md text-muted px-1 py-0.5 mx-0.5 hover:bg-muted transition-colors cursor-pointer"
       :contenteditable="false"
       @click="isPopoverOpen = true"
     >
       <UIcon
         :name="displayIcon"
-        class="size-3 shrink-0 text-muted group-hover:text-default my-2"
+        class="size-3 shrink-0 text-muted group-hover:text-default"
         :class="{ 'text-default': isPopoverOpen }"
       />
       <div
@@ -106,7 +106,7 @@ function handleKeyDown(event: KeyboardEvent) {
             <div class="flex items-center gap-2">
               <UIcon
                 :name="displayIcon"
-                class="size-4 text-muted"
+                class="size-3.5 text-muted"
               />
               <span class="text-sm font-medium text-highlighted">
                 {{ displayName }}
@@ -175,7 +175,7 @@ function handleKeyDown(event: KeyboardEvent) {
                   <UButton
                     icon="i-lucide-corner-down-left"
                     variant="ghost"
-                    size="sm"
+                    size="xs"
                     @click="applyContent"
                   />
                 </UTooltip>

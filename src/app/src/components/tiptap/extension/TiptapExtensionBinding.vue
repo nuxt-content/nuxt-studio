@@ -60,7 +60,7 @@ function handleKeyDown(event) {
     >
       <UIcon
         name="i-lucide-variable"
-        class="size-3 shrink-0 text-muted group-hover:text-default my-2"
+        class="size-3 shrink-0 text-muted group-hover:text-default"
         :class="{ 'text-default': isPopoverOpen }"
       />
       <NodeViewContent
@@ -101,14 +101,14 @@ function handleKeyDown(event) {
             <UButton
               icon="i-lucide-corner-down-left"
               variant="ghost"
-              size="sm"
+              size="xs"
               @click="applyBinding"
             />
             <UButton
               icon="i-lucide-trash"
               color="neutral"
               variant="ghost"
-              size="sm"
+              size="xs"
               @click="removeBinding"
             />
           </div>
