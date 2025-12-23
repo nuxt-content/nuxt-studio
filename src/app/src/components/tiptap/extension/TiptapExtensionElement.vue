@@ -161,7 +161,7 @@ function updateComponentProps(props: Record<string, unknown>) {
                 variant="ghost"
                 size="2xs"
                 class="text-muted hover:text-default"
-                icon="i-lucide-settings"
+                icon="i-lucide-sliders-horizontal"
                 :disabled="!isEditable"
                 :aria-label="$t('studio.tiptap.element.editProps')"
                 @click.stop

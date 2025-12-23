@@ -37,7 +37,7 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   ol: node => createTipTapNode(node as MDCElement, 'orderedList', { attrs: { start: (node as MDCElement).props?.start } }),
   li: node => createTipTapNode(node as MDCElement, 'listItem', { children: [{ type: 'element', tag: 'p', children: (node as MDCElement).children }] }),
   blockquote: node => createTipTapNode(node as MDCElement, 'blockquote'),
-  // 'binding': node => createTipTapNode(node as MDCElement, 'binding', { children: [{ type: 'text', value: (node as MDCElement).props?.value || '' }] }),
+  binding: node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
   hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
 }
 

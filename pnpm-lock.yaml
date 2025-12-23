@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@nuxt/content': https://pkg.pr.new/@nuxt/content@9b4b4f2
-  nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@104
+  nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@b65b98e
   '@vueuse/core': 13.9.0
 
 importers:
@@ -35,8 +35,8 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1
       nuxt-component-meta:
-        specifier: https://pkg.pr.new/nuxt-component-meta@104
-        version: https://pkg.pr.new/nuxt-component-meta@104(magicast@0.5.1)
+        specifier: https://pkg.pr.new/nuxt-component-meta@b65b98e
+        version: https://pkg.pr.new/nuxt-component-meta@b65b98e(magicast@0.5.1)
       remark-mdc:
         specifier: ^3.9.0
         version: 3.9.0
@@ -5714,8 +5714,8 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
-  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@104:
-    resolution: {tarball: https://pkg.pr.new/nuxt-component-meta@104}
+  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@b65b98e:
+    resolution: {integrity: sha512-2HwWSXVjWT8hVT/ZT5oAY4Lt2tkW5zffaNn9QbQHZaaWS/mzIXEh6bVdsFTG/IxWRsHAhf1Y797eKqAOBuMREw==, tarball: https://pkg.pr.new/nuxt-component-meta@b65b98e}
     version: 0.15.0
     hasBin: true
 
@@ -8789,7 +8789,7 @@ snapshots:
       minimark: 0.2.0
       minimatch: 10.1.1
       modern-tar: 0.7.3
-      nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@104(magicast@0.5.1)
+      nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@b65b98e(magicast@0.5.1)
       nypm: 0.6.2
       ohash: 2.0.11
       pathe: 2.0.3
@@ -14188,7 +14188,7 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
-  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@104(magicast@0.5.1):
+  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@b65b98e(magicast@0.5.1):
     dependencies:
       '@nuxt/kit': 4.2.2(magicast@0.5.1)
       citty: 0.1.6

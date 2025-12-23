@@ -120,7 +120,7 @@ function handleKeyDown(event: KeyboardEvent) {
             <UButton
               icon="i-lucide-corner-down-left"
               variant="ghost"
-              size="sm"
+              size="xs"
               @click="applySpanStyle"
             />
           </UTooltip>
@@ -130,7 +130,7 @@ function handleKeyDown(event: KeyboardEvent) {
               icon="i-lucide-trash"
               color="neutral"
               variant="ghost"
-              size="sm"
+              size="xs"
               :disabled="!active"
               @click="removeSpanStyle"
             />

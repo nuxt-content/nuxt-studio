@@ -101,6 +101,7 @@ function computeValue(formItem: FormItem): unknown {
       v-model="(model as string | number)"
       :placeholder="placeholder"
       :type="inputType"
+      size="xs"
       class="w-full"
     />
   </UFormField>

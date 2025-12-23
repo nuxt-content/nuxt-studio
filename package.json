@@ -91,7 +91,7 @@
   },
   "resolutions": {
     "@nuxt/content": "https://pkg.pr.new/@nuxt/content@9b4b4f2",
-    "nuxt-component-meta": "https://pkg.pr.new/nuxt-component-meta@104",
+    "nuxt-component-meta": "https://pkg.pr.new/nuxt-component-meta@b65b98e",
     "@vueuse/core": "13.9.0"
   },
   "packageManager": "pnpm@10.26.1",

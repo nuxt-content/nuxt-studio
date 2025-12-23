@@ -17,6 +17,10 @@ const props = defineProps({
     type: Function as PropType<(props: Record<string, unknown>) => void>,
     required: true,
   },
+  hideTitle: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const { host } = useStudio()
@@ -119,11 +123,14 @@ function normalizePropsTree(tree: FormTree): FormTree {
 
 <template>
   <div
-    class="p-4 min-w-[400px] max-w-[500px] not-prose overflow-y-auto max-h-[400px] relative"
+    class="p-3 min-w-[400px] max-w-[500px] not-prose overflow-y-auto max-h-[400px] relative"
     @click.stop
   >
     <!-- Header -->
-    <div class="text-sm font-mono font-semibold text-highlighted mb-4">
+    <div
+      v-if="!hideTitle"
+      class="text-sm font-mono font-semibold text-highlighted mb-2"
+    >
       {{ titleCase(componentName).replace(/^U /, '') }} properties
     </div>
 
@@ -145,8 +152,8 @@ function normalizePropsTree(tree: FormTree): FormTree {
           <div class="w-2/3 flex items-center gap-2">
             <!-- Nested form overlay for arrays/objects -->
             <template v-if="nestedForm?.key === prop.key">
-              <div class="fixed inset-0 bg-default z-50 flex flex-col p-4 overflow-y-auto rounded-lg">
-                <div class="flex items-center justify-between mb-4">
+              <div class="fixed inset-0 bg-default z-50 flex flex-col p-3 overflow-y-auto rounded-lg">
+                <div class="flex items-center justify-between mb-2">
                   <span class="text-sm font-mono font-semibold text-highlighted">
                     {{ prop.title }}
                   </span>
@@ -202,6 +209,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
               <USwitch
                 :model-value="Boolean(prop.value)"
                 :disabled="prop.disabled"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
@@ -213,7 +221,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
                 :items="prop.options"
                 :disabled="prop.disabled"
                 class="w-full"
-                size="sm"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
@@ -226,7 +234,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
                 :placeholder="getPlaceholder(prop)"
                 :disabled="prop.disabled"
                 class="w-full"
-                size="sm"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
@@ -238,7 +246,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
                 :placeholder="getPlaceholder(prop)"
                 :disabled="prop.disabled"
                 class="w-full"
-                size="sm"
+                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
