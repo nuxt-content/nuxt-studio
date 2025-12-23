@@ -3,7 +3,6 @@ import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import type { Node as ProseMirrorNode, NodeType } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
 import type { EditorState } from '@tiptap/pm/state'
-// @ts-expect-error Strange ts check issue
 import TiptapExtensionBinding from '../../../components/tiptap/extension/TiptapExtensionBinding.vue'
 
 export interface BindingAttrs {
