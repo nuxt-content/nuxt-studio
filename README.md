@@ -11,19 +11,17 @@ Originally offered as a standalone premium platform at <https://nuxt.studio>, St
 **Current Features** `BETA`
 
 - 💻 **Monaco Code Editor** - Code editor for enhanced Markdown with MDC syntax, YAML, and JSON
-- ✨ **TipTap Visual Editor** - WYSIWYG Markdown editor with MDC component support (default mode)
+- ✨ **TipTap Visual Editor** - Markdown editor with MDC component support (default mode)
 - 📝 **Form-based Editor** - Edit YAML/JSON files and frontmatter with auto-generated forms based on collection schemas
+- 🎨 **Vue Component Props Editor** - Visual interface for editing Vue component props directly in the editor
 - 🔄 **Real-time Preview** - See your changes instantly on your production website
 - 🔐 **Multi-provider Authentication** - Secure OAuth-based login with GitHub, GitLab, and Google
+- 🔑 **Custom Authentication** - Utilities for implementing your own auth flow (password, SSO, LDAP)
 - 📝 **File Management** - Create, edit, delete, and rename content files (`content/` directory)
 - 🖼️ **Media Management** - Centralized media library with support for JPEG, PNG, GIF, WebP, AVIF, SVG, and more
 - 🌳 **Git Integration** - Commit changes directly from your production website and just wait your CI/CD pipeline to deploy your changes
 - 🚀 **Development Mode** - Directly edit your content files and media files in your local filesystem using the module interface
-- 🌍 **16 Languages** - Full i18n support (AR, BG, DE, EN, ES, FA, FI, FR, ID, IT, JA, NL, PL, PT-BR, UA, ZH)
-
-**Coming in Beta:**
-
-- 🎨 **Vue Component Props Editor** - Visual interface for editing Vue component props and slots
+- 🌍 **17 Languages** - Full i18n support (AR, BG, DE, EN, ES, FA, FI, FR, ID, IT, JA, NL, PL, PT-BR, UA, ZH, ZH-TW)
 
 **Future Features:**
 
@@ -195,7 +193,7 @@ pnpm lint
 
 ## Roadmap
 
-### ✅ Phase 1 - Alpha (Completed)
+### ✅ Phase 1 - Beta (Completed)
 
 - [x] Monaco code editor
 - [x] TipTap visual editor with MDC support (default mode)
@@ -210,12 +208,11 @@ pnpm lint
 - [x] Development mode
 - [x] Git integration
 - [x] Real-time preview
-- [x] Internationalization (16 languages)
+- [x] Internationalization (17 languages)
 - [x] Custom authentication utilities
-
-### 🚧 Phase 2 - Beta (Current)
-
-- [ ] Vue Component props editor (visual interface)
+- [x] Vue Component props editor (visual interface)
+- [x] Span-style text formatting with toolbar button
+- [x] Binding extension for component prop editing
 
 ### 🔮 Future
 
