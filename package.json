@@ -51,7 +51,7 @@
     "destr": "^2.0.5",
     "js-yaml": "^4.1.1",
     "minimatch": "^10.1.1",
-    "nuxt-component-meta": "^0.15.0",
+    "nuxt-component-meta": "^0.16.0",
     "remark-mdc": "^3.9.0",
     "shiki": "^3.20.0",
     "unstorage": "1.17.3"
@@ -78,7 +78,7 @@
     "modern-monaco": "^0.3.6",
     "nuxt-studio": "workspace:*",
     "ofetch": "^1.5.1",
-    "release-it": "^19.1.0",
+    "release-it": "^19.2.0",
     "tailwindcss": "^4.1.18",
     "vite": "^7.3.0",
     "vite-plugin-dts": "^4.5.4",
@@ -91,10 +91,10 @@
   },
   "resolutions": {
     "@nuxt/content": "https://pkg.pr.new/@nuxt/content@9b4b4f2",
-    "nuxt-component-meta": "https://pkg.pr.new/nuxt-component-meta@b65b98e",
+    "nuxt-component-meta": "0.16.0",
     "@vueuse/core": "13.9.0"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@10.26.2",
   "keywords": [
     "nuxt",
     "content",
