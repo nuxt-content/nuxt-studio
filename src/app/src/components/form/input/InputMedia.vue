@@ -146,7 +146,10 @@ function selectMedia(media: TreeItem) {
                 </UTooltip>
               </div>
 
-              <p class="text-xs text-dimmed mt-2">
+              <p
+                v-if="mediaFiles.length > 0"
+                class="text-xs text-dimmed mt-1"
+              >
                 {{ mediaFiles.length }} of {{ allMediaFiles.length }} image{{ allMediaFiles.length !== 1 ? 's' : '' }}
               </p>
             </div>
