@@ -8,6 +8,7 @@ import FormInputArray from './input/FormInputArray.vue'
 import InputBoolean from './input/InputBoolean.vue'
 import InputDate from './input/InputDate.vue'
 import InputIcon from './input/InputIcon.vue'
+import InputMedia from './input/InputMedia.vue'
 import InputNumber from './input/InputNumber.vue'
 import InputText from './input/InputText.vue'
 
@@ -27,6 +28,7 @@ const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   boolean: InputBoolean,
   date: InputDate,
   icon: InputIcon,
+  media: InputMedia,
   number: InputNumber,
   string: InputText,
 }

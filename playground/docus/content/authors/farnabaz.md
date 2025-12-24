@@ -1,7 +1,7 @@
 ---
 name: Ahad Birang
 avatar:
-  src: https://avatars.githubusercontent.com/u/2047945?v=4
+  src: /farnabaz.jpg
 to: https://x.com/farnabaz
 username: farnabaz
 role: maintainer

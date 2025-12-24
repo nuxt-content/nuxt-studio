@@ -14,7 +14,7 @@ const createDocsSchema = () => z.object({
 const createAuthorsSchema = () => z.object({
   name: z.string(),
   avatar: z.object({
-    src: z.string(),
+    src: z.string().editor({ input: 'media' }),
     alt: z.string(),
   }),
   to: z.string(),
