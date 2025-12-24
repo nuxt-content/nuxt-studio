@@ -90,7 +90,7 @@
     "zod": "^4.2.1"
   },
   "resolutions": {
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@9b4b4f2",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@8894da6",
     "nuxt-component-meta": "0.16.0",
     "@vueuse/core": "13.9.0"
   },
