@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.0-beta.3](https://github.com/nuxt-content/studio/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2025-12-24)
+
+### Features
+
+* **editor:** handle custom inputs based on types ([#214](https://github.com/nuxt-content/studio/issues/214)) ([a411216](https://github.com/nuxt-content/studio/commit/a411216aba1f462ff42d214fd1860a4c4f1d020b))
+
+### Bug Fixes
+
+* **file:** json/yaml content on create ([#213](https://github.com/nuxt-content/studio/issues/213)) ([230e31e](https://github.com/nuxt-content/studio/commit/230e31ee2373cb17ab1e46532bfa3b969aa8a581))
+
 ## [1.0.0-beta.2](https://github.com/nuxt-content/studio/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2025-12-23)
 
 ### Features
