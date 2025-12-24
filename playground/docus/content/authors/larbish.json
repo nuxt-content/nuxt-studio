@@ -5,6 +5,7 @@
   },
   "to": "https://x.com/_larbish",
   "username": "larbish",
+  "role": "contributor",
   "isOpenSourceLover": true,
   "modules": [
     "studio",

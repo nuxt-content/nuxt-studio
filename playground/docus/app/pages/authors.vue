@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const { data: authors } = await useAsyncData('authors-list', () => queryCollection('authors').all())
+
+const roleConfig: Record<string, { color: 'warning' | 'info' | 'success', icon: string }> = {
+  creator: { color: 'warning', icon: 'i-lucide-crown' },
+  maintainer: { color: 'info', icon: 'i-lucide-shield-check' },
+  contributor: { color: 'success', icon: 'i-lucide-git-pull-request' },
+}
 </script>
 
 <template>
@@ -31,7 +37,7 @@ const { data: authors } = await useAsyncData('authors-list', () => queryCollecti
             class="ring-4 ring-muted group-hover:ring-primary/30 transition-all duration-200"
           />
 
-          <div class="flex flex-col gap-1">
+          <div class="flex flex-col items-center gap-2">
             <NuxtLink
               :to="author.to"
               target="_blank"
@@ -45,6 +51,19 @@ const { data: authors } = await useAsyncData('authors-list', () => queryCollecti
             >
               @{{ author.username }}
             </span>
+            <UBadge
+              v-if="author.role"
+              :color="roleConfig[author.role]?.color || 'neutral'"
+              variant="subtle"
+              size="xs"
+              class="capitalize"
+            >
+              <UIcon
+                :name="roleConfig[author.role]?.icon || 'i-lucide-user'"
+                class="size-3 mr-1"
+              />
+              {{ author.role }}
+            </UBadge>
           </div>
 
           <div
@@ -54,9 +73,9 @@ const { data: authors } = await useAsyncData('authors-list', () => queryCollecti
             <UBadge
               v-for="module in author.modules"
               :key="module"
-              variant="subtle"
+              variant="outline"
               size="sm"
-              color="primary"
+              color="neutral"
             >
               {{ module }}
             </UBadge>

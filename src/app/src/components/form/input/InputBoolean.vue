@@ -5,6 +5,6 @@ const model = defineModel({ type: Boolean, default: false })
 <template>
   <USwitch
     v-model="model"
-    size="sm"
+    size="xs"
   />
 </template>
