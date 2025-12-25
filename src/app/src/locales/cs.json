@@ -1,0 +1,332 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "Upravit tuto stránku",
+      "retryPublish": "Zkusit publikovat znovu",
+      "reloadApp": "Znovu načíst aplikaci",
+      "reload": "Znovu načíst",
+      "signOut": "Odhlásit se",
+      "review": "Zkontrolovat",
+      "publish": "Publikovat",
+      "back": "Zpět",
+      "backToEdition": "Zpět k úpravám",
+      "seeChanges": "Zobrazit změny"
+    },
+    "headings": {
+      "directories": "Adresáře",
+      "files": "Soubory",
+      "media": "Média",
+      "pageSettings": "Nastavení stránky"
+    },
+    "tooltips": {
+      "toggleStudio": "Přepnout Studio",
+      "unlinkEditor": "Odpojit editor a náhled",
+      "linkEditor": "Připojit editor a náhled",
+      "copiedToClipboard": "Zkopírováno do schránky",
+      "copyToClipboard": "Kopírovat do schránky",
+      "publishChanges": "Publikovat změny",
+      "backToContent": "Zpět na obsah"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "Došlo k neznámé chybě"
+      }
+    },
+    "publish": {
+      "failedTitle": "Publikace se nezdařila",
+      "summary": "na větvi {branch} repozitáře {repo}",
+      "errorTitle": "Chyba během publikace přes {providerName}",
+      "failedGeneric": "Nepodařilo se publikovat změny"
+    },
+    "review": {
+      "title": "Zkontrolovat změny",
+      "created": "Vytvořeno",
+      "updated": "Aktualizováno",
+      "renamed": "Přejmenováno",
+      "deleted": "Smazáno"
+    },
+    "publishSuccess": {
+      "title": "Změny publikovány",
+      "summary": "{count} změna publikována na větvi {branch} repozitáře {repo} | publikováno {count} změn na větvi {branch} repozitáře {repo}",
+      "alertTitleWaiting": "Čeká se na nasazení...",
+      "alertTitleComplete": "Nasazení dokončeno",
+      "alertDescWaiting": "Aby se změny ve Studiu projevily, je potřeba web nasadit.",
+      "alertDescComplete": "Byla nasazena nová verze vašeho webu. Pro zobrazení změn ve Studiu prosím obnovte aplikaci."
+    },
+    "newVersionBanner": {
+      "title": "Detekována nová verze webu",
+      "description": "Byla nasazena nová verze vašeho webu. pro zobrazení nejnovějších změn znovu načtěte aplikaci.",
+      "reloadButton": "Znovu načíst"
+    },
+    "footer": {
+      "developer_view": "Zobrazení pro vývojáře",
+      "localFilesystem": "Používá se lokální filesystém",
+      "debugMode": "Režim ladění"
+    },
+    "alert": {
+      "mdcFormatting": "Bylo použito formátování pro uvedení do souladu se standardem syntaxe MDC."
+    },
+    "conflict": {
+      "title": "Detekován konflikt",
+      "repository": "Repozitář",
+      "branch": "Větev",
+      "file": "Soubor",
+      "description": "Obsah na {providerName} se liší od verze vašeho webu. Ujistěte se, že jsou vaše nejnovější změny nasazené, a obnovte stránku.",
+      "websiteVersion": "Web"
+    },
+    "nav": {
+      "content": "Obsah",
+      "media": "Média"
+    },
+    "placeholders": {
+      "commitMessage": "Popis commitu",
+      "order": "Č.",
+      "fileName": "Název souboru"
+    },
+    "validation": {
+      "commitRequired": "Popis commitu je povinný",
+      "nameEmpty": "Název nesmí být prázdný",
+      "nameEndsWithDot": "Název nesmí končit '.'",
+      "nameStartsWithSlash": "Název nesmí začínat '/'",
+      "nameExists": "Název už existuje",
+      "prefixDigitsOnly": "Prefix musí být řetězec složený pouze z číslic",
+      "prefixNonNegativeInteger": "Prefix musí být nezáporné celé číslo"
+    },
+    "media": {
+      "altFilePreview": "Náhled souboru",
+      "altImagePreview": "Náhled obrázku",
+      "playAudio": "Přehrát zvuk",
+      "audioTagNotSupported": "Váš prohlížeč nepodporuje prvek audio.",
+      "playVideo": "Přehrát video",
+      "videoTagNotSupported": "Váš prohlížeč nepodporuje prvek video.",
+      "metaWidth": "Šířka",
+      "metaHeight": "Výška",
+      "metaType": "Typ",
+      "metaDuration": "Délka",
+      "metaSize": "Velikost",
+      "fileName": "Název souboru",
+      "publicPath": "Veřejná cesta k souboru",
+      "providerPath": "Cesta na {providerName}",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "Otevřít akce",
+      "cancel": "Zrušit",
+      "submit": "Odeslat"
+    },
+    "actions": {
+      "confirmAction": "Klikněte znovu pro {action}",
+      "verbs": {
+        "create": "vytvoření",
+        "delete": "smazání",
+        "rename": "přejmenování",
+        "upload": "nahrání",
+        "duplicate": "duplikaci"
+      },
+      "labels": {
+        "createDocument": "Nový soubor",
+        "createDocumentFolder": "Nová složka",
+        "createMediaFolder": "Nová složka médií",
+        "renameItem": "Přejmenovat",
+        "deleteItem": "Smazat",
+        "uploadMedia": "Nahrát média",
+        "duplicateItem": "Duplikovat",
+        "revertItem": "Vrátit změny",
+        "publishBranch": "Publikovat větev",
+        "openGitProvider": "Otevřít na {providerName}",
+        "switchToTipTap": "Použít vizuální editor",
+        "switchToCode": "Použít editor kódu"
+      },
+      "tooltips": {
+        "createDocument": "Vytvořit nový soubor",
+        "createDocumentFolder": "Vytvořit novou složku",
+        "createMediaFolder": "Vytvořit novou složku",
+        "renameItem": "Přejmenovat soubor",
+        "deleteItem": "Smazat soubor",
+        "uploadMedia": "Nahrát média",
+        "duplicateItem": "Duplikovat soubor",
+        "revertItem": "Vrátit změny",
+        "publishBranch": "Publikovat větev"
+      }
+    },
+    "items": {
+      "itemCount": "1 položka | {count} položek"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "Nadpis 1",
+        "h2": "Nadpis 2",
+        "h3": "Nadpis 3"
+      },
+      "styles": {
+        "bold": "Tučné",
+        "italic": "Kurzíva"
+      },
+      "lists": {
+        "bulleted": "Odrážkový seznam",
+        "numbered": "Číslovaný seznam"
+      },
+      "other": {
+        "emojis": "Emoji",
+        "blockquote": "Citace",
+        "code": "Kód",
+        "inlineCode": "Inline kód",
+        "link": "Odkaz",
+        "image": "Obrázek"
+      },
+      "writeSomething": "Napište něco",
+      "snippets": {
+        "title": "název",
+        "item1": "Položka 1",
+        "item2": "Položka 2",
+        "language": "jazyk",
+        "code": "kód",
+        "link": "odkaz",
+        "alt": "alt",
+        "src": "src",
+        "value": "hodnota"
+      },
+      "docs": {
+        "path": "Cesta v projektu:",
+        "props": "Vlastnosti",
+        "slots": "Sloty",
+        "type": "typ",
+        "required": "povinné",
+        "default": "výchozí"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Pište, zadejte '/' pro příkazy...",
+        "components": "Komponenty"
+      },
+      "toolbar": {
+        "h1": "Nadpis 1",
+        "h2": "Nadpis 2",
+        "h3": "Nadpis 3",
+        "h4": "Nadpis 4",
+        "bulletList": "Odrážkový seznam",
+        "orderedList": "Číslovaný seznam",
+        "blockquote": "Citace",
+        "codeBlock": "Blok kódu",
+        "bold": "Tučné",
+        "italic": "Kurzíva",
+        "strike": "Přeškrtnuté",
+        "code": "Kód",
+        "headings": "Nadpisy"
+      },
+      "suggestion": {
+        "style": "Styl",
+        "paragraph": "Odstavec",
+        "insert": "Vložit",
+        "image": "Obrázek",
+        "video": "Video",
+        "horizontalRule": "Vodorovná čára"
+      },
+      "drag": {
+        "turnInto": "Převést na",
+        "resetFormatting": "Obnovit formátování",
+        "duplicate": "Duplikovat",
+        "copyToClipboard": "Kopírovat do schránky",
+        "moveUp": "Posunout nahoru",
+        "moveDown": "Posunout dolů",
+        "delete": "Smazat"
+      },
+      "element": {
+        "addSlot": "Přidat slot",
+        "editProps": "Upravit vlastnosti (props)",
+        "delete": "Smazat",
+        "prop": "prop",
+        "props": "props",
+        "propsEditorComingSoon": "Editor vlastností (props) bude brzy implementován..."
+      },
+      "slot": {
+        "searchPlaceholder": "Vyhledat nebo vytvořit slot...",
+        "deleteSlot": "Smazat slot",
+        "noSlotsAvailable": "Nejsou k dispozici žádné předdefinované sloty"
+      },
+      "inlineElement": {
+        "editContent": "Upravit obsah",
+        "editProps": "Upravit vlastnosti (props)",
+        "delete": "Smazat",
+        "editContentLabel": "Upravit obsah {name}",
+        "enterContentPlaceholder": "Zadejte obsah...",
+        "apply": "Použít"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filename.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Vložte odkaz...",
+        "applyLink": "Použít odkaz",
+        "openInNewWindow": "Otevřít v novém okně",
+        "removeLink": "Odstranit odkaz"
+      },
+      "spanStyle": {
+        "label": "Styl span tagu",
+        "stylePlaceholder": "Styly: např. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Třídy: oddělené mezerou",
+        "apply": "Použít",
+        "remove": "Odstranit"
+      },
+      "binding": {
+        "variablePlaceholder": "Název proměnné",
+        "defaultValuePlaceholder": "Výchozí hodnota"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "Vybrat obrázek",
+        "description": "Vyberte obrázek z knihovny médií",
+        "notAvailable": "V knihovně médií nejsou dostupné žádné obrázky",
+        "upload": "Nahrát"
+      },
+      "video": {
+        "title": "Vybrat video",
+        "description": "Vyberte video z knihovny médií",
+        "notAvailable": "V knihovně médií nejsou dostupná žádná videa",
+        "upload": "Nahrát"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "Přidat {label}",
+        "deleteItem": "Smazat položku",
+        "editItem": "Upravit položku",
+        "unsupportedType": "Typ pole {type} není podporován"
+      },
+      "object": {
+        "noProperties": "Nejsou definovány žádné vlastnosti",
+        "enterPlaceholder": "Zadejte {field}..."
+      },
+      "section": {
+        "propertyCount": "1 vlastnost | {count} vlastností"
+      },
+      "media": {
+        "placeholder": "Zadejte relativní cestu nebo veřejnou URL...",
+        "searchPlaceholder": "Hledat obrázky...",
+        "noImagesFound": "Nenalezeny žádné obrázky",
+        "noImagesAvailable": "Nejsou dostupné žádné obrázky",
+        "imageCount": "{count} z {total} obrázku | {count} z {total} obrázků"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "Hledat ikony...",
+        "noIconsFound": "Nenalezeny žádné ikony",
+        "searchHint": "Pro vyhledávání zadejte alespoň 2 znaky",
+        "libraries": "Knihovny:",
+        "allLibraries": "Vše"
+      },
+      "text": {
+        "placeholder": "Zadejte text...",
+        "selectPlaceholder": "Vyberte možnost..."
+      },
+      "date": {
+        "selectDate": "Vyberte datum"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    }
+  }
+}
