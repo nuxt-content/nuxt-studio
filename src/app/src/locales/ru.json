@@ -1,0 +1,332 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "Редактировать эту страницу",
+      "retryPublish": "Повторить публикацию",
+      "reloadApp": "Перезагрузить приложение",
+      "reload": "Перезагрузить",
+      "signOut": "Выйти",
+      "review": "Обзор",
+      "publish": "Опубликовать",
+      "back": "Назад",
+      "backToEdition": "Вернуться к редактированию",
+      "seeChanges": "Посмотреть изменения"
+    },
+    "headings": {
+      "directories": "Каталоги",
+      "files": "Файлы",
+      "media": "Медиа",
+      "pageSettings": "Настройки страницы"
+    },
+    "tooltips": {
+      "toggleStudio": "Переключить Studio",
+      "unlinkEditor": "Разъединить редактор и предпросмотр",
+      "linkEditor": "Соединить редактор и предпросмотр",
+      "copiedToClipboard": "Скопировано в буфер обмена",
+      "copyToClipboard": "Скопировать в буфер обмена",
+      "publishChanges": "Опубликовать изменения",
+      "backToContent": "Вернуться к содержимому"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "Произошла неизвестная ошибка"
+      }
+    },
+    "publish": {
+      "failedTitle": "Ошибка публикации",
+      "summary": "в ветке {branch} репозитория {repo}",
+      "errorTitle": "Ошибка при публикации через {providerName}",
+      "failedGeneric": "Не удалось опубликовать изменения"
+    },
+    "review": {
+      "title": "Проверка изменений",
+      "created": "Создано",
+      "updated": "Обновлено",
+      "renamed": "Переименовано",
+      "deleted": "Удалено"
+    },
+    "publishSuccess": {
+      "title": "Изменения опубликованы",
+      "summary": "{count} изменение опубликовано в ветке {branch} репозитория {repo} | {count} изменения опубликовано в ветке {branch} репозитория {repo} | {count} изменений опубликовано в ветке {branch} репозитория {repo}",
+      "alertTitleWaiting": "Ожидание развертывания...",
+      "alertTitleComplete": "Развертывание завершено",
+      "alertDescWaiting": "Сайт должен быть развернут, чтобы изменения стали видны в Studio.",
+      "alertDescComplete": "Новая версия вашего сайта была развернута. Пожалуйста, обновите приложение, чтобы увидеть изменения в Studio."
+    },
+    "newVersionBanner": {
+      "title": "Обнаружена новая версия сайта",
+      "description": "Новая версия вашего сайта была развернута. Перезагрузите приложение, чтобы увидеть последние изменения.",
+      "reloadButton": "Перезагрузить"
+    },
+    "footer": {
+      "developer_view": "Режим разработчика",
+      "localFilesystem": "Используется локальная файловая система",
+      "debugMode": "Режим отладки"
+    },
+    "alert": {
+      "mdcFormatting": "Применено форматирование для соответствия стандарту синтаксису MDC."
+    },
+    "conflict": {
+      "title": "Обнаружен конфликт",
+      "repository": "Репозиторий",
+      "branch": "Ветка",
+      "file": "Файл",
+      "description": "Контент на {providerName} отличается от вашей версии сайта. Убедитесь, что ваши последние изменения развернуты, и обновите страницу.",
+      "websiteVersion": "Сайт"
+    },
+    "nav": {
+      "content": "Содержимое",
+      "media": "Медиа"
+    },
+    "placeholders": {
+      "commitMessage": "Сообщение коммита",
+      "order": "№",
+      "fileName": "Имя файла"
+    },
+    "validation": {
+      "commitRequired": "Сообщение коммита обязательно",
+      "nameEmpty": "Имя не может быть пустым",
+      "nameEndsWithDot": "Имя не может заканчиваться на '.'",
+      "nameStartsWithSlash": "Имя не может начинаться с '/'",
+      "nameExists": "Имя уже существует",
+      "prefixDigitsOnly": "Префикс должен содержать только цифры",
+      "prefixNonNegativeInteger": "Префикс должен быть неотрицательным целым числом"
+    },
+    "media": {
+      "altFilePreview": "Предпросмотр файла",
+      "altImagePreview": "Предпросмотр изображения",
+      "playAudio": "Воспроизвести аудио",
+      "audioTagNotSupported": "Ваш браузер не поддерживает тег audio.",
+      "playVideo": "Воспроизвести видео",
+      "videoTagNotSupported": "Ваш браузер не поддерживает тег video.",
+      "metaWidth": "Ширина",
+      "metaHeight": "Высота",
+      "metaType": "Тип",
+      "metaDuration": "Длительность",
+      "metaSize": "Размер",
+      "fileName": "Имя файла",
+      "publicPath": "Публичный путь",
+      "providerPath": "Путь в {providerName}",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "Открыть действия",
+      "cancel": "Отмена",
+      "submit": "Подтвердить"
+    },
+    "actions": {
+      "confirmAction": "Нажмите еще раз, чтобы выполнить действие: {action}",
+      "verbs": {
+        "create": "создать",
+        "delete": "удалить",
+        "rename": "переименовать",
+        "upload": "загрузить",
+        "duplicate": "дублировать"
+      },
+      "labels": {
+        "createDocument": "Новый файл",
+        "createDocumentFolder": "Новая папка",
+        "createMediaFolder": "Новая папка медиафайлов",
+        "renameItem": "Переименовать",
+        "deleteItem": "Удалить",
+        "uploadMedia": "Загрузить медиа",
+        "duplicateItem": "Дублировать",
+        "revertItem": "Отменить изменения",
+        "publishBranch": "Опубликовать ветку",
+        "openGitProvider": "Открыть в {providerName}",
+        "switchToTipTap": "Использовать визуальный редактор",
+        "switchToCode": "Использовать редактор кода"
+      },
+      "tooltips": {
+        "createDocument": "Создать новый файл",
+        "createDocumentFolder": "Создать новую папку",
+        "createMediaFolder": "Создать новую папку",
+        "renameItem": "Переименовать файл",
+        "deleteItem": "Удалить файл",
+        "uploadMedia": "Загрузить медиа",
+        "duplicateItem": "Дублировать файл",
+        "revertItem": "Отменить изменения",
+        "publishBranch": "Опубликовать ветку"
+      }
+    },
+    "items": {
+      "itemCount": "1 элемент | {count} элемента | {count} элементов"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "Заголовок 1",
+        "h2": "Заголовок 2",
+        "h3": "Заголовок 3"
+      },
+      "styles": {
+        "bold": "Жирный",
+        "italic": "Курсив"
+      },
+      "lists": {
+        "bulleted": "Маркированный список",
+        "numbered": "Нумерованный список"
+      },
+      "other": {
+        "emojis": "Эмодзи",
+        "blockquote": "Цитата",
+        "code": "Код",
+        "inlineCode": "Встроенный код",
+        "link": "Ссылка",
+        "image": "Изображение"
+      },
+      "writeSomething": "Напишите что-нибудь",
+      "snippets": {
+        "title": "заголовок",
+        "item1": "Элемент 1",
+        "item2": "Элемент 2",
+        "language": "язык",
+        "code": "код",
+        "link": "ссылка",
+        "alt": "альт",
+        "src": "источник",
+        "value": "значение"
+      },
+      "docs": {
+        "path": "Путь в проекте:",
+        "props": "Свойства",
+        "slots": "Слоты",
+        "type": "тип",
+        "required": "обязательно",
+        "default": "по умолчанию"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Пишите, введите '/' для команд...",
+        "components": "Компоненты"
+      },
+      "toolbar": {
+        "h1": "Заголовок 1",
+        "h2": "Заголовок 2",
+        "h3": "Заголовок 3",
+        "h4": "Заголовок 4",
+        "bulletList": "Маркированный список",
+        "orderedList": "Нумерованный список",
+        "blockquote": "Цитата",
+        "codeBlock": "Блок кода",
+        "bold": "Жирный",
+        "italic": "Курсив",
+        "strike": "Зачеркнутый",
+        "code": "Код",
+        "headings": "Заголовки"
+      },
+      "suggestion": {
+        "style": "Стиль",
+        "paragraph": "Абзац",
+        "insert": "Вставить",
+        "image": "Изображение",
+        "video": "Видео",
+        "horizontalRule": "Горизонтальная линия"
+      },
+      "drag": {
+        "turnInto": "Превратить в",
+        "resetFormatting": "Сбросить форматирование",
+        "duplicate": "Дублировать",
+        "copyToClipboard": "Скопировать в буфер обмена",
+        "moveUp": "Переместить вверх",
+        "moveDown": "Переместить вниз",
+        "delete": "Удалить"
+      },
+      "element": {
+        "addSlot": "Добавить слот",
+        "editProps": "Редактировать свойства",
+        "delete": "Удалить",
+        "prop": "свойство",
+        "props": "свойства",
+        "propsEditorComingSoon": "Редактор свойств будет реализован скоро..."
+      },
+      "slot": {
+        "searchPlaceholder": "Поиск или создание слота...",
+        "deleteSlot": "Удалить слот",
+        "noSlotsAvailable": "Нет предопределенных слотов"
+      },
+      "inlineElement": {
+        "editContent": "Редактировать содержимое",
+        "editProps": "Редактировать свойства",
+        "delete": "Удалить",
+        "editContentLabel": "Редактировать содержимое {name}",
+        "enterContentPlaceholder": "Введите содержимое...",
+        "apply": "Применить"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filename.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Вставьте ссылку...",
+        "applyLink": "Применить ссылку",
+        "openInNewWindow": "Открыть в новом окне",
+        "removeLink": "Удалить ссылку"
+      },
+      "spanStyle": {
+        "label": "Стиль Span",
+        "stylePlaceholder": "Стили: например, color: tomato; font-weight: 600;",
+        "classPlaceholder": "Классы: разделенные пробелом",
+        "apply": "Применить",
+        "remove": "Удалить"
+      },
+      "binding": {
+        "variablePlaceholder": "Имя переменной",
+        "defaultValuePlaceholder": "Значение по умолчанию"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "Выберите изображение",
+        "description": "Выберите изображение из вашей библиотеки медиа",
+        "notAvailable": "В вашей библиотеке медиа нет доступных изображений",
+        "upload": "Загрузить"
+      },
+      "video": {
+        "title": "Выберите видео",
+        "description": "Выберите видео из вашей библиотеки медиа",
+        "notAvailable": "В вашей библиотеке медиа нет доступных видео",
+        "upload": "Загрузить"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "Добавить {label}",
+        "deleteItem": "Удалить элемент",
+        "editItem": "Редактировать элемент",
+        "unsupportedType": "Тип массива {type} не поддерживается"
+      },
+      "object": {
+        "noProperties": "Свойства не определены",
+        "enterPlaceholder": "Введите {field}..."
+      },
+      "section": {
+        "propertyCount": "1 свойство | {count} свойства | {count} свойств"
+      },
+      "media": {
+        "placeholder": "Введите относительный путь или публичный URL...",
+        "searchPlaceholder": "Поиск изображений...",
+        "noImagesFound": "Изображения не найдены",
+        "noImagesAvailable": "Изображения недоступны",
+        "imageCount": "{count} из {total} изображения | {count} из {total} изображений | {count} из {total} изображений"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "Поиск иконок...",
+        "noIconsFound": "Иконки не найдены",
+        "searchHint": "Введите минимум 2 символа для поиска",
+        "libraries": "Библиотеки:",
+        "allLibraries": "Все"
+      },
+      "text": {
+        "placeholder": "Введите текст...",
+        "selectPlaceholder": "Выберите вариант..."
+      },
+      "date": {
+        "selectDate": "Выберите дату"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    }
+  }
+}
