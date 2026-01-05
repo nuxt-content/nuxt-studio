@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.0](https://github.com/nuxt-content/studio/compare/v1.0.0-beta.3...v1.0.0) (2026-01-05)
+
+### Features
+
+* **i18n:** add Czech (cs) locale ([#223](https://github.com/nuxt-content/studio/issues/223)) ([b803597](https://github.com/nuxt-content/studio/commit/b8035971e8d623e38d3f883e90324a36841cde0f))
+* **i18n:** add Korean (ko) locale ([#220](https://github.com/nuxt-content/studio/issues/220)) ([92fec9e](https://github.com/nuxt-content/studio/commit/92fec9e8cc1c03e5320008b41f71dd66021f007e))
+* **i18n:** add Russian (ru) locale ([#216](https://github.com/nuxt-content/studio/issues/216)) ([b97e352](https://github.com/nuxt-content/studio/commit/b97e3523d92e543cdf6df818119f0290a2ddad83))
+* **i18n:** define locale in`UApp` ([#225](https://github.com/nuxt-content/studio/issues/225)) ([a761b26](https://github.com/nuxt-content/studio/commit/a761b265c67403cac59d71492e8ba3ee236fe88b))
+
 ## [1.0.0-beta.3](https://github.com/nuxt-content/studio/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2025-12-24)
 
 ### Features
