@@ -9,7 +9,7 @@ seo:
 orientation: horizontal
 ---
   :::browser-frame
-  :video{controls loop poster="https://res.cloudinary.com/nuxt/video/upload/v1747230893/studio/wzt9zfmdvk7hgmdx3cnt.jpg" src="https://res.cloudinary.com/nuxt/video/upload/v1747230893/studio/wzt9zfmdvk7hgmdx3cnt.mp4"}
+  :video{controls loop poster="https://res.cloudinary.com/nuxt/video/upload/v1766072891/studio/studioAlpha3_q9mgdj.jpg" src="https://res.cloudinary.com/nuxt/video/upload/v1766072891/studio/studioAlpha3_q9mgdj.mp4"}
   :::
 
 #title
