@@ -6,11 +6,11 @@
     "build": "nuxt build --extends docus"
   },
   "dependencies": {
-    "docus": "^5.4.0",
+    "docus": "^5.4.1",
     "better-sqlite3": "^12.5.0",
     "nuxt": "^4.2.2",
     "@nuxt/content": "latest",
-    "@nuxt/ui": "^4.2.1",
+    "@nuxt/ui": "^4.3.0",
     "nuxt-studio": "workspace:*"
   }
 }
