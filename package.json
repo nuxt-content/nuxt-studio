@@ -93,7 +93,8 @@
   },
   "resolutions": {
     "nuxt-component-meta": "0.16.0",
-    "@vueuse/core": "13.9.0"
+    "@vueuse/core": "13.9.0",
+    "unhead": "2.0.19"
   },
   "packageManager": "pnpm@10.27.0",
   "keywords": [
