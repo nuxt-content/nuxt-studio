@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "Nuxt Studio Documentation",
   "scripts": {
     "dev": "nuxt dev --extends docus",
     "build": "nuxt build --extends docus"
