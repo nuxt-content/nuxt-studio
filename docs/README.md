@@ -8,7 +8,7 @@ Visual edition in production for your [Nuxt Content](https://content.nuxt.com) w
 
 Originally offered as a standalone premium platform, Studio has evolved into a free, open-source, and self-hostable Nuxt module. Enable your entire team to edit website content right in production.
 
-**Current Features** `BETA`
+**Current Features**
 
 - 💻 **Monaco Code Editor** - Code editor for enhanced Markdown with MDC syntax, YAML, and JSON
 - ✨ **TipTap Visual Editor** - Markdown editor with MDC component support (default mode)
@@ -42,7 +42,7 @@ Originally offered as a standalone premium platform, Studio has evolved into a f
 Install the module in your Nuxt application:
 
 ```bash
-npx nuxi module add nuxt-studio@beta
+npx nuxi module add nuxt-studio
 ```
 
 ### 2. Dev Mode
@@ -193,7 +193,7 @@ pnpm lint
 
 ## Roadmap
 
-### ✅ Phase 1 - Beta (Completed)
+### ✅ Phase 1 (Completed)
 
 - [x] Monaco code editor
 - [x] TipTap visual editor with MDC support (default mode)
