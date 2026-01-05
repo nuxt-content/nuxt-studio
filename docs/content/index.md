@@ -1,6 +1,6 @@
 ---
 seo:
-  title: Nuxt Studio - Visual Content Editing in Production
+  title: Nuxt Studio - Edit your Nuxt Content website in production
   description: Self-hosted, open-source CMS for Nuxt Content websites. Edit content visually, manage media, and publish directly to Git from your production site.
 ---
 
