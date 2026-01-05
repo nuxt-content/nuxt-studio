@@ -9,11 +9,11 @@ seo:
 orientation: horizontal
 ---
   :::browser-frame
-  :video{controls loop poster="https://res.cloudinary.com/nuxt/video/upload/v1766072891/studio/studioAlpha3_q9mgdj.jpg" src="https://res.cloudinary.com/nuxt/video/upload/v1766072891/studio/studioAlpha3_q9mgdj.mp4"}
+  :video{controls loop poster="/video-thumbnail.jpg" src="https://res.cloudinary.com/nuxt/video/upload/v1767647099/studio/studio-demo_eiofld.mp4"}
   :::
 
 #title
-Edit your [Nuxt Content]{.text-primary} website in production.
+Edit your [Nuxt]{.text-primary} website in production.
 
 #description
 Edit content visually, manage media, and publish changes from your production site.
@@ -44,7 +44,7 @@ Edit content visually, manage media, and publish changes from your production si
 
 ::u-page-section
 #title
-Self-hosted, open-source CMS for your Nuxt Content website.
+Self-hosted CMS for your Nuxt Content website.
 
 #features
   :::u-page-feature

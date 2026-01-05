@@ -30,7 +30,7 @@ export default defineAppConfig({
     },
     pageSection: {
       slots: {
-        title: 'font-semibold lg:text-4xl',
+        title: 'font-semibold lg:text-5xl',
         featureLeadingIcon: 'text-(--ui-text-highlighted)',
       },
     },
