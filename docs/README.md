@@ -32,7 +32,7 @@ Originally offered as a standalone premium platform, Studio has evolved into a f
 
 ### Resources
 
-- [📖 Documentation](https://content.nuxt.com/docs/studio/setup)
+- [📖 Documentation](https://nuxt.studio)
 - [🎮 Live Demo](https://docus.dev/admin)
 
 ## Quick Setup
@@ -87,7 +87,7 @@ To enable publishing directly from your production website, you need to configur
 
 Configure where your content is stored (GitHub or GitLab repository). See the [repository configuration](#configuration-options) above.
 
-> [📖 Git Providers Documentation](https://content.nuxt.com/docs/studio/git-providers)
+> [📖 Git Providers Documentation](https://nuxt.studio/git-providers)
 
 #### Auth Provider
 
@@ -99,7 +99,7 @@ STUDIO_GITHUB_CLIENT_ID=<your_client_id>
 STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
 ```
 
-> [📖 Auth Providers Documentation](https://content.nuxt.com/docs/studio/auth-providers)
+> [📖 Auth Providers Documentation](https://nuxt.studio/auth-providers)
 
 #### Deployment
 
