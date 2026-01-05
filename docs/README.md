@@ -234,7 +234,7 @@ pnpm lint
 
 Published under the [MIT](LICENSE) license.
 
-[npm-version-src]: https://img.shields.io/npm/v/nuxt-studio/beta.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-version-src]: https://img.shields.io/npm/v/nuxt-studio?style=flat&colorA=020420&colorB=00DC82
 [npm-version-href]: https://npmjs.com/package/nuxt-studio
 
 [npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat&colorA=020420&colorB=00DC82
