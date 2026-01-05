@@ -3,7 +3,6 @@ export default defineNuxtConfig({
   modules: ['../src/module/src/module', '@nuxtjs/plausible'],
   css: ['~/assets/css/main.css'],
   studio: {
-    route: '/admin',
     repository: {
       provider: 'github',
       owner: 'nuxt-content',
