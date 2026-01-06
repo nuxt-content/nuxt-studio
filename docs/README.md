@@ -32,7 +32,7 @@ Originally offered as a standalone premium platform, Studio has evolved into a f
 
 ### Resources
 
-- [📖 Documentation](https://nuxt.studio/)
+- [📖 Documentation](https://nuxt.studio)
 - [🎮 Live Demo](https://docus.dev/admin)
 
 ## Quick Setup

@@ -101,7 +101,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
 
       // Primitive form
       const editorType = editor?.input
-      const type = def.type === 'string' && def.format?.includes('date') ? 'date' : editorType ?? def.type as never
+      const type = def.type === 'string' && def.format?.includes('date') ? (def.format === 'date-time' ? 'datetime' : 'date') : editorType ?? def.type as never
 
       const item: FormItem = {
         id,
