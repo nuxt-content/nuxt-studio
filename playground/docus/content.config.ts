@@ -50,6 +50,15 @@ const collections: Record<string, DefinedCollection> = {
     },
     schema: createDocsSchema(),
   }),
+  ahad: defineCollection({
+    type: 'page',
+    source: {
+      cwd: '~~/ahad',
+      include: '**',
+      prefix: '/ahad-prefix',
+    },
+    schema: createDocsSchema(),
+  }),
   authors: defineCollection({
     type: 'data',
     source: {
