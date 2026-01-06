@@ -141,7 +141,7 @@ export const postsSchema: Draft07 = {
         },
         date: {
           type: 'string',
-          format: 'date-time',
+          format: 'date',
         },
         image: {
           type: 'object',

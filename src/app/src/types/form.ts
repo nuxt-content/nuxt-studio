@@ -1,6 +1,6 @@
 import type { JSType } from 'untyped'
 
-export type FormInputsTypes = JSType | 'icon' | 'media' | 'file' | 'date'
+export type FormInputsTypes = JSType | 'icon' | 'media' | 'file' | 'date' | 'datetime'
 
 export type FormTree = Record<string, FormItem>
 export type FormItem = {

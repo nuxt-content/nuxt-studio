@@ -2,9 +2,9 @@
 import type { FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed, ref } from 'vue'
-import { CalendarDate, type DateValue } from '@internationalized/date'
+import { CalendarDate, CalendarDateTime, toCalendarDateTime, type DateValue } from '@internationalized/date'
 
-defineProps({
+const props = defineProps({
   formItem: {
     type: Object as PropType<FormItem>,
     default: () => ({}),
@@ -14,13 +14,16 @@ defineProps({
 const model = defineModel<string>({ default: '' })
 const inputDate = ref()
 
-// Convert string to CalendarDate for the UInputDate component
+// Convert string to CalendarDate/CalendarDateTime for the UInputDate component
 const dateValue = computed<DateValue | undefined>({
   get() {
     if (!model.value) return undefined
     try {
       const date = new Date(model.value)
       if (Number.isNaN(date.getTime())) return undefined
+      if (props.formItem.type === 'datetime') {
+        return new CalendarDateTime(date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds())
+      }
       return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate())
     }
     catch {
@@ -32,8 +35,7 @@ const dateValue = computed<DateValue | undefined>({
       model.value = ''
       return
     }
-    // Format as ISO date string (YYYY-MM-DD)
-    model.value = `${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`
+    model.value = props.formItem.type === 'date' ? value.toString() : toCalendarDateTime(value).toString()
   },
 })
 </script>
@@ -44,6 +46,7 @@ const dateValue = computed<DateValue | undefined>({
     v-model="dateValue"
     size="xs"
     class="w-full"
+    :granularity="$props.formItem?.type === 'date' ? 'day' : 'minute'"
   >
     <template #trailing>
       <UPopover :reference="inputDate?.inputsRef?.[3]?.$el">

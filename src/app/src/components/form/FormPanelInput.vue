@@ -27,6 +27,7 @@ const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   array: FormInputArray,
   boolean: InputBoolean,
   date: InputDate,
+  datetime: InputDate,
   icon: InputIcon,
   media: InputMedia,
   number: InputNumber,
@@ -62,6 +63,7 @@ function computeValue(formItem: FormItem): unknown {
   switch (formItem.type) {
     case 'string':
     case 'date':
+    case 'datetime':
     case 'icon':
     case 'media':
     case 'file':
