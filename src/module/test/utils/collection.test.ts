@@ -181,7 +181,7 @@ describe('generateIdFromFsPath', () => {
     expect(result).toBe('pages/about.md')
   })
 
-  it.only('should handle collection with route prefix different from the fixed part of the include pattern', () => {
+  it('should handle collection with route prefix different from the fixed part of the include pattern', () => {
     const customCollection: CollectionInfo = {
       name: 'prefixed',
       pascalName: 'Prefixed',
