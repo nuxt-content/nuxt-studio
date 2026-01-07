@@ -230,6 +230,8 @@
         "copyToClipboard": "클립보드에 복사",
         "moveUp": "위로 이동",
         "moveDown": "아래로 이동",
+        "insertBefore": "앞에 삽입",
+        "insertAfter": "뒤에 삽입",
         "delete": "삭제"
       },
       "element": {

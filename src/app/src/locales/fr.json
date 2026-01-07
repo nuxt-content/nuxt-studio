@@ -230,6 +230,8 @@
         "copyToClipboard": "Copier dans le presse-papiers",
         "moveUp": "Monter",
         "moveDown": "Descendre",
+        "insertBefore": "Insérer avant",
+        "insertAfter": "Insérer après",
         "delete": "Supprimer"
       },
       "element": {

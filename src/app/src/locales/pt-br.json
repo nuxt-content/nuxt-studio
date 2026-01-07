@@ -230,6 +230,8 @@
         "copyToClipboard": "Copiar para a área de transferência",
         "moveUp": "Mover para cima",
         "moveDown": "Mover para baixo",
+        "insertBefore": "Inserir antes",
+        "insertAfter": "Inserir depois",
         "delete": "Excluir"
       },
       "element": {

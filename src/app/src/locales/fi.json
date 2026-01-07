@@ -230,6 +230,8 @@
           "copyToClipboard": "Kopioi leikepöydälle",
           "moveUp": "Siirrä ylös",
           "moveDown": "Siirrä alas",
+          "insertBefore": "Lisää ennen",
+          "insertAfter": "Lisää jälkeen",
           "delete": "Poista"
         },
         "element": {

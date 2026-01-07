@@ -230,6 +230,8 @@
         "copyToClipboard": "Kopier til utklippstavla",
         "moveUp": "Flytt opp",
         "moveDown": "Flytt ned",
+        "insertBefore": "Set inn før",
+        "insertAfter": "Set inn etter",
         "delete": "Slett"
       },
       "element": {

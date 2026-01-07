@@ -229,6 +229,8 @@
         "copyToClipboard": "Копіювати в буфер обміну",
         "moveUp": "Перемістити вгору",
         "moveDown": "Перемістити вниз",
+        "insertBefore": "Вставити перед",
+        "insertAfter": "Вставити після",
         "delete": "Видалити"
       },
       "element": {

@@ -229,6 +229,8 @@
         "copyToClipboard": "نسخ إلى الحافظة",
         "moveUp": "نقل لأعلى",
         "moveDown": "نقل لأسفل",
+        "insertBefore": "إدراج قبل",
+        "insertAfter": "إدراج بعد",
         "delete": "حذف"
       },
       "element": {

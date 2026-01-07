@@ -230,6 +230,8 @@
         "copyToClipboard": "Kopírovat do schránky",
         "moveUp": "Posunout nahoru",
         "moveDown": "Posunout dolů",
+        "insertBefore": "Vložit před",
+        "insertAfter": "Vložit za",
         "delete": "Smazat"
       },
       "element": {

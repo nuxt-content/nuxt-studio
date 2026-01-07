@@ -229,6 +229,8 @@
         "copyToClipboard": "クリップボードにコピー",
         "moveUp": "上に移動",
         "moveDown": "下に移動",
+        "insertBefore": "前に挿入",
+        "insertAfter": "後に挿入",
         "delete": "削除"
       },
       "element": {

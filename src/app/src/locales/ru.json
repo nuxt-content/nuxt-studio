@@ -230,6 +230,8 @@
         "copyToClipboard": "Скопировать в буфер обмена",
         "moveUp": "Переместить вверх",
         "moveDown": "Переместить вниз",
+        "insertBefore": "Вставить перед",
+        "insertAfter": "Вставить после",
         "delete": "Удалить"
       },
       "element": {

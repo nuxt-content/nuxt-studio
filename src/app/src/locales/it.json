@@ -230,6 +230,8 @@
         "copyToClipboard": "Copia negli appunti",
         "moveUp": "Sposta su",
         "moveDown": "Sposta giù",
+        "insertBefore": "Inserisci prima",
+        "insertAfter": "Inserisci dopo",
         "delete": "Elimina"
       },
       "element": {

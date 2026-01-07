@@ -230,6 +230,8 @@
         "copyToClipboard": "Копиране в клипборда",
         "moveUp": "Преместане нагоре",
         "moveDown": "Преместване надолу",
+        "insertBefore": "Вмъкване преди",
+        "insertAfter": "Вмъкване след",
         "delete": "Изтриване"
       },
       "element": {
