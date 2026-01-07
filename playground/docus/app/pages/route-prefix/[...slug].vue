@@ -4,7 +4,6 @@ const { data: page } = await useAsyncData('prefixed-page', () => queryCollection
 
 <template>
   <UContainer>
-    Hello
     <ContentRenderer
       v-if="page"
       :value="page"
