@@ -46,7 +46,15 @@ const collections: Record<string, DefinedCollection> = {
     type: 'page',
     source: {
       include: '**',
-      exclude: ['index.md', '3.pages/**/*.md', 'authors/**/*'],
+      exclude: ['index.md', '3.pages/**/*.md', 'authors/**/*', 'fs-prefix/**'],
+    },
+    schema: createDocsSchema(),
+  }),
+  prefixed: defineCollection({
+    type: 'page',
+    source: {
+      include: 'fs-prefix/**',
+      prefix: '/route-prefix',
     },
     schema: createDocsSchema(),
   }),

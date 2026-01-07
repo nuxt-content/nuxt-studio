@@ -41,6 +41,18 @@ describe('getCollectionByFilePath', () => {
 
     expect(result).toBeUndefined()
   })
+
+  it('Custom include pattern with different prefix', () => {
+    const id = 'prefixed/route-prefix/hello.md'
+    const source: ResolvedCollectionSource = {
+      include: 'fs-prefix/**',
+      prefix: '/route-prefix',
+      cwd: '',
+      _resolved: true,
+    }
+    const result = generateFsPathFromId(id, source)
+    expect(result).toBe('fs-prefix/hello.md')
+  })
 })
 
 describe('generateFsPathFromId', () => {
@@ -167,5 +179,33 @@ describe('generateIdFromFsPath', () => {
     const path = 'content/about.md'
     const result = generateIdFromFsPath(path, customCollection)
     expect(result).toBe('pages/about.md')
+  })
+
+  it('should handle collection with route prefix different from the fixed part of the include pattern', () => {
+    const customCollection: CollectionInfo = {
+      name: 'prefixed',
+      pascalName: 'Prefixed',
+      tableName: '_content_prefixed',
+      source: [
+        {
+          _resolved: true,
+          include: 'fs-prefix/**',
+          prefix: '/route-prefix',
+          cwd: '',
+        },
+      ],
+      type: 'page',
+      fields: {},
+      schema: {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        $ref: '#/definitions/prefixed',
+        definitions: {},
+      },
+      tableDefinition: '',
+    }
+
+    const path = 'fs-prefix/hello.md'
+    const result = generateIdFromFsPath(path, customCollection)
+    expect(result).toBe('prefixed/route-prefix/hello.md')
   })
 })

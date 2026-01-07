@@ -22,10 +22,16 @@ export function generateIdFromFsPath(path: string, collectionInfo: CollectionInf
 
 export function generateFsPathFromId(id: string, source: ResolvedCollectionSource) {
   const [_, ...rest] = id.split(/[/:]/)
-  const path = rest.join('/')
+  let path = rest.join('/')
 
   const { fixed } = parseSourceBase(source)
   const normalizedFixed = withoutTrailingSlash(fixed)
+
+  // If source has a prefix and the path starts with the prefix, remove the prefix
+  const prefix = withoutTrailingSlash(withoutLeadingSlash(source.prefix || ''))
+  if (prefix && prefix !== '/' && path.startsWith(prefix + '/')) {
+    path = path.substring(prefix.length + 1)
+  }
 
   // If path already starts with the fixed part, return as is
   if (normalizedFixed && path.startsWith(normalizedFixed)) {
@@ -53,7 +59,10 @@ export function getOrderedSchemaKeys(schema: Draft07) {
 
 export function getCollectionByFilePath(path: string, collections: Record<string, CollectionInfo>): CollectionInfo | undefined {
   let matchedSource: ResolvedCollectionSource | undefined
-  const collection = Object.values(collections).find((collection) => {
+  const sortedCollections = Object.values(collections).sort((a, b) => {
+    return (b.source[0]?.prefix?.length || 0) - (a.source[0]?.prefix?.length || 0)
+  })
+  const collection = sortedCollections.find((collection) => {
     if (!collection.source || collection.source.length === 0) {
       return
     }
