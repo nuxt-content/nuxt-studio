@@ -230,6 +230,8 @@
         "copyToClipboard": "複製到剪貼簿",
         "moveUp": "上移",
         "moveDown": "下移",
+        "insertBefore": "在前方插入",
+        "insertAfter": "在後方插入",
         "delete": "刪除"
       },
       "element": {

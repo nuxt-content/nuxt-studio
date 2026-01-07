@@ -230,6 +230,8 @@
         "copyToClipboard": "Kopiëren naar klembord",
         "moveUp": "Omhoog",
         "moveDown": "Omlaag",
+        "insertBefore": "Invoegen voor",
+        "insertAfter": "Invoegen na",
         "delete": "Verwijderen"
       },
       "element": {

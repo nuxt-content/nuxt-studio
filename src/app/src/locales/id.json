@@ -230,6 +230,8 @@
         "copyToClipboard": "Salin ke papan klip",
         "moveUp": "Pindah ke atas",
         "moveDown": "Pindah ke bawah",
+        "insertBefore": "Sisipkan sebelum",
+        "insertAfter": "Sisipkan sesudah",
         "delete": "Hapus"
       },
       "element": {

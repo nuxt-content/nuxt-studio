@@ -230,6 +230,8 @@
         "copyToClipboard": "کپی به کلیپ‌بورد",
         "moveUp": "حرکت به بالا",
         "moveDown": "حرکت به پایین",
+        "insertBefore": "درج قبل",
+        "insertAfter": "درج بعد",
         "delete": "حذف"
       },
       "element": {

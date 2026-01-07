@@ -230,6 +230,8 @@
         "copyToClipboard": "Copiar al portapapeles",
         "moveUp": "Mover arriba",
         "moveDown": "Mover abajo",
+        "insertBefore": "Insertar antes",
+        "insertAfter": "Insertar después",
         "delete": "Eliminar"
       },
       "element": {
