@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-08-26',
   studio: {
-    // dev: false,
+    dev: false,
     route: '/admin',
     repository: {
       provider: 'github',
