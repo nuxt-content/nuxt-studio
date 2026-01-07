@@ -229,6 +229,39 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
     ],
     [
       {
+        pos: selectedNode?.pos,
+        label: t('studio.tiptap.drag.insertBefore'),
+        icon: 'i-lucide-corner-up-right',
+        onSelect: () => {
+          if (!selectedNode) return
+
+          editor.chain()
+            .focus()
+            .insertContentAt(selectedNode.pos, { type: 'paragraph' })
+            .run()
+        },
+      },
+      {
+        pos: selectedNode?.pos,
+        label: t('studio.tiptap.drag.insertAfter'),
+        icon: 'i-lucide-corner-down-right',
+        onSelect: () => {
+          if (!selectedNode) return
+
+          const pos = selectedNode.pos
+          const node = editor.state.doc.nodeAt(pos)
+
+          if (!node) return
+
+          editor.chain()
+            .focus()
+            .insertContentAt(pos + node.nodeSize, { type: 'paragraph' })
+            .run()
+        },
+      },
+    ],
+    [
+      {
         kind: 'delete',
         pos: selectedNode?.pos,
         label: t('studio.tiptap.drag.delete'),

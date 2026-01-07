@@ -230,6 +230,8 @@
         "copyToClipboard": "Copy to clipboard",
         "moveUp": "Move up",
         "moveDown": "Move down",
+        "insertBefore": "Insert before",
+        "insertAfter": "Insert after",
         "delete": "Delete"
       },
       "element": {
