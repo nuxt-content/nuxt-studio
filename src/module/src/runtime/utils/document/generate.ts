@@ -164,8 +164,10 @@ export async function generateContentFromJSONDocument(document: DatabaseItem): P
 }
 
 export async function generateContentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
+  let body = (document.body || document.meta?.body) as MDCRoot
+
   // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
-  const body = document.body.type === 'minimark' ? decompressTree(document.body) : (document.body as MDCRoot)
+  body = body.type === 'minimark' ? decompressTree(body) : (body as MDCRoot)
 
   // Remove nofollow from links
   visit(body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {

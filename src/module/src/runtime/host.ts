@@ -172,10 +172,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
             return undefined
           }
 
-          return sanitizeDocumentTree({
-            ...item,
-            fsPath,
-          })
+          return sanitizeDocumentTree({ ...item, fsPath }, collectionInfo)
         },
         list: async (): Promise<DatabaseItem[]> => {
           const collections = Object.values(useContentCollections()).filter(collection => collection.name !== 'info')
@@ -186,10 +183,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
               const source = getCollectionSourceById(document.id, collection.source)
               const fsPath = generateFsPathFromId(document.id, source!)
 
-              return sanitizeDocumentTree({
-                ...document,
-                fsPath,
-              })
+              return sanitizeDocumentTree({ ...document, fsPath }, collection)
             })
           }))
 
@@ -213,10 +207,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           await host.document.db.upsert(fsPath, normalizedDocument)
 
-          return sanitizeDocumentTree({
-            ...normalizedDocument,
-            fsPath,
-          })
+          return sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo)
         },
         upsert: async (fsPath: string, document: CollectionItemBase) => {
           const collectionInfo = getCollectionByFilePath(fsPath, useContentCollections())
