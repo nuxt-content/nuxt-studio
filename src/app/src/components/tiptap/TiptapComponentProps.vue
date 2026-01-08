@@ -7,8 +7,6 @@ import { buildFormTreeFromProps } from '../../utils/tiptap/props'
 import { useStudio } from '../../composables/useStudio'
 import { isEmpty } from '../../utils/object'
 import type { FormItem, FormTree } from '../../types'
-import InputBoolean from '../form/input/InputBoolean.vue'
-import InputNumber from '../form/input/InputNumber.vue'
 
 const props = defineProps({
   node: {
