@@ -134,7 +134,7 @@ function updateComponentProps(props: Record<string, unknown>) {
             variant="subtle"
             size="xs"
           >
-            {{ Object.keys(componentProps).length }} {{ Object.keys(componentProps).length === 1 ? $t('studio.tiptap.element.prop') : $t('studio.tiptap.element.props') }}
+            {{ Object.keys(componentProps).length }} {{ Object.keys(componentProps).length === 1 ? $t('studio.tiptap.element.prop') : $t('studio.tiptap.element.props.label') }}
           </UBadge>
         </div>
 

@@ -239,8 +239,12 @@
         "editProps": "Rediger props",
         "delete": "Slett",
         "prop": "prop",
-        "props": "props",
-        "propsEditorComingSoon": "Props-editor kommer snart …"
+        "props": {
+          "label": "props",
+          "itemsCount": "{count} element | {count} elementer",
+          "fieldsCount": "{count} felt | {count} felter",
+          "edit": "Rediger {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Søk etter eller opprett en slot …",

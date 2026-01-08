@@ -239,8 +239,12 @@
           "editProps": "Muokkaa rekvisiittaa",
           "delete": "Poista",
           "prop": "rekvisiitta",
-          "props": "rekvisiitat",
-          "propsEditorComingSoon": "Rekvissiittamuokkain lisätään tulevaisuudessa..."
+          "props": {
+            "label": "rekvisiitat",
+            "itemsCount": "{count} kohde | {count} kohdetta",
+            "fieldsCount": "{count} kenttä | {count} kenttää",
+            "edit": "Muokkaa {type}"
+          }
         },
         "slot": {
           "searchPlaceholder": "Etsi tai luo paikka...",

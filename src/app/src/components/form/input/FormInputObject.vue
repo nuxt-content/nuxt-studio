@@ -23,8 +23,7 @@ const entries = computed(() => {
     key,
     label: titleCase(child.title || key),
     value: model.value?.[key] ?? child.default ?? '',
-    type: child.type === 'number' ? 'number' : 'text',
-    placeholder: child.type === 'number' ? '0' : `Enter ${(child.title || key).toLowerCase()}...`,
+    formItem: child,
   }))
 })
 
@@ -45,12 +44,9 @@ function updateValue(key: string, value: string | number) {
           label: 'text-xs font-medium tracking-tight',
         }"
       >
-        <UInput
-          v-model="(entry.value as string | number)"
-          size="xs"
-          :placeholder="entry.placeholder"
-          :type="entry.type"
-          class="w-full"
+        <InputText
+          :model-value="String(entry.value || '')"
+          :form-item="entry.formItem"
           @update:model-value="updateValue(entry.key, $event)"
         />
       </UFormField>

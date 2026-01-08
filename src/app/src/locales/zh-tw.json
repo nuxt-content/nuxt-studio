@@ -239,8 +239,12 @@
         "editProps": "編輯屬性",
         "delete": "刪除",
         "prop": "屬性",
-        "props": "屬性",
-        "propsEditorComingSoon": "屬性編輯器即將推出..."
+        "props": {
+          "label": "屬性",
+          "itemsCount": "{count} 個項目",
+          "fieldsCount": "{count} 個欄位",
+          "edit": "編輯{type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "搜尋或建立插槽...",

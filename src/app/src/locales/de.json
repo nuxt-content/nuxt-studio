@@ -239,8 +239,12 @@
         "editProps": "Eigenschaften bearbeiten",
         "delete": "Löschen",
         "prop": "Eigenschaft",
-        "props": "Eigenschaften",
-        "propsEditorComingSoon": "Eigenschaften-Editor wird bald implementiert..."
+        "props": {
+          "label": "Eigenschaften",
+          "itemsCount": "{count} Element | {count} Elemente",
+          "fieldsCount": "{count} Feld | {count} Felder",
+          "edit": "{type} bearbeiten"
+        }
       },
       "slot": {
         "searchPlaceholder": "Slot suchen oder erstellen...",

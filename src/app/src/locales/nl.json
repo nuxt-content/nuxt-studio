@@ -239,8 +239,12 @@
         "editProps": "Props bewerken",
         "delete": "Verwijderen",
         "prop": "prop",
-        "props": "props",
-        "propsEditorComingSoon": "Props-editor wordt binnenkort geïmplementeerd..."
+        "props": {
+          "label": "props",
+          "itemsCount": "{count} item | {count} items",
+          "fieldsCount": "{count} veld | {count} velden",
+          "edit": "{type} bewerken"
+        }
       },
       "slot": {
         "searchPlaceholder": "Zoek of maak een slot...",

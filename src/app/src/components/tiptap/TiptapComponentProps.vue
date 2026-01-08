@@ -87,18 +87,6 @@ function closeNestedForm() {
   nestedForm.value = null
 }
 
-// Get input placeholder based on type
-function getPlaceholder(prop: FormItem): string {
-  switch (prop.type) {
-    case 'string':
-      return `Enter ${prop.title.toLowerCase()}...`
-    case 'number':
-      return '0'
-    default:
-      return ''
-  }
-}
-
 function normalizePropsTree(tree: FormTree): FormTree {
   // Always add class prop by default
   if (!tree.class) {
@@ -192,13 +180,19 @@ function normalizePropsTree(tree: FormTree): FormTree {
                   v-if="prop.type === 'array'"
                   class="text-xs text-muted"
                 >
-                  {{ (prop.value as unknown[])?.length || 0 }} items
+                  {{ $t('studio.tiptap.element.props.itemsCount', { count: (prop.value as unknown[])?.length || 0 }) }}
+                </span>
+                <span
+                  v-if="prop.type === 'object'"
+                  class="text-xs text-muted"
+                >
+                  {{ $t('studio.tiptap.element.props.fieldsCount', { count: Object.keys(prop.children || {})?.length || 0 }) }}
                 </span>
                 <UButton
                   size="xs"
                   color="neutral"
                   variant="link"
-                  :label="`Edit ${prop.type}`"
+                  :label="$t('studio.tiptap.element.props.edit', { type: prop.type })"
                   @click="openNestedForm(prop, prop.type as 'array' | 'object')"
                 />
               </div>
@@ -206,47 +200,26 @@ function normalizePropsTree(tree: FormTree): FormTree {
 
             <!-- Boolean switch -->
             <template v-else-if="prop.type === 'boolean'">
-              <USwitch
+              <InputBoolean
                 :model-value="Boolean(prop.value)"
-                :disabled="prop.disabled"
-                size="xs"
-                @update:model-value="updateProp(key, $event)"
-              />
-            </template>
-
-            <!-- Select for options -->
-            <template v-else-if="prop.options?.length">
-              <USelect
-                :model-value="String(prop.value || '')"
-                :items="prop.options"
-                :disabled="prop.disabled"
-                class="w-full"
-                size="xs"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
 
             <!-- Number input -->
             <template v-else-if="prop.type === 'number'">
-              <UInput
+              <InputNumber
                 :model-value="Number(prop.value) || 0"
-                type="number"
-                :placeholder="getPlaceholder(prop)"
-                :disabled="prop.disabled"
-                class="w-full"
-                size="xs"
+                :form-item="prop"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>
 
-            <!-- Text input (default) -->
+            <!-- Text / Selectinput (default) -->
             <template v-else>
-              <UInput
+              <InputText
                 :model-value="String(prop.value || '')"
-                :placeholder="getPlaceholder(prop)"
-                :disabled="prop.disabled"
-                class="w-full"
-                size="xs"
+                :form-item="prop"
                 @update:model-value="updateProp(key, $event)"
               />
             </template>

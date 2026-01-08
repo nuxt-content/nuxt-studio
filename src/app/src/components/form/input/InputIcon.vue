@@ -63,7 +63,7 @@ function selectIcon(icon: string) {
 
 <template>
   <div class="flex items-center gap-1">
-    <div class="flex items-center justify-center size-6 bg-accented rounded shrink-0">
+    <div class="flex items-center justify-center size-6 bg-muted border border-muted rounded shrink-0">
       <UIcon
         v-if="model"
         :name="model"
@@ -71,7 +71,7 @@ function selectIcon(icon: string) {
       />
       <UIcon
         v-else
-        name="i-lucide-image"
+        name="i-lucide-shapes"
         class="text-dimmed"
         size="xs"
       />
@@ -84,7 +84,12 @@ function selectIcon(icon: string) {
       class="flex-1"
     >
       <template #trailing>
-        <UPopover v-model:open="popoverOpen">
+        <UPopover
+          v-model:open="popoverOpen"
+          :portal="false"
+          :content="{ side: 'left' }"
+          :ui="{ content: 'z-[1000]' }"
+        >
           <UButton
             size="xs"
             color="neutral"
