@@ -9,7 +9,6 @@ import { isEmpty } from '../../utils/object'
 import type { FormItem, FormTree } from '../../types'
 import InputBoolean from '../form/input/InputBoolean.vue'
 import InputNumber from '../form/input/InputNumber.vue'
-import InputText from '../form/input/InputText.vue'
 
 const props = defineProps({
   node: {

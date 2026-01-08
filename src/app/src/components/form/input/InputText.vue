@@ -2,7 +2,6 @@
 import type { FormItem, TreeItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed, ref } from 'vue'
-import ModalMediaPicker from '../../shared/ModalMediaPicker.vue'
 
 const props = defineProps({
   formItem: {
@@ -19,21 +18,36 @@ const hasOptions = computed(() => props.formItem?.options && props.formItem.opti
 
 const selectItems = computed(() => {
   if (!props.formItem?.options) return []
-  return props.formItem.options.map(option => ({
-    label: option,
-    value: option,
-  }))
+  return props.formItem.options
+    .filter(option => option !== '')
+    .map(option => ({
+      label: option,
+      value: option,
+    }))
 })
 
 // Keywords that suggest the field expects a media/image path
-const mediaKeywords = ['image', 'img', 'src', 'cover', 'thumbnail', 'avatar', 'photo', 'picture', 'banner', 'logo', 'icon', 'poster']
+const mediaKeywords = ['image', 'img', 'src', 'cover', 'thumbnail', 'avatar', 'photo', 'picture', 'banner', 'logo', 'poster']
+
+// Keywords that suggest the field expects an icon
+const iconKeywords = ['icon']
 
 const isMediaProp = computed(() => {
-  const id = props.formItem?.id?.toLowerCase() || ''
+  const id = props.formItem?.id?.split('/').pop()?.toLowerCase() || ''
   const key = props.formItem?.key?.toLowerCase() || ''
   const title = props.formItem?.title?.toLowerCase() || ''
 
   return mediaKeywords.some(keyword =>
+    id.includes(keyword) || key.includes(keyword) || title.includes(keyword),
+  )
+})
+
+const isIconProp = computed(() => {
+  const id = props.formItem?.id?.toLowerCase() || ''
+  const key = props.formItem?.key?.toLowerCase() || ''
+  const title = props.formItem?.title?.toLowerCase() || ''
+
+  return iconKeywords.some(keyword =>
     id.includes(keyword) || key.includes(keyword) || title.includes(keyword),
   )
 })
@@ -49,6 +63,7 @@ function handleMediaCancel() {
 </script>
 
 <template>
+  <!-- Select for options -->
   <USelect
     v-if="hasOptions"
     v-model="(model as string)"
@@ -57,6 +72,16 @@ function handleMediaCancel() {
     size="xs"
     class="w-full"
   />
+
+  <!-- Icon input -->
+  <InputIcon
+    v-else-if="isIconProp"
+    v-model="(model as string)"
+    :form-item="formItem"
+    class="w-full"
+  />
+
+  <!-- Text input with optional media picker -->
   <template v-else>
     <UInput
       v-model="model"
