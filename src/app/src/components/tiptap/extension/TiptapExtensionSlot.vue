@@ -7,6 +7,7 @@ const nodeProps = defineProps(nodeViewProps)
 
 const { host } = useStudio()
 
+// @ts-expect-error vue-tsc error in cli
 const nodeViewContentEl = ref<HTMLElement>()
 
 const isHovered = ref(false)
