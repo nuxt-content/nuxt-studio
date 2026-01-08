@@ -15,7 +15,8 @@
     "headings": {
       "directories": "ディレクトリ",
       "files": "ファイル",
-      "media": "メディア"
+      "media": "メディア",
+      "pageSettings": "ページ設定"
     },
     "tooltips": {
       "toggleStudio": "Studio の表示/非表示",
@@ -238,8 +239,12 @@
         "editProps": "プロパティを編集",
         "delete": "削除",
         "prop": "プロパティ",
-        "props": "プロパティ",
-        "propsEditorComingSoon": "プロパティエディタはまもなく実装されます"
+        "props": {
+          "label": "プロパティ",
+          "itemsCount": "{count} 件のアイテム",
+          "fieldsCount": "{count} 件のフィールド",
+          "edit": "{type}を編集"
+        }
       },
       "slot": {
         "searchPlaceholder": "スロットを検索または作成...",

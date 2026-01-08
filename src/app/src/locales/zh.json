@@ -239,8 +239,12 @@
         "editProps": "编辑属性",
         "delete": "删除",
         "prop": "属性",
-        "props": "属性",
-        "propsEditorComingSoon": "属性编辑器即将上线..."
+        "props": {
+          "label": "属性",
+          "itemsCount": "{count} 个项目",
+          "fieldsCount": "{count} 个字段",
+          "edit": "编辑{type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "搜索或创建插槽...",

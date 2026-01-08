@@ -238,8 +238,12 @@
         "editProps": "تعديل الخصائص",
         "delete": "حذف",
         "prop": "خاصية",
-        "props": "خصائص",
-        "propsEditorComingSoon": "سيتم تنفيذ محرر الخصائص قريباً..."
+        "props": {
+          "label": "خصائص",
+          "itemsCount": "{count} عنصر | {count} عناصر",
+          "fieldsCount": "{count} حقل | {count} حقول",
+          "edit": "تعديل {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "البحث أو إنشاء فتحة...",

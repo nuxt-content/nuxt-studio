@@ -239,8 +239,12 @@
         "editProps": "Modifica props",
         "delete": "Elimina",
         "prop": "prop",
-        "props": "props",
-        "propsEditorComingSoon": "L'editor delle props sarà implementato presto..."
+        "props": {
+          "label": "props",
+          "itemsCount": "{count} elemento | {count} elementi",
+          "fieldsCount": "{count} campo | {count} campi",
+          "edit": "Modifica {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Cerca o crea uno slot...",

@@ -239,8 +239,12 @@
         "editProps": "Edytuj właściwości",
         "delete": "Usuń",
         "prop": "właściwość",
-        "props": "właściwości",
-        "propsEditorComingSoon": "Edytor właściwości będzie wkrótce dostępny..."
+        "props": {
+          "label": "właściwości",
+          "itemsCount": "{count} element | {count} elementów",
+          "fieldsCount": "{count} pole | {count} pól",
+          "edit": "Edytuj {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Wyszukaj lub utwórz slot...",

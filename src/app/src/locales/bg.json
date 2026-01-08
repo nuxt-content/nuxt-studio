@@ -239,8 +239,12 @@
         "editProps": "Редактиране на свойствата",
         "delete": "Изтриване",
         "prop": "свойство",
-        "props": "свойства",
-        "propsEditorComingSoon": "Редакторът на свойства предстои да бъде разработен скоро..."
+        "props": {
+          "label": "свойства",
+          "itemsCount": "{count} елемент | {count} елемента",
+          "fieldsCount": "{count} поле | {count} полета",
+          "edit": "Редактиране на {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Търсене или създаване на слот...",

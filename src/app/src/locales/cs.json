@@ -239,8 +239,12 @@
         "editProps": "Upravit vlastnosti (props)",
         "delete": "Smazat",
         "prop": "prop",
-        "props": "props",
-        "propsEditorComingSoon": "Editor vlastností (props) bude brzy implementován..."
+        "props": {
+          "label": "props",
+          "itemsCount": "{count} položka | {count} položek",
+          "fieldsCount": "{count} pole | {count} polí",
+          "edit": "Upravit {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Vyhledat nebo vytvořit slot...",

@@ -182,13 +182,19 @@ function normalizePropsTree(tree: FormTree): FormTree {
                   v-if="prop.type === 'array'"
                   class="text-xs text-muted"
                 >
-                  {{ (prop.value as unknown[])?.length || 0 }} items
+                  {{ $t('studio.tiptap.element.props.itemsCount', { count: (prop.value as unknown[])?.length || 0 }) }}
+                </span>
+                <span
+                  v-if="prop.type === 'object'"
+                  class="text-xs text-muted"
+                >
+                  {{ $t('studio.tiptap.element.props.fieldsCount', { count: Object.keys(prop.children || {})?.length || 0 }) }}
                 </span>
                 <UButton
                   size="xs"
                   color="neutral"
                   variant="link"
-                  :label="`Edit ${prop.type}`"
+                  :label="$t('studio.tiptap.element.props.edit', { type: prop.type })"
                   @click="openNestedForm(prop, prop.type as 'array' | 'object')"
                 />
               </div>

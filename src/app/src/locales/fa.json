@@ -239,8 +239,12 @@
         "editProps": "ویرایش ویژگی‌ها",
         "delete": "حذف",
         "prop": "ویژگی",
-        "props": "ویژگی‌ها",
-        "propsEditorComingSoon": "ویرایشگر ویژگی‌ها به‌زودی پیاده‌سازی خواهد شد..."
+        "props": {
+          "label": "ویژگی‌ها",
+          "itemsCount": "{count} مورد | {count} مورد",
+          "fieldsCount": "{count} فیلد | {count} فیلد",
+          "edit": "ویرایش {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "جستجو یا ایجاد اسلات...",

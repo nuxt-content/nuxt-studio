@@ -239,8 +239,12 @@
         "editProps": "Sunting props",
         "delete": "Hapus",
         "prop": "prop",
-        "props": "props",
-        "propsEditorComingSoon": "Editor props akan segera diimplementasikan..."
+        "props": {
+          "label": "props",
+          "itemsCount": "{count} item | {count} item",
+          "fieldsCount": "{count} field | {count} field",
+          "edit": "Sunting {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Cari atau buat slot...",

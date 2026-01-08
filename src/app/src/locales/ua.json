@@ -238,8 +238,12 @@
         "editProps": "Редагувати властивості",
         "delete": "Видалити",
         "prop": "властивість",
-        "props": "властивості",
-        "propsEditorComingSoon": "Редактор властивостей буде реалізовано найближчим часом..."
+        "props": {
+          "label": "властивості",
+          "itemsCount": "{count} елемент | {count} елементів",
+          "fieldsCount": "{count} поле | {count} полів",
+          "edit": "Редагувати {type}"
+        }
       },
       "slot": {
         "searchPlaceholder": "Шукати або створити слот...",

@@ -239,8 +239,12 @@
         "editProps": "속성 편집",
         "delete": "삭제",
         "prop": "속성",
-        "props": "속성",
-        "propsEditorComingSoon": "속성 에디터가 곧 구현될 예정입니다..."
+        "props": {
+          "label": "속성",
+          "itemsCount": "{count}개 항목",
+          "fieldsCount": "{count}개 필드",
+          "edit": "{type} 편집"
+        }
       },
       "slot": {
         "searchPlaceholder": "슬롯 검색 또는 생성...",
