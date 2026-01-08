@@ -1,7 +1,7 @@
 import { useStudioHost as useStudioHostBase } from './host'
 import type { StudioUser, DatabaseItem, Repository } from 'nuxt-studio/app'
 import { getCollectionByFilePath, generateIdFromFsPath, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema } from './utils/document'
+import { applyCollectionSchema, sanitizeDocumentTree } from './utils/document'
 import { createStorage } from 'unstorage'
 import httpDriver from 'unstorage/drivers/http'
 import { useRuntimeConfig } from '#imports'
@@ -27,7 +27,6 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
     // no operation let hmr do the job
   }
 
-  // TODO @farnabaz to check
   host.document.db.upsert = debounce(async (fsPath: string, upsertedDocument: DatabaseItem) => {
     const collectionInfo = getCollectionByFilePath(fsPath, collections)
     if (!collectionInfo) {
@@ -36,8 +35,9 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
 
     const id = generateIdFromFsPath(fsPath, collectionInfo)
     const document = applyCollectionSchema(id, collectionInfo, upsertedDocument)
+    const sanitizedDocument = sanitizeDocumentTree(document, collectionInfo)
 
-    const content = await host.document.generate.contentFromDocument(document)
+    const content = await host.document.generate.contentFromDocument(sanitizedDocument)
 
     await $fetch('/__nuxt_studio/dev/content/' + fsPath, {
       method: 'PUT',
@@ -47,12 +47,10 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
     }).catch(() => { /* do nothing, expected error if request timeout, API errors can be detected in server logs */ })
   }, 100)
 
-  // TODO @farnabaz to check
   host.document.db.delete = async (fsPath: string) => {
     await devStorage.removeItem(fsPath)
   }
 
-  // TODO @farnabaz
   host.on.documentUpdate = (fn: (id: string, type: 'remove' | 'update') => void) => {
     // @ts-expect-error import.meta.hot is not defined in types
     import.meta.hot.on('nuxt-content:update', (data: { key: string, queries: string[] }) => {
@@ -65,7 +63,6 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
     })
   }
 
-  // TODO @farnabaz
   host.on.mediaUpdate = (fn: (id: string, type: 'remove' | 'update') => void) => {
     // @ts-expect-error import.meta.hot is not defined in types
     import.meta.hot.on('nuxt-studio:media:update', (data: { type: string, id: string }) => {

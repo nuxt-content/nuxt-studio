@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { areDocumentsEqual, isDocumentMatchingContent } from '../../src/runtime/utils/document'
+import { areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
-import type { DatabasePageItem } from 'nuxt-studio/app'
+import type { DatabaseItem, DatabasePageItem } from 'nuxt-studio/app'
+import type { CollectionInfo } from '@nuxt/content'
 
 describe('areDocumentsEqual', () => {
   it('should return true for two identical markdown documents with diffrent hash', () => {
@@ -456,5 +457,48 @@ Description`
 
     const _isDocumentMatchingContent = await isDocumentMatchingContent(markdownContent, document)
     expect(_isDocumentMatchingContent).toBe(true)
+  })
+})
+
+describe('sanitizeDocumentTree', () => {
+  it('removes fields marked hidden in collection schema', () => {
+    const collection = {
+      name: 'authors',
+      schema: {
+        definitions: {
+          authors: {
+            properties: {
+              secret: {
+                $content: {
+                  editor: { hidden: true },
+                },
+              },
+              public: {
+                $content: {
+                  editor: { hidden: false },
+                },
+              },
+              misc: {},
+            },
+          },
+        },
+      },
+    } as unknown as CollectionInfo
+
+    const document = {
+      id: 'content:authors/atinux.yml',
+      extension: 'yml',
+      stem: 'authors/atinux',
+      meta: {},
+      secret: 'should be removed',
+      public: 'should stay',
+      misc: 'also stays',
+    } as unknown as DatabaseItem
+
+    const result = sanitizeDocumentTree({ ...document }, collection)
+
+    expect('secret' in result).toBe(false)
+    expect(result.public).toBe('should stay')
+    expect(result.misc).toBe('also stays')
   })
 })
