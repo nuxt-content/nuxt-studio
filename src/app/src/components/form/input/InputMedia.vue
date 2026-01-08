@@ -62,7 +62,7 @@ function selectMedia(media: TreeItem) {
 <template>
   <div class="flex items-center gap-1">
     <div
-      class="flex items-center justify-center size-6 bg-accented rounded shrink-0 overflow-hidden"
+      class="flex items-center justify-center size-6 bg-muted border border-muted rounded shrink-0 overflow-hidden"
     >
       <Image
         v-if="model"
