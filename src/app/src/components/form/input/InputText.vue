@@ -25,6 +25,19 @@ const selectItems = computed(() => {
   }))
 })
 
+// Keywords that suggest the field expects a media/image path
+const mediaKeywords = ['image', 'img', 'src', 'cover', 'thumbnail', 'avatar', 'photo', 'picture', 'banner', 'logo', 'icon', 'poster']
+
+const isMediaProp = computed(() => {
+  const id = props.formItem?.id?.toLowerCase() || ''
+  const key = props.formItem?.key?.toLowerCase() || ''
+  const title = props.formItem?.title?.toLowerCase() || ''
+
+  return mediaKeywords.some(keyword =>
+    id.includes(keyword) || key.includes(keyword) || title.includes(keyword),
+  )
+})
+
 function handleMediaSelect(media: TreeItem) {
   model.value = media.routePath || media.fsPath
   isMediaPickerOpen.value = false
@@ -51,7 +64,10 @@ function handleMediaCancel() {
       size="xs"
       class="w-full"
     >
-      <template #trailing>
+      <template
+        v-if="isMediaProp"
+        #trailing
+      >
         <UTooltip :text="$t('studio.mediaPicker.image.title')">
           <UButton
             size="xs"
@@ -66,6 +82,7 @@ function handleMediaCancel() {
     </UInput>
 
     <ModalMediaPicker
+      v-if="isMediaProp"
       :open="isMediaPickerOpen"
       type="image"
       @select="handleMediaSelect"
