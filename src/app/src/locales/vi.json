@@ -1,0 +1,338 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "Chỉnh sửa trang này",
+      "retryPublish": "Thử đăng lại",
+      "reloadApp": "Tải lại ứng dụng",
+      "reload": "Tải lại",
+      "signOut": "Đăng xuất",
+      "review": "Xem xét",
+      "publish": "Đăng tải",
+      "back": "Quay lại",
+      "backToEdition": "Quay lại chỉnh sửa",
+      "seeChanges": "Xem thay đổi"
+    },
+    "headings": {
+      "directories": "Thư mục",
+      "files": "Tập tin",
+      "media": "Phương tiện",
+      "pageSettings": "Cài đặt trang"
+    },
+    "tooltips": {
+      "toggleStudio": "Bật/Tắt Studio",
+      "unlinkEditor": "Hủy liên kết trình biên tập và xem trước",
+      "linkEditor": "Liên kết trình biên tập và xem trước",
+      "copiedToClipboard": "Đã sao chép vào khay nhớ tạm",
+      "copyToClipboard": "Sao chép vào khay nhớ tạm",
+      "publishChanges": "Đăng tải các thay đổi",
+      "backToContent": "Quay lại nội dung"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "Đã xảy ra lỗi không xác định"
+      }
+    },
+    "publish": {
+      "failedTitle": "Đăng tải thất bại",
+      "summary": "trên nhánh {branch} của kho lưu trữ {repo}",
+      "errorTitle": "Lỗi trong quá trình đăng tải lên {providerName}",
+      "failedGeneric": "Không thể đăng tải các thay đổi"
+    },
+    "review": {
+      "title": "Xem xét thay đổi",
+      "created": "Đã tạo",
+      "updated": "Đã cập nhật",
+      "renamed": "Đã đổi tên",
+      "deleted": "Đã xóa"
+    },
+    "publishSuccess": {
+      "title": "Đã đăng tải thay đổi",
+      "summary": "{count} thay đổi đã đăng trên nhánh {branch} của kho {repo} | {count} thay đổi đã đăng trên nhánh {branch} của kho {repo}",
+      "alertTitleWaiting": "Đang chờ triển khai...",
+      "alertTitleComplete": "Triển khai hoàn tất",
+      "alertDescWaiting": "Trang web cần được triển khai để các thay đổi hiển thị trong Studio.",
+      "alertDescComplete": "Một phiên bản mới của trang web đã được triển khai. Vui lòng làm mới ứng dụng để thấy thay đổi trong Studio."
+    },
+    "newVersionBanner": {
+      "title": "Phát hiện phiên bản trang web mới",
+      "description": "Một phiên bản mới của trang web đã được triển khai. Tải lại ứng dụng để xem các thay đổi mới nhất.",
+      "reloadButton": "Tải lại"
+    },
+    "footer": {
+      "developer_view": "Giao diện nhà phát triển",
+      "localFilesystem": "Sử dụng hệ thống tệp cục bộ",
+      "debugMode": "Chế độ gỡ lỗi"
+    },
+    "alert": {
+      "mdcFormatting": "Định dạng đã được áp dụng để tuân thủ chuẩn cú pháp MDC."
+    },
+    "conflict": {
+      "title": "Phát hiện xung đột",
+      "repository": "Kho lưu trữ",
+      "branch": "Nhánh",
+      "file": "Tập tin",
+      "description": "Nội dung trên {providerName} khác với phiên bản trang web của bạn. Hãy đảm bảo các thay đổi mới nhất đã được triển khai và làm mới trang.",
+      "websiteVersion": "Website"
+    },
+    "nav": {
+      "content": "Nội dung",
+      "media": "Phương tiện"
+    },
+    "placeholders": {
+      "commitMessage": "Nội dung commit",
+      "order": "STT",
+      "fileName": "Tên tập tin"
+    },
+    "validation": {
+      "commitRequired": "Bắt buộc nhập nội dung commit",
+      "nameEmpty": "Tên không được để trống",
+      "nameEndsWithDot": "Tên không được kết thúc bằng dấu '.'",
+      "nameStartsWithSlash": "Tên không được bắt đầu bằng dấu '/'",
+      "nameExists": "Tên đã tồn tại",
+      "prefixDigitsOnly": "Tiền tố phải là chuỗi chỉ chứa chữ số",
+      "prefixNonNegativeInteger": "Tiền tố phải là số nguyên không âm"
+    },
+    "media": {
+      "altFilePreview": "Xem trước tập tin",
+      "altImagePreview": "Xem trước hình ảnh",
+      "playAudio": "Phát âm thanh",
+      "audioTagNotSupported": "Trình duyệt của bạn không hỗ trợ thẻ audio.",
+      "playVideo": "Phát video",
+      "videoTagNotSupported": "Trình duyệt của bạn không hỗ trợ thẻ video.",
+      "metaWidth": "Rộng",
+      "metaHeight": "Cao",
+      "metaType": "Loại",
+      "metaDuration": "Thời lượng",
+      "metaSize": "Kích thước",
+      "fileName": "Tên tập tin",
+      "publicPath": "Đường dẫn công khai",
+      "providerPath": "Đường dẫn {providerName}",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "Mở hành động",
+      "cancel": "Hủy",
+      "submit": "Gửi"
+    },
+    "actions": {
+      "confirmAction": "Nhấn lần nữa để {action}",
+      "verbs": {
+        "create": "tạo",
+        "delete": "xóa",
+        "rename": "đổi tên",
+        "upload": "tải lên",
+        "duplicate": "nhân bản"
+      },
+      "labels": {
+        "createDocument": "Tập tin mới",
+        "createDocumentFolder": "Thư mục mới",
+        "createMediaFolder": "Thư mục phương tiện mới",
+        "renameItem": "Đổi tên",
+        "deleteItem": "Xóa",
+        "uploadMedia": "Tải lên phương tiện",
+        "duplicateItem": "Nhân bản",
+        "revertItem": "Hoàn tác thay đổi",
+        "publishBranch": "Đăng tải nhánh",
+        "openGitProvider": "Mở trên {providerName}",
+        "switchToTipTap": "Dùng trình soạn thảo trực quan",
+        "switchToCode": "Dùng trình soạn thảo mã"
+      },
+      "tooltips": {
+        "createDocument": "Tạo tập tin mới",
+        "createDocumentFolder": "Tạo thư mục mới",
+        "createMediaFolder": "Tạo thư mục mới",
+        "renameItem": "Đổi tên tập tin",
+        "deleteItem": "Xóa tập tin",
+        "uploadMedia": "Tải lên phương tiện",
+        "duplicateItem": "Nhân bản tập tin",
+        "revertItem": "Hoàn tác thay đổi",
+        "publishBranch": "Đăng tải nhánh"
+      }
+    },
+    "items": {
+      "itemCount": "1 mục | {count} mục"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "Tiêu đề 1",
+        "h2": "Tiêu đề 2",
+        "h3": "Tiêu đề 3"
+      },
+      "styles": {
+        "bold": "In đậm",
+        "italic": "In nghiêng"
+      },
+      "lists": {
+        "bulleted": "Danh sách không thứ tự",
+        "numbered": "Danh sách có thứ tự"
+      },
+      "other": {
+        "emojis": "Biểu tượng cảm xúc",
+        "blockquote": "Trích dẫn",
+        "code": "Mã (Code)",
+        "inlineCode": "Mã nội dòng",
+        "link": "Liên kết",
+        "image": "Hình ảnh"
+      },
+      "writeSomething": "Viết gì đó",
+      "snippets": {
+        "title": "tiêu đề",
+        "item1": "Mục 1",
+        "item2": "Mục 2",
+        "language": "ngôn ngữ",
+        "code": "mã",
+        "link": "liên kết",
+        "alt": "văn bản thay thế",
+        "src": "nguồn",
+        "value": "giá trị"
+      },
+      "docs": {
+        "path": "Đường dẫn trong dự án:",
+        "props": "Thuộc tính (Props)",
+        "slots": "Slot",
+        "type": "loại",
+        "required": "bắt buộc",
+        "default": "mặc định"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Viết, gõ '/' để xem lệnh...",
+        "components": "Thành phần"
+      },
+      "toolbar": {
+        "h1": "Tiêu đề 1",
+        "h2": "Tiêu đề 2",
+        "h3": "Tiêu đề 3",
+        "h4": "Tiêu đề 4",
+        "bulletList": "Danh sách dấu đầu dòng",
+        "orderedList": "Danh sách đánh số",
+        "blockquote": "Trích dẫn khối",
+        "codeBlock": "Khối mã",
+        "bold": "In đậm",
+        "italic": "In nghiêng",
+        "strike": "Gạch ngang",
+        "code": "Mã",
+        "headings": "Các tiêu đề"
+      },
+      "suggestion": {
+        "style": "Kiểu",
+        "paragraph": "Đoạn văn",
+        "insert": "Chèn",
+        "image": "Hình ảnh",
+        "video": "Video",
+        "horizontalRule": "Đường kẻ ngang"
+      },
+      "drag": {
+        "turnInto": "Chuyển thành",
+        "resetFormatting": "Đặt lại định dạng",
+        "duplicate": "Nhân bản",
+        "copyToClipboard": "Sao chép vào khay nhớ tạm",
+        "moveUp": "Di chuyển lên",
+        "moveDown": "Di chuyển xuống",
+        "insertBefore": "Chèn phía trước",
+        "insertAfter": "Chèn phía sau",
+        "delete": "Xóa"
+      },
+      "element": {
+        "addSlot": "Thêm Slot",
+        "editProps": "Sửa Props",
+        "delete": "Xóa",
+        "prop": "thuộc tính",
+        "props": {
+          "label": "thuộc tính",
+          "itemsCount": "{count} mục | {count} mục",
+          "fieldsCount": "{count} trường | {count} trường",
+          "edit": "Sửa {type}"
+        }
+      },
+      "slot": {
+        "searchPlaceholder": "Tìm hoặc tạo slot...",
+        "deleteSlot": "Xóa slot",
+        "noSlotsAvailable": "Không có slot định sẵn nào"
+      },
+      "inlineElement": {
+        "editContent": "Sửa nội dung",
+        "editProps": "Sửa thuộc tính",
+        "delete": "Xóa",
+        "editContentLabel": "Sửa nội dung {name}",
+        "enterContentPlaceholder": "Nhập nội dung...",
+        "apply": "Áp dụng"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "ten_tap_tin.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Dán liên kết...",
+        "applyLink": "Áp dụng liên kết",
+        "openInNewWindow": "Mở trong cửa sổ mới",
+        "removeLink": "Gỡ bỏ liên kết"
+      },
+      "spanStyle": {
+        "label": "Kiểu Span",
+        "stylePlaceholder": "Styles: vd: color: tomato; font-weight: 600;",
+        "classPlaceholder": "Classes: cách nhau bởi dấu cách",
+        "apply": "Áp dụng",
+        "remove": "Gỡ bỏ"
+      },
+      "binding": {
+        "variablePlaceholder": "Tên biến",
+        "defaultValuePlaceholder": "Giá trị mặc định"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "Chọn hình ảnh",
+        "description": "Chọn hình ảnh từ thư viện phương tiện của bạn",
+        "notAvailable": "Không có hình ảnh nào trong thư viện",
+        "upload": "Tải lên"
+      },
+      "video": {
+        "title": "Chọn video",
+        "description": "Chọn video từ thư viện phương tiện của bạn",
+        "notAvailable": "Không có video nào trong thư viện",
+        "upload": "Tải lên"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "Thêm {label}",
+        "deleteItem": "Xóa mục",
+        "editItem": "Sửa mục",
+        "unsupportedType": "Kiểu mảng {type} không được hỗ trợ"
+      },
+      "object": {
+        "noProperties": "Chưa định nghĩa thuộc tính nào",
+        "enterPlaceholder": "Nhập {field}..."
+      },
+      "section": {
+        "propertyCount": "1 thuộc tính | {count} thuộc tính"
+      },
+      "media": {
+        "placeholder": "Nhập đường dẫn tương đối hoặc URL công khai...",
+        "searchPlaceholder": "Tìm kiếm hình ảnh...",
+        "noImagesFound": "Không tìm thấy hình ảnh",
+        "noImagesAvailable": "Không có hình ảnh nào",
+        "imageCount": "{count} trên {total} hình ảnh | {count} trên {total} hình ảnh"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "Tìm kiếm biểu tượng...",
+        "noIconsFound": "Không tìm thấy biểu tượng",
+        "searchHint": "Nhập ít nhất 2 ký tự để tìm kiếm",
+        "libraries": "Thư viện:",
+        "allLibraries": "Tất cả"
+      },
+      "text": {
+        "placeholder": "Nhập văn bản...",
+        "selectPlaceholder": "Chọn một tùy chọn..."
+      },
+      "date": {
+        "selectDate": "Chọn ngày"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    }
+  }
+}
