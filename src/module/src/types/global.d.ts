@@ -1,3 +1,6 @@
+import type { StudioUser } from 'nuxt-studio/app'
+import type { H3Event } from 'h3'
+
 declare module '#content/preview' {
   import type { CollectionInfo } from './collection'
 
@@ -10,4 +13,11 @@ declare module '#build/studio-public-assets' {
   import type { Storage } from 'unstorage'
 
   export const publicAssetsStorage: Storage
+}
+
+declare module 'nitropack' {
+  interface NitroRuntimeHooks {
+    'studio:auth:login': (payload: { user: StudioUser, event: H3Event }) => void
+    'studio:auth:logout': (payload: { user: StudioUser, event: H3Event }) => void
+  }
 }
