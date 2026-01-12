@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@nuxtjs/plausible": "^2.0.1",
-    "docus": "^5.4.1",
+    "docus": "^5.4.2",
     "better-sqlite3": "^12.5.0",
     "nuxt": "^4.2.2",
     "nuxt-studio": "workspace:*"
