@@ -208,7 +208,7 @@ pnpm lint
 - [x] Development mode
 - [x] Git integration
 - [x] Real-time preview
-- [x] Internationalization (17 languages)
+- [x] Internationalization (22 languages)
 - [x] Custom authentication utilities
 - [x] Vue Component props editor (visual interface)
 - [x] Span-style text formatting with toolbar button
