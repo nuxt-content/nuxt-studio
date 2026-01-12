@@ -21,7 +21,7 @@ Originally offered as a standalone premium platform, Studio has evolved into a f
 - 🖼️ **Media Management** - Centralized media library with support for JPEG, PNG, GIF, WebP, AVIF, SVG, and more
 - 🌳 **Git Integration** - Commit changes directly from your production website and just wait your CI/CD pipeline to deploy your changes
 - 🚀 **Development Mode** - Directly edit your content files and media files in your local filesystem using the module interface
-- 🌍 **17 Languages** - Full i18n support (AR, BG, CS, DE, EN, ES, FA, FI, FR, ID, IT, JA, KO, NB-NO, NL, NN-NO, PL, PT-BR, RU, UA, ZH, ZH-TW)
+- 🌍 **22 Languages** - Full i18n support (AR, BG, CS, DE, EN, ES, FA, FI, FR, ID, IT, JA, KO, NB-NO, NL, NN-NO, PL, PT-BR, RU, UA, ZH, ZH-TW)
 
 **Future Features:**
 
