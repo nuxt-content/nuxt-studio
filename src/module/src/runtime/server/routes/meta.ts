@@ -5,6 +5,7 @@ import { useRuntimeConfig, createError } from '#imports'
 import components from '#nuxt-component-meta/nitro'
 // @ts-expect-error import does exist
 import { highlight } from '#mdc-imports'
+import { filterComponents } from '../utils/filter'
 
 interface NuxtComponentMeta {
   pascalName: string
@@ -42,9 +43,15 @@ export default eventHandler(async (event) => {
       }
     })
 
+  const filteredComponents = filterComponents(
+    mappedComponents,
+    config.studio?.components?.include,
+    config.studio?.components?.exclude,
+  )
+
   return {
     markdownConfig: config.studio.markdown || {},
     highlightTheme: highlight?.theme || { default: 'github-light', dark: 'github-dark', light: 'github-light' },
-    components: mappedComponents,
+    components: filteredComponents,
   }
 })
