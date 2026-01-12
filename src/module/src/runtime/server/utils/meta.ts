@@ -1,15 +1,19 @@
 import { minimatch } from 'minimatch'
+import type { ComponentMeta } from 'nuxt-studio/app'
 
-export interface StudioComponent {
-  name: string
-  path: string
-}
-
-export function filterComponents<T extends StudioComponent>(
+export function filterComponents<T extends ComponentMeta>(
   components: T[],
-  include: string[] = [],
-  exclude: string[] = [],
+  options: {
+    include?: string[]
+    exclude?: string[]
+  },
 ): T[] {
+  const { include = [], exclude = [] } = options
+
+  console.log('include', include)
+  console.log('exclude', exclude)
+  console.log('components', components)
+
   // Return early if no components
   if (components.length === 0) {
     return []
@@ -30,7 +34,7 @@ export function filterComponents<T extends StudioComponent>(
   return result
 }
 
-function matchAnyPattern(component: StudioComponent, patterns: string[]): boolean {
+function matchAnyPattern(component: ComponentMeta, patterns: string[]): boolean {
   return patterns.some((pattern) => {
     const value = pattern.includes('/') ? component.path : component.name
     return minimatch(value, pattern)
