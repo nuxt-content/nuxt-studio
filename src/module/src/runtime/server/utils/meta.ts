@@ -10,10 +10,6 @@ export function filterComponents<T extends ComponentMeta>(
 ): T[] {
   const { include = [], exclude = [] } = options
 
-  console.log('include', include)
-  console.log('exclude', exclude)
-  console.log('components', components)
-
   // Return early if no components
   if (components.length === 0) {
     return []
