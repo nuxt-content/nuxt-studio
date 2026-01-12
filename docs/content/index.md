@@ -128,7 +128,7 @@ Self-hosted CMS for your Nuxt Content website.
   [Multi languages]{.text-primary}
 
   #description
-  Full i18n support for the Studio interface. Available in English, French, German, Spanish, Japanese, Chinese, and tons of other languages.
+  Full i18n support for the Studio interface. Available in English, French, German, Spanish, Japanese, Chinese, and tons of [other languages](/setup#internationalization).
   :::
 
   :::u-page-feature
