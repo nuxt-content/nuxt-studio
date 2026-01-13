@@ -6,7 +6,7 @@ import type { FormItem, FormTree } from '../../types'
 import type { ComponentMeta } from '../../types/component'
 import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
 
-const HIDDEN_PROPS = ['ui', 'as', 'activeClass', 'inactiveClass', 'exactActiveClass', 'ariaCurrentValue', 'href', 'rel', 'noRel', 'prefetch', 'prefetchOn', 'noPrefetch', 'prefetchedClass', 'replace', 'exact', 'exactQuery', 'exactHash', 'external', 'onClick', 'viewTransition', 'loading', 'loadingIcon', 'as', 'activeColor', 'activeVariant', 'loading', 'loadingIcon', 'loadingAuto', 'disabled', 'active', 'leading', 'trailing', 'customize', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget']
+const HIDDEN_PROPS = ['ui', 'as', 'activeClass', 'inactiveClass', 'exactActiveClass', 'ariaCurrentValue', 'href', 'rel', 'noRel', 'prefetch', 'prefetchOn', 'noPrefetch', 'prefetchedClass', 'replace', 'exact', 'exactQuery', 'exactHash', 'external', 'onClick', 'viewTransition', 'loading', 'loadingIcon', 'as', 'activeColor', 'activeVariant', 'loading', 'loadingIcon', 'loadingAuto', 'disabled', 'active', 'leading', 'trailing', 'customize', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'onClick']
 
 // https://developer.mozilla.org/fr/docs/Web/HTML/Element/video#attributs
 // const videoProps = [

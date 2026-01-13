@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { titleCase } from 'scule'
-import type { FormItem, FormTree, FormInputsTypes } from '../../types'
-import type { Component, PropType } from 'vue'
+import type { FormItem, FormTree } from '../../types'
+import type { PropType } from 'vue'
 import { computed, ref, watch } from 'vue'
 import { applyValueById } from '../../utils/form'
-import FormInputArray from './input/FormInputArray.vue'
-import InputBoolean from './input/InputBoolean.vue'
-import InputDate from './input/InputDate.vue'
-import InputIcon from './input/InputIcon.vue'
-import InputMedia from './input/InputMedia.vue'
-import InputNumber from './input/InputNumber.vue'
-import InputText from './input/InputText.vue'
 
 const props = defineProps({
   formItem: {
@@ -22,23 +15,6 @@ const props = defineProps({
 const form = defineModel({ type: Object as PropType<FormTree>, default: () => ({}) })
 
 const label = computed(() => titleCase(props.formItem.title))
-
-const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
-  array: FormInputArray,
-  boolean: InputBoolean,
-  date: InputDate,
-  datetime: InputDate,
-  icon: InputIcon,
-  media: InputMedia,
-  number: InputNumber,
-  string: InputText,
-}
-
-const inputComponentName = computed(() => typeComponentMap[props.formItem.type] ?? InputText)
-
-const inputFormItem = computed(() => {
-  return props.formItem.type === 'array' ? props.formItem.arrayItemForm : props.formItem
-})
 
 // Initialize model value
 const model = ref(computeValue(props.formItem))
@@ -91,10 +67,10 @@ function computeValue(formItem: FormItem): unknown {
       label: 'text-xs font-semibold tracking-tight',
     }"
   >
-    <component
-      :is="inputComponentName"
+    <InputWrapper
       v-model="model"
-      :form-item="inputFormItem"
+      :form-item="formItem"
+      :level="1"
     />
   </UFormField>
 </template>
