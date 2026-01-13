@@ -734,6 +734,45 @@ describe('buildFormTreeFromSchema', () => {
       },
     })
   })
+
+  test('handle textarea type', () => {
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          type: 'object',
+          properties: {
+            description: {
+              type: 'string',
+              $content: {
+                editor: {
+                  input: 'textarea',
+                },
+              },
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    }
+
+    expect(buildFormTreeFromSchema('posts', schema)).toStrictEqual({
+      posts: {
+        id: '#posts',
+        type: 'object',
+        title: 'Posts',
+        children: {
+          description: {
+            id: '#posts/description',
+            type: 'textarea', // Verifies your new type is correctly assigned
+            title: 'Description',
+          },
+        },
+      },
+    })
+  })
 })
 
 describe('applyValuesToFormTree', () => {

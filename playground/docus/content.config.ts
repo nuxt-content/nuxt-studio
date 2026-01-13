@@ -19,6 +19,7 @@ const createAuthorsSchema = () => z.object({
   }),
   to: z.string(),
   username: z.string(),
+  description: z.string().editor({ input: 'textarea' }),
   role: z.enum(['creator', 'maintainer', 'contributor']).default('contributor'),
   order: z.number().default(0),
   birthDate: z.string().date(),
