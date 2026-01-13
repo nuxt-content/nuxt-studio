@@ -11,6 +11,7 @@ import InputIcon from './input/InputIcon.vue'
 import InputMedia from './input/InputMedia.vue'
 import InputNumber from './input/InputNumber.vue'
 import InputText from './input/InputText.vue'
+import InputTextarea from './input/InputTextarea.vue'
 
 const props = defineProps({
   formItem: {
@@ -32,6 +33,7 @@ const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   media: InputMedia,
   number: InputNumber,
   string: InputText,
+  textarea: InputTextarea,
 }
 
 const inputComponentName = computed(() => typeComponentMap[props.formItem.type] ?? InputText)
@@ -67,6 +69,7 @@ function computeValue(formItem: FormItem): unknown {
     case 'icon':
     case 'media':
     case 'file':
+    case 'textarea':
       return typeof value === 'string' ? value : ''
     case 'boolean':
       return typeof value === 'boolean' ? value : false
