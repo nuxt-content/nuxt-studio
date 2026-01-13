@@ -113,7 +113,7 @@ function closeNestedForm() {
   <template v-else>
     <InputObject
       v-if="formItem.type === 'object'"
-      v-model="model"
+      v-model="(model as Record<string, unknown>)"
       :form-item="formItem"
       :children="formItem.children || {}"
       :level="level"
@@ -121,7 +121,7 @@ function closeNestedForm() {
 
     <InputArray
       v-else-if="formItem.type === 'array'"
-      v-model="model"
+      v-model="(model as unknown[])"
       :form-item="formItem.arrayItemForm"
       :level="level"
     />
