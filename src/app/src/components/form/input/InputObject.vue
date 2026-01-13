@@ -32,16 +32,35 @@ const entries = computed(() => {
 
   return Object.entries(props.children)
     .filter(([_, child]) => !child.hidden)
-    .map(([key, child]) => ({
-      key,
-      label: titleCase(child.title || key),
-      value: model.value?.[key] ?? child.default ?? (child.type === 'array' ? [] : child.type === 'object' ? {} : child.type === 'boolean' ? false : child.type === 'number' ? 0 : ''),
-      formItem: child,
-    }))
+    .map(([key, child]) => {
+      const value = model.value?.[key] ?? child.default ?? getDefault(child.type)
+
+      return {
+        key,
+        label: titleCase(child.title || key),
+        value,
+        formItem: child,
+      }
+    })
 })
 
 function updateValue(key: string, value: unknown) {
   model.value = { ...model.value, [key]: value }
+}
+
+function getDefault(type: string) {
+  switch (type) {
+    case 'array':
+      return []
+    case 'object':
+      return {}
+    case 'boolean':
+      return false
+    case 'number':
+      return 0
+    default:
+      return ''
+  }
 }
 </script>
 
