@@ -9,6 +9,10 @@ const props = defineProps({
     type: Object as PropType<FormItem>,
     default: () => ({}),
   },
+  level: {
+    type: Number,
+    default: 1,
+  },
 })
 
 const model = defineModel({ type: Array as PropType<unknown[]>, default: () => [] })
@@ -28,6 +32,9 @@ const items = computed(() => {
     label: `${itemsLabel.value} ${index + 1}`,
   }))
 })
+
+// Increment level for nested items
+const childLevel = computed(() => props.level + 1)
 
 function addItem() {
   const newItem = itemsType.value === 'object' ? {} : ''
@@ -64,7 +71,7 @@ function saveStringEditing() {
   stringEditingValue.value = ''
 }
 
-function updateObjectItem(index: number, value: Record<string, unknown>) {
+function updateItem(index: number, value: unknown) {
   model.value = model.value.map((item, i) => i === index ? value : item)
 }
 </script>
@@ -73,7 +80,7 @@ function updateObjectItem(index: number, value: Record<string, unknown>) {
   <div>
     <!-- Array of Objects -->
     <template v-if="itemsType === 'object'">
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2 mt-2">
         <Collapsible
           v-for="item in items"
           :key="item.index"
@@ -94,10 +101,11 @@ function updateObjectItem(index: number, value: Record<string, unknown>) {
             />
           </template>
 
-          <FormInputObject
-            v-model="(item.value as Record<string, unknown>)"
-            :children="formItem.children"
-            @update:model-value="updateObjectItem(item.index, $event)"
+          <InputWrapper
+            :model-value="item.value"
+            :form-item="formItem"
+            :level="childLevel"
+            @update:model-value="updateItem(item.index, $event)"
           />
         </Collapsible>
       </div>
@@ -139,7 +147,7 @@ function updateObjectItem(index: number, value: Record<string, unknown>) {
               :icon="activeIndex === item.index ? 'i-lucide-check' : 'i-lucide-pencil'"
               :class="{ 'font-medium': activeIndex === item.index }"
               :aria-label="$t('studio.form.editItem')"
-              @click.stop="activeIndex === item.index ? saveStringEditing : startStringEditing(item.index, item.value)"
+              @click.stop="activeIndex === item.index ? saveStringEditing() : startStringEditing(item.index, item.value)"
             />
             <UButton
               variant="ghost"

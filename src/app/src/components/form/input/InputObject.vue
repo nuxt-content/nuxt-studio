@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import { titleCase } from 'scule'
-import type { FormTree } from '../../../types'
+import type { FormTree, FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 
 const props = defineProps({
+  formItem: {
+    type: Object as PropType<FormItem>,
+    required: true,
+  },
   children: {
     type: Object as PropType<FormTree>,
     default: null,
+  },
+  level: {
+    type: Number,
+    default: 1,
   },
 })
 
@@ -16,19 +24,43 @@ const model = defineModel({
   default: (): Record<string, unknown> => ({}),
 })
 
+// Increment level for nested items
+const childLevel = computed(() => props.level + 1)
+
 const entries = computed(() => {
   if (!props.children) return []
 
-  return Object.entries(props.children).map(([key, child]) => ({
-    key,
-    label: titleCase(child.title || key),
-    value: model.value?.[key] ?? child.default ?? '',
-    formItem: child,
-  }))
+  return Object.entries(props.children)
+    .filter(([_, child]) => !child.hidden)
+    .map(([key, child]) => {
+      const value = model.value?.[key] ?? child.default ?? getDefault(child.type)
+
+      return {
+        key,
+        label: titleCase(child.title || key),
+        value,
+        formItem: child,
+      }
+    })
 })
 
-function updateValue(key: string, value: string | number) {
+function updateValue(key: string, value: unknown) {
   model.value = { ...model.value, [key]: value }
+}
+
+function getDefault(type: string) {
+  switch (type) {
+    case 'array':
+      return []
+    case 'object':
+      return {}
+    case 'boolean':
+      return false
+    case 'number':
+      return 0
+    default:
+      return ''
+  }
 }
 </script>
 
@@ -44,9 +76,10 @@ function updateValue(key: string, value: string | number) {
           label: 'text-xs font-medium tracking-tight',
         }"
       >
-        <InputText
-          :model-value="String(entry.value || '')"
+        <InputWrapper
+          :model-value="entry.value"
           :form-item="entry.formItem"
+          :level="childLevel"
           @update:model-value="updateValue(entry.key, $event)"
         />
       </UFormField>

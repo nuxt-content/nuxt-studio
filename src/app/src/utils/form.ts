@@ -1,7 +1,28 @@
 import type { Draft07, Draft07DefinitionProperty, Draft07DefinitionPropertyAnyOf, Draft07DefinitionPropertyAllOf, Draft07DefinitionPropertyOneOf } from '@nuxt/content'
-import type { FormTree, FormItem } from '../types'
+import type { FormTree, FormItem, FormInputsTypes } from '../types'
 import { upperFirst } from 'scule'
 import { omit } from './object'
+import type { Component } from 'vue'
+import InputBoolean from '../components/form/input/InputBoolean.vue'
+import InputDate from '../components/form/input/InputDate.vue'
+import InputIcon from '../components/form/input/InputIcon.vue'
+import InputMedia from '../components/form/input/InputMedia.vue'
+import InputNumber from '../components/form/input/InputNumber.vue'
+import InputText from '../components/form/input/InputText.vue'
+import InputObject from '../components/form/input/InputObject.vue'
+import InputArray from '../components/form/input/InputArray.vue'
+
+export const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
+  array: InputArray,
+  boolean: InputBoolean,
+  date: InputDate,
+  datetime: InputDate,
+  icon: InputIcon,
+  media: InputMedia,
+  number: InputNumber,
+  string: InputText,
+  object: InputObject,
+}
 
 export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormTree => {
   if (!schema || !schema.definitions || !schema.definitions[treeKey]) {

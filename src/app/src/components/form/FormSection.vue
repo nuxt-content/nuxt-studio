@@ -12,9 +12,9 @@ const props = defineProps({
 
 const form = defineModel({ type: Object as PropType<FormTree>, default: () => ({}) })
 
-const childrenCount = computed(() => {
-  if (!props.formItem.children) return 0
-  return Object.keys(props.formItem.children).length
+const visibleChildren = computed(() => {
+  if (!props.formItem.children) return []
+  return Object.keys(props.formItem.children).filter(key => !props.formItem.children![key].hidden)
 })
 </script>
 
@@ -27,23 +27,23 @@ const childrenCount = computed(() => {
   >
     <template #badge>
       <UBadge
-        v-if="childrenCount"
+        v-if="visibleChildren.length > 0"
         variant="subtle"
         size="xs"
       >
-        {{ $t('studio.form.section.propertyCount', childrenCount) }}
+        {{ $t('studio.form.section.propertyCount', visibleChildren.length) }}
       </UBadge>
     </template>
 
-    <FormPanelSection
-      v-for="childKey in Object.keys(formItem.children)"
+    <FormSection
+      v-for="childKey in visibleChildren"
       :key="formItem.children[childKey].id"
       v-model="form"
       :form-item="formItem.children[childKey]"
     />
   </Collapsible>
 
-  <FormPanelInput
+  <FormInput
     v-else
     v-model="form"
     :form-item="formItem"

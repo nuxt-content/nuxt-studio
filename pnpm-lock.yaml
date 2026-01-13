@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  nuxt-component-meta: 0.16.0
+  nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@8bbac82
   '@vueuse/core': 13.9.0
   unhead: 2.0.19
 
@@ -35,8 +35,8 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1
       nuxt-component-meta:
-        specifier: 0.16.0
-        version: 0.16.0(magicast@0.5.1)
+        specifier: https://pkg.pr.new/nuxt-component-meta@8bbac82
+        version: https://pkg.pr.new/nuxt-component-meta@8bbac82(magicast@0.5.1)
       remark-mdc:
         specifier: ^3.10.0
         version: 3.10.0
@@ -5180,10 +5180,6 @@ packages:
     engines: {node: '>=16.0.0'}
     hasBin: true
 
-  json-schema-to-zod@2.7.0:
-    resolution: {integrity: sha512-eW59l3NQ6sa3HcB+Ahf7pP6iGU7MY4we5JsPqXQ2ZcIPF8QxSg/lkY8lN0Js/AG0NjMbk+nZGUfHlceiHF+bwQ==}
-    hasBin: true
-
   json-schema-traverse@0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
 
@@ -5846,8 +5842,9 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
-  nuxt-component-meta@0.16.0:
-    resolution: {integrity: sha512-mxsLl+gcF930dM4ozdxskGKEpldJn/fACR18uXrMDvvwxM+rMZW4tzuRMEuxhoyEXtxPLdOLP52wrS6UzBSx6Q==}
+  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@8bbac82:
+    resolution: {integrity: sha512-iR70/noCF80GPKe4huOsSV6r2f6NNlyMvVfoQjEdXolQ/cCHg6DsAyTrTnlL9nrgcQAGhKQaCkCD0g/kSsc6VQ==, tarball: https://pkg.pr.new/nuxt-component-meta@8bbac82}
+    version: 0.16.0
     hasBin: true
 
   nuxt-define@1.0.0:
@@ -7169,6 +7166,9 @@ packages:
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
 
+  ufo@1.6.2:
+    resolution: {integrity: sha512-heMioaxBcG9+Znsda5Q8sQbWnLJSl98AFDXTO80wELWEzX3hordXsTdxrIfMQoO9IY1MEnoGoPjpoKpMj+Yx0Q==}
+
   uglify-js@3.19.3:
     resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
@@ -7604,8 +7604,8 @@ packages:
   vue-bundle-renderer@2.2.0:
     resolution: {integrity: sha512-sz/0WEdYH1KfaOm0XaBmRZOWgYTEvUDt6yPYaUzl4E52qzgWLlknaPPTTZmp6benaPTlQAI/hN1x3tAzZygycg==}
 
-  vue-component-meta@3.2.1:
-    resolution: {integrity: sha512-LmiIxCeyazn4w9Te6rg2uj59/HO7OCWkoQWrixtGin/LrrazGSYlScM68kpXUDIIUa7dfBqNzMUEL3516bpgPQ==}
+  vue-component-meta@3.2.2:
+    resolution: {integrity: sha512-i1sAzQwHBXKvIFxxEoFL8+YzaJfIwyAypFOcElwXga2+J+ZxrhySiPRbnZuT9mHOEj40rkEm8Sw/93jumk7haA==}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
@@ -8984,7 +8984,7 @@ snapshots:
       micromatch: 4.0.8
       minimark: 0.2.0
       minimatch: 10.1.1
-      nuxt-component-meta: 0.16.0(magicast@0.5.1)
+      nuxt-component-meta: https://pkg.pr.new/nuxt-component-meta@8bbac82(magicast@0.5.1)
       nypm: 0.6.2
       ohash: 2.0.11
       pathe: 2.0.3
@@ -13732,8 +13732,6 @@ snapshots:
       prettier: 3.7.4
       tinyglobby: 0.2.15
 
-  json-schema-to-zod@2.7.0: {}
-
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
@@ -14615,17 +14613,16 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
-  nuxt-component-meta@0.16.0(magicast@0.5.1):
+  nuxt-component-meta@https://pkg.pr.new/nuxt-component-meta@8bbac82(magicast@0.5.1):
     dependencies:
       '@nuxt/kit': 4.2.2(magicast@0.5.1)
       citty: 0.1.6
-      json-schema-to-zod: 2.7.0
       mlly: 1.8.0
       ohash: 2.0.11
       scule: 1.3.0
       typescript: 5.9.3
-      ufo: 1.6.1
-      vue-component-meta: 3.2.1(typescript@5.9.3)
+      ufo: 1.6.2
+      vue-component-meta: 3.2.2(typescript@5.9.3)
     transitivePeerDependencies:
       - magicast
 
@@ -16419,6 +16416,8 @@ snapshots:
 
   ufo@1.6.1: {}
 
+  ufo@1.6.2: {}
+
   uglify-js@3.19.3:
     optional: true
 
@@ -16937,10 +16936,10 @@ snapshots:
     dependencies:
       ufo: 1.6.1
 
-  vue-component-meta@3.2.1(typescript@5.9.3):
+  vue-component-meta@3.2.2(typescript@5.9.3):
     dependencies:
       '@volar/typescript': 2.4.27
-      '@vue/language-core': 3.2.1
+      '@vue/language-core': 3.2.2
       path-browserify: 1.0.1
     optionalDependencies:
       typescript: 5.9.3
