@@ -218,8 +218,10 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
 
   const { type, options } = computeTypeAndOptions(componentId, key, prop, level)
 
+  const isInsideArrayItem = parent?.id?.includes('#array/items')
+
   // Format key based on type
-  const formattedKey = ['string', 'icon'].includes(type) ? key : `:${key}`
+  const formattedKey = ['string', 'icon'].includes(type) || isInsideArrayItem ? key : `:${key}`
   const id = parent?.id
     ? `${parent?.id}/${formattedKey}`
     : `${componentId}/${formattedKey}`

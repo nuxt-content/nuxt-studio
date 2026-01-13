@@ -923,7 +923,7 @@ describe('props', () => {
             type: 'object',
             title: 'Items',
             children: {
-              'label': {
+              label: {
                 id: '#array/items/label',
                 key: 'label',
                 title: 'Label',
@@ -932,7 +932,7 @@ describe('props', () => {
                 default: '',
                 custom: false,
               },
-              'size': {
+              size: {
                 id: '#array/items/size',
                 key: 'size',
                 title: 'Size',
@@ -942,9 +942,9 @@ describe('props', () => {
                 custom: false,
                 options: ['xs', 'sm', 'md', 'lg', 'xl'],
               },
-              ':avatar': {
-                id: '#array/items/:avatar',
-                key: ':avatar',
+              avatar: {
+                id: '#array/items/avatar',
+                key: 'avatar',
                 title: 'Avatar',
                 type: 'object',
                 value: {},
@@ -952,7 +952,7 @@ describe('props', () => {
                 custom: false,
                 children: {
                   as: {
-                    id: '#array/items/:avatar/as',
+                    id: '#array/items/avatar/as',
                     key: 'as',
                     title: 'As',
                     type: 'string',
@@ -961,7 +961,7 @@ describe('props', () => {
                     custom: false,
                   },
                   src: {
-                    id: '#array/items/:avatar/src',
+                    id: '#array/items/avatar/src',
                     key: 'src',
                     title: 'Src',
                     type: 'string',
@@ -1159,7 +1159,7 @@ describe('props', () => {
             type: 'object',
             title: 'Items',
             children: {
-              'label': {
+              label: {
                 id: '#array/items/label',
                 key: 'label',
                 title: 'Label',
@@ -1168,7 +1168,7 @@ describe('props', () => {
                 default: '',
                 custom: false,
               },
-              'color': {
+              color: {
                 id: '#array/items/color',
                 key: 'color',
                 title: 'Color',
@@ -1178,16 +1178,16 @@ describe('props', () => {
                 options: ['error', 'primary', 'secondary', 'success', 'info', 'warning', 'neutral'],
                 custom: false,
               },
-              ':block': {
-                id: '#array/items/:block',
-                key: ':block',
+              block: {
+                id: '#array/items/block',
+                key: 'block',
                 title: 'Block',
                 type: 'boolean',
                 value: false,
                 default: false,
                 custom: false,
               },
-              'activeClass': {
+              activeClass: {
                 id: '#array/items/activeClass',
                 key: 'activeClass',
                 title: 'ActiveClass',

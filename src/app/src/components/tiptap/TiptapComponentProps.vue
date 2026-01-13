@@ -7,7 +7,6 @@ import { buildFormTreeFromProps } from '../../utils/tiptap/props'
 import { useStudio } from '../../composables/useStudio'
 import { isEmpty } from '../../utils/object'
 import type { FormTree } from '../../types'
-import { applyValuesToFormTree, getUpdatedTreeItem } from '../../utils/form'
 
 const props = defineProps({
   node: {
@@ -30,7 +29,7 @@ const componentTag = computed(() => props.node?.attrs?.tag || props.node?.type?.
 const componentName = computed(() => pascalCase(componentTag.value))
 const componentMeta = computed(() => host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
 
-// Base form tree without values
+// Base form tree
 const formTree = ref<FormTree>({})
 
 onMounted(() => {
@@ -38,54 +37,20 @@ onMounted(() => {
   formTree.value = normalizePropsTree(tree)
 })
 
-// Handles updates to formTreeWithValues and updates the props in editor
-const formTreeWithValues = computed({
-  get: () => {
-    if (!formTree.value || Object.keys(formTree.value).length === 0) {
-      return null
-    }
+// Wrapped form tree for FormSection
+const formTreeWithValues = computed(() => {
+  if (!formTree.value || Object.keys(formTree.value).length === 0) {
+    return null
+  }
 
-    const wrappedTree: FormTree = {
-      [componentName.value]: {
-        id: `#${flatCase(componentName.value)}`,
-        title: componentName.value,
-        type: 'object',
-        children: formTree.value,
-      },
-    }
-
-    // Apply current values from node props
-    const currentValues: Record<string, unknown> = {}
-    for (const key of Object.keys(formTree.value)) {
-      const prop = formTree.value[key]
-      currentValues[key] = prop.value
-    }
-
-    return applyValuesToFormTree(wrappedTree, { [componentName.value]: currentValues })
-  },
-  set: (newFormTree) => {
-    // Unwrap the component node to get the actual children
-    const unwrappedTree = newFormTree?.[componentName.value]?.children
-    if (!unwrappedTree) {
-      return
-    }
-
-    const updatedItem = getUpdatedTreeItem(formTree.value, unwrappedTree)
-    if (!updatedItem) {
-      return
-    }
-
-    // Update the base form tree value
-    const pathSegments = updatedItem.id.split('/')
-    const updatedKey = pathSegments[pathSegments.length - 1]
-    if (formTree.value[updatedKey]) {
-      formTree.value[updatedKey].value = updatedItem.value
-    }
-
-    // Convert to props object and update
-    const propsObject = convertTreeToPropsObject(formTree.value)
-    props.updateProps(propsObject)
-  },
+  return {
+    [componentName.value]: {
+      id: `#${flatCase(componentName.value)}`,
+      title: componentName.value,
+      type: 'object',
+      children: formTree.value,
+    },
+  }
 })
 
 // Convert form tree to props object for saving
@@ -113,6 +78,70 @@ function convertTreeToPropsObject(tree: FormTree): Record<string, unknown> {
   }
 
   return result
+}
+
+// Update a prop value (supports nested paths for objects)
+function updateFormTree(updatedTree: FormTree) {
+  // Find what changed by comparing trees
+  for (const key of Object.keys(updatedTree[componentName.value].children || {})) {
+    const updatedProp = updatedTree[componentName.value].children![key]
+    const originalProp = formTree.value[key]
+
+    if (!originalProp) continue
+
+    // Check if value changed
+    if (JSON.stringify(originalProp.value) !== JSON.stringify(updatedProp.value)) {
+      // Update the value in formTree
+      updatePropValue(key, updatedProp, originalProp)
+    }
+
+    // Check nested children for objects
+    if (updatedProp.children && originalProp.children) {
+      checkNestedUpdates(key, updatedProp.children, originalProp.children)
+    }
+  }
+
+  // Update props in editor
+  props.updateProps(convertTreeToPropsObject(formTree.value))
+}
+
+function updatePropValue(key: string, updatedProp: FormTree[string], originalProp: FormTree[string]) {
+  formTree.value[key].value = updatedProp.value
+
+  // Also update children if they exist
+  if (updatedProp.children && originalProp.children) {
+    for (const childKey of Object.keys(updatedProp.children)) {
+      if (originalProp.children[childKey]) {
+        originalProp.children[childKey].value = updatedProp.children[childKey].value
+      }
+    }
+  }
+}
+
+function checkNestedUpdates(parentKey: string, updatedChildren: FormTree, originalChildren: FormTree) {
+  for (const childKey of Object.keys(updatedChildren)) {
+    const updatedChild = updatedChildren[childKey]
+    const originalChild = originalChildren[childKey]
+
+    if (!originalChild) continue
+
+    if (JSON.stringify(originalChild.value) !== JSON.stringify(updatedChild.value)) {
+      // Update nested value
+      originalChild.value = updatedChild.value
+
+      // Update parent object value
+      if (formTree.value[parentKey].type === 'object') {
+        const currentValue = formTree.value[parentKey].value as Record<string, unknown> || {}
+        currentValue[childKey] = updatedChild.value
+        formTree.value[parentKey].value = { ...currentValue }
+      }
+    }
+
+    // Recursively check deeper nesting
+    if (updatedChild.children && originalChild.children) {
+      checkNestedUpdates(parentKey, updatedChild.children, originalChild.children)
+    }
+  }
 }
 
 function normalizePropsTree(tree: FormTree): FormTree {
@@ -155,8 +184,9 @@ function normalizePropsTree(tree: FormTree): FormTree {
       <FormSection
         v-for="formItem in Object.values(formTreeWithValues[componentName].children || {}).filter(item => !item.hidden)"
         :key="formItem.id"
-        v-model="formTreeWithValues"
+        :model-value="formTreeWithValues"
         :form-item="formItem"
+        @update:model-value="updateFormTree"
       />
     </template>
   </div>
