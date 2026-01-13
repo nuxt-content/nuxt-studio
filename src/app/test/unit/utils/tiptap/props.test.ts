@@ -75,6 +75,8 @@ describe('props', () => {
           type: 'any',
           schema: 'any',
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
         {
           name: 'name',
@@ -89,6 +91,8 @@ describe('props', () => {
             schema: ['undefined', 'string'],
           },
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
         {
           name: 'orientation',
@@ -109,6 +113,8 @@ describe('props', () => {
           },
           default: '"vertical"',
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
         {
           name: 'reverse',
@@ -128,6 +134,8 @@ describe('props', () => {
             schema: ['undefined', 'true', 'false'],
           },
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
         {
           name: 'ui',
@@ -142,6 +150,8 @@ describe('props', () => {
             schema: ['undefined', 'Partial<{ root: string; container: string; wrapper: string; headline: string; title: string; description: string; links: string; }>'],
           },
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
         {
           name: 'to',
@@ -173,12 +183,16 @@ describe('props', () => {
                       schema: ['undefined', 'string', 'symbol'],
                     },
                     declarations: [],
+                    getDeclarations: () => [],
+                    getTypeObject: {} as never,
                   },
                 },
               },
             ],
           },
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
         {
           name: 'target',
@@ -205,6 +219,8 @@ describe('props', () => {
             ],
           },
           declarations: [],
+          getDeclarations: () => [],
+          getTypeObject: {} as never,
         },
       ]
 
@@ -781,6 +797,186 @@ describe('props', () => {
       })
     })
 
+    test('generate multiple level deep object/array props', () => {
+      const props: PropertyMeta[] = [{
+        name: 'links',
+        global: false,
+        description: 'Display a list of Button under the description.\n`{ size: \'xl\' }`{lang="ts-type"}',
+        tags: [],
+        required: false,
+        type: 'ButtonProps[]',
+        schema: {
+          kind: 'array',
+          type: 'ButtonProps[]',
+          schema: [{
+            kind: 'object',
+            type: 'ButtonProps',
+            schema: {
+              label: {
+                name: 'label',
+                global: false,
+                description: '',
+                tags: [],
+                required: false,
+                type: 'string',
+                schema: 'string',
+                declarations: [],
+                getDeclarations: () => [],
+                getTypeObject: {} as never,
+              },
+              size: {
+                name: 'size',
+                global: false,
+                description: '',
+                tags: [
+                  {
+                    name: 'defaultValue',
+                    text: '\'md\'',
+                  },
+                ],
+                required: false,
+                type: '"xs" | "sm" | "md" | "lg" | "xl"',
+                schema: {
+                  kind: 'enum',
+                  type: '"xs" | "sm" | "md" | "lg" | "xl"',
+                  schema: ['"xs"', '"sm"', '"md"', '"lg"', '"xl"'],
+                },
+                declarations: [],
+                getDeclarations: () => [],
+                getTypeObject: {} as never,
+              },
+              avatar: {
+                name: 'avatar',
+                global: false,
+                description: 'Display an avatar on the left side.',
+                tags: [],
+                required: false,
+                type: 'AvatarProps',
+                schema: {
+                  kind: 'object',
+                  type: 'AvatarProps',
+                  schema: {
+                    as: {
+                      name: 'as',
+                      global: false,
+                      description: 'The element or component this component should render as.',
+                      tags: [
+                        {
+                          name: 'defaultValue',
+                          text: '\'span\'',
+                        },
+                      ],
+                      required: false,
+                      type: 'any',
+                      schema: 'any',
+                      declarations: [],
+                      getDeclarations: () => [],
+                      getTypeObject: {} as never,
+                    },
+                    src: {
+                      name: 'src',
+                      global: false,
+                      description: '',
+                      tags: [],
+                      required: false,
+                      type: 'string',
+                      schema: 'string',
+                      declarations: [],
+                      getDeclarations: () => [],
+                      getTypeObject: {} as never,
+                    },
+                  },
+                },
+                declarations: [],
+                getDeclarations: () => [],
+                getTypeObject: {} as never,
+              },
+            },
+          }],
+        },
+        declarations: [],
+        getDeclarations: () => [],
+        getTypeObject: {} as never,
+      }]
+
+      const node = {
+        type: {
+          name: 'element',
+        },
+        attrs: {
+          tag: 'Button',
+          props: {},
+        },
+      } as unknown as ProseMirrorNode
+
+      expect(buildFormTreeFromProps(node, createComponentMeta(props))).toEqual({
+        ':links': {
+          id: '#button/:links',
+          key: ':links',
+          title: 'Links',
+          value: [],
+          type: 'array',
+          custom: false,
+          default: [],
+          arrayItemForm: {
+            id: '#array/items',
+            type: 'object',
+            title: 'Items',
+            children: {
+              label: {
+                id: '#array/items/label',
+                key: 'label',
+                title: 'Label',
+                type: 'string',
+                value: '',
+                default: '',
+                custom: false,
+              },
+              size: {
+                id: '#array/items/size',
+                key: 'size',
+                title: 'Size',
+                type: 'string',
+                value: 'md',
+                default: 'md',
+                custom: false,
+                options: ['xs', 'sm', 'md', 'lg', 'xl'],
+              },
+              avatar: {
+                id: '#array/items/avatar',
+                key: 'avatar',
+                title: 'Avatar',
+                type: 'object',
+                value: {},
+                default: {},
+                custom: false,
+                children: {
+                  as: {
+                    id: '#array/items/avatar/as',
+                    key: 'as',
+                    title: 'As',
+                    type: 'string',
+                    value: 'span',
+                    default: 'span',
+                    custom: false,
+                  },
+                  src: {
+                    id: '#array/items/avatar/src',
+                    key: 'src',
+                    title: 'Src',
+                    type: 'string',
+                    value: '',
+                    default: '',
+                    custom: false,
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+    })
+
     test('generate array of object prop from meta case one (schema is directly defined as an array of object)', () => {
       const props: PropertyMeta[] = [{
         name: 'features',
@@ -806,6 +1002,8 @@ describe('props', () => {
                   type: 'string',
                   schema: 'string',
                   declarations: [],
+                  getDeclarations: () => [],
+                  getTypeObject: {} as never,
                 },
                 content: {
                   name: 'content',
@@ -816,6 +1014,8 @@ describe('props', () => {
                   type: 'string',
                   schema: 'string',
                   declarations: [],
+                  getDeclarations: () => [],
+                  getTypeObject: {} as never,
                 },
                 ui: {
                   name: 'ui',
@@ -830,12 +1030,16 @@ describe('props', () => {
                     schema: ['undefined', 'Partial<{ root: string; image: string; fallback: string; icon: string; }>'],
                   },
                   declarations: [],
+                  getDeclarations: () => [],
+                  getTypeObject: {} as never,
                 },
               },
             },
           ],
         },
         declarations: [],
+        getDeclarations: () => [],
+        getTypeObject: {} as never,
       }]
 
       const node = {
@@ -927,6 +1131,8 @@ describe('props', () => {
           ],
         },
         declarations: [],
+        getDeclarations: () => [],
+        getTypeObject: {} as never,
       }]
 
       const node = {
@@ -953,7 +1159,7 @@ describe('props', () => {
             type: 'object',
             title: 'Items',
             children: {
-              'label': {
+              label: {
                 id: '#array/items/label',
                 key: 'label',
                 title: 'Label',
@@ -962,7 +1168,7 @@ describe('props', () => {
                 default: '',
                 custom: false,
               },
-              'color': {
+              color: {
                 id: '#array/items/color',
                 key: 'color',
                 title: 'Color',
@@ -972,16 +1178,16 @@ describe('props', () => {
                 options: ['error', 'primary', 'secondary', 'success', 'info', 'warning', 'neutral'],
                 custom: false,
               },
-              ':block': {
-                id: '#array/items/:block',
-                key: ':block',
+              block: {
+                id: '#array/items/block',
+                key: 'block',
                 title: 'Block',
                 type: 'boolean',
                 value: false,
                 default: false,
                 custom: false,
               },
-              'activeClass': {
+              activeClass: {
                 id: '#array/items/activeClass',
                 key: 'activeClass',
                 title: 'ActiveClass',
@@ -1011,6 +1217,8 @@ describe('props', () => {
           schema: ['string'],
         },
         declarations: [],
+        getDeclarations: () => [],
+        getTypeObject: {} as never,
       }]
 
       const node = {

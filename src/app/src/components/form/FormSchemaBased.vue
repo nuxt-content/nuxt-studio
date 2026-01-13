@@ -48,7 +48,7 @@ const formTreeWithValues = computed({
 
 <template>
   <template v-if="formTreeWithValues">
-    <FormPanelSection
+    <FormSection
       v-for="formItem in formTreeWithValues[collectionName].children"
       :key="formItem.id"
       v-model="formTreeWithValues"

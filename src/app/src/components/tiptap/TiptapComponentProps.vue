@@ -6,7 +6,8 @@ import { pascalCase, titleCase, kebabCase, flatCase } from 'scule'
 import { buildFormTreeFromProps } from '../../utils/tiptap/props'
 import { useStudio } from '../../composables/useStudio'
 import { isEmpty } from '../../utils/object'
-import type { FormItem, FormTree } from '../../types'
+import type { FormTree } from '../../types'
+import InputWrapper from '../form/input/InputWrapper.vue'
 
 const props = defineProps({
   node: {
@@ -25,9 +26,8 @@ const props = defineProps({
 
 const { host } = useStudio()
 
-// Nested form state for arrays/objects displayed as overlays
+// Form tree state
 const formTree = ref<FormTree>({})
-const nestedForm = ref<{ key: string, type: 'array' | 'object' } | null>(null)
 
 const componentTag = computed(() => props.node?.attrs?.tag || props.node?.type?.name)
 const componentName = computed(() => pascalCase(componentTag.value))
@@ -78,15 +78,6 @@ const visibleProps = computed(() =>
   Object.entries(formTree.value).filter(([_, prop]) => !prop.hidden),
 )
 
-// Open nested editor for arrays/objects
-function openNestedForm(prop: FormItem, type: 'array' | 'object') {
-  nestedForm.value = { key: prop.key!, type }
-}
-
-function closeNestedForm() {
-  nestedForm.value = null
-}
-
 function normalizePropsTree(tree: FormTree): FormTree {
   // Always add class prop by default
   if (!tree.class) {
@@ -123,109 +114,24 @@ function normalizePropsTree(tree: FormTree): FormTree {
     </div>
 
     <!-- Props list -->
-    <div class="flex flex-col gap-3">
-      <template
+    <div class="space-y-2">
+      <UFormField
         v-for="[key, prop] in visibleProps"
         :key="key"
+        :name="prop.key"
+        :label="prop.title"
+        orientation="horizontal"
+        :ui="{
+          label: 'text-xs font-medium tracking-tight',
+        }"
       >
-        <div class="flex items-center gap-3">
-          <!-- Label -->
-          <div class="w-1/3">
-            <span class="text-xs text-muted truncate block">
-              {{ prop.title }}
-            </span>
-          </div>
-
-          <!-- Input -->
-          <div class="w-2/3 flex items-center gap-2">
-            <!-- Nested form overlay for arrays/objects -->
-            <template v-if="nestedForm?.key === prop.key">
-              <div class="fixed inset-0 bg-default z-50 flex flex-col p-3 overflow-y-auto rounded-lg">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-mono font-semibold text-highlighted">
-                    {{ prop.title }}
-                  </span>
-                  <UButton
-                    size="xs"
-                    icon="i-lucide-x"
-                    color="neutral"
-                    variant="ghost"
-                    aria-label="Close"
-                    @click="closeNestedForm"
-                  />
-                </div>
-
-                <FormInputArray
-                  v-if="nestedForm?.type === 'array'"
-                  class="flex-1"
-                  :model-value="(prop.value as unknown[])"
-                  :form-item="prop.arrayItemForm"
-                  @update:model-value="updateProp(key, $event)"
-                />
-
-                <FormInputObject
-                  v-else-if="nestedForm?.type === 'object'"
-                  class="flex-1"
-                  :model-value="(prop.value as Record<string, unknown>)"
-                  :children="prop.children || {}"
-                  @update:model-value="updateProp(key, $event)"
-                />
-              </div>
-            </template>
-
-            <!-- Array/Object button -->
-            <template v-else-if="['array', 'object'].includes(prop.type)">
-              <div class="flex items-center gap-2">
-                <span
-                  v-if="prop.type === 'array'"
-                  class="text-xs text-muted"
-                >
-                  {{ $t('studio.tiptap.element.props.itemsCount', { count: (prop.value as unknown[])?.length || 0 }) }}
-                </span>
-                <span
-                  v-if="prop.type === 'object'"
-                  class="text-xs text-muted"
-                >
-                  {{ $t('studio.tiptap.element.props.fieldsCount', { count: Object.keys(prop.children || {})?.length || 0 }) }}
-                </span>
-                <UButton
-                  size="xs"
-                  color="neutral"
-                  variant="link"
-                  :label="$t('studio.tiptap.element.props.edit', { type: prop.type })"
-                  @click="openNestedForm(prop, prop.type as 'array' | 'object')"
-                />
-              </div>
-            </template>
-
-            <!-- Boolean switch -->
-            <template v-else-if="prop.type === 'boolean'">
-              <InputBoolean
-                :model-value="Boolean(prop.value)"
-                @update:model-value="updateProp(key, $event)"
-              />
-            </template>
-
-            <!-- Number input -->
-            <template v-else-if="prop.type === 'number'">
-              <InputNumber
-                :model-value="Number(prop.value) || 0"
-                :form-item="prop"
-                @update:model-value="updateProp(key, $event)"
-              />
-            </template>
-
-            <!-- Text / Selectinput (default) -->
-            <template v-else>
-              <InputText
-                :model-value="String(prop.value || '')"
-                :form-item="prop"
-                @update:model-value="updateProp(key, $event)"
-              />
-            </template>
-          </div>
-        </div>
-      </template>
+        <InputWrapper
+          class="w-full"
+          :model-value="prop.value"
+          :form-item="prop"
+          @update:model-value="updateProp(key, $event)"
+        />
+      </UFormField>
     </div>
   </div>
 </template>
