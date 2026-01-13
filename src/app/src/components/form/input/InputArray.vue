@@ -37,23 +37,7 @@ const items = computed(() => {
 const childLevel = computed(() => props.level + 1)
 
 function addItem() {
-  let newItem: unknown
-
-  if (itemsType.value === 'object') {
-    newItem = {}
-  }
-  else if (itemsType.value === 'boolean') {
-    newItem = false
-  }
-  else if (itemsType.value === 'number') {
-    newItem = 0
-  }
-  else if (itemsType.value === 'array') {
-    newItem = []
-  }
-  else {
-    newItem = ''
-  }
+  const newItem = itemsType.value === 'object' ? {} : ''
 
   model.value = [...(model.value || []), newItem]
 
