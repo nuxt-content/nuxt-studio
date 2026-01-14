@@ -3,6 +3,7 @@ import { createError, deleteCookie, setCookie, useSession } from 'h3'
 import { defu } from 'defu'
 import type { StudioUser, GitProviderType } from 'nuxt-studio/app'
 import { useRuntimeConfig } from '#imports'
+import { useNitroApp } from 'nitropack/runtime'
 
 interface StudioUserSession {
   name: string
@@ -63,6 +64,8 @@ export async function setInternalStudioUserSession(event: H3Event, user: StudioU
   // Set a cookie to indicate that the session is active for the client runtime
   setCookie(event, 'studio-session-check', 'true', { httpOnly: false })
 
+  await useNitroApp().hooks.callHook('studio:auth:login', { user, event })
+
   return {
     ...payload,
     id: session.id!,
@@ -75,10 +78,16 @@ export async function clearStudioUserSession(event: H3Event) {
     password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
   })
 
+  const user = session.data.user as StudioUser | undefined
+
   await session.clear()
 
   // Delete the cookie to indicate that the session is inactive
   deleteCookie(event, 'studio-session-check')
+
+  if (user) {
+    await useNitroApp().hooks.callHook('studio:auth:logout', { user, event })
+  }
 
   return { loggedOut: true }
 }
