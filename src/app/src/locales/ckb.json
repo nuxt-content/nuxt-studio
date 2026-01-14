@@ -1,0 +1,338 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "دەستکاریکردنی ئەم پەڕەیە",
+      "retryPublish": "دووبارە هەوڵدانەوە بۆ بڵاوکردنەوە",
+      "reloadApp": "دووبارە بارکردنەوەی ئەپڵیکەیشن",
+      "reload": "دووبارە بارکردنەوە",
+      "signOut": "چوونە دەرەوە",
+      "review": "پێداچوونەوە",
+      "publish": "بڵاوکردنەوە",
+      "back": "گەڕانەوە",
+      "backToEdition": "گەڕانەوە بۆ دەستکاریکردن",
+      "seeChanges": "بینینی گۆڕانکارییەکان"
+    },
+    "headings": {
+      "directories": "بوخچەکان",
+      "files": "پەڕگەکان",
+      "media": "میدیا",
+      "pageSettings": "ڕێکخستنەکانی پەڕە"
+    },
+    "tooltips": {
+      "toggleStudio": "گۆڕینی ستۆدیۆ",
+      "unlinkEditor": "لێکجیاکردنەوەی دەستکاریکەر و پێشبینین",
+      "linkEditor": "بەستنەوەی دەستکاریکەر و پێشبینین",
+      "copiedToClipboard": "لە تەختەکلیل لەبەرگیرایەوە",
+      "copyToClipboard": "لەبەرگرتنەوە بۆ تەختەکلیل",
+      "publishChanges": "بڵاوکردنەوەی گۆڕانکارییەکان",
+      "backToContent": "گەڕانەوە بۆ ناوەڕۆک"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "هەڵەیەکی نەزانراو ڕوویدا"
+      }
+    },
+    "publish": {
+      "failedTitle": "بڵاوکردنەوە سەرکەوتوو نەبوو",
+      "summary": "لەسەر لقی {branch} لە کۆگای {repo}",
+      "errorTitle": "هەڵە لە کاتی بڵاوکردنەوەی {providerName}",
+      "failedGeneric": "بڵاوکردنەوەی گۆڕانکارییەکان سەرکەوتوو نەبوو"
+    },
+    "review": {
+      "title": "پێداچوونەوەی گۆڕانکارییەکان",
+      "created": "دروستکرا",
+      "updated": "نوێکرایەوە",
+      "renamed": "ناوەکەی گۆڕدرا",
+      "deleted": "سڕایەوە"
+    },
+    "publishSuccess": {
+      "title": "گۆڕانکارییەکان بڵاوکرانەوە",
+      "summary": "{count} گۆڕانکاری بڵاوکرایەوە لەسەر لقی {branch} لە کۆگای {repo} | {count} گۆڕانکاری بڵاوکرانەوە لەسەر لقی {branch} لە کۆگای {repo}",
+      "alertTitleWaiting": "چاوەڕێی جێگیرکردنە (deployment)...",
+      "alertTitleComplete": "جێگیرکردن تەواو بوو",
+      "alertDescWaiting": "پێویستە ماڵپەڕەکە جێگیر بکرێت بۆ ئەوەی گۆڕانکارییەکان لە ستۆدیۆدا ببینرێن.",
+      "alertDescComplete": "وەشانێکی نوێی ماڵپەڕەکەت جێگیرکراوە. تکایە ئەپەکەت نوێ بکەرەوە بۆ بینینی گۆڕانکارییەکان لە ستۆدیۆدا."
+    },
+    "newVersionBanner": {
+      "title": "وەشانێکی نوێی ماڵپەڕ دۆزرایەوە",
+      "description": "وەشانێکی نوێی ماڵپەڕەکەت جێگیرکراوە. ئەپەکە دووبارە بار بکەرەوە بۆ بینینی دوایین گۆڕانکارییەکان.",
+      "reloadButton": "دووبارە بارکردنەوە"
+    },
+    "footer": {
+      "developer_view": "دیمەنی گەشەپێدەر",
+      "localFilesystem": "بەکارهێنانی سیستەمی پەڕگەی ناوخۆیی",
+      "debugMode": "دۆخی دیباگ (Debug Mode)"
+    },
+    "alert": {
+      "mdcFormatting": "فۆرماتکردن جێبەجێ کرا بۆ گونجاندن لەگەڵ ستانداردی سینتاکسی MDC."
+    },
+    "conflict": {
+      "title": "بەریەککەوتن (Conflict) دۆزرایەوە",
+      "repository": "کۆگا (Repository)",
+      "branch": "لق (Branch)",
+      "file": "پەڕگە",
+      "description": "ناوەڕۆکی سەر {providerName} جیاوازە لە وەشانی ماڵپەڕەکەت. دڵنیابە لەوەی دوایین گۆڕانکارییەکانت جێگیرکراون و پەڕەکە نوێ بکەرەوە.",
+      "websiteVersion": "ماڵپەڕ"
+    },
+    "nav": {
+      "content": "ناوەڕۆک",
+      "media": "میدیا"
+    },
+    "placeholders": {
+      "commitMessage": "پەیامی کۆمیت (Commit message)",
+      "order": "ژمارە",
+      "fileName": "ناوی پەڕگە"
+    },
+    "validation": {
+      "commitRequired": "پەیامی کۆمیت پێویستە",
+      "nameEmpty": "ناو نابێت بەتاڵ بێت",
+      "nameEndsWithDot": "ناو نابێت بە '.' کۆتایی بێت",
+      "nameStartsWithSlash": "ناو نابێت بە '/' دەست پێ بکات",
+      "nameExists": "ئەم ناوە پێشتر هەیە",
+      "prefixDigitsOnly": "پێشگر دەبێت تەنها لە ژمارە پێکبێت",
+      "prefixNonNegativeInteger": "پێشگر دەبێت ژمارەیەکی تەواوی نەرێنی نەبێت"
+    },
+    "media": {
+      "altFilePreview": "پێشبینینی پەڕگە",
+      "altImagePreview": "پێشبینینی وێنە",
+      "playAudio": "لێدانی دەنگ",
+      "audioTagNotSupported": "وێبگەڕەکەت پشتگیری تاگی دەنگ ناکات.",
+      "playVideo": "لێدانی ڤیدیۆ",
+      "videoTagNotSupported": "وێبگەڕەکەت پشتگیری تاگی ڤیدیۆ ناکات.",
+      "metaWidth": "پانی",
+      "metaHeight": "بەرزی",
+      "metaType": "جۆر",
+      "metaDuration": "ماوە",
+      "metaSize": "قەبارە",
+      "fileName": "ناوی پەڕگە",
+      "publicPath": "ڕێڕەوی گشتی",
+      "providerPath": "ڕێڕەوی {providerName}",
+      "markdown": "مارکداون (Markdown)"
+    },
+    "aria": {
+      "openActions": "کردنەوەی کردارەکان",
+      "cancel": "پاشگەزبوونەوە",
+      "submit": "ناردن"
+    },
+    "actions": {
+      "confirmAction": "دووبارە کلیک بکەرەوە بۆ {action}",
+      "verbs": {
+        "create": "دروستکردن",
+        "delete": "سڕینەوە",
+        "rename": "گۆڕینی ناو",
+        "upload": "بارکردن",
+        "duplicate": "دووبارەکردنەوە"
+      },
+      "labels": {
+        "createDocument": "پەڕگەی نوێ",
+        "createDocumentFolder": "بوخچەی نوێ",
+        "createMediaFolder": "بوخچەی میدیای نوێ",
+        "renameItem": "گۆڕینی ناو",
+        "deleteItem": "سڕینەوە",
+        "uploadMedia": "بارکردنی میدیا",
+        "duplicateItem": "دووبارەکردنەوە",
+        "revertItem": "گەڕاندنەوەی گۆڕانکارییەکان",
+        "publishBranch": "بڵاوکردنەوەی لق",
+        "openGitProvider": "کردنەوە لەسەر {providerName}",
+        "switchToTipTap": "بەکارهێنانی دەستکاریکەری بینراو",
+        "switchToCode": "بەکارهێنانی دەستکاریکەری کۆد"
+      },
+      "tooltips": {
+        "createDocument": "دروستکردنی پەڕگەی نوێ",
+        "createDocumentFolder": "دروستکردنی بوخچەی نوێ",
+        "createMediaFolder": "دروستکردنی بوخچەی نوێ",
+        "renameItem": "گۆڕینی ناوی پەڕگە",
+        "deleteItem": "سڕینەوەی پەڕگە",
+        "uploadMedia": "بارکردنی میدیا",
+        "duplicateItem": "دووبارەکردنەوەی پەڕگە",
+        "revertItem": "گەڕاندنەوەی گۆڕانکارییەکان",
+        "publishBranch": "بڵاوکردنەوەی لق"
+      }
+    },
+    "items": {
+      "itemCount": "١ بڕگە | {count} بڕگە"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "سەردێڕی ١",
+        "h2": "سەردێڕی ٢",
+        "h3": "سەردێڕی ٣"
+      },
+      "styles": {
+        "bold": "تۆخ",
+        "italic": "لار"
+      },
+      "lists": {
+        "bulleted": "لیستی خاڵبەندی",
+        "numbered": "لیستی ژمارەیی"
+      },
+      "other": {
+        "emojis": "ئیمۆجییەکان",
+        "blockquote": "وتە",
+        "code": "کۆد",
+        "inlineCode": "کۆدی ناو هێڵ",
+        "link": "بەستەر",
+        "image": "وێنە"
+      },
+      "writeSomething": "شتێک بنووسە",
+      "snippets": {
+        "title": "ناونیشان",
+        "item1": "بڕگەی ١",
+        "item2": "بڕگەی ٢",
+        "language": "زمان",
+        "code": "کۆد",
+        "link": "بەستەر",
+        "alt": "دەقی جێگرەوە (alt)",
+        "src": "سەرچاوە (src)",
+        "value": "بەها"
+      },
+      "docs": {
+        "path": "ڕێڕەو لە پڕۆژەکەدا:",
+        "props": "تایبەتمەندییەکان (Props)",
+        "slots": "شوێنەکان (Slots)",
+        "type": "جۆر",
+        "required": "پێویستە",
+        "default": "بنەڕەتی"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "بنووسە، '/' دابگرە بۆ فەرمانەکان...",
+        "components": "پێکهاتەکان"
+      },
+      "toolbar": {
+        "h1": "سەردێڕی ١",
+        "h2": "سەردێڕی ٢",
+        "h3": "سەردێڕی ٣",
+        "h4": "سەردێڕی ٤",
+        "bulletList": "لیستی خاڵبەندی",
+        "orderedList": "لیستی ڕیزبەندی",
+        "blockquote": "وتە",
+        "codeBlock": "بلۆکی کۆد",
+        "bold": "تۆخ",
+        "italic": "لار",
+        "strike": "هێڵ بەسەرداهاتوو",
+        "code": "کۆد",
+        "headings": "سەردێڕەکان"
+      },
+      "suggestion": {
+        "style": "شێواز",
+        "paragraph": "پەرەگراف",
+        "insert": "تێخستن",
+        "image": "وێنە",
+        "video": "ڤیدیۆ",
+        "horizontalRule": "هێڵی ئاسۆیی"
+      },
+      "drag": {
+        "turnInto": "گۆڕین بۆ",
+        "resetFormatting": "ڕێکخستنەوەی فۆرمات",
+        "duplicate": "دووبارەکردنەوە",
+        "copyToClipboard": "لەبەرگرتنەوە بۆ تەختەکلیل",
+        "moveUp": "جووڵاندن بۆ سەرەوە",
+        "moveDown": "جووڵاندن بۆ خوارەوە",
+        "insertBefore": "تێخستن لە پێش",
+        "insertAfter": "تێخستن لە پاش",
+        "delete": "سڕینەوە"
+      },
+      "element": {
+        "addSlot": "زیادکردنی شوێن (slot)",
+        "editProps": "دەستکاریکردنی تایبەتمەندییەکان",
+        "delete": "سڕینەوە",
+        "prop": "تایبەتمەندی",
+        "props": {
+          "label": "تایبەتمەندییەکان",
+          "itemsCount": "{count} بڕگە | {count} بڕگە",
+          "fieldsCount": "{count} خانە | {count} خانە",
+          "edit": "دەستکاریکردنی {type}"
+        }
+      },
+      "slot": {
+        "searchPlaceholder": "گەڕان یان دروستکردنی شوێنێک...",
+        "deleteSlot": "سڕینەوەی شوێن",
+        "noSlotsAvailable": "هیچ شوێنێکی پێشوەختە دیاریکراو نییە"
+      },
+      "inlineElement": {
+        "editContent": "دەستکاریکردنی ناوەڕۆک",
+        "editProps": "دەستکاریکردنی تایبەتمەندییەکان",
+        "delete": "سڕینەوە",
+        "editContentLabel": "دەستکاریکردنی ناوەڕۆکی {name}",
+        "enterContentPlaceholder": "ناوەڕۆک بنووسە...",
+        "apply": "جێبەجێکردن"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filename.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "بەستەرێک لێرە دابنێ...",
+        "applyLink": "جێبەجێکردنی بەستەر",
+        "openInNewWindow": "کردنەوە لە پەنجەرەیەکی نوێدا",
+        "removeLink": "سڕینەوەی بەستەر"
+      },
+      "spanStyle": {
+        "label": "شێوازی Span",
+        "stylePlaceholder": "شێوازەکان: بۆ نموونە color: tomato; font-weight: 600;",
+        "classPlaceholder": "پۆلەکان: بە بۆشایی جیاکراونەتەوە",
+        "apply": "جێبەجێکردن",
+        "remove": "سڕینەوە"
+      },
+      "binding": {
+        "variablePlaceholder": "ناوی گۆڕاو (Variable)",
+        "defaultValuePlaceholder": "بەهای بنەڕەتی"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "هەڵبژاردنی وێنە",
+        "description": "وێنەیەک لە کتێبخانەی میدیاکەت هەڵبژێرە",
+        "notAvailable": "هیچ وێنەیەک لە کتێبخانەی میدیاکەتدا نییە",
+        "upload": "بارکردن"
+      },
+      "video": {
+        "title": "هەڵبژاردنی ڤیدیۆ",
+        "description": "ڤیدیۆیەک لە کتێبخانەی میدیاکەت هەڵبژێرە",
+        "notAvailable": "هیچ ڤیدیۆیەک لە کتێبخانەی میدیاکەتدا نییە",
+        "upload": "بارکردن"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "زیادکردنی {label}",
+        "deleteItem": "سڕینەوەی بڕگە",
+        "editItem": "دەستکاریکردنی بڕگە",
+        "unsupportedType": "جۆری ئارای (Array) {type} پشتگیری ناکرێت"
+      },
+      "object": {
+        "noProperties": "هیچ تایبەتمەندییەک دیاری نەکراوە",
+        "enterPlaceholder": "{field} بنووسە..."
+      },
+      "section": {
+        "propertyCount": "١ تایبەتمەندی | {count} تایبەتمەندی"
+      },
+      "media": {
+        "placeholder": "ڕێڕەوی ڕێژەیی یان بەستەری گشتی بنووسە...",
+        "searchPlaceholder": "گەڕان بۆ وێنەکان...",
+        "noImagesFound": "هیچ وێنەیەک نەدۆزرایەوە",
+        "noImagesAvailable": "هیچ وێنەیەک بەردەست نییە",
+        "imageCount": "{count} لە {total} وێنە | {count} لە {total} وێنە"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "گەڕان بۆ ئایکۆنەکان...",
+        "noIconsFound": "هیچ ئایکۆنێک نەدۆزرایەوە",
+        "searchHint": "بۆ گەڕان لانی کەم ٢ پیت بنووسە",
+        "libraries": "کتێبخانەکان:",
+        "allLibraries": "هەمووی"
+      },
+      "text": {
+        "placeholder": "دەق بنووسە...",
+        "selectPlaceholder": "هەڵبژاردەیەک هەڵبژێرە..."
+      },
+      "date": {
+        "selectDate": "بەروارێک هەڵبژێرە"
+      },
+      "number": {
+        "placeholder": "٠"
+      }
+    }
+  }
+}
