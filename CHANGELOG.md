@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.1.0](https://github.com/nuxt-content/studio/compare/v1.0.0...v1.1.0) (2026-01-14)
+
+### Features
+
+* ** editor:** add textarea input in form editor ([#264](https://github.com/nuxt-content/studio/issues/264)) ([d20a7c4](https://github.com/nuxt-content/studio/commit/d20a7c456f6e9bb05dcf91f6d790a8d2eb294f9d))
+* **auth:** add login and logout server runtime hooks ([#263](https://github.com/nuxt-content/studio/issues/263)) ([3b98f54](https://github.com/nuxt-content/studio/commit/3b98f54e892df2e3de47ad9a0b0cd4a9a5f9bf0e))
+* **editor:** support datetime input + fix date input ([#234](https://github.com/nuxt-content/studio/issues/234)) ([67f659c](https://github.com/nuxt-content/studio/commit/67f659cff12757f2e4c424a1a60b49674bb21d8e))
+* **form:** detect potential media/icon selection + improve object inputs ([#255](https://github.com/nuxt-content/studio/issues/255)) ([de38ed8](https://github.com/nuxt-content/studio/commit/de38ed8353827939e1d54ccb67917f276fa1e3dd))
+* **frontmatter:** remove hidden fields before passing document to studio editor ([#254](https://github.com/nuxt-content/studio/issues/254)) ([b0f0827](https://github.com/nuxt-content/studio/commit/b0f08270fed24307ed3a234fae910bdf4a328306))
+* **i18n:** add Kurdish (ckb) locale ([#270](https://github.com/nuxt-content/studio/issues/270)) ([ac15b8c](https://github.com/nuxt-content/studio/commit/ac15b8c00239be8f0d7e2c3ff1de0613ac84fbbd))
+* **i18n:** add Vietnamese (vi) locale ([#256](https://github.com/nuxt-content/studio/issues/256)) ([399e465](https://github.com/nuxt-content/studio/commit/399e465edeba67156b19d61296e1e8f853380034))
+* **meta:** add component filtering in editor ([#260](https://github.com/nuxt-content/studio/issues/260)) ([185ab76](https://github.com/nuxt-content/studio/commit/185ab76b1809c402ff2b2b422d01776839adcb0f))
+* **tiptap:** add insertion actions to drag actions ([#246](https://github.com/nuxt-content/studio/issues/246)) ([c33a2dd](https://github.com/nuxt-content/studio/commit/c33a2dde6601a5cd7e03412f24f1abc88c5f8c62))
+
+### Bug Fixes
+
+* **app:** reduce z-index to let other modal show over it ([#238](https://github.com/nuxt-content/studio/issues/238)) ([a740855](https://github.com/nuxt-content/studio/commit/a740855cc04afa71d6909dea51e78404859af121))
+* **collection:** handle collection prefix ([#242](https://github.com/nuxt-content/studio/issues/242)) ([d09d54e](https://github.com/nuxt-content/studio/commit/d09d54e1295a97f6232fbcaf38b0a369234a5419))
+* **document:** respect `contentHeading` option ([#215](https://github.com/nuxt-content/studio/issues/215)) ([ca79f02](https://github.com/nuxt-content/studio/commit/ca79f028d52666726ee16f6b4972641721da8d17))
+* **form:** arrays edition ([#257](https://github.com/nuxt-content/studio/issues/257)) ([e10ed37](https://github.com/nuxt-content/studio/commit/e10ed37c95a14123cdc0cb546fc70d6a83eabcb7))
+* **itemCardForm:** slugify file path ([#228](https://github.com/nuxt-content/studio/issues/228)) ([830fc03](https://github.com/nuxt-content/studio/commit/830fc03ec9a69d5c9b695d33d9302556dbf2a49a))
+* **tiptapToMdc:** unwrap paragraphs inside slot ([#247](https://github.com/nuxt-content/studio/issues/247)) ([a7a0d92](https://github.com/nuxt-content/studio/commit/a7a0d929e6a2076cceb9acb77d886d5662f124af))
+
 ## [1.0.0](https://github.com/nuxt-content/studio/compare/v1.0.0-beta.3...v1.0.0) (2026-01-05)
 
 ### Features
