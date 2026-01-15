@@ -16,29 +16,30 @@ const tagToMark: Record<string, string> = {
 
 const mdcToTiptapMap: MDCToTipTapMap = {
   ...Object.fromEntries(Object.entries(tagToMark).map(([key, value]) => [key, node => createMark(node as MDCNode, value)])),
-  root: node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
-  text: node => createTextNode(node as MDCText),
-  comment: node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
-  img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
+  'root': node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
+  'text': node => createTextNode(node as MDCText),
+  'comment': node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
+  'img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-picture': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
-  video: node => createTipTapNode(node as MDCElement, 'video'),
-  template: node => createTemplateNode(node as MDCElement),
-  pre: node => createPreNode(node as MDCElement),
-  p: node => createParagraphNode(node as MDCElement),
-  span: node => createSpanStyleNode(node as MDCElement),
-  h1: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
-  h2: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
-  h3: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
-  h4: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 4 } }),
-  h5: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 5 } }),
-  h6: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 6 } }),
-  ul: node => createTipTapNode(node as MDCElement, 'bulletList'),
-  ol: node => createTipTapNode(node as MDCElement, 'orderedList', { attrs: { start: (node as MDCElement).props?.start } }),
-  li: node => createTipTapNode(node as MDCElement, 'listItem', { children: [{ type: 'element', tag: 'p', children: (node as MDCElement).children }] }),
-  blockquote: node => createTipTapNode(node as MDCElement, 'blockquote'),
-  binding: node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
-  hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
+  'video': node => createTipTapNode(node as MDCElement, 'video'),
+  'u-page-hero': node => createUPageHeroNode(node as MDCElement),
+  'template': node => createTemplateNode(node as MDCElement),
+  'pre': node => createPreNode(node as MDCElement),
+  'p': node => createParagraphNode(node as MDCElement),
+  'span': node => createSpanStyleNode(node as MDCElement),
+  'h1': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
+  'h2': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
+  'h3': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
+  'h4': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 4 } }),
+  'h5': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 5 } }),
+  'h6': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 6 } }),
+  'ul': node => createTipTapNode(node as MDCElement, 'bulletList'),
+  'ol': node => createTipTapNode(node as MDCElement, 'orderedList', { attrs: { start: (node as MDCElement).props?.start } }),
+  'li': node => createTipTapNode(node as MDCElement, 'listItem', { children: [{ type: 'element', tag: 'p', children: (node as MDCElement).children }] }),
+  'blockquote': node => createTipTapNode(node as MDCElement, 'blockquote'),
+  'binding': node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
+  'hr': node => createTipTapNode(node as MDCElement, 'horizontalRule'),
 }
 
 export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
@@ -208,6 +209,55 @@ function createTipTapNode(node: MDCElement, type: string, extra: Record<string, 
   }
 
   return tiptapNode
+}
+
+function createUPageHeroNode(node: MDCElement) {
+  const props = node.props || {}
+
+  // Convert template children to slot nodes
+  const slotChildren: JSONContent[] = []
+
+  node.children?.forEach((child: MDCNode) => {
+    if (child.type === 'element' && child.tag === 'template') {
+      const slotName = Object.keys(child.props || {})
+        .find(prop => prop?.startsWith('v-slot:'))
+        ?.replace('v-slot:', '') || 'default'
+
+      // Convert slot content to tiptap nodes
+      const slotContent = (child.children || []).flatMap((c: MDCNode) => mdcNodeToTiptap(c, child as MDCNode))
+
+      // Wrap text children in paragraph if needed
+      const wrappedContent = slotContent.length > 0 && slotContent[0]?.type !== 'paragraph' && slotContent[0]?.type !== 'element'
+        ? [{ type: 'paragraph', content: slotContent }]
+        : (slotContent.length === 0 ? [{ type: 'paragraph', content: [] }] : slotContent)
+
+      slotChildren.push({
+        type: 'slot',
+        attrs: { name: slotName },
+        content: wrappedContent,
+      })
+    }
+  })
+
+  // Ensure we have all required slots
+  const requiredSlots = ['headline', 'title', 'description', 'links']
+  const existingSlotNames = slotChildren.map(s => s.attrs?.name)
+
+  requiredSlots.forEach((slotName) => {
+    if (!existingSlotNames.includes(slotName)) {
+      slotChildren.push({
+        type: 'slot',
+        attrs: { name: slotName },
+        content: [{ type: 'paragraph', content: [] }],
+      })
+    }
+  })
+
+  return {
+    type: 'u-page-hero',
+    attrs: { props },
+    content: slotChildren,
+  }
 }
 
 function createTemplateNode(node: MDCElement) {

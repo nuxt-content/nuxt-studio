@@ -47,6 +47,7 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'codeBlock': (node: JSONContent) => createCodeBlockElement(node),
   'image': (node: JSONContent) => createImageElement(node),
   'video': (node: JSONContent) => createElement(node, 'video'),
+  'u-page-hero': (node: JSONContent) => createUPageHeroElement(node),
   'binding': (node: JSONContent) => {
     const defaultValue = (node.attrs as Record<string, unknown> | undefined)?.defaultValue as string
     const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
@@ -300,6 +301,49 @@ function createImageElement(node: JSONContent): MDCElement {
   }
   else {
     return createElement(node, 'img', { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
+  }
+}
+
+function createUPageHeroElement(node: JSONContent): MDCElement {
+  const props = node.attrs?.props || {}
+
+  // Convert slot children back to template elements
+  const children: MDCElement[] = []
+
+  node.content?.forEach((slotNode: JSONContent) => {
+    if (slotNode.type === 'slot') {
+      const slotName = slotNode.attrs?.name || 'default'
+
+      // Convert slot content back to MDC
+      const slotChildren = (slotNode.content || [])
+        .flatMap(c => tiptapNodeToMDC(c))
+        .filter((c): c is MDCElement | MDCText => c.type !== 'root')
+
+      // Check if slot has meaningful content (not just an empty paragraph)
+      const hasContent = slotChildren.length > 0 && !(
+        slotChildren.length === 1
+        && slotChildren[0].type === 'element'
+        && (slotChildren[0] as MDCElement).tag === 'p'
+        && (!((slotChildren[0] as MDCElement).children) || (slotChildren[0] as MDCElement).children!.length === 0)
+      )
+
+      // Only add slot if it has meaningful content
+      if (hasContent) {
+        children.push({
+          type: 'element',
+          tag: 'template',
+          props: { [`v-slot:${slotName}`]: '' },
+          children: slotChildren,
+        })
+      }
+    }
+  })
+
+  return {
+    type: 'element',
+    tag: 'u-page-hero',
+    props,
+    children,
   }
 }
 

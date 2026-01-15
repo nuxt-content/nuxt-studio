@@ -126,6 +126,7 @@ export const standardNuxtUIComponents: Record<string, { name: string, icon: stri
   'accordion-item': { name: 'Accordion Item', icon: 'i-lucide-minus' },
   'badge': { name: 'Badge', icon: 'i-lucide-tag' },
   'callout': { name: 'Callout', icon: 'i-lucide-message-square' },
+  'u-page-hero': { name: 'Page Hero', icon: 'i-lucide-layout-template' },
   'card': { name: 'Card', icon: 'i-lucide-square' },
   'card-group': { name: 'Card Group', icon: 'i-lucide-braces' },
   'code-collapse': { name: 'Code Collapse', icon: 'i-lucide-unfold-vertical' },
