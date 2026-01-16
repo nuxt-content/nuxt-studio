@@ -61,47 +61,73 @@ const shouldRenderComponent = computed(() => {
   return editingSlotName.value === slotName.value
 })
 
-// Function to focus a different slot
-function focusSlot(targetSlotName: string) {
-  if (targetSlotName === slotName.value) return
+// Define all available slots with their metadata
+// TODO: This can be dynamic and fetched from the component meta
+const SLOT_CONFIG = [
+  { name: 'headline', label: 'Headline' },
+  { name: 'title', label: 'Title' },
+  { name: 'description', label: 'Description' },
+  { name: 'links', label: 'Links' },
+] as const
 
+// Helper to get parent node and position info
+function getParentInfo() {
   const pos = nodeProps.getPos()
-  if (typeof pos === 'undefined') return
+  if (typeof pos === 'undefined') return null
 
   const $pos = nodeProps.editor.state.doc.resolve(pos)
-  const parentNode = $pos.parent
+  return {
+    $pos,
+    parentNode: $pos.parent,
+    startPos: $pos.before() + 1,
+  }
+}
 
-  // Find the absolute position of the target slot
-  let currentPos = $pos.before() + 1 // Start of parent's content
+// Find the position of a specific slot or where to insert it
+function findSlotPosition(targetSlotName: string) {
+  const info = getParentInfo()
+  if (!info) return null
+
+  const { parentNode, startPos } = info
+  const slotOrder = SLOT_CONFIG.map(s => s.name) as unknown as string[]
+  const targetIndex = slotOrder.indexOf(targetSlotName)
+
+  let currentPos = startPos
 
   for (let i = 0; i < parentNode.content.childCount; i++) {
     const child = parentNode.content.child(i)
 
-    if (child.type.name === 'slot' && child.attrs.name === targetSlotName) {
-      // Found the target slot, need to find a text position inside it
-      // Skip past the slot node itself (currentPos + 1)
-      // Then skip past the first child block node (e.g., paragraph) to get to text position
-      const textPos = currentPos + 2 // slot start + 1 + block node start + 1
+    if (child.type.name === 'slot') {
+      const childSlotName = child.attrs.name || 'default'
 
-      nodeProps.editor.commands.setTextSelection(textPos)
-      nodeProps.editor.commands.focus()
-      return
+      // Found the exact slot we're looking for
+      if (childSlotName === targetSlotName) {
+        return { pos: currentPos, exists: true }
+      }
+
+      // For insertion: found a slot that should come after our target
+      const childIndex = slotOrder.indexOf(childSlotName)
+      if (childIndex > targetIndex) {
+        return { pos: currentPos, exists: false }
+      }
     }
 
-    // Move to next child
     currentPos += child.nodeSize
   }
+
+  // Slot doesn't exist and should be inserted at the end
+  return { pos: currentPos, exists: false }
 }
 
 // Get all slots content from parent for display
 const slots = computed(() => {
-  const slotMap: Record<string, { content: string, isEmpty: boolean }> = {
-    headline: { content: '', isEmpty: true },
-    title: { content: '', isEmpty: true },
-    description: { content: '', isEmpty: true },
-    links: { content: '', isEmpty: true },
-  }
+  // Initialize slot map with all configured slots as empty
+  const slotMap: Record<string, { content: string, isEmpty: boolean, exists: boolean }> = {}
+  SLOT_CONFIG.forEach((slot) => {
+    slotMap[slot.name] = { content: '', isEmpty: true, exists: false }
+  })
 
+  // Update slot map with actual content from document
   const content = parent.value?.content?.content || []
   content.forEach((child: unknown) => {
     if (typeof child === 'object' && child !== null && 'type' in child) {
@@ -112,6 +138,7 @@ const slots = computed(() => {
         slotMap[name] = {
           content: textContent,
           isEmpty: !textContent.trim(),
+          exists: true,
         }
       }
     }
@@ -119,6 +146,65 @@ const slots = computed(() => {
 
   return slotMap
 })
+
+// Function to handle slot click (create or focus)
+function handleSlotClick(slotName: string) {
+  if (slots.value[slotName]?.exists) {
+    focusSlot(slotName)
+  }
+  else {
+    createSlot(slotName)
+  }
+}
+
+// Function to focus a different slot
+function focusSlot(targetSlotName: string, cachedPosition?: number) {
+  if (targetSlotName === slotName.value) return
+
+  let slotPos: number
+
+  // Use cached position if provided, otherwise find it
+  if (cachedPosition !== undefined) {
+    slotPos = cachedPosition
+  }
+  else {
+    const foundPos = findSlotPosition(targetSlotName)
+    if (!foundPos || !foundPos.exists) return
+    slotPos = foundPos.pos
+  }
+
+  // Calculate text position inside the slot
+  // +1 to enter slot node, +1 to enter first child block (paragraph)
+  const textPos = slotPos + 2
+
+  nodeProps.editor.commands.setTextSelection(textPos)
+  nodeProps.editor.commands.focus()
+}
+
+// Function to create a missing slot
+function createSlot(slotName: string) {
+  const slotPos = findSlotPosition(slotName)
+  if (!slotPos || slotPos.exists) return
+
+  // Create the new slot node
+  const newSlot = {
+    type: 'slot',
+    attrs: { name: slotName },
+    content: [{ type: 'paragraph', content: [] }],
+  }
+
+  // Insert the slot and focus it
+  nodeProps.editor.commands.command(({ tr }) => {
+    tr.insert(slotPos.pos, nodeProps.editor.schema.nodeFromJSON(newSlot)!)
+    return true
+  })
+
+  // Focus the new slot after a short delay to let it render
+  // Pass the cached position to avoid recalculating
+  setTimeout(() => {
+    focusSlot(slotName, slotPos.pos)
+  }, 10)
+}
 </script>
 
 <template>
@@ -134,83 +220,30 @@ const slots = computed(() => {
       </div>
 
       <UPageHero v-bind="componentProps">
-        <template #headline>
+        <template
+          v-for="slot in SLOT_CONFIG"
+          :key="slot.name"
+          #[slot.name]
+        >
+          <!-- Editable slot: render NodeViewContent -->
           <div
-            v-if="slotName === 'headline'"
+            v-if="slotName === slot.name"
             class="min-h-[40px]"
           >
             <NodeViewContent />
           </div>
-          <div
-            v-else
-            class="cursor-pointer hover:bg-primary/5 rounded-lg p-2 transition-colors"
-            @click="focusSlot('headline')"
-          >
-            <span
-              v-if="slots.headline.isEmpty"
-              class="opacity-40 italic"
-            >Headline</span>
-            <span v-else>{{ slots.headline.content }}</span>
-          </div>
-        </template>
 
-        <template #title>
-          <div
-            v-if="slotName === 'title'"
-            class="min-h-[40px]"
-          >
-            <NodeViewContent />
-          </div>
+          <!-- Non-editable slot: render preview with click handler -->
           <div
             v-else
             class="cursor-pointer hover:bg-primary/5 rounded-lg p-2 transition-colors"
-            @click="focusSlot('title')"
+            @click="handleSlotClick(slot.name)"
           >
             <span
-              v-if="slots.title.isEmpty"
+              v-if="slots[slot.name].isEmpty"
               class="opacity-40 italic"
-            >Title</span>
-            <span v-else>{{ slots.title.content }}</span>
-          </div>
-        </template>
-
-        <template #description>
-          <div
-            v-if="slotName === 'description'"
-            class="min-h-[40px]"
-          >
-            <NodeViewContent />
-          </div>
-          <div
-            v-else
-            class="cursor-pointer hover:bg-primary/5 rounded-lg p-2 transition-colors"
-            @click="focusSlot('description')"
-          >
-            <span
-              v-if="slots.description.isEmpty"
-              class="opacity-40 italic"
-            >Description</span>
-            <span v-else>{{ slots.description.content }}</span>
-          </div>
-        </template>
-
-        <template #links>
-          <div
-            v-if="slotName === 'links'"
-            class="min-h-[40px]"
-          >
-            <NodeViewContent />
-          </div>
-          <div
-            v-else
-            class="cursor-pointer hover:bg-primary/5 rounded-lg p-2 transition-colors"
-            @click="focusSlot('links')"
-          >
-            <span
-              v-if="slots.links.isEmpty"
-              class="opacity-40 italic"
-            >Links</span>
-            <span v-else>{{ slots.links.content }}</span>
+            >{{ slot.label }}</span>
+            <span v-else>{{ slots[slot.name].content }}</span>
           </div>
         </template>
       </UPageHero>
