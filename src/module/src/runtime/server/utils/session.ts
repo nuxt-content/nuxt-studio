@@ -62,7 +62,7 @@ export async function setInternalStudioUserSession(event: H3Event, user: StudioU
   await session.update(payload)
 
   // Set a cookie to indicate that the session is active for the client runtime
-  setCookie(event, 'studio-session-check', 'true', { httpOnly: false })
+  setCookie(event, 'studio-session-check', 'true', { httpOnly: false, path: '/' })
 
   await useNitroApp().hooks.callHook('studio:auth:login', { user, event })
 
