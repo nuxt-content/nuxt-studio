@@ -209,16 +209,7 @@ function createSlot(slotName: string) {
 
 <template>
   <NodeViewWrapper as="div">
-    <div
-      class="relative group"
-      :class="{ hidden: !shouldRenderComponent }"
-    >
-      <!-- Hover border with component name -->
-      <div class="opacity-0 group-hover:opacity-150 transition-opacity absolute inset-0 border-2 border-dashed border-muted rounded-lg pointer-events-none" />
-      <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-3 left-2 bg-white px-2 text-xs font-medium text-muted z-10">
-        UPageHero
-      </div>
-
+    <div :class="{ hidden: !shouldRenderComponent }">
       <UPageHero v-bind="componentProps">
         <template
           v-for="slot in SLOT_CONFIG"
