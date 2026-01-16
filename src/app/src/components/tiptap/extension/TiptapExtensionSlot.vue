@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { useStudio } from '../../../composables/useStudio'
 
@@ -12,7 +12,6 @@ const nodeViewContentEl = ref<HTMLElement>()
 
 const isHovered = ref(false)
 const isEditable = ref(true) // TODO: Connect to editor state
-const isVisible = ref(true)
 
 const slotName = computed({
   get: () => nodeProps.node.attrs.name || 'default',
@@ -36,41 +35,6 @@ const showSlotSelection = computed(() => slots.value.length > 1)
 const availableSlots = computed(() => slots.value.map(s => s.name))
 const isLastRemainingSlot = computed(() => parent.value?.childCount === 1)
 
-// Check visibility on mount
-onMounted(() => {
-  const checkVisibility = () => {
-    console.log('parent', parent.value)
-    const isUPageHero = parent.value?.type.name === 'u-page-hero'
-    console.log('isUPageHero', isUPageHero)
-    if (!isUPageHero) {
-      isVisible.value = true
-      return
-    }
-
-    const editingSlot = parent.value?.attrs.editingSlot
-    console.log('editingSlot', editingSlot)
-    if (!editingSlot) {
-      isVisible.value = true
-      return
-    }
-
-    isVisible.value = slotName.value === editingSlot
-    console.log('isVisible', isVisible.value)
-  }
-
-  checkVisibility()
-
-  // Listen to editor updates to recheck visibility
-  const handler = () => {
-    checkVisibility()
-  }
-  nodeProps.editor.on('update', handler)
-
-  onBeforeUnmount(() => {
-    nodeProps.editor.off('update', handler)
-  })
-})
-
 function deleteSlot() {
   nodeProps.editor.commands.command(({ tr }) => {
     const pos = nodeProps.getPos()
@@ -84,10 +48,7 @@ function deleteSlot() {
 
 <template>
   <NodeViewWrapper as="div">
-    <div
-      class="my-2"
-      :class="{ hidden: !isVisible }"
-    >
+    <div class="my-2">
       <div
         v-if="showSlotSelection"
         class="flex items-center gap-2 mb-2 group"

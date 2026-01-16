@@ -118,8 +118,6 @@ const componentItems = computed(() => {
   }))
 })
 
-console.log(componentItems.value)
-
 const customHandlers = computed(() => ({
   'image': {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),

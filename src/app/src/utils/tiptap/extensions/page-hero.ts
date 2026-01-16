@@ -37,10 +37,6 @@ export const UPageHero = Node.create<UPageHeroOptions>({
         },
         default: {},
       },
-      editingSlot: {
-        default: null,
-        rendered: false,
-      },
     }
   },
 
