@@ -1,4 +1,4 @@
-import { eventHandler, useSession } from 'h3'
+import { eventHandler, useSession, getRequestProtocol } from 'h3'
 import { useRuntimeConfig, createError } from '#imports'
 // @ts-expect-error import does exist
 import components from '#nuxt-component-meta/nitro'
@@ -21,6 +21,11 @@ export default eventHandler(async (event) => {
     const session = await useSession(event, {
       name: 'studio-session',
       password: config.studio?.auth?.sessionSecret,
+      cookie: {
+        // Use secure cookies over HTTPS, required for locally testing purposes
+        secure: getRequestProtocol(event) === 'https',
+        path: '/',
+      },
     })
 
     if (!session?.data?.user) {
