@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/nuxt-content/studio/compare/v1.1.0...v1.1.1) (2026-01-19)
+
+### Bug Fixes
+
+* **auth:** studio cookie handling ([#284](https://github.com/nuxt-content/studio/issues/284)) ([4df7f56](https://github.com/nuxt-content/studio/commit/4df7f56e97796713c7d74fbcb0f980a07e1bc5b3))
+* **ItemCardForm:** do not slugify whole path ([#290](https://github.com/nuxt-content/studio/issues/290)) ([fab454f](https://github.com/nuxt-content/studio/commit/fab454f957c5c0e2faa1bd1207639822f738dd4c))
+* **source:** replace prefix without leading slash ([#291](https://github.com/nuxt-content/studio/issues/291)) ([81450ab](https://github.com/nuxt-content/studio/commit/81450ab9e1f7132819e4cd086ee6c24110c9b7a8))
+
 ## [1.1.0](https://github.com/nuxt-content/studio/compare/v1.0.0...v1.1.0) (2026-01-14)
 
 ### Features
