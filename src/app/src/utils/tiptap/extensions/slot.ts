@@ -1,6 +1,8 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
+import type { NodeViewRendererProps } from '@tiptap/core'
 import TiptapExtensionSlot from '../../../components/tiptap/extension/TiptapExtensionSlot.vue'
+import TiptapExtensionUPageHeroSlot from '../../../components/tiptap/extension/TiptapExtensionUPageHeroSlot.vue'
 
 export interface ElementOptions {
   HTMLAttributes: Record<string, unknown>
@@ -79,6 +81,19 @@ export const Slot = Node.create<ElementOptions>({
   },
 
   addNodeView() {
-    return VueNodeViewRenderer(TiptapExtensionSlot)
+    return (props: NodeViewRendererProps) => {
+      // Check if parent is u-page-hero
+      const pos = props.getPos()
+      if (typeof pos === 'number') {
+        const $pos = props.editor.state.doc.resolve(pos)
+        const parent = $pos.parent
+
+        if (parent?.type.name === 'u-page-hero') {
+          return VueNodeViewRenderer(TiptapExtensionUPageHeroSlot)(props)
+        }
+      }
+
+      return VueNodeViewRenderer(TiptapExtensionSlot)(props)
+    }
   },
 })

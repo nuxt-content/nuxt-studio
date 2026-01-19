@@ -47,6 +47,7 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'codeBlock': (node: JSONContent) => createCodeBlockElement(node),
   'image': (node: JSONContent) => createImageElement(node),
   'video': (node: JSONContent) => createElement(node, 'video'),
+  'u-page-hero': (node: JSONContent) => createUPageHeroElement(node),
   'binding': (node: JSONContent) => {
     const defaultValue = (node.attrs as Record<string, unknown> | undefined)?.defaultValue as string
     const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
@@ -300,6 +301,53 @@ function createImageElement(node: JSONContent): MDCElement {
   }
   else {
     return createElement(node, 'img', { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
+  }
+}
+
+function createUPageHeroElement(node: JSONContent): MDCElement {
+  const props = node.attrs?.props || {}
+
+  // Convert slot children back to template elements
+  const children: MDCElement[] = []
+
+  node.content?.forEach((slotNode: JSONContent) => {
+    if (slotNode.type === 'slot') {
+      const slotName = slotNode.attrs?.name || 'default'
+
+      // Unwrap single paragraph child (MDC auto-unwrap feature)
+      let slotContent = slotNode.content || []
+      slotContent = unwrapParagraph(slotContent)
+
+      // Convert slot content back to MDC
+      const slotChildren = slotContent
+        .flatMap(c => tiptapNodeToMDC(c))
+        .filter((c): c is MDCElement | MDCText => c.type !== 'root')
+
+      // Check if slot has meaningful content (not just empty)
+      const hasContent = slotChildren.length > 0 && slotChildren.some((child) => {
+        if (child.type === 'text') {
+          return child.value.trim() !== ''
+        }
+        return true
+      })
+
+      // Only add slot if it has meaningful content
+      if (hasContent) {
+        children.push({
+          type: 'element',
+          tag: 'template',
+          props: { [`v-slot:${slotName}`]: '' },
+          children: slotChildren,
+        })
+      }
+    }
+  })
+
+  return {
+    type: 'element',
+    tag: 'u-page-hero',
+    props,
+    children,
   }
 }
 

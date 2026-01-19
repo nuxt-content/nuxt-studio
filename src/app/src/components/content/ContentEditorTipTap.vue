@@ -27,6 +27,7 @@ import { Frontmatter } from '../../utils/tiptap/extensions/frontmatter'
 import { CodeBlock } from '../../utils/tiptap/extensions/code-block'
 import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
+import { UPageHero } from '../../utils/tiptap/extensions/page-hero'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../utils/tiptap/extensions/binding'
@@ -118,28 +119,36 @@ const componentItems = computed(() => {
 })
 
 const customHandlers = computed(() => ({
-  image: {
+  'image': {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'image-picker' }),
     isActive: (editor: Editor) => editor.isActive('image-picker'),
     isDisabled: undefined,
   },
-  video: {
+  'video': {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'video-picker' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'video-picker' }),
     isActive: (editor: Editor) => editor.isActive('video-picker'),
     isDisabled: undefined,
   },
+  'u-page-hero': {
+    canExecute: (editor: Editor) => editor.can().setUPageHero(),
+    execute: (editor: Editor) => editor.chain().focus().setUPageHero(),
+    isActive: (editor: Editor) => editor.isActive('u-page-hero'),
+    isDisabled: undefined,
+  },
   ...Object.fromEntries(
-    componentItems.value.map(item => [
-      item.kind,
-      {
-        canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
-        execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
-        isActive: (editor: Editor) => editor.isActive(item.kind),
-        isDisabled: undefined,
-      },
-    ]),
+    componentItems.value
+      .filter(item => item.kind !== 'u-page-hero') // Filter out u-page-hero as it has its own handler
+      .map(item => [
+        item.kind,
+        {
+          canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
+          execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
+          isActive: (editor: Editor) => editor.isActive(item.kind),
+          isDisabled: undefined,
+        },
+      ]),
   ),
 }) satisfies EditorCustomHandlers)
 
@@ -203,6 +212,7 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         SpanStyle,
         Slot,
         CodeBlock,
+        UPageHero,
         Emoji,
         Binding,
       ]"

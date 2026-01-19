@@ -16,29 +16,30 @@ const tagToMark: Record<string, string> = {
 
 const mdcToTiptapMap: MDCToTipTapMap = {
   ...Object.fromEntries(Object.entries(tagToMark).map(([key, value]) => [key, node => createMark(node as MDCNode, value)])),
-  root: node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
-  text: node => createTextNode(node as MDCText),
-  comment: node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
-  img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
+  'root': node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
+  'text': node => createTextNode(node as MDCText),
+  'comment': node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
+  'img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-picture': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
-  video: node => createTipTapNode(node as MDCElement, 'video'),
-  template: node => createTemplateNode(node as MDCElement),
-  pre: node => createPreNode(node as MDCElement),
-  p: node => createParagraphNode(node as MDCElement),
-  span: node => createSpanStyleNode(node as MDCElement),
-  h1: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
-  h2: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
-  h3: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
-  h4: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 4 } }),
-  h5: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 5 } }),
-  h6: node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 6 } }),
-  ul: node => createTipTapNode(node as MDCElement, 'bulletList'),
-  ol: node => createTipTapNode(node as MDCElement, 'orderedList', { attrs: { start: (node as MDCElement).props?.start } }),
-  li: node => createTipTapNode(node as MDCElement, 'listItem', { children: [{ type: 'element', tag: 'p', children: (node as MDCElement).children }] }),
-  blockquote: node => createTipTapNode(node as MDCElement, 'blockquote'),
-  binding: node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
-  hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
+  'video': node => createTipTapNode(node as MDCElement, 'video'),
+  'u-page-hero': node => createNuxtUINode(node as MDCElement, 'u-page-hero'),
+  'template': node => createTemplateNode(node as MDCElement),
+  'pre': node => createPreNode(node as MDCElement),
+  'p': node => createParagraphNode(node as MDCElement),
+  'span': node => createSpanStyleNode(node as MDCElement),
+  'h1': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 1 } }),
+  'h2': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 2 } }),
+  'h3': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 3 } }),
+  'h4': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 4 } }),
+  'h5': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 5 } }),
+  'h6': node => createTipTapNode(node as MDCElement, 'heading', { attrs: { level: 6 } }),
+  'ul': node => createTipTapNode(node as MDCElement, 'bulletList'),
+  'ol': node => createTipTapNode(node as MDCElement, 'orderedList', { attrs: { start: (node as MDCElement).props?.start } }),
+  'li': node => createTipTapNode(node as MDCElement, 'listItem', { children: [{ type: 'element', tag: 'p', children: (node as MDCElement).children }] }),
+  'blockquote': node => createTipTapNode(node as MDCElement, 'blockquote'),
+  'binding': node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
+  'hr': node => createTipTapNode(node as MDCElement, 'horizontalRule'),
 }
 
 export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
@@ -61,16 +62,8 @@ export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>)
 export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSONContent {
   const type = node.type === 'element' ? node.tag! : node.type
 
-  // Remove duplicate boolean props
-  // Object.entries((node as MDCElement).props || {}).forEach(([key, value]) => {
-  //   if (key.startsWith(':') && value === 'true') {
-  //     const propKey = key.replace(/^:/, '')
-  //     Reflect.deleteProperty((node as MDCElement).props!, propKey)
-  //   }
-  // })
-
   /**
-   * Known ndoe types
+   * Known node types
    */
   if (mdcToTiptapMap[type]) {
     return mdcToTiptapMap[type](node)
@@ -85,31 +78,7 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
     return createTipTapNode(node as MDCElement, 'inline-element', { attrs: { tag: type } })
   }
 
-  /**
-   * In tiptap side only, inside element, text must be enclosed in a paragraph
-   *
-   * Note: without having the wrapper paragraph, contents of an element can't be
-   * modified, TipTap depend on the paragraph to allow text editing.
-   */
-  if (node.type === 'element' && node.children?.[0]?.type === 'text') {
-    node = {
-      ...node,
-      props: {
-        ...node.props,
-        __tiptapWrap: true,
-      },
-      children: [{
-        type: 'element',
-        tag: 'p',
-        children: node.children,
-        props: {},
-      }],
-    }
-  }
-
-  const children = wrapChildrenWithinSlot(((node as MDCElement).children || []) as MDCElement[])
-
-  return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
+  return createElementNode(node as MDCElement, type)
 }
 
 /* Create nodes methods */
@@ -210,6 +179,25 @@ function createTipTapNode(node: MDCElement, type: string, extra: Record<string, 
   return tiptapNode
 }
 
+function createNuxtUINode(node: MDCElement, type: string) {
+  const props = node.props || {}
+
+  // Convert template children to slot nodes using createTemplateNode
+  const slotChildren: JSONContent[] = []
+
+  node.children?.forEach((child: MDCNode) => {
+    if (child.type === 'element' && child.tag === 'template') {
+      slotChildren.push(createTemplateNode(child as MDCElement))
+    }
+  })
+
+  return {
+    type,
+    attrs: { props },
+    content: slotChildren,
+  }
+}
+
 function createTemplateNode(node: MDCElement) {
   const name = Object.keys(node.props || {}).find(prop => prop?.startsWith('v-slot:'))?.replace('v-slot:', '') || 'default'
 
@@ -224,6 +212,33 @@ function createTemplateNode(node: MDCElement) {
   }
 
   return createTipTapNode(node, 'slot', { attrs: { name } })
+}
+
+function createElementNode(node: MDCElement, type: string) {
+  /**
+   * In tiptap side only, inside element, text must be enclosed in a paragraph
+   *
+   * Note: without having the wrapper paragraph, contents of an element can't be modified, TipTap depend on the paragraph to allow text editing.
+   */
+  if (node.children?.[0]?.type === 'text') {
+    node = {
+      ...node,
+      props: {
+        ...node.props,
+        __tiptapWrap: true,
+      },
+      children: [{
+        type: 'element',
+        tag: 'p',
+        children: node.children,
+        props: {},
+      }],
+    }
+  }
+
+  const children = wrapChildrenWithinSlot(((node as MDCElement).children || []) as MDCElement[])
+
+  return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
 }
 
 function createPreNode(node: MDCElement) {
