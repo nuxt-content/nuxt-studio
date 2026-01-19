@@ -102,4 +102,19 @@ describe('getCollectionSourceById', () => {
     const source = getCollectionSourceById(id, customPrefixSource)
     expect(source).toEqual(customPrefixSource[0])
   })
+
+  it('should return correct source when source has custom prefix with simple include pattern', () => {
+    const customPrefixSource: ResolvedCollectionSource[] = [
+      {
+        _resolved: true,
+        prefix: '/prefix',
+        include: 'path/*.md',
+        cwd: '',
+      },
+    ]
+
+    const id = 'collectionName/prefix/another_one.md'
+    const source = getCollectionSourceById(id, customPrefixSource)
+    expect(source).toEqual(customPrefixSource[0])
+  })
 })
