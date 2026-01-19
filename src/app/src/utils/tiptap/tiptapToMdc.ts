@@ -314,18 +314,22 @@ function createUPageHeroElement(node: JSONContent): MDCElement {
     if (slotNode.type === 'slot') {
       const slotName = slotNode.attrs?.name || 'default'
 
+      // Unwrap single paragraph child (MDC auto-unwrap feature)
+      let slotContent = slotNode.content || []
+      slotContent = unwrapParagraph(slotContent)
+
       // Convert slot content back to MDC
-      const slotChildren = (slotNode.content || [])
+      const slotChildren = slotContent
         .flatMap(c => tiptapNodeToMDC(c))
         .filter((c): c is MDCElement | MDCText => c.type !== 'root')
 
-      // Check if slot has meaningful content (not just an empty paragraph)
-      const hasContent = slotChildren.length > 0 && !(
-        slotChildren.length === 1
-        && slotChildren[0].type === 'element'
-        && (slotChildren[0] as MDCElement).tag === 'p'
-        && (!((slotChildren[0] as MDCElement).children) || (slotChildren[0] as MDCElement).children!.length === 0)
-      )
+      // Check if slot has meaningful content (not just empty)
+      const hasContent = slotChildren.length > 0 && slotChildren.some((child) => {
+        if (child.type === 'text') {
+          return child.value.trim() !== ''
+        }
+        return true
+      })
 
       // Only add slot if it has meaningful content
       if (hasContent) {
