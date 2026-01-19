@@ -214,7 +214,7 @@ async function onSubmit() {
   isLoading.value = true
 
   let params: CreateFileParams | RenameFileParams | CreateFolderParams
-  const newFsPath = slugify(joinURL(props.parentItem.fsPath, fullName.value)).toLowerCase()
+  const newFsPath = joinURL(props.parentItem.fsPath, slugify(fullName.value)).toLowerCase()
 
   if (newFsPath === props.renamedItem?.fsPath) {
     isLoading.value = false
