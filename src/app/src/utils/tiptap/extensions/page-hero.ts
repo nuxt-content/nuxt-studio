@@ -1,6 +1,7 @@
 import { Node, mergeAttributes, InputRule } from '@tiptap/core'
 import type { Content } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
+import { TextSelection } from '@tiptap/pm/state'
 import TiptapExtensionUPageHero from '../../../components/tiptap/extension/TiptapExtensionUPageHero.vue'
 
 export interface UPageHeroOptions {
@@ -97,7 +98,7 @@ export const UPageHero = Node.create<UPageHeroOptions>({
 
   addCommands() {
     return {
-      setUPageHero: () => ({ state, chain }) => {
+      setUPageHero: () => ({ state, tr, dispatch }) => {
         const {
           selection: { from },
         } = state
@@ -129,9 +130,21 @@ export const UPageHero = Node.create<UPageHeroOptions>({
           ],
         }
 
-        return chain()
-          .insertContentAt(from, value)
-          .run()
+        // Create the node from JSON
+        const node = state.schema.nodeFromJSON(value)
+        if (!node) return false
+
+        // Insert the node
+        tr.replaceRangeWith(from, from, node)
+
+        // Set the selection to the title slot
+        tr.setSelection(TextSelection.create(tr.doc, from + 3))
+
+        if (dispatch) {
+          dispatch(tr.scrollIntoView())
+        }
+
+        return true
       },
     }
   },
