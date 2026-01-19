@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { createError, deleteCookie, setCookie, useSession } from 'h3'
+import { createError, deleteCookie, setCookie, useSession, getRequestProtocol } from 'h3'
 import { defu } from 'defu'
 import type { StudioUser, GitProviderType } from 'nuxt-studio/app'
 import { useRuntimeConfig } from '#imports'
@@ -51,6 +51,11 @@ export async function setInternalStudioUserSession(event: H3Event, user: StudioU
   const session = await useSession(event, {
     name: 'studio-session',
     password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
+    cookie: {
+      // Use secure cookies over HTTPS, required for locally testing purposes
+      secure: getRequestProtocol(event) === 'https',
+      path: '/',
+    },
   })
 
   const payload = defu({
@@ -62,7 +67,13 @@ export async function setInternalStudioUserSession(event: H3Event, user: StudioU
   await session.update(payload)
 
   // Set a cookie to indicate that the session is active for the client runtime
-  setCookie(event, 'studio-session-check', 'true', { httpOnly: false })
+  setCookie(event, 'studio-session-check', 'true', {
+    httpOnly: false,
+    path: '/',
+    // Keep behavior consistent with the session cookie and OAuth cookies
+    secure: getRequestProtocol(event) === 'https',
+    sameSite: 'lax',
+  })
 
   await useNitroApp().hooks.callHook('studio:auth:login', { user, event })
 
@@ -76,6 +87,11 @@ export async function clearStudioUserSession(event: H3Event) {
   const session = await useSession(event, {
     name: 'studio-session',
     password: useRuntimeConfig(event).studio?.auth?.sessionSecret,
+    cookie: {
+      // Use secure cookies over HTTPS, required for locally testing purposes
+      secure: getRequestProtocol(event) === 'https',
+      path: '/',
+    },
   })
 
   const user = session.data.user as StudioUser | undefined
@@ -83,7 +99,7 @@ export async function clearStudioUserSession(event: H3Event) {
   await session.clear()
 
   // Delete the cookie to indicate that the session is inactive
-  deleteCookie(event, 'studio-session-check')
+  deleteCookie(event, 'studio-session-check', { path: '/' })
 
   if (user) {
     await useNitroApp().hooks.callHook('studio:auth:logout', { user, event })

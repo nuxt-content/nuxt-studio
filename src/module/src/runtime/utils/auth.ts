@@ -1,5 +1,5 @@
 import { getRandomValues } from 'uncrypto'
-import { getCookie, deleteCookie, setCookie, type H3Event, getRequestURL, createError } from 'h3'
+import { getCookie, deleteCookie, setCookie, type H3Event, getRequestProtocol, createError } from 'h3'
 import { FetchError } from 'ofetch'
 
 export interface RequestAccessTokenResponse {
@@ -47,13 +47,11 @@ export async function requestAccessToken(url: string, options: RequestAccessToke
 export async function generateOAuthState(event: H3Event) {
   const newState = getRandomBytes(32)
 
-  const requestURL = getRequestURL(event)
-  // Use secure cookies over HTTPS, required for locally testing purposes
-  const isSecure = requestURL.protocol === 'https:'
-
   setCookie(event, 'studio-oauth-state', newState, {
+    path: '/',
     httpOnly: true,
-    secure: isSecure,
+    // Use secure cookies over HTTPS, required for locally testing purposes
+    secure: getRequestProtocol(event) === 'https',
     sameSite: 'lax',
     maxAge: 60 * 15, // 15 minutes
   })

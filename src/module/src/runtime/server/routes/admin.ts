@@ -1,10 +1,13 @@
-import { eventHandler, getQuery, setCookie, sendRedirect } from 'h3'
+import { eventHandler, getQuery, setCookie, sendRedirect, getRequestProtocol } from 'h3'
 import { createError } from '#imports'
 
 export default eventHandler((event) => {
   const { redirect } = getQuery(event)
   if (redirect) {
     setCookie(event, 'studio-redirect', String(redirect), {
+      path: '/',
+      // Use secure cookies over HTTPS, required for locally testing purposes
+      secure: getRequestProtocol(event) === 'https',
       httpOnly: true,
     })
   }
