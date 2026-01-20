@@ -1,4 +1,4 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import type { GitOptions, GitProviderAPI, GitProviderType } from '../types'
 import { createGitHubProvider, createGitLabProvider, createNullProvider } from '../utils/providers'
 

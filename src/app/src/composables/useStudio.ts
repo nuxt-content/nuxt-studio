@@ -1,4 +1,4 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import { useGitProvider } from './useGitProvider'
 import { useUI } from './useUI'
 import { useContext } from './useContext'

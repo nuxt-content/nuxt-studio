@@ -1,4 +1,4 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import { computed, ref } from 'vue'
 import { StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
 } from '../types'

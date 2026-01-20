@@ -1,7 +1,7 @@
 import type { DatabaseItem, DraftItem, StudioHost, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGitProvider } from './useGitProvider'
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
 import { documentStorage as storage } from '../utils/storage'

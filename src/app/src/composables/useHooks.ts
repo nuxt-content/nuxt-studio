@@ -1,4 +1,4 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import { createHooks } from 'hookable'
 
 export const useHooks = createSharedComposable(() => {

@@ -1,5 +1,6 @@
 import { readonly, ref } from 'vue'
-import { useStorage, createSharedComposable } from '@vueuse/core'
+import { useStorage } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import type { StudioConfig, StudioLocation } from '../types'
 import { StudioFeature } from '../types/context'
 
