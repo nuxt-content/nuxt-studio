@@ -46,22 +46,22 @@
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.83",
-    "@nuxtjs/mdc": "^0.19.2",
+    "@iconify-json/lucide": "^1.2.86",
+    "@nuxtjs/mdc": "^0.20.0",
     "@vueuse/core": "^14.1.0",
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "js-yaml": "^4.1.1",
     "minimatch": "^10.1.1",
-    "nuxt-component-meta": "^0.16.0",
+    "nuxt-component-meta": "^0.17.1",
     "remark-mdc": "^3.10.0",
     "shiki": "^3.21.0",
-    "unstorage": "1.17.3"
+    "unstorage": "1.17.4" 
   },
   "devDependencies": {
     "@gitbeaker/core": "^43.8.0",
-    "@iconify-json/simple-icons": "^1.2.65",
-    "@nuxt/content": "^3.10.0",
+    "@iconify-json/simple-icons": "^1.2.67",
+    "@nuxt/content": "^3.11.0",
     "@nuxt/eslint-config": "^1.12.1",
     "@nuxt/kit": "^4.2.2",
     "@nuxt/module-builder": "^1.0.2",
@@ -71,13 +71,13 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-emoji": "^3.15.3",
     "@types/js-yaml": "^4.0.9",
-    "@unhead/vue": "^2.1.1",
+    "@unhead/vue": "^2.1.2",
     "@unpic/vue": "^1.0.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "eslint": "^9.39.2",
     "idb-keyval": "^6.2.2",
     "minimark": "^0.2.0",
-    "modern-monaco": "^0.3.6",
+    "modern-monaco": "^0.3.7",
     "nuxt-studio": "workspace:*",
     "ofetch": "^1.5.1",
     "release-it": "^19.2.3",
@@ -85,18 +85,12 @@
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-libcss": "^1.1.2",
-    "vitest": "^4.0.16",
-    "vue": "^3.5.26",
+    "vitest": "^4.0.17",
+    "vue": "^3.5.27",
     "vue-router": "^4.6.4",
-    "vue-tsc": "^3.2.2",
-    "zod": "^4.3.5"
+    "vue-tsc": "^3.2.2"
   },
-  "resolutions": {
-    "nuxt-component-meta": "https://pkg.pr.new/nuxt-component-meta@8bbac82",
-    "@vueuse/core": "13.9.0",
-    "unhead": "2.0.19"
-  },
-  "packageManager": "pnpm@10.27.0",
+  "packageManager": "pnpm@10.28.1",
   "keywords": [
     "nuxt",
     "content",
