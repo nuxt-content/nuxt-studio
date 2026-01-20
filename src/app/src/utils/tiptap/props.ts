@@ -146,7 +146,7 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
   const props = componentMeta.meta.props
   const nodeProps = node?.attrs?.props || {}
   const formTree: FormTree = {}
-  const componentName = pascalCase(node?.attrs?.tag)
+  const componentName = pascalCase(node?.attrs?.tag || componentMeta.name)
   const componentId = generateComponentId(componentName)
 
   // Meta props
@@ -164,25 +164,6 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
         formTree[propItem.key!] = propItem
       }
     }
-  }
-  // HTML element props
-  else {
-    // let elementProps: Array<PropertyMeta> = []
-    // switch (node?.type?.name) {
-    //   case 'video':
-    //     elementProps = videoProps
-    //     break
-    //   case 'image':
-    //     elementProps = imgProps
-    //     break
-    // }
-
-    // for (const prop of elementProps) {
-    //   const propItem = buildPropItem(componentId, prop, nodeProps)
-    //   if (propItem) {
-    //     formTree[propItem.key!] = propItem
-    //   }
-    // }
   }
 
   // Add custom props added manually by user

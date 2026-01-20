@@ -294,12 +294,23 @@ function createCodeBlockElement(node: JSONContent): MDCElement {
 }
 
 function createImageElement(node: JSONContent): MDCElement {
+  // Get props from node.attrs.props (new structure) or fallback to direct attrs (old structure)
+  const props = node.attrs?.props || {}
+  const imageProps = {
+    src: props.src || node.attrs?.src,
+    alt: props.alt || node.attrs?.alt,
+    ...(props.title && { title: props.title }),
+    ...(props.width && { width: props.width }),
+    ...(props.height && { height: props.height }),
+    ...(props.class && { class: props.class }),
+  }
+
   // handle nuxt image components
   if (['nuxt-img', 'nuxt-picture'].includes(node.attrs?.tag)) {
-    return createElement(node, node.attrs?.tag, { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
+    return createElement(node, node.attrs?.tag, { props: imageProps })
   }
   else {
-    return createElement(node, 'img', { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
+    return createElement(node, 'img', { props: imageProps })
   }
 }
 
