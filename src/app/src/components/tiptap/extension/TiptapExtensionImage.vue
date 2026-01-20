@@ -53,9 +53,9 @@ const imageMeta = {
         description: t('studio.tiptap.image.width'),
         tags: [],
         required: false,
-        type: 'number',
+        type: 'string',
         declarations: [],
-        schema: { kind: 'enum', type: 'number', schema: [] },
+        schema: { kind: 'enum', type: 'string', schema: [] },
       },
       {
         name: 'height',
@@ -63,9 +63,9 @@ const imageMeta = {
         description: t('studio.tiptap.image.height'),
         tags: [],
         required: false,
-        type: 'number',
+        type: 'string',
         declarations: [],
-        schema: { kind: 'enum', type: 'number', schema: [] },
+        schema: { kind: 'enum', type: 'string', schema: [] },
       },
     ],
     slots: [],
@@ -103,14 +103,6 @@ function deleteImage() {
 // Check if image has valid src
 const hasValidSrc = computed(() => !!imageAttrs.value.src)
 
-// Build image style
-const imageStyle = computed(() => {
-  const style: Record<string, string> = {}
-  if (imageAttrs.value.width) style.width = imageAttrs.value.width
-  if (imageAttrs.value.height) style.height = imageAttrs.value.height
-  return style
-})
-
 // Selected state
 const isSelected = computed(() => nodeProps.selected)
 
@@ -127,7 +119,7 @@ const hasAttributes = computed(() => {
   >
     <div
       :contenteditable="false"
-      class="relative rounded-lg overflow-hidden transition-all"
+      class="relative rounded-lg overflow-hidden transition-all inline-block"
       :class="[
         isSelected ? 'ring-2 ring-primary' : 'ring-1 ring-transparent hover:ring-gray-300 dark:hover:ring-gray-700',
       ]"
@@ -137,11 +129,10 @@ const hasAttributes = computed(() => {
         v-if="hasValidSrc"
         :src="imageAttrs.src"
         :alt="imageAttrs.alt"
+        :title="imageAttrs.title"
         :width="imageAttrs.width || undefined"
         :height="imageAttrs.height || undefined"
         :class="imageAttrs.class"
-        :style="imageStyle"
-        class="w-full h-auto block"
         @click="isPopoverOpen = true"
       >
 
