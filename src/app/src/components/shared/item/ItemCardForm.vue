@@ -10,7 +10,7 @@ import type {
   CreateFolderParams,
 } from '../../../types'
 import { ContentFileExtension, StudioItemActionId } from '../../../types'
-import { joinURL, withLeadingSlash } from 'ufo'
+import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { parseName, getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../../utils/file'
 import { upperFirst } from 'scule'
@@ -214,7 +214,7 @@ async function onSubmit() {
   isLoading.value = true
 
   let params: CreateFileParams | RenameFileParams | CreateFolderParams
-  const newFsPath = joinURL(props.parentItem.fsPath, slugify(fullName.value)).toLowerCase()
+  const newFsPath = withoutLeadingSlash(joinURL(props.parentItem.fsPath, slugify(fullName.value))).toLowerCase()
 
   if (newFsPath === props.renamedItem?.fsPath) {
     isLoading.value = false
