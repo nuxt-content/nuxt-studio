@@ -15,13 +15,6 @@ describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock
   const result: TreeItem[] = [
     {
-      name: 'home',
-      fsPath: 'index.md',
-      type: 'file',
-      routePath: '/',
-      prefix: null,
-    },
-    {
       name: 'getting-started',
       fsPath: '1.getting-started',
       type: 'directory',
@@ -43,6 +36,13 @@ describe('buildTree of documents with one level of depth', () => {
         },
       ],
     },
+    {
+      name: 'home',
+      fsPath: 'index.md',
+      type: 'file',
+      routePath: '/',
+      prefix: null,
+    },
   ]
 
   it('Without draft', () => {
@@ -63,11 +63,11 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsList, draftList)
 
     expect(tree).toStrictEqual([
+      result[0],
       {
-        ...result[0],
+        ...result[1],
         status: TreeStatus.Created,
-      },
-      ...result.slice(1)] as TreeItem[])
+      }] as TreeItem[])
   })
 
   it('With DELETED draft file in existing directory', () => {
@@ -85,12 +85,10 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList)
 
     expect(tree).toStrictEqual([
-      { ...result[0] },
       {
-        ...result[1],
+        ...result[0],
         status: TreeStatus.Updated,
         children: [
-          result[1].children![1],
           {
             name: 'introduction',
             fsPath: deletedDbItem.fsPath!,
@@ -99,8 +97,10 @@ describe('buildTree of documents with one level of depth', () => {
             status: TreeStatus.Deleted,
             prefix: '2',
           },
+          result[0].children![1],
         ],
       },
+      { ...result[1] },
     ] as TreeItem[])
   })
 
@@ -119,12 +119,11 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsListWithoutDeletedDbItem, draftList)
 
     expect(tree).toStrictEqual([
-      result[0],
       {
-        ...result[1],
+        ...result[0],
         status: TreeStatus.Updated,
         children: [
-          result[1].children![0],
+          result[0].children![0],
           {
             name: 'installation',
             fsPath: deletedDbItem.fsPath!,
@@ -135,6 +134,7 @@ describe('buildTree of documents with one level of depth', () => {
           },
         ],
       },
+      result[1],
     ] as TreeItem[])
   })
 
@@ -157,18 +157,18 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree = [
-      result[0],
       {
-        ...result[1],
+        ...result[0],
         status: TreeStatus.Updated,
         children: [
           {
-            ...result[1].children![0],
+            ...result[0].children![0],
             status: TreeStatus.Updated,
           },
-          ...result[1].children!.slice(1),
+          ...result[0].children!.slice(1),
         ],
       },
+      result[1],
     ]
 
     expect(tree).toStrictEqual(expectedTree as TreeItem[])
@@ -193,15 +193,15 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree = [
-      result[0],
       {
-        ...result[1],
+        ...result[0],
         status: TreeStatus.Updated,
         children: [
-          { ...result[1].children![0], status: TreeStatus.Created },
-          { ...result[1].children![1], status: TreeStatus.Opened },
+          { ...result[0].children![0], status: TreeStatus.Created },
+          { ...result[0].children![1], status: TreeStatus.Opened },
         ],
       },
+      result[1],
     ]
 
     expect(tree).toStrictEqual(expectedTree as TreeItem[])
@@ -226,16 +226,16 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsList, draftList)
 
     const expectedTree = [
-      result[0],
       {
-        ...result[1],
+        ...result[0],
         children: [
           {
-            ...result[1].children![0], status: TreeStatus.Opened },
-          { ...result[1].children![1], status: TreeStatus.Opened },
-          ...result[1].children!.slice(2),
+            ...result[0].children![0], status: TreeStatus.Opened },
+          { ...result[0].children![1], status: TreeStatus.Opened },
+          ...result[0].children!.slice(2),
         ],
       },
+      result[1],
     ]
 
     expect(tree).toStrictEqual(expectedTree as TreeItem[])
@@ -270,12 +270,10 @@ describe('buildTree of documents with one level of depth', () => {
     const tree = buildTree(dbItemsWithoutDeletedWithCreated, draftList)
 
     expect(tree).toStrictEqual([
-      result[0],
       {
-        ...result[1],
+        ...result[0],
         status: TreeStatus.Updated,
         children: [
-          ...result[1].children!.slice(1),
           {
             fsPath: createdDbItem.fsPath!,
             routePath: createdDbItem.path,
@@ -284,13 +282,16 @@ describe('buildTree of documents with one level of depth', () => {
             status: TreeStatus.Renamed,
             prefix: '2',
           },
+          ...result[0].children!.slice(1),
         ],
       },
+      result[1],
     ] as TreeItem[])
   })
 })
 
 describe('buildTree of documents with two levels of depth', () => {
+  // Note: Items are sorted by numeric prefix
   const result: TreeItem[] = [
     {
       name: 'essentials',
@@ -298,13 +299,6 @@ describe('buildTree of documents with two levels of depth', () => {
       type: 'directory',
       prefix: '1',
       children: [
-        {
-          name: 'configuration',
-          fsPath: '1.essentials/2.configuration.md',
-          type: 'file',
-          routePath: '/essentials/configuration',
-          prefix: '2',
-        },
         {
           name: 'nested',
           fsPath: '1.essentials/1.nested',
@@ -319,6 +313,13 @@ describe('buildTree of documents with two levels of depth', () => {
               prefix: '2',
             },
           ],
+        },
+        {
+          name: 'configuration',
+          fsPath: '1.essentials/2.configuration.md',
+          type: 'file',
+          routePath: '/essentials/configuration',
+          prefix: '2',
         },
       ],
     },
@@ -351,8 +352,8 @@ describe('buildTree of documents with two levels of depth', () => {
       ...result[0],
       status: TreeStatus.Updated,
       children: [
-        { ...result[0].children![0], status: TreeStatus.Updated },
-        result[0].children![1],
+        result[0].children![0],
+        { ...result[0].children![1], status: TreeStatus.Updated },
       ],
     }] as TreeItem[])
   })
@@ -379,17 +380,17 @@ describe('buildTree of documents with two levels of depth', () => {
       ...result[0],
       status: TreeStatus.Updated,
       children: [
-        result[0].children![0],
         {
-          ...result[0].children![1],
+          ...result[0].children![0],
           status: TreeStatus.Updated,
           children: [
             {
-              ...result[0].children![1].children![0],
+              ...result[0].children![0].children![0],
               status: TreeStatus.Updated,
             },
           ],
         },
+        result[0].children![1],
       ],
     }] as TreeItem[])
   })
@@ -413,9 +414,8 @@ describe('buildTree of documents with two levels of depth', () => {
       ...result[0],
       status: TreeStatus.Updated,
       children: [
-        result[0].children![0],
         {
-          ...result[0].children![1],
+          ...result[0].children![0],
           status: TreeStatus.Deleted,
           children: [
             {
@@ -428,12 +428,14 @@ describe('buildTree of documents with two levels of depth', () => {
             },
           ],
         },
+        result[0].children![1],
       ],
     }] as TreeItem[])
   })
 })
 
 describe('buildTree of documents with language prefixed', () => {
+  // Note: Items with prefix come before items without prefix
   const result: TreeItem[] = [
     {
       name: 'en',
@@ -441,13 +443,6 @@ describe('buildTree of documents with language prefixed', () => {
       type: 'directory',
       prefix: null,
       children: [
-        {
-          name: 'index',
-          fsPath: 'en/index.md',
-          prefix: null,
-          type: 'file',
-          routePath: '/en',
-        },
         {
           name: 'getting-started',
           fsPath: 'en/1.getting-started',
@@ -470,6 +465,13 @@ describe('buildTree of documents with language prefixed', () => {
             },
           ],
         },
+        {
+          name: 'index',
+          fsPath: 'en/index.md',
+          prefix: null,
+          type: 'file',
+          routePath: '/en',
+        },
       ],
     },
   ]
@@ -477,6 +479,230 @@ describe('buildTree of documents with language prefixed', () => {
   it('Without draft', () => {
     const tree = buildTree(languagePrefixedDbItemsList, null)
     expect(tree).toStrictEqual(result)
+  })
+})
+
+describe('buildTree with numeric prefix sorting', () => {
+  it('should sort items numerically by prefix (2, 6, 12, 17, 22)', () => {
+    const dbItemsWithNumericPrefixes: DatabaseItem[] = [
+      {
+        id: 'docs/1.getting-started/12.project-structure.md',
+        title: 'Project Structure',
+        body: { type: 'minimark', value: [] },
+        description: 'Learn about project structure.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/project-structure',
+        fsPath: '1.getting-started/12.project-structure.md',
+        stem: '1.getting-started/12.project-structure',
+        __hash__: 'HASH_12',
+      },
+      {
+        id: 'docs/1.getting-started/17.installation.md',
+        title: 'Installation',
+        body: { type: 'minimark', value: [] },
+        description: 'Learn how to install.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/installation',
+        fsPath: '1.getting-started/17.installation.md',
+        stem: '1.getting-started/17.installation',
+        __hash__: 'HASH_17',
+      },
+      {
+        id: 'docs/1.getting-started/2.introduction.md',
+        title: 'Introduction',
+        body: { type: 'minimark', value: [] },
+        description: 'Introduction to the docs.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/introduction',
+        fsPath: '1.getting-started/2.introduction.md',
+        stem: '1.getting-started/2.introduction',
+        __hash__: 'HASH_2',
+      },
+      {
+        id: 'docs/1.getting-started/22.studio.md',
+        title: 'Studio',
+        body: { type: 'minimark', value: [] },
+        description: 'Learn about Studio.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/studio',
+        fsPath: '1.getting-started/22.studio.md',
+        stem: '1.getting-started/22.studio',
+        __hash__: 'HASH_22',
+      },
+      {
+        id: 'docs/1.getting-started/6.migration.md',
+        title: 'Migration',
+        body: { type: 'minimark', value: [] },
+        description: 'Learn how to migrate.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/migration',
+        fsPath: '1.getting-started/6.migration.md',
+        stem: '1.getting-started/6.migration',
+        __hash__: 'HASH_6',
+      },
+    ]
+
+    const tree = buildTree(dbItemsWithNumericPrefixes, null)
+
+    expect(tree).toHaveLength(1)
+    expect(tree[0].name).toBe('getting-started')
+    expect(tree[0].prefix).toBe('1')
+    expect(tree[0].children).toHaveLength(5)
+
+    // Check that children are sorted numerically: 2, 6, 12, 17, 22
+    const children = tree[0].children!
+    expect(children[0].prefix).toBe('2')
+    expect(children[0].name).toBe('introduction')
+    expect(children[1].prefix).toBe('6')
+    expect(children[1].name).toBe('migration')
+    expect(children[2].prefix).toBe('12')
+    expect(children[2].name).toBe('project-structure')
+    expect(children[3].prefix).toBe('17')
+    expect(children[3].name).toBe('installation')
+    expect(children[4].prefix).toBe('22')
+    expect(children[4].name).toBe('studio')
+  })
+
+  it('should sort items with same prefix alphabetically by name', () => {
+    const dbItemsWithSamePrefix: DatabaseItem[] = [
+      {
+        id: 'docs/1.getting-started/5.zulu.md',
+        title: 'Zulu',
+        body: { type: 'minimark', value: [] },
+        description: 'Zulu.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/zulu',
+        fsPath: '1.getting-started/5.zulu.md',
+        stem: '1.getting-started/5.zulu',
+        __hash__: 'HASH_ZULU',
+      },
+      {
+        id: 'docs/1.getting-started/5.alpha.md',
+        title: 'Alpha',
+        body: { type: 'minimark', value: [] },
+        description: 'Alpha.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/alpha',
+        fsPath: '1.getting-started/5.alpha.md',
+        stem: '1.getting-started/5.alpha',
+        __hash__: 'HASH_ALPHA',
+      },
+      {
+        id: 'docs/1.getting-started/5.middle.md',
+        title: 'Middle',
+        body: { type: 'minimark', value: [] },
+        description: 'Middle.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/middle',
+        fsPath: '1.getting-started/5.middle.md',
+        stem: '1.getting-started/5.middle',
+        __hash__: 'HASH_MIDDLE',
+      },
+    ]
+
+    const tree = buildTree(dbItemsWithSamePrefix, null)
+
+    expect(tree).toHaveLength(1)
+    expect(tree[0].children).toHaveLength(3)
+
+    // Check that children with same prefix (5) are sorted alphabetically
+    const children = tree[0].children!
+    expect(children[0].prefix).toBe('5')
+    expect(children[0].name).toBe('alpha')
+    expect(children[1].prefix).toBe('5')
+    expect(children[1].name).toBe('middle')
+    expect(children[2].prefix).toBe('5')
+    expect(children[2].name).toBe('zulu')
+  })
+
+  it('should place items without prefix after items with prefix', () => {
+    const dbItemsMixed: DatabaseItem[] = [
+      {
+        id: 'docs/1.getting-started/no-prefix.md',
+        title: 'No Prefix',
+        body: { type: 'minimark', value: [] },
+        description: 'No prefix.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/no-prefix',
+        fsPath: '1.getting-started/no-prefix.md',
+        stem: '1.getting-started/no-prefix',
+        __hash__: 'HASH_NO_PREFIX',
+      },
+      {
+        id: 'docs/1.getting-started/2.introduction.md',
+        title: 'Introduction',
+        body: { type: 'minimark', value: [] },
+        description: 'Introduction.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/introduction',
+        fsPath: '1.getting-started/2.introduction.md',
+        stem: '1.getting-started/2.introduction',
+        __hash__: 'HASH_2',
+      },
+      {
+        id: 'docs/1.getting-started/another-no-prefix.md',
+        title: 'Another No Prefix',
+        body: { type: 'minimark', value: [] },
+        description: 'Another no prefix.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/another-no-prefix',
+        fsPath: '1.getting-started/another-no-prefix.md',
+        stem: '1.getting-started/another-no-prefix',
+        __hash__: 'HASH_ANOTHER_NO_PREFIX',
+      },
+      {
+        id: 'docs/1.getting-started/12.project-structure.md',
+        title: 'Project Structure',
+        body: { type: 'minimark', value: [] },
+        description: 'Project structure.',
+        extension: 'md',
+        meta: {},
+        navigation: {},
+        path: '/getting-started/project-structure',
+        fsPath: '1.getting-started/12.project-structure.md',
+        stem: '1.getting-started/12.project-structure',
+        __hash__: 'HASH_12',
+      },
+    ]
+
+    const tree = buildTree(dbItemsMixed, null)
+
+    expect(tree).toHaveLength(1)
+    expect(tree[0].children).toHaveLength(4)
+
+    const children = tree[0].children!
+    // Items with prefix come first (sorted numerically)
+    expect(children[0].prefix).toBe('2')
+    expect(children[0].name).toBe('introduction')
+    expect(children[1].prefix).toBe('12')
+    expect(children[1].name).toBe('project-structure')
+    // Items without prefix come last (sorted alphabetically)
+    expect(children[2].prefix).toBeNull()
+    expect(children[2].name).toBe('another-no-prefix')
+    expect(children[3].prefix).toBeNull()
+    expect(children[3].name).toBe('no-prefix')
   })
 })
 
