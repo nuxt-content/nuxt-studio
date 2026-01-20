@@ -4,6 +4,7 @@ import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { useI18n } from 'vue-i18n'
 import type { ComponentMeta } from '../../../types'
 import TiptapComponentProps from '../TiptapComponentProps.vue'
+import { sanitizeImageUrl } from '../../../utils/tiptap/props'
 
 const nodeProps = defineProps(nodeViewProps)
 const { t } = useI18n()
@@ -75,8 +76,9 @@ const imageMeta = {
 // Image attributes
 const imageAttrs = computed(() => {
   const props = nodeProps.node.attrs.props || {}
+  const src = props.src || ''
   return {
-    src: props.src || '',
+    src: sanitizeImageUrl(src) || '',
     alt: props.alt || '',
     title: props.title || '',
     width: props.width || '',

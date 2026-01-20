@@ -1,6 +1,7 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import TiptapExtensionImage from '../../../components/tiptap/extension/TiptapExtensionImage.vue'
+import { sanitizeImageUrl } from '../props'
 
 export interface ImageOptions {
   inline: boolean
@@ -62,12 +63,16 @@ export const Image = Node.create<ImageOptions>({
           const props = attributes.props || {}
           const attrs: Record<string, string> = {}
 
-          if (props.src) attrs.src = props.src
-          if (props.alt) attrs.alt = props.alt
-          if (props.title) attrs.title = props.title
-          if (props.width) attrs.width = props.width
-          if (props.height) attrs.height = props.height
-          if (props.class) attrs.class = props.class
+          // Sanitize URL
+          const sanitizedSrc = sanitizeImageUrl(props.src)
+          if (sanitizedSrc) attrs.src = sanitizedSrc
+
+          // Other attributes
+          if (props.alt) attrs.alt = String(props.alt)
+          if (props.title) attrs.title = String(props.title)
+          if (props.width) attrs.width = String(props.width)
+          if (props.height) attrs.height = String(props.height)
+          if (props.class) attrs.class = String(props.class)
 
           return attrs
         },
@@ -89,12 +94,16 @@ export const Image = Node.create<ImageOptions>({
     const props = node.attrs.props || {}
     const attrs: Record<string, string> = {}
 
-    if (props.src) attrs.src = props.src
-    if (props.alt) attrs.alt = props.alt
-    if (props.title) attrs.title = props.title
-    if (props.width) attrs.width = props.width
-    if (props.height) attrs.height = props.height
-    if (props.class) attrs.class = props.class
+    // Sanitize URL
+    const sanitizedSrc = sanitizeImageUrl(props.src)
+    if (sanitizedSrc) attrs.src = sanitizedSrc
+
+    // Other attributes
+    if (props.alt) attrs.alt = String(props.alt)
+    if (props.title) attrs.title = String(props.title)
+    if (props.width) attrs.width = String(props.width)
+    if (props.height) attrs.height = String(props.height)
+    if (props.class) attrs.class = String(props.class)
 
     return ['img', mergeAttributes(this.options.HTMLAttributes, attrs)]
   },

@@ -1,5 +1,5 @@
 import { flatCase, pascalCase, titleCase, upperFirst } from 'scule'
-import { hasProtocol } from 'ufo'
+import { hasProtocol, isRelative } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
@@ -47,64 +47,36 @@ const HIDDEN_PROPS = [
   'onClick',
 ]
 
-// https://developer.mozilla.org/fr/docs/Web/HTML/Element/video#attributs
-// const videoProps = [
-//   {
-//     name: 'src',
-//     schema: 'string',
-//   },
-//   {
-//     name: 'autoplay',
-//     schema: 'boolean',
-//   },
-//   {
-//     name: 'controls',
-//     schema: 'boolean',
-//   },
-//   {
-//     name: 'loop',
-//     schema: 'boolean',
-//   },
-//   {
-//     name: 'muted',
-//     schema: 'boolean',
-//   },
-//   {
-//     name: 'poster',
-//     schema: 'string',
-//   },
-//   {
-//     name: 'preload',
-//     schema: 'string',
-//   },
-//   {
-//     name: 'width',
-//     schema: 'number',
-//   },
-//   {
-//     name: 'height',
-//     schema: 'number',
-//   },
-// ] as Array<PropertyMeta>
+/**
+ * Validate and sanitize image URL
+ */
+export function sanitizeImageUrl(url: string): string | null {
+  if (!url) return null
 
-// const imgProps = [
-//   {
-//     name: 'src',
-//     schema: 'string',
-//   },
-//   {
-//     name: 'alt',
-//     schema: 'string',
-//   },
-//   {
-//     name: 'width',
-//     schema: 'number',
-//   },
-//   {
-//     name: 'height',
-//     schema: 'number',
-//   },
-// ] as Array<PropertyMeta>
+  // Allow relative URLs (./image.jpg, ../image.jpg)
+  if (isRelative(url)) return url
+
+  // Allow absolute paths from root (/image.jpg)
+  if (url.startsWith('/')) return url
+
+  // Allow data URLs for images
+  if (url.startsWith('data:image/')) return url
+
+  // For URLs with protocol, only allow http/https
+  if (hasProtocol(url)) {
+    try {
+      const parsed = new URL(url)
+      if (['http:', 'https:'].includes(parsed.protocol)) {
+        return url
+      }
+    }
+    catch {
+      return null
+    }
+  }
+
+  return null
+}
 
 /**
  * Check if a value is valid, not null or undefined
