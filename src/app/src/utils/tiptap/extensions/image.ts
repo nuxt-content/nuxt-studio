@@ -1,4 +1,6 @@
+import type { CommandProps } from '@tiptap/core'
 import { Node, mergeAttributes } from '@tiptap/core'
+import type { SetImageOptions } from '@tiptap/extension-image'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import TiptapExtensionImage from '../../../components/tiptap/extension/TiptapExtensionImage.vue'
 import { sanitizeImageUrl } from '../props'
@@ -7,21 +9,6 @@ export interface ImageOptions {
   inline: boolean
   allowBase64: boolean
   HTMLAttributes: Record<string, unknown>
-}
-
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    image: {
-      /**
-       * Set an image
-       */
-      setImage: (options: { src: string, alt?: string, title?: string, width?: string, height?: string, props?: Record<string, unknown> }) => ReturnType
-      /**
-       * Update image attributes
-       */
-      updateImage: (attrs: Record<string, unknown>) => ReturnType
-    }
-  }
 }
 
 export const Image = Node.create<ImageOptions>({
@@ -114,27 +101,11 @@ export const Image = Node.create<ImageOptions>({
 
   addCommands() {
     return {
-      setImage: options => ({ commands }) => {
+      setImage: (options: SetImageOptions) => ({ commands }: CommandProps) => {
         return commands.insertContent({
           type: this.name,
           attrs: options,
         })
-      },
-      updateImage: attrs => ({ state, tr, dispatch }) => {
-        const { selection } = state
-        const node = state.doc.nodeAt(selection.from)
-
-        if (node?.type.name === this.name) {
-          if (dispatch) {
-            tr.setNodeMarkup(selection.from, undefined, {
-              ...node.attrs,
-              ...attrs,
-            })
-          }
-          return true
-        }
-
-        return false
       },
     }
   },
