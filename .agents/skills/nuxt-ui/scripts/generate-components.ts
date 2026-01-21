@@ -50,12 +50,12 @@ const VERSION_MAP: Record<string, string> = {
   'editor-toolbar': 'v4.3+',
 }
 
-function parseYamlFrontmatter(content: string): { frontmatter: Record<string, any>, body: string } {
+function parseYamlFrontmatter(content: string): { frontmatter: Record<string, unknown>, body: string } {
   const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
   if (!match)
     return { frontmatter: {}, body: content }
 
-  const frontmatter: Record<string, any> = {}
+  const frontmatter: Record<string, unknown> = {}
   const yamlContent = match[1]
 
   // Simple YAML parsing for our needs
