@@ -940,6 +940,253 @@ describe('code block', () => {
   })
 })
 
+describe('images', () => {
+  test('simple image', async () => {
+    const inputContent = '![Alt text](https://example.com/image.jpg)'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'img',
+              props: {
+                src: 'https://example.com/image.jpg',
+                alt: 'Alt text',
+              },
+              children: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'image',
+              attrs: {
+                props: {
+                  src: 'https://example.com/image.jpg',
+                  alt: 'Alt text',
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('image with title', async () => {
+    const inputContent = '![Alt text](https://example.com/image.jpg "Image title")'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'img',
+              props: {
+                src: 'https://example.com/image.jpg',
+                alt: 'Alt text',
+                title: 'Image title',
+              },
+              children: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'image',
+              attrs: {
+                props: {
+                  src: 'https://example.com/image.jpg',
+                  alt: 'Alt text',
+                  title: 'Image title',
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('image with width and height', async () => {
+    const inputContent = '![Alt text](https://example.com/image.jpg){width="800" height="600"}'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'img',
+              props: {
+                src: 'https://example.com/image.jpg',
+                alt: 'Alt text',
+                width: 800,
+                height: 600,
+              },
+              children: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'image',
+              attrs: {
+                props: {
+                  src: 'https://example.com/image.jpg',
+                  alt: 'Alt text',
+                  width: 800,
+                  height: 600,
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+
+    // Note: Width and height are converted to strings during round-trip conversion
+    const expectedGeneratedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'img',
+              props: {
+                src: 'https://example.com/image.jpg',
+                alt: 'Alt text',
+                width: '800',
+                height: '600',
+              },
+              children: [],
+            },
+          ],
+        },
+      ],
+    }
+    expect(generatedMdcJSON.body).toMatchObject(expectedGeneratedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    // Check that the output contains the image with both width and height attributes
+    // (attribute order may vary)
+    expect(outputContent).toContain('![Alt text](https://example.com/image.jpg)')
+    expect(outputContent).toContain('width="800"')
+    expect(outputContent).toContain('height="600"')
+  })
+})
+
 describe('marks', () => {
   test('bold text - **x**', async () => {
     const inputContent = '**x**'
