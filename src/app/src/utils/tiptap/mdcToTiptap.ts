@@ -19,7 +19,7 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   root: node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
   text: node => createTextNode(node as MDCText),
   comment: node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
-  img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
+  img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {} } }),
   // 'nuxt-img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-picture': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   video: node => createTipTapNode(node as MDCElement, 'video'),
@@ -257,11 +257,6 @@ function createPreNode(node: MDCElement) {
 }
 
 function createParagraphNode(node: MDCElement) {
-  // If all children are images, do not create a paragraph
-  if (node.children?.length && node.children?.every(child => (child as MDCElement).tag === 'img')) {
-    return node.children?.map(child => mdcToTiptapMap.img(child))
-  }
-
   node.children = node.children?.filter(child => !(child.type === 'text' && !child.value)) || []
 
   // Flatten children if any are arrays (e.g., from createMark)

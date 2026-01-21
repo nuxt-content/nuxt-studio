@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "ناوی گۆڕاو (Variable)",
         "defaultValuePlaceholder": "بەهای بنەڕەتی"
+      },
+      "image": {
+        "source": "URL سەرچاوەی وێنە",
+        "altText": "دەقی جێگرەوە",
+        "title": "ناونیشانی وێنە",
+        "width": "پانی",
+        "height": "بەرزی",
+        "noSource": "هیچ سەرچاوەیەکی وێنە نییە",
+        "edit": "دەستکاری وێنە",
+        "delete": "سڕینەوەی وێنە"
       }
     },
     "mediaPicker": {

@@ -19,6 +19,7 @@ import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
 import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
+import { Image } from '../../utils/tiptap/extensions/image'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
 import { VideoPicker } from '../../utils/tiptap/extensions/video-picker'
 import { Video } from '../../utils/tiptap/extensions/video'
@@ -195,6 +196,7 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
       }"
       :extensions="[
         Frontmatter,
+        Image,
         ImagePicker,
         VideoPicker,
         Video,

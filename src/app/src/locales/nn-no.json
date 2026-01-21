@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "Variabelnamn",
         "defaultValuePlaceholder": "Standardverdi"
+      },
+      "image": {
+        "source": "Bildekjelde-URL",
+        "altText": "Alternativ tekst",
+        "title": "Bildetittel",
+        "width": "Breidde",
+        "height": "Høgde",
+        "noSource": "Ingen bildekjelde",
+        "edit": "Rediger bilete",
+        "delete": "Slett bilete"
       }
     },
     "mediaPicker": {

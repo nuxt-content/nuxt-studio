@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "Variabelenaam",
         "defaultValuePlaceholder": "Standaardwaarde"
+      },
+      "image": {
+        "source": "Afbeelding bron-URL",
+        "altText": "Alternatieve tekst",
+        "title": "Afbeeldingstitel",
+        "width": "Breedte",
+        "height": "Hoogte",
+        "noSource": "Geen afbeeldingsbron",
+        "edit": "Afbeelding bewerken",
+        "delete": "Afbeelding verwijderen"
       }
     },
     "mediaPicker": {

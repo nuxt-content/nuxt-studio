@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "Nome da variável",
         "defaultValuePlaceholder": "Valor padrão"
+      },
+      "image": {
+        "source": "URL da fonte da imagem",
+        "altText": "Texto alternativo",
+        "title": "Título da imagem",
+        "width": "Largura",
+        "height": "Altura",
+        "noSource": "Sem fonte de imagem",
+        "edit": "Editar imagem",
+        "delete": "Excluir imagem"
       }
     },
     "mediaPicker": {

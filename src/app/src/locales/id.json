@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "Nama variabel",
         "defaultValuePlaceholder": "Nilai default"
+      },
+      "image": {
+        "source": "URL sumber gambar",
+        "altText": "Teks alternatif",
+        "title": "Judul gambar",
+        "width": "Lebar",
+        "height": "Tinggi",
+        "noSource": "Tidak ada sumber gambar",
+        "edit": "Edit gambar",
+        "delete": "Hapus gambar"
       }
     },
     "mediaPicker": {

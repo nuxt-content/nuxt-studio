@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "Tên biến",
         "defaultValuePlaceholder": "Giá trị mặc định"
+      },
+      "image": {
+        "source": "URL nguồn hình ảnh",
+        "altText": "Văn bản thay thế",
+        "title": "Tiêu đề hình ảnh",
+        "width": "Chiều rộng",
+        "height": "Chiều cao",
+        "noSource": "Không có nguồn hình ảnh",
+        "edit": "Chỉnh sửa hình ảnh",
+        "delete": "Xóa hình ảnh"
       }
     },
     "mediaPicker": {

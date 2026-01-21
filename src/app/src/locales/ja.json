@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "変数名",
         "defaultValuePlaceholder": "デフォルト値"
+      },
+      "image": {
+        "source": "画像ソースURL",
+        "altText": "代替テキスト",
+        "title": "画像タイトル",
+        "width": "幅",
+        "height": "高さ",
+        "noSource": "画像ソースがありません",
+        "edit": "画像を編集",
+        "delete": "画像を削除"
       }
     },
     "mediaPicker": {
