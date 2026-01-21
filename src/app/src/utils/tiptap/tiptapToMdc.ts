@@ -334,11 +334,11 @@ function createVideoElement(node: JSONContent): MDCElement {
   if (props.height) videoProps.height = props.height
   if (props.class) videoProps.class = props.class
 
-  // Boolean attributes - use MDC shorthand syntax with ':' prefix and 'true' string
-  if (props.controls === true) videoProps[':controls'] = 'true'
-  if (props.autoplay === true) videoProps[':autoplay'] = 'true'
-  if (props.loop === true) videoProps[':loop'] = 'true'
-  if (props.muted === true) videoProps[':muted'] = 'true'
+  // Optional boolean attributes
+  if (props[':controls']) videoProps[':controls'] = 'true'
+  if (props[':autoplay']) videoProps[':autoplay'] = 'true'
+  if (props[':loop']) videoProps[':loop'] = 'true'
+  if (props[':muted']) videoProps[':muted'] = 'true'
 
   return {
     type: 'element',
