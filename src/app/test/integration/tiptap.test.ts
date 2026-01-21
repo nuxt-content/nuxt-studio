@@ -1350,6 +1350,203 @@ describe('images', () => {
   })
 })
 
+describe('videos', () => {
+  test('simple video with controls', async () => {
+    const inputContent = ':video{controls src="https://example.com/video.mp4"}'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'video',
+          props: {
+            ':controls': 'true',
+            'src': 'https://example.com/video.mp4',
+          },
+          children: [],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'video',
+          attrs: {
+            props: {
+              controls: true,
+              src: 'https://example.com/video.mp4',
+            },
+          },
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    // Video is serialized as MDC component syntax
+    expect(outputContent).toContain(':video')
+    expect(outputContent).toContain('src="https://example.com/video.mp4"')
+    expect(outputContent).toContain('controls')
+  })
+
+  test('video with poster', async () => {
+    const inputContent = ':video{controls poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'video',
+          props: {
+            ':controls': 'true',
+            'poster': 'https://example.com/poster.jpg',
+            'src': 'https://example.com/video.mp4',
+          },
+          children: [],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'video',
+          attrs: {
+            props: {
+              controls: true,
+              poster: 'https://example.com/poster.jpg',
+              src: 'https://example.com/video.mp4',
+            },
+          },
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    // Video is serialized as MDC component syntax
+    expect(outputContent).toContain(':video')
+    expect(outputContent).toContain('src="https://example.com/video.mp4"')
+    expect(outputContent).toContain('poster="https://example.com/poster.jpg"')
+    expect(outputContent).toContain('controls')
+  })
+
+  test('video with loop and muted', async () => {
+    const inputContent = ':video{controls loop muted poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'video',
+          props: {
+            ':controls': 'true',
+            ':loop': 'true',
+            ':muted': 'true',
+            'poster': 'https://example.com/poster.jpg',
+            'src': 'https://example.com/video.mp4',
+          },
+          children: [],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'video',
+          attrs: {
+            props: {
+              controls: true,
+              loop: true,
+              muted: true,
+              poster: 'https://example.com/poster.jpg',
+              src: 'https://example.com/video.mp4',
+            },
+          },
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    // Video is serialized as MDC component syntax
+    expect(outputContent).toContain(':video')
+    expect(outputContent).toContain('src="https://example.com/video.mp4"')
+    expect(outputContent).toContain('poster="https://example.com/poster.jpg"')
+    expect(outputContent).toContain('controls')
+    expect(outputContent).toContain('loop')
+    expect(outputContent).toContain('muted')
+  })
+})
+
 describe('marks', () => {
   test('bold text - **x**', async () => {
     const inputContent = '**x**'

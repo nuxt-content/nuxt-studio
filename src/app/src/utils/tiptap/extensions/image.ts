@@ -3,7 +3,7 @@ import { Node, mergeAttributes } from '@tiptap/core'
 import type { SetImageOptions } from '@tiptap/extension-image'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import TiptapExtensionImage from '../../../components/tiptap/extension/TiptapExtensionImage.vue'
-import { sanitizeImageUrl } from '../props'
+import { sanitizeMediaUrl } from '../props'
 
 export interface ImageOptions {
   inline: boolean
@@ -51,7 +51,7 @@ export const Image = Node.create<ImageOptions>({
           const attrs: Record<string, string> = {}
 
           // Sanitize URL
-          const sanitizedSrc = sanitizeImageUrl(props.src)
+          const sanitizedSrc = sanitizeMediaUrl(props.src, 'image')
           if (sanitizedSrc) attrs.src = sanitizedSrc
 
           // Other attributes
@@ -82,7 +82,7 @@ export const Image = Node.create<ImageOptions>({
     const attrs: Record<string, string> = {}
 
     // Sanitize URL
-    const sanitizedSrc = sanitizeImageUrl(props.src)
+    const sanitizedSrc = sanitizeMediaUrl(props.src, 'image')
     if (sanitizedSrc) attrs.src = sanitizedSrc
 
     // Other attributes

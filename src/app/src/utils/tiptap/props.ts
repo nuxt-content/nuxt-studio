@@ -48,19 +48,19 @@ const HIDDEN_PROPS = [
 ]
 
 /**
- * Validate and sanitize image URL
+ * Validate and sanitize media URL (images and videos)
  */
-export function sanitizeImageUrl(url: string): string | null {
+export function sanitizeMediaUrl(url: string, mediaType: 'image' | 'video'): string | null {
   if (!url) return null
 
-  // Allow relative URLs (./image.jpg, ../image.jpg)
+  // Allow relative URLs (./file.jpg, ../file.mp4)
   if (isRelative(url)) return url
 
-  // Allow absolute paths from root (/image.jpg)
+  // Allow absolute paths from root (/file.jpg)
   if (url.startsWith('/')) return url
 
-  // Allow data URLs for images
-  if (url.startsWith('data:image/')) return url
+  // Allow data URLs for specific media type
+  if (url.startsWith(`data:${mediaType}/`)) return url
 
   // For URLs with protocol, only allow http/https
   if (hasProtocol(url)) {

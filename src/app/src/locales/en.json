@@ -288,6 +288,19 @@
         "noSource": "No image source",
         "edit": "Edit image",
         "delete": "Delete image"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {
@@ -295,13 +308,15 @@
         "title": "Select Image",
         "description": "Choose an image from your media library",
         "notAvailable": "No images available in your media library",
-        "upload": "Upload"
+        "upload": "Upload",
+        "useExternal": "Use external source"
       },
       "video": {
         "title": "Select Video",
         "description": "Choose a video from your media library",
         "notAvailable": "No videos available in your media library",
-        "upload": "Upload"
+        "upload": "Upload",
+        "useExternal": "Use external source"
       }
     },
     "form": {
