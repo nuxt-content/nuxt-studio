@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "نام متغیر",
         "defaultValuePlaceholder": "مقدار پیش‌فرض"
+      },
+      "image": {
+        "source": "URL منبع تصویر",
+        "altText": "متن جایگزین",
+        "title": "عنوان تصویر",
+        "width": "عرض",
+        "height": "ارتفاع",
+        "noSource": "منبع تصویر وجود ندارد",
+        "edit": "ویرایش تصویر",
+        "delete": "حذف تصویر"
       }
     },
     "mediaPicker": {

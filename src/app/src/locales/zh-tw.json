@@ -278,6 +278,16 @@
       "binding": {
         "variablePlaceholder": "變數名稱",
         "defaultValuePlaceholder": "預設值"
+      },
+      "image": {
+        "source": "圖像源 URL",
+        "altText": "替代文字",
+        "title": "圖像標題",
+        "width": "寬度",
+        "height": "高度",
+        "noSource": "無圖像源",
+        "edit": "編輯圖像",
+        "delete": "刪除圖像"
       }
     },
     "mediaPicker": {

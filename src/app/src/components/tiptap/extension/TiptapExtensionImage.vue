@@ -30,7 +30,7 @@ const imageMeta = {
       {
         name: 'alt',
         global: false,
-        description: t('studio.tiptap.image.alt_text'),
+        description: t('studio.tiptap.image.altText'),
         tags: [],
         required: false,
         type: 'string',
@@ -105,11 +105,6 @@ const hasValidSrc = computed(() => !!imageAttrs.value.src)
 
 // Selected state
 const isSelected = computed(() => nodeProps.selected)
-
-// Check if has custom attributes
-const hasAttributes = computed(() => {
-  return !!(imageAttrs.value.alt || imageAttrs.value.title || imageAttrs.value.width || imageAttrs.value.height || imageAttrs.value.class)
-})
 </script>
 
 <template>
@@ -147,7 +142,7 @@ const hasAttributes = computed(() => {
             name="i-lucide-image-off"
             class="size-8"
           />
-          <span class="text-sm">{{ t('studio.tiptap.image.no_source') || 'No image source' }}</span>
+          <span class="text-sm">{{ t('studio.tiptap.image.noSource') }}</span>
         </div>
       </div>
 
@@ -194,17 +189,18 @@ const hasAttributes = computed(() => {
         </UTooltip>
       </div>
 
-      <!-- Attributes indicator (bottom-left corner) -->
+      <!-- Alt text indicator (bottom-left corner) -->
       <div
-        v-if="hasValidSrc && hasAttributes"
-        class="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+        v-if="hasValidSrc && imageAttrs.alt"
+        class="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 max-w-24"
       >
         <UBadge
           size="xs"
           color="neutral"
           variant="subtle"
+          class="truncate block"
         >
-          {{ Object.entries(imageAttrs).filter(([k, v]) => k !== 'src' && v).length }} {{ Object.entries(imageAttrs).filter(([k, v]) => k !== 'src' && v).length === 1 ? 'attribute' : 'attributes' }}
+          {{ imageAttrs.alt }}
         </UBadge>
       </div>
     </div>
