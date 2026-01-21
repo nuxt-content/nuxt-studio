@@ -270,6 +270,169 @@ describe('paragraph', () => {
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('external link with target="_blank" removes target', async () => {
+    const inputContent = '[link](https://external.com){target="_blank"}'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'a',
+              props: {
+                href: 'https://external.com',
+                target: '_blank',
+              },
+              children: [
+                {
+                  type: 'text',
+                  value: 'link',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'paragraph',
+          attrs: {},
+          content: [
+            {
+              type: 'text',
+              marks: [
+                {
+                  type: 'link',
+                  attrs: {
+                    href: 'https://external.com',
+                    target: '_blank',
+                    rel: 'noopener noreferrer nofollow',
+                  },
+                },
+              ],
+              text: 'link',
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    // Expected output should NOT have target="_blank" for external links
+    expect(outputContent).toBe('[link](https://external.com)\n')
+  })
+
+  test('relative link with target="_blank" keeps target', async () => {
+    const inputContent = '[link](/relative){target="_blank"}'
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'a',
+              props: {
+                href: '/relative',
+                target: '_blank',
+              },
+              children: [
+                {
+                  type: 'text',
+                  value: 'link',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'paragraph',
+          attrs: {},
+          content: [
+            {
+              type: 'text',
+              marks: [
+                {
+                  type: 'link',
+                  attrs: {
+                    href: '/relative',
+                    target: '_blank',
+                  },
+                },
+              ],
+              text: 'link',
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    // Expected output SHOULD keep target="_blank" for relative links
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
   test('inline component', async () => {
     const inputContent = 'This is a :badge component'
 
