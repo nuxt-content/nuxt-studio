@@ -178,7 +178,7 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
   }
 }
 
-export const createParagraphElement = (node: JSONContent, propsArray: string[][], rest: object = {}): MDCElement => {
+export const createParagraphElement = (node: JSONContent, propsArray: Array<[string, string | string[]]>, rest: object = {}): MDCElement => {
   const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
