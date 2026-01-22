@@ -56,7 +56,7 @@
     "nuxt-component-meta": "^0.17.1",
     "remark-mdc": "^3.10.0",
     "shiki": "^3.21.0",
-    "unstorage": "1.17.4" 
+    "unstorage": "1.17.4"
   },
   "devDependencies": {
     "@gitbeaker/core": "^43.8.0",
@@ -89,6 +89,9 @@
     "vue": "^3.5.27",
     "vue-router": "^4.6.4",
     "vue-tsc": "^3.2.2"
+  },
+  "resolutions": {
+    "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@f82fed2"
   },
   "packageManager": "pnpm@10.28.1",
   "keywords": [
