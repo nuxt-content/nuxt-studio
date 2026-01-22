@@ -1051,7 +1051,7 @@ Hello
   })
 
   test('block element with boolean props', async () => {
-    const inputContent = `::u-button{block :square="false"}
+    const inputContent = `::u-button{block :square='false'}
 My button
 ::`
 
