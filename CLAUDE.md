@@ -16,7 +16,7 @@ Nuxt Studio is an open-source, self-hostable Nuxt module that enables visual con
 - **Media Management**: Visual media library with drag-and-drop support
 - **Development Mode**: Local filesystem sync for development
 - **Production Mode**: OAuth + Git publishing for deployed sites
-- **i18n Support**: 22 languages built-in
+- **i18n Support**: 24 languages built-in
 
 ## Architecture
 
@@ -72,40 +72,41 @@ studio/
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxt/content', 'nuxt-studio'],
+  modules: ["@nuxt/content", "nuxt-studio"],
 
   studio: {
-    route: '/_studio',  // Admin route
+    route: "/_studio", // Admin route
 
     // Git repository config (required for production)
     repository: {
-      provider: 'github',  // 'github' | 'gitlab'
-      owner: 'username',
-      repo: 'repo-name',
-      branch: 'main',
-      rootDir: '',         // For monorepos
-      private: true        // Request private repo access
+      provider: "github", // 'github' | 'gitlab'
+      owner: "username",
+      repo: "repo-name",
+      branch: "main",
+      rootDir: "", // For monorepos
+      private: true, // Request private repo access
     },
 
     // i18n
     i18n: {
-      defaultLocale: 'en'  // 22 languages available
+      defaultLocale: "en", // 24 languages available
     },
 
     // Component filtering
     meta: {
       components: {
-        include: ['Content*'],  // Whitelist
-        exclude: ['Hidden*']    // Blacklist
-      }
-    }
-  }
-})
+        include: ["Content*"], // Whitelist
+        exclude: ["Hidden*"], // Blacklist
+      },
+    },
+  },
+});
 ```
 
 ### Environment Variables
 
 **GitHub OAuth + GitHub Git Provider**:
+
 ```bash
 STUDIO_GITHUB_CLIENT_ID=xxx
 STUDIO_GITHUB_CLIENT_SECRET=xxx
@@ -113,6 +114,7 @@ STUDIO_GITHUB_MODERATORS=email1@example.com,email2@example.com  # Optional
 ```
 
 **GitLab OAuth + GitLab Git Provider**:
+
 ```bash
 STUDIO_GITLAB_APPLICATION_ID=xxx
 STUDIO_GITLAB_CLIENT_SECRET=xxx
@@ -120,6 +122,7 @@ STUDIO_GITLAB_MODERATORS=email1@example.com,email2@example.com  # Optional
 ```
 
 **Google OAuth** (requires PAT):
+
 ```bash
 STUDIO_GOOGLE_CLIENT_ID=xxx
 STUDIO_GOOGLE_CLIENT_SECRET=xxx
@@ -128,6 +131,7 @@ STUDIO_GITHUB_TOKEN=xxx  # or STUDIO_GITLAB_TOKEN
 ```
 
 **Custom Auth** (requires PAT):
+
 ```bash
 STUDIO_GITHUB_TOKEN=xxx  # or STUDIO_GITLAB_TOKEN
 ```
@@ -135,6 +139,7 @@ STUDIO_GITHUB_TOKEN=xxx  # or STUDIO_GITLAB_TOKEN
 ## Authentication vs Git Providers
 
 **Important distinction**:
+
 - **Auth Providers**: Control who can login (GitHub OAuth, GitLab OAuth, Google OAuth, Custom)
 - **Git Providers**: Control where content is committed (GitHub, GitLab)
 
@@ -179,6 +184,7 @@ pnpm lint        # ESLint
 ### File types
 
 User can edit:
+
 - Markdown files with MDC syntax
 - YAML files
 - JSON files
@@ -190,10 +196,10 @@ User can edit:
 Studio leverages Nuxt Content's MDC syntax for embedding Vue components in Markdown with props and slots.
 
 ```md
-::component-name
----
-prop: value
----
+## ::component-name
+
+## prop: value
+
 #slot-name
 Slot content here
 ::
@@ -205,8 +211,8 @@ Frontmatter is a convention of Markdown-based CMS to provide meta-data to pages,
 
 ```md
 ---
-title: 'Title of the page'
-description: 'meta description of the page'
+title: "Title of the page"
+description: "meta description of the page"
 ---
 
 <!-- Content of the page in markdown (MDC) format -->
@@ -224,25 +230,28 @@ description: 'meta description of the page'
 #### YAML files
 
 ```yaml
-title: 'Title of the page'
-description: 'meta description of the page'
+title: "Title of the page"
+description: "meta description of the page"
 ```
 
 ### Editors
 
 **Tiptap editor**
+
 - Can edit Markdown files with MDC syntax
 - Tiptap editor manipulate Tiptap AST which is directly converted to MDC AST and stored in the existing SQLite database
 - If we want to display raw markdown of a file, we can use the `generateContentFromDocument` function to get the raw markdown (ie. preview page or monaco editor)
 - If we want to generate the MDC AST from the raw markdown, we can use the `generateDocumentFromMarkdownContent` function
 
 **Form editor**
+
 - Can edit YAML files
 - Can edit JSON files
 - A vmodel form is generated based on the collection schema
 - Every time the form is updated, the content is converted to pure json to be stored in the database
 
 **Code editor**
+
 - Markdown files with MDC syntax
 - YAML files
 - JSON files
@@ -251,6 +260,7 @@ description: 'meta description of the page'
 ### Draft system
 
 **In production mode:**
+
 - Exisiting db files is stored in SQLite browser side database by Nuxt Content. It's loaded by a dump file.
 - Markdown files are stored as MDC AST
 - YAML and JSON files are stored as pure json
@@ -258,6 +268,7 @@ description: 'meta description of the page'
 - Drafts files content is merged with the existing db files in the browser before being rendered => app is rerendered with updated content in db => this is the preview you see in the browser
 
 **In development mode:**
+
 - There is no draft system, changes are synced with the server filesystem directly
 
 ### External helpers
@@ -265,6 +276,7 @@ description: 'meta description of the page'
 #### nuxt-component-meta
 
 Studio uses `nuxt-component-meta` to:
+
 - Discover available components in the user's project
 - Find props editors for components
 - Find slots for components
@@ -272,6 +284,7 @@ Studio uses `nuxt-component-meta` to:
 #### @nuxtjs/mdc
 
 Studio uses `@nuxtjs/mdc` to:
+
 - Parse MDC syntax
 - Render MDC syntax
 - Generate MDC AST
@@ -291,10 +304,12 @@ Studio uses `shiki` to highlight code in code blocks.
 ### Server Routes
 
 **Development Mode**:
+
 - `/__nuxt_studio/dev/content/*` - File operations
 - `/__nuxt_studio/dev/public/*` - Media operations
 
 **Production Mode**:
+
 - `/__nuxt_studio/auth/*` - OAuth callbacks
 - Service routes use Git provider APIs
 
@@ -333,19 +348,23 @@ Studio uses `shiki` to highlight code in code blocks.
 ## Key Dependencies
 
 **Required**:
+
 - `@nuxt/content` - Content layer (peer dependency)
 - `@nuxtjs/mdc` - MDC parsing/rendering
 
 **Core**:
+
 - `unstorage` - Storage abstraction
 - `idb-keyval` - IndexedDB for drafts
 - `shiki` - Syntax highlighting
 
 **Editors**:
+
 - `modern-monaco` - Code editor
 - `minimark` - Markdown processing (TipTap)
 
 **Git Providers**:
+
 - `@octokit/types` - GitHub API
 - `@gitbeaker/core` - GitLab API
 
@@ -359,11 +378,11 @@ Use hybrid rendering to pre-render pages while keeping auth routes server-side:
 export default defineNuxtConfig({
   nitro: {
     prerender: {
-      routes: ['/'],
-      crawlLinks: true
-    }
-  }
-})
+      routes: ["/"],
+      crawlLinks: true,
+    },
+  },
+});
 ```
 
 ## Related Documentation
