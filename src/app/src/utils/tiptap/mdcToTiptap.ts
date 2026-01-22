@@ -342,7 +342,7 @@ function createSpanStyleNode(node: MDCElement) {
   const spanClass = (node as MDCElement).props?.class || (node as MDCElement).props?.className
   const spanAttrs = {
     style: isValidAttr(spanStyle) ? String(spanStyle).trim() : undefined,
-    class: isValidAttr(spanClass) ? String(spanClass).trim() : undefined,
+    class: isValidAttr(spanClass) ? (typeof spanClass === 'string' ? spanClass : (spanClass as Array<string>).join(' ')).trim() : undefined,
   }
   const cleanedNode = { ...(node as MDCElement), props: { ...(node as MDCElement).props } }
 

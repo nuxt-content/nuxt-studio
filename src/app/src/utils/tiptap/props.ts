@@ -93,20 +93,25 @@ export const isValidAttr = (value?: string | null) => {
  * Clean span props, removing null and undefined values
  */
 export const cleanSpanProps = (attrs?: Record<string, unknown> | null) => {
-  const props: Record<string, string> = {}
+  const props: Record<string, string | string[]> = {}
   if (isValidAttr(attrs?.style as string)) props.style = String(attrs!.style).trim()
-  if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) props.class = String((attrs as Record<string, unknown>).class).trim()
+  if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) {
+    const classValue = String((attrs as Record<string, unknown>).class).trim()
+    // Convert space-separated class string back to array for className
+    props.className = classValue.split(' ')
+  }
   return props
 }
 
 /**
- * Process and normalize element props, converting className to class
+ * Process and normalize element props, preserving className as array
  */
-export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string]> {
+export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string | string[]]> {
   return Object.entries({ ...nodeProps, ...extraProps })
     .map(([key, value]) => {
       if (key === 'className') {
-        return ['class', typeof value === 'string' ? value : (value as Array<string>).join(' ')] as [string, string]
+        // Keep className as array if it's already an array
+        return ['className', value] as [string, string | string[]]
       }
       return [key.trim(), String(value).trim()] as [string, string]
     })
