@@ -8,7 +8,7 @@ const props = defineProps<NodeViewProps>()
 
 const isOpen = ref(true)
 
-const handleImageSelect = (image: TreeItem) => {
+const handleImageSelect = (image: TreeItem | null) => {
   const pos = props.getPos()
 
   if (typeof pos === 'number') {
@@ -20,8 +20,8 @@ const handleImageSelect = (image: TreeItem) => {
         type: 'image',
         attrs: {
           props: {
-            src: image.routePath,
-            alt: image.name,
+            src: image?.routePath || '',
+            alt: image?.name || '',
           },
         },
       })

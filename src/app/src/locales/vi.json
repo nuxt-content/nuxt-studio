@@ -288,6 +288,19 @@
         "noSource": "Không có nguồn hình ảnh",
         "edit": "Chỉnh sửa hình ảnh",
         "delete": "Xóa hình ảnh"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

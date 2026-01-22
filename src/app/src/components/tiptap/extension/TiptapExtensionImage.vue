@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { useI18n } from 'vue-i18n'
 import type { ComponentMeta } from '../../../types'
 import TiptapComponentProps from '../TiptapComponentProps.vue'
-import { sanitizeImageUrl } from '../../../utils/tiptap/props'
+import { sanitizeMediaUrl } from '../../../utils/tiptap/props'
 
 const nodeProps = defineProps(nodeViewProps)
 const { t } = useI18n()
@@ -78,7 +78,7 @@ const imageAttrs = computed(() => {
   const props = nodeProps.node.attrs.props || {}
   const src = props.src || ''
   return {
-    src: sanitizeImageUrl(src) || '',
+    src: sanitizeMediaUrl(src, 'image') || '',
     alt: props.alt || '',
     title: props.title || '',
     width: props.width || '',
@@ -105,6 +105,13 @@ const hasValidSrc = computed(() => !!imageAttrs.value.src)
 
 // Selected state
 const isSelected = computed(() => nodeProps.selected)
+
+// Auto-open popover if src is empty (for external source entry)
+onMounted(() => {
+  if (!nodeProps.node.attrs.props?.src) {
+    isPopoverOpen.value = true
+  }
+})
 </script>
 
 <template>
@@ -134,7 +141,7 @@ const isSelected = computed(() => nodeProps.selected)
       <!-- Placeholder for missing src -->
       <div
         v-else
-        class="flex items-center justify-center bg-muted text-muted min-h-40 cursor-pointer"
+        class="flex items-center justify-center bg-muted text-muted min-h-40 cursor-pointer p-16"
         @click="isPopoverOpen = true"
       >
         <div class="flex flex-col items-center gap-2">
