@@ -17,7 +17,7 @@ import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph } from '../../utils/tiptap/editor'
+import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph, getAITransformItems } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
 import { Image } from '../../utils/tiptap/extensions/image'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
@@ -31,6 +31,8 @@ import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../utils/tiptap/extensions/binding'
+import { AICompletion } from '../../utils/tiptap/extensions/ai-completion'
+import { useAI } from '../../composables/useAI'
 
 const props = defineProps({
   draftItem: {
@@ -44,6 +46,7 @@ const document = defineModel<DatabasePageItem>()
 const { host } = useStudio()
 const { preferences } = useStudioState()
 const { t } = useI18n()
+const ai = useAI()
 
 const tiptapJSON = ref<JSONContent>()
 
@@ -169,6 +172,69 @@ const toolbarItems = computed(() => getStandardToolbarItems(t))
 const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
   emoji => !emoji.name.startsWith('regional_indicator_'),
 )
+
+const aiExtensions = computed(() => {
+  if (!ai.enabled) {
+    return []
+  }
+
+  return [
+    AICompletion.configure({
+      onRequest: async (prompt: string) => {
+        return await ai.continue(prompt)
+      },
+    }),
+  ]
+})
+
+function getAITransformMenuItems(editor: Editor) {
+  if (!ai.enabled) {
+    return []
+  }
+
+  const transformItems = getAITransformItems(t)
+  return [
+    transformItems.map(item => ({
+      label: item.label,
+      icon: item.icon,
+      onSelect: () => handleAITransform(editor, item.mode),
+    })),
+  ]
+}
+
+async function handleAITransform(editor: Editor, mode: 'fix' | 'simplify' | 'extend' | 'summarize') {
+  const { from, to, empty } = editor.state.selection
+
+  if (empty) return
+
+  const selectedText = editor.state.doc.textBetween(from, to, '\n')
+
+  try {
+    let result = ''
+
+    switch (mode) {
+      case 'fix':
+        result = await ai.fix(selectedText)
+        break
+      case 'simplify':
+        result = await ai.simplify(selectedText)
+        break
+      case 'extend':
+        result = await ai.extend(selectedText)
+        break
+      case 'summarize':
+        result = await ai.summarize(selectedText)
+        break
+    }
+
+    if (result) {
+      editor.chain().focus().deleteSelection().insertContent(result).run()
+    }
+  }
+  catch (error) {
+    console.error('AI transform error:', error)
+  }
+}
 </script>
 
 <template>
@@ -207,6 +273,7 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         CodeBlock,
         Emoji,
         Binding,
+        ...aiExtensions,
       ]"
       :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
@@ -220,6 +287,21 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         </template>
         <template #span-style>
           <TiptapSpanStylePopover :editor="editor" />
+        </template>
+        <template #ai-transform>
+          <UDropdownMenu
+            v-slot="{ open }"
+            :items="getAITransformMenuItems(editor)"
+            :modal="false"
+          >
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-bot"
+              :active="open"
+            />
+          </UDropdownMenu>
         </template>
       </UEditorToolbar>
 

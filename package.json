@@ -46,9 +46,12 @@
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/gateway": "^1.0.7",
+    "@ai-sdk/vue": "^1.0.13",
     "@iconify-json/lucide": "^1.2.86",
     "@nuxtjs/mdc": "^0.20.0",
     "@vueuse/core": "^14.1.0",
+    "ai": "^4.1.10",
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "js-yaml": "^4.1.1",

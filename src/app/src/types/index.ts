@@ -24,6 +24,7 @@ export * from './form'
 export interface StudioHost {
   meta: {
     dev: boolean
+    ai: boolean
     getComponents: () => ComponentMeta[]
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme

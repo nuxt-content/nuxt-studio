@@ -234,6 +234,12 @@
         "insertAfter": "Insert after",
         "delete": "Delete"
       },
+      "ai": {
+        "fix": "Fix Grammar & Spelling",
+        "simplify": "Simplify Text",
+        "extend": "Extend Text",
+        "summarize": "Summarize"
+      },
       "element": {
         "addSlot": "Add slot",
         "editProps": "Edit props",
