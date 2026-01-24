@@ -1,30 +1,13 @@
 import { useCompletion } from '@ai-sdk/vue'
-import type { Ref } from 'vue'
 import { ref } from 'vue'
 
 export interface AIGenerateOptions {
   prompt: string
-  mode?: 'continue' | 'fix' | 'simplify' | 'summarize' | 'translate' | 'extend' | 'reduce'
+  mode?: 'continue' | 'fix' | 'improve' | 'simplify' | 'translate'
   language?: string
 }
 
-export interface UseAIReturn {
-  enabled: boolean
-  isLoading: Ref<boolean | undefined>
-  error: Ref<Error | undefined>
-  completion: Ref<string>
-  stop: () => void
-  generate: (options: AIGenerateOptions) => Promise<string>
-  continue: (prompt: string) => Promise<string>
-  fix: (text: string) => Promise<string>
-  simplify: (text: string) => Promise<string>
-  summarize: (text: string) => Promise<string>
-  translate: (text: string, language: string) => Promise<string>
-  extend: (text: string) => Promise<string>
-  reduce: (text: string) => Promise<string>
-}
-
-export function useAI(): UseAIReturn {
+export function useAI() {
   const host = window.useStudioHost()
   const enabled = host.meta.ai
 
@@ -39,11 +22,9 @@ export function useAI(): UseAIReturn {
       generate: emptyPromise,
       continue: emptyPromise,
       fix: emptyPromise,
+      improve: emptyPromise,
       simplify: emptyPromise,
-      summarize: emptyPromise,
       translate: emptyPromise,
-      extend: emptyPromise,
-      reduce: emptyPromise,
     }
   }
 
@@ -85,24 +66,16 @@ export function useAI(): UseAIReturn {
     return generate({ prompt: text, mode: 'fix' })
   }
 
+  async function improve(text: string): Promise<string> {
+    return generate({ prompt: text, mode: 'improve' })
+  }
+
   async function simplify(text: string): Promise<string> {
     return generate({ prompt: text, mode: 'simplify' })
   }
 
-  async function summarize(text: string): Promise<string> {
-    return generate({ prompt: text, mode: 'summarize' })
-  }
-
   async function translate(text: string, language: string): Promise<string> {
     return generate({ prompt: text, mode: 'translate', language })
-  }
-
-  async function extend(text: string): Promise<string> {
-    return generate({ prompt: text, mode: 'extend' })
-  }
-
-  async function reduce(text: string): Promise<string> {
-    return generate({ prompt: text, mode: 'reduce' })
   }
 
   return {
@@ -114,10 +87,8 @@ export function useAI(): UseAIReturn {
     generate,
     continue: continueText,
     fix,
+    improve,
     simplify,
-    summarize,
     translate,
-    extend,
-    reduce,
   }
 }

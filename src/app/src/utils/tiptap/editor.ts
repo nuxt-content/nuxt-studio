@@ -35,9 +35,9 @@ export const getMarkItems = (t: TFunction) => [
 
 export const getAITransformItems = (t: TFunction) => [
   { mode: 'fix', label: t('studio.tiptap.ai.fix'), icon: 'i-lucide-wand-sparkles' },
-  { mode: 'simplify', label: t('studio.tiptap.ai.simplify'), icon: 'i-lucide-arrow-down-to-line' },
-  { mode: 'extend', label: t('studio.tiptap.ai.extend'), icon: 'i-lucide-arrow-up-from-line' },
-  { mode: 'summarize', label: t('studio.tiptap.ai.summarize'), icon: 'i-lucide-list-minus' },
+  { mode: 'improve', label: t('studio.tiptap.ai.improve'), icon: 'i-lucide-sparkles' },
+  { mode: 'simplify', label: t('studio.tiptap.ai.simplify'), icon: 'i-lucide-minimize-2' },
+  { mode: 'translate', label: t('studio.tiptap.ai.translate'), icon: 'i-lucide-languages' },
 ] as const
 
 export const getStandardToolbarItems = (t: TFunction) => [

@@ -30,8 +30,10 @@ import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
+import ContentEditorAIValidation from './ContentEditorAIValidation.vue'
 import { Binding } from '../../utils/tiptap/extensions/binding'
 import { AICompletion } from '../../utils/tiptap/extensions/ai-completion'
+import { AITransform } from '../../utils/tiptap/extensions/ai-transform'
 import { useAI } from '../../composables/useAI'
 
 const props = defineProps({
@@ -49,6 +51,14 @@ const { t } = useI18n()
 const ai = useAI()
 
 const tiptapJSON = ref<JSONContent>()
+
+// AI Floating Buttons
+const showAIButtons = ref(false)
+const aiButtonsRect = ref<DOMRect | null>(null)
+const aiButtonsCallbacks = ref<{
+  onAccept: () => void
+  onDecline: () => void
+} | null>(null)
 
 const removeReservedKeys = host.document.utils.removeReservedKeys
 
@@ -184,6 +194,21 @@ const aiExtensions = computed(() => {
         return await ai.continue(prompt)
       },
     }),
+    AITransform.configure({
+      onShowButtons: (data) => {
+        showAIButtons.value = true
+        aiButtonsRect.value = data.rect
+        aiButtonsCallbacks.value = {
+          onAccept: data.onAccept,
+          onDecline: data.onDecline,
+        }
+      },
+      onHideButtons: () => {
+        showAIButtons.value = false
+        aiButtonsRect.value = null
+        aiButtonsCallbacks.value = null
+      },
+    }),
   ]
 })
 
@@ -202,43 +227,62 @@ function getAITransformMenuItems(editor: Editor) {
   ]
 }
 
-async function handleAITransform(editor: Editor, mode: 'fix' | 'simplify' | 'extend' | 'summarize') {
-  const { from, to, empty } = editor.state.selection
+async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simplify' | 'translate') {
+  const { empty } = editor.state.selection
 
   if (empty) return
 
+  // Get selected text
+  const { from, to } = editor.state.selection
   const selectedText = editor.state.doc.textBetween(from, to, '\n')
 
-  try {
-    let result = ''
-
+  // Start transformation with AI call
+  editor.commands.transformSelection(mode, async () => {
+    // Map the mode to the appropriate AI function
+    let result: string
     switch (mode) {
       case 'fix':
         result = await ai.fix(selectedText)
         break
+      case 'improve':
+        result = await ai.improve(selectedText)
+        break
       case 'simplify':
         result = await ai.simplify(selectedText)
         break
-      case 'extend':
-        result = await ai.extend(selectedText)
+      case 'translate':
+        result = await ai.translate(selectedText, 'fr')
         break
-      case 'summarize':
-        result = await ai.summarize(selectedText)
-        break
+      default:
+        result = selectedText
     }
 
-    if (result) {
-      editor.chain().focus().deleteSelection().insertContent(result).run()
-    }
+    return result
+  })
+}
+
+function handleAIAccept() {
+  if (aiButtonsCallbacks.value) {
+    aiButtonsCallbacks.value.onAccept()
   }
-  catch (error) {
-    console.error('AI transform error:', error)
+}
+
+function handleAIDecline() {
+  if (aiButtonsCallbacks.value) {
+    aiButtonsCallbacks.value.onDecline()
   }
 }
 </script>
 
 <template>
   <div class="h-full flex flex-col">
+    <ContentEditorAIValidation
+      :show="showAIButtons"
+      :rect="aiButtonsRect"
+      @accept="handleAIAccept"
+      @decline="handleAIDecline"
+    />
+
     <ContentEditorTipTapDebug
       v-if="preferences.debug"
       :current-tiptap="currentTiptap"
@@ -298,7 +342,7 @@ async function handleAITransform(editor: Editor, mode: 'fix' | 'simplify' | 'ext
               color="neutral"
               variant="ghost"
               size="sm"
-              icon="i-lucide-bot"
+              icon="i-lucide-sparkles"
               :active="open"
             />
           </UDropdownMenu>

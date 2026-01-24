@@ -143,6 +143,6 @@ CRITICAL RULES:
     model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
     system,
     prompt,
-    maxTokens: maxOutputTokens,
+    maxOutputTokens,
   }).toTextStreamResponse()
 })
