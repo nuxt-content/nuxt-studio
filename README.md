@@ -61,21 +61,24 @@ Add it to your `nuxt.config.ts` and configure your repository:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@nuxt/content", "nuxt-studio"],
-
+  modules: [
+    '@nuxt/content',
+    'nuxt-studio'
+  ],
+  
   studio: {
     // Studio admin route (default: '/_studio')
-    route: "/_studio",
-
+    route: '/_studio',
+    
     // Git repository configuration (owner and repo are required)
     repository: {
-      provider: "github", // 'github' or 'gitlab'
-      owner: "your-username", // your GitHub/GitLab username or organization
-      repo: "your-repo", // your repository name
-      branch: "main", // the branch to commit to (default: main)
-    },
-  },
-});
+      provider: 'github', // 'github' or 'gitlab'
+      owner: 'your-username', // your GitHub/GitLab username or organization
+      repo: 'your-repo', // your repository name
+      branch: 'main', // the branch to commit to (default: main)
+    }
+  }
+})
 ```
 
 ### 4. Production Mode
@@ -114,19 +117,19 @@ Once deployed, navigate to your configured route (default: `/_studio`) and authe
 export default defineNuxtConfig({
   studio: {
     // Studio admin login route
-    route: "/_studio", // default
+    route: '/_studio', // default
 
     // Git repository configuration
     repository: {
-      provider: "github", // 'github' or 'gitlab' (default: 'github')
-      owner: "your-username", // your GitHub/GitLab owner (required)
-      repo: "your-repo", // your repository name (required)
-      branch: "main", // branch to commit to (default: 'main')
-      rootDir: "", // subdirectory for monorepos (default: '')
+      provider: 'github', // 'github' or 'gitlab' (default: 'github')
+      owner: 'your-username', // your GitHub/GitLab owner (required)
+      repo: 'your-repo', // your repository name (required)
+      branch: 'main', // branch to commit to (default: 'main')
+      rootDir: '', // subdirectory for monorepos (default: '')
       private: true, // request access to private repos (default: true)
     },
-  },
-});
+  }
+})
 ```
 
 ## Contributing
@@ -235,7 +238,9 @@ Published under the [MIT](LICENSE) license.
 
 [npm-version-src]: https://img.shields.io/npm/v/nuxt-studio?style=flat&colorA=020420&colorB=00DC82
 [npm-version-href]: https://npmjs.com/package/nuxt-studio
+
 [npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-studio.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-downloads-href]: https://npm.chart.dev/nuxt-studio
+
 [license-src]: https://img.shields.io/npm/l/nuxt-studio.svg?style=flat&colorA=020420&colorB=00DC82
 [license-href]: https://npmjs.com/package/nuxt-studio
