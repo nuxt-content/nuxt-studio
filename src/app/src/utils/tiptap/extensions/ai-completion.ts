@@ -11,6 +11,7 @@ export interface CompletionStorage {
   position: number | null
   isLoading: boolean
   visible: boolean
+  debounceTimer: number | null
 }
 
 declare module '@tiptap/core' {
@@ -47,6 +48,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
       position: null,
       isLoading: false,
       visible: false,
+      debounceTimer: null,
     }
   },
 
@@ -56,9 +58,17 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
         () =>
           ({ editor, state }) => {
             const { to } = state.selection
-            const text = state.doc.textBetween(0, to, '\n')
 
             if (!this.options.onRequest || this.storage.isLoading) {
+              return false
+            }
+
+            // Get context: up to 1000 characters before cursor
+            const contextStart = Math.max(0, to - 1000)
+            const context = state.doc.textBetween(contextStart, to, '\n')
+
+            // Don't trigger if context is too short or just whitespace
+            if (context.trim().length < 3) {
               return false
             }
 
@@ -66,12 +76,21 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             this.storage.position = to
 
             this.options
-              .onRequest(text)
+              .onRequest(context)
               .then((suggestion) => {
-                this.storage.suggestion = suggestion
-                this.storage.isLoading = false
-                this.storage.visible = true
-                editor.view.dispatch(editor.state.tr)
+                // Only show if suggestion is not empty and position hasn't changed
+                if (suggestion && suggestion.trim().length > 0 && this.storage.position === to) {
+                  this.storage.suggestion = suggestion
+                  this.storage.isLoading = false
+                  this.storage.visible = true
+                  editor.view.dispatch(editor.state.tr)
+                }
+                else {
+                  this.storage.isLoading = false
+                  this.storage.suggestion = ''
+                  this.storage.position = null
+                  this.storage.visible = false
+                }
               })
               .catch(() => {
                 this.storage.isLoading = false
@@ -101,8 +120,14 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
       dismissCompletion:
         () =>
           ({ editor }) => {
-            if (!this.storage.suggestion) {
+            if (!this.storage.suggestion && !this.storage.debounceTimer) {
               return false
+            }
+
+            // Clear debounce timer if exists
+            if (this.storage.debounceTimer) {
+              clearTimeout(this.storage.debounceTimer)
+              this.storage.debounceTimer = null
             }
 
             this.storage.suggestion = ''
@@ -132,13 +157,100 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
       'Mod-j': () => {
         return this.editor.commands.triggerCompletion()
       },
+      // Dismiss suggestion when typing
+      'Space': () => {
+        if (this.storage.visible) {
+          this.editor.commands.dismissCompletion()
+        }
+        return false // Let the space be inserted normally
+      },
+      'Enter': () => {
+        if (this.storage.visible) {
+          this.editor.commands.dismissCompletion()
+        }
+        return false // Let enter work normally
+      },
+      // Dismiss on arrow keys
+      'ArrowLeft': () => {
+        if (this.storage.visible) {
+          this.editor.commands.dismissCompletion()
+        }
+        return false
+      },
+      'ArrowRight': () => {
+        if (this.storage.visible) {
+          this.editor.commands.dismissCompletion()
+        }
+        return false
+      },
+      'ArrowUp': () => {
+        if (this.storage.visible) {
+          this.editor.commands.dismissCompletion()
+        }
+        return false
+      },
+      'ArrowDown': () => {
+        if (this.storage.visible) {
+          this.editor.commands.dismissCompletion()
+        }
+        return false
+      },
     }
   },
 
   addProseMirrorPlugins() {
     const storage = this.storage
+    const editor = this.editor
 
     return [
+      // Auto-trigger plugin
+      new Plugin({
+        key: new PluginKey('aiCompletionAutoTrigger'),
+        appendTransaction: (_transactions, _oldState, newState) => {
+          // Clear any existing timer
+          if (storage.debounceTimer) {
+            clearTimeout(storage.debounceTimer)
+            storage.debounceTimer = null
+          }
+
+          const { from, to } = newState.selection
+
+          // If suggestion is visible and cursor moved away from the suggestion position, dismiss it
+          if (storage.visible && storage.position !== null && to !== storage.position) {
+            storage.suggestion = ''
+            storage.position = null
+            storage.visible = false
+            return newState.tr
+          }
+
+          // Don't auto-trigger if:
+          // - Already loading
+          // - A suggestion is already visible
+          // - Selection is not at the end (user is editing in the middle)
+          if (storage.isLoading || storage.visible || from !== to) {
+            return null
+          }
+
+          // Get text before cursor
+          const textBeforeCursor = newState.doc.textBetween(Math.max(0, to - 100), to, '\n')
+
+          // Only trigger if the user typed actual content (not just spaces/newlines)
+          // and the text ends with a word character or punctuation
+          if (textBeforeCursor.trim().length === 0 || /\s$/.test(textBeforeCursor)) {
+            return null
+          }
+
+          // Debounce: wait 500ms after user stops typing
+          storage.debounceTimer = window.setTimeout(() => {
+            if (!storage.isLoading && !storage.visible) {
+              editor.commands.triggerCompletion()
+            }
+          }, 500)
+
+          return null
+        },
+      }),
+      // Decoration plugin
       new Plugin({
         key: new PluginKey('aiCompletion'),
         props: {
@@ -147,15 +259,18 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
               return DecorationSet.empty
             }
 
-            const widget = Decoration.widget(storage.position, () => {
+            const decoration = Decoration.widget(storage.position, () => {
               const span = document.createElement('span')
               span.className = 'completion-suggestion'
               span.textContent = storage.suggestion
-              span.style.cssText = 'color: var(--ui-text-muted); opacity: 0.6; pointer-events: none;'
+              span.style.cssText = 'color: rgb(156, 163, 175); opacity: 0.7; pointer-events: none; font-style: italic; display: inline;'
               return span
-            }, { side: 1 })
+            }, {
+              side: 0, // Place at exact position, not before or after
+              key: 'ai-completion',
+            })
 
-            return DecorationSet.create(state.doc, [widget])
+            return DecorationSet.create(state.doc, [decoration])
           },
         },
       }),

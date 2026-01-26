@@ -2,6 +2,7 @@ import { streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, readBody, createError, useSession, getRequestProtocol } from 'h3'
 import { useRuntimeConfig } from '#imports'
+import type { AIGenerateRequest } from '../../../../../../shared/types/ai'
 
 export default eventHandler(async (event) => {
   const config = useRuntimeConfig(event)
@@ -36,11 +37,7 @@ export default eventHandler(async (event) => {
 
   const gateway = createGateway({ apiKey })
 
-  const { prompt, mode, language } = await readBody<{
-    prompt: string
-    mode?: string
-    language?: string
-  }>(event)
+  const { prompt, mode, language } = await readBody<AIGenerateRequest>(event)
 
   if (!prompt) {
     throw createError({

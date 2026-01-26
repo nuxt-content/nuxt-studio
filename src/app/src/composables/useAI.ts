@@ -1,11 +1,6 @@
 import { useCompletion } from '@ai-sdk/vue'
 import { ref } from 'vue'
-
-export interface AIGenerateOptions {
-  prompt: string
-  mode?: 'continue' | 'fix' | 'improve' | 'simplify' | 'translate'
-  language?: string
-}
+import type { AIGenerateOptions } from '../../../shared/types/ai'
 
 export function useAI() {
   const host = window.useStudioHost()
