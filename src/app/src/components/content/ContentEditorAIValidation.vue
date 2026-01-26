@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import type { CSSProperties } from 'vue'
 
 const props = defineProps<{
@@ -11,6 +11,9 @@ const emit = defineEmits<{
   accept: []
   decline: []
 }>()
+
+const containerRef = ref<HTMLElement>()
+const clickCount = ref(0)
 
 const style = computed<CSSProperties>(() => {
   if (!props.rect) {
@@ -27,29 +30,60 @@ const style = computed<CSSProperties>(() => {
     transform: 'translateX(-50%)',
   }
 })
+
+// Reset click count when buttons are shown
+watch(() => props.show, (newShow) => {
+  if (newShow) {
+    clickCount.value = 0
+  }
+})
+
+// Handle clicks outside the buttons
+function handleClickOutside(event: MouseEvent) {
+  if (!props.show || !containerRef.value) return
+
+  const target = event.target as Node
+  if (!containerRef.value.contains(target)) {
+    clickCount.value++
+
+    // Decline on second click outside
+    if (clickCount.value >= 2) {
+      emit('decline')
+    }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+})
 </script>
 
 <template>
   <div
     v-if="show"
+    ref="containerRef"
     :style="style"
-    class="fixed z-1000 flex items-center gap-0.5 rounded-md border border-muted bg-white p-0.5 shadow-sm dark:border-gray-800 dark:bg-gray-950"
+    class="fixed z-1000"
   >
-    <UButton
-      color="neutral"
-      variant="ghost"
-      label="Decline"
-      size="xs"
-      icon="i-lucide-x"
-      @click="emit('decline')"
-    />
-    <UButton
-      color="neutral"
-      variant="solid"
-      label="Accept"
-      size="xs"
-      icon="i-lucide-check"
-      @click="emit('accept')"
-    />
+    <UFieldGroup class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm p-0.5">
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        icon="i-lucide-x"
+        @click="emit('decline')"
+      />
+      <UButton
+        color="primary"
+        variant="solid"
+        size="sm"
+        icon="i-lucide-check"
+        @click="emit('accept')"
+      />
+    </UFieldGroup>
   </div>
 </template>

@@ -170,7 +170,7 @@ export const AITransform = Extension.create<AITransformOptions>({
   addCommands() {
     return {
       transformSelection:
-        (_mode: string, transformFn: () => Promise<string>) =>
+        (mode: string, transformFn: () => Promise<string>) =>
           ({ editor, state, dispatch }) => {
             const { from, to, empty } = state.selection
 
@@ -228,8 +228,11 @@ export const AITransform = Extension.create<AITransformOptions>({
                 // Calculate new end position after replacement
                 const newTo = storedFrom + result.length
 
-                // Compute diff once here, not in decorations hook
-                const diff = computeWordDiff(originalText, result)
+                // For translation, mark entire text as added (no diff)
+                // For other modes, compute word-by-word diff
+                const diff = mode === 'translate'
+                  ? [{ type: 'added' as const, text: result }]
+                  : computeWordDiff(originalText, result)
 
                 // Then set diff state with decorations
                 tr = tr.setMeta(aiTransformPluginKey, {
