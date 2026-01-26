@@ -314,16 +314,24 @@ export const AITransform = Extension.create<AITransformOptions>({
 
       declineTransform:
         () =>
-          ({ editor, state }) => {
+          ({ state, dispatch }) => {
             const pluginState = aiTransformPluginKey.getState(state)
             if (!pluginState?.diffData) {
               return false
             }
 
-            const { from, to, originalText } = pluginState.diffData
+            const { from, newText, originalText } = pluginState.diffData
 
-            // Restore original text
-            let tr = state.tr.replaceWith(from, to, state.schema.text(originalText))
+            if (!dispatch) {
+              return true
+            }
+
+            const to = from + newText.length
+            let tr = state.tr.replaceRangeWith(
+              from,
+              to,
+              state.schema.text(originalText),
+            )
 
             // Reset state
             tr = tr.setMeta(aiTransformPluginKey, {
@@ -332,7 +340,8 @@ export const AITransform = Extension.create<AITransformOptions>({
               selectionRange: null,
               diffData: null,
             })
-            editor.view.dispatch(tr)
+
+            dispatch(tr)
 
             // Hide buttons
             if (this.options.onHideButtons) {

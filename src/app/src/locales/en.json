@@ -238,7 +238,8 @@
         "fix": "Fix Grammar & Spelling",
         "improve": "Improve writing and clarity",
         "simplify": "Minimize and simplify text",
-        "translate": "Translate to French"
+        "translate": "Translate to French",
+        "selectionTooLarge": "Selection too large (max {max} characters)"
       },
       "element": {
         "addSlot": "Add slot",

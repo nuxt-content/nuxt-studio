@@ -37,7 +37,7 @@ export default eventHandler(async (event) => {
 
   const gateway = createGateway({ apiKey })
 
-  const { prompt, mode, language } = await readBody<AIGenerateRequest>(event)
+  const { prompt, mode, language, selectionLength } = await readBody<AIGenerateRequest>(event)
 
   if (!prompt) {
     throw createError({
@@ -46,10 +46,14 @@ export default eventHandler(async (event) => {
     })
   }
 
+  const preserveMarkdown = 'IMPORTANT: Preserve all markdown formatting (bold, italic, links, etc.) exactly as in the original.'
+
+  // Calculate maxOutputTokens based on selection length and mode
+  // Estimate: 1 token ≈ 4 characters
+  const estimatedTokens = selectionLength ? Math.ceil(selectionLength / 4) : 100
+
   let system: string
   let maxOutputTokens: number
-
-  const preserveMarkdown = 'IMPORTANT: Preserve all markdown formatting (bold, italic, links, etc.) exactly as in the original.'
 
   switch (mode) {
     case 'fix':
@@ -63,30 +67,30 @@ Rules:
 - ${preserveMarkdown}
 
 Only output the corrected text, nothing else.`
-      maxOutputTokens = 500
+      maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
+      break
+    case 'improve':
+      system = `You are a writing assistant for content editing. Improve the writing quality of the given text.
+
+Rules:
+- Enhance clarity and readability
+- Use more professional or engaging language where appropriate
+- Keep the core message and meaning
+- ${preserveMarkdown}
+
+Only output the improved text, nothing else.`
+      maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
       break
     case 'simplify':
       system = `You are a writing assistant for content editing. Simplify the given text to make it easier to understand.
 
 Rules:
 - Use simpler words and shorter sentences
-- Keep technical terms that are necessary (don't replace "API" with "interface", etc.)
-- Preserve code snippets exactly as-is
+- Keep technical terms that are necessary for the context
 - ${preserveMarkdown}
 
 Only output the simplified text, nothing else.`
-      maxOutputTokens = 400
-      break
-    case 'summarize':
-      system = `You are a writing assistant for content editing. Summarize the given text concisely.
-
-Prioritize:
-- The main points or key information
-- Important technical details
-- Actionable items or conclusions
-
-Keep it brief (2-4 sentences max). Only output the summary, nothing else.`
-      maxOutputTokens = 200
+      maxOutputTokens = estimatedTokens
       break
     case 'translate':
       system = `You are a writing assistant. Translate the given text to ${language || 'English'}.
@@ -98,29 +102,7 @@ Rules:
 - ${preserveMarkdown}
 
 Only output the translated text, nothing else.`
-      maxOutputTokens = 500
-      break
-    case 'extend':
-      system = `You are a writing assistant for content editing. Expand and elaborate on the given text.
-
-Rules:
-- Add more detail and context
-- Keep the same tone and style
-- ${preserveMarkdown}
-
-Only output the extended text, nothing else.`
-      maxOutputTokens = 500
-      break
-    case 'reduce':
-      system = `You are a writing assistant for content editing. Make the given text more concise.
-
-Rules:
-- Remove unnecessary words and phrases
-- Keep the core message intact
-- ${preserveMarkdown}
-
-Only output the reduced text, nothing else.`
-      maxOutputTokens = 300
+      maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
       break
     case 'continue':
     default:

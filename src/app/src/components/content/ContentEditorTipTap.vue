@@ -212,6 +212,14 @@ const aiExtensions = computed(() => {
   ]
 })
 
+const MAX_AI_SELECTION_LENGTH = 500
+
+function isAISelectionTooLarge(editor: Editor): boolean {
+  const { from, to } = editor.state.selection
+  const selectedText = editor.state.doc.textBetween(from, to, '\n')
+  return selectedText.length > MAX_AI_SELECTION_LENGTH
+}
+
 function getAITransformMenuItems(editor: Editor) {
   if (!ai.enabled) {
     return []
@@ -287,6 +295,7 @@ async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simp
 
   // Get selected text
   const selectedText = editor.state.doc.textBetween(from, to, '\n')
+  const selectionLength = selectedText.length
 
   // Start transformation with AI call
   editor.commands.transformSelection(mode, async () => {
@@ -294,16 +303,16 @@ async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simp
     let result: string
     switch (mode) {
       case 'fix':
-        result = await ai.fix(selectedText)
+        result = await ai.generate({ prompt: selectedText, mode: 'fix', selectionLength })
         break
       case 'improve':
-        result = await ai.improve(selectedText)
+        result = await ai.generate({ prompt: selectedText, mode: 'improve', selectionLength })
         break
       case 'simplify':
-        result = await ai.simplify(selectedText)
+        result = await ai.generate({ prompt: selectedText, mode: 'simplify', selectionLength })
         break
       case 'translate':
-        result = await ai.translate(selectedText, 'fr')
+        result = await ai.generate({ prompt: selectedText, mode: 'translate', language: 'fr', selectionLength })
         break
       default:
         result = selectedText
@@ -385,19 +394,26 @@ function handleAIDecline() {
           <TiptapSpanStylePopover :editor="editor" />
         </template>
         <template #ai-transform>
-          <UDropdownMenu
-            v-slot="{ open }"
-            :items="getAITransformMenuItems(editor)"
-            :modal="false"
+          <UTooltip
+            :text="isAISelectionTooLarge(editor) ? $t('studio.tiptap.ai.selectionTooLarge', { max: MAX_AI_SELECTION_LENGTH }) : undefined"
+            :disabled="!isAISelectionTooLarge(editor)"
           >
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-sparkles"
-              :active="open"
-            />
-          </UDropdownMenu>
+            <UDropdownMenu
+              v-slot="{ open }"
+              :items="getAITransformMenuItems(editor)"
+              :modal="false"
+              :disabled="isAISelectionTooLarge(editor)"
+            >
+              <UButton
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-sparkles"
+                :active="open"
+                :disabled="isAISelectionTooLarge(editor)"
+              />
+            </UDropdownMenu>
+          </UTooltip>
         </template>
       </UEditorToolbar>
 

@@ -43,6 +43,7 @@ export function useAI() {
       body: {
         mode: options.mode,
         language: options.language,
+        selectionLength: options.selectionLength,
       },
     })
 

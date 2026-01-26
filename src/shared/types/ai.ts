@@ -3,19 +3,17 @@
  */
 
 export type AIMode
-  = | 'continue'
+  = 'continue'
     | 'fix'
     | 'improve'
     | 'simplify'
-    | 'summarize'
     | 'translate'
-    | 'extend'
-    | 'reduce'
 
 export interface AIGenerateRequest {
   prompt: string
   mode?: AIMode
   language?: string
+  selectionLength?: number
 }
 
 export interface AIGenerateOptions extends AIGenerateRequest {}
