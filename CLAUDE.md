@@ -16,7 +16,7 @@ Nuxt Studio is an open-source, self-hostable Nuxt module that enables visual con
 - **Media Management**: Visual media library with drag-and-drop support
 - **Development Mode**: Local filesystem sync for development
 - **Production Mode**: OAuth + Git publishing for deployed sites
-- **i18n Support**: 22 languages built-in
+- **i18n Support**: 23 languages built-in
 
 ## Architecture
 
@@ -89,7 +89,7 @@ export default defineNuxtConfig({
 
     // i18n
     i18n: {
-      defaultLocale: 'en'  // 22 languages available
+      defaultLocale: 'en'  // 23 languages available
     },
 
     // Component filtering
