@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/39bf4250-e72b-45aa-bf6d-9441a38cb2d5
 - 🖼️ **Media Management** - Centralized media library with support for JPEG, PNG, GIF, WebP, AVIF, SVG, and more
 - 🌳 **Git Integration** - Commit changes directly from your production website and just wait your CI/CD pipeline to deploy your changes
 - 🚀 **Development Mode** - Directly edit your content files and media files in your local filesystem using the module interface
-- 🌍 **22 Languages** - Full i18n support (AR, BG, CS, DE, EN, ES, FA, FI, FR, ID, IT, JA, KO, NB-NO, NL, NN-NO, PL, PT-BR, RU, UA, ZH, ZH-TW)
+- 🌍 **23 Languages** - Full i18n support (AR, BG, CS, DE, EN, ES, FA, FI, FR, ID, IT, JA, KM, KO, NB-NO, NL, NN-NO, PL, PT-BR, RU, UA, ZH, ZH-TW)
 
 **Future Features:**
 
@@ -210,7 +210,7 @@ pnpm lint
 - [x] Development mode
 - [x] Git integration
 - [x] Real-time preview
-- [x] Internationalization (22 languages)
+- [x] Internationalization (23 languages)
 - [x] Custom authentication utilities
 - [x] Vue Component props editor (visual interface)
 - [x] Span-style text formatting with toolbar button
