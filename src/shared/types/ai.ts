@@ -9,11 +9,9 @@ export type AIMode
     | 'simplify'
     | 'translate'
 
-export interface AIGenerateRequest {
+export interface AIGenerateOptions {
   prompt: string
   mode?: AIMode
   language?: string
   selectionLength?: number
 }
-
-export interface AIGenerateOptions extends AIGenerateRequest {}

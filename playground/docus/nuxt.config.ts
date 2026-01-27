@@ -22,5 +22,14 @@ export default defineNuxtConfig({
       rootDir: 'playground/docus',
       private: false,
     },
+    ai: {
+      apiKey: process.env.STUDIO_VERCEL_API_GATEWAY_KEY,
+      context: {
+        title: 'Nuxt Studio playground',
+        description: 'Playground for Nuxt Studio similar to the official documentation.',
+        style: 'technical documentation',
+        tone: 'formal and professional',
+      },
+    },
   },
 })

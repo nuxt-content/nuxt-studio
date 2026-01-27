@@ -2,7 +2,7 @@ import { streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, readBody, createError, useSession, getRequestProtocol } from 'h3'
 import { useRuntimeConfig } from '#imports'
-import type { AIGenerateRequest } from '../../../../../../shared/types/ai'
+import type { AIGenerateOptions } from '../../../../../../shared/types/ai'
 
 export default eventHandler(async (event) => {
   const config = useRuntimeConfig(event)
@@ -26,8 +26,8 @@ export default eventHandler(async (event) => {
     }
   }
 
-  const apiKey = config.studio?.ai?.apiKey
-
+  const aiConfig = config.studio?.ai
+  const apiKey = aiConfig?.apiKey
   if (!apiKey) {
     throw createError({
       statusCode: 503,
@@ -37,7 +37,7 @@ export default eventHandler(async (event) => {
 
   const gateway = createGateway({ apiKey })
 
-  const { prompt, mode, language, selectionLength } = await readBody<AIGenerateRequest>(event)
+  const { prompt, mode, language, selectionLength } = await readBody<AIGenerateOptions>(event)
 
   if (!prompt) {
     throw createError({
@@ -46,10 +46,33 @@ export default eventHandler(async (event) => {
     })
   }
 
+  // Shared rules context
   const preserveMarkdown = 'IMPORTANT: Preserve all markdown formatting (bold, italic, links, etc.) exactly as in the original.'
 
-  // Calculate maxOutputTokens based on selection length and mode
-  // Estimate: 1 token ≈ 4 characters
+  // Build context instructions for the AI
+  const projectContext = aiConfig?.context
+  const contextInstructions: string[] = []
+  if (projectContext) {
+    contextInstructions.push('Project Context:')
+    if (projectContext.title) {
+      contextInstructions.push(`- Project: ${projectContext.title}`)
+    }
+    if (projectContext.description) {
+      contextInstructions.push(`- Description: ${projectContext.description}`)
+    }
+    if (projectContext.style) {
+      contextInstructions.push(`- Writing style: ${projectContext.style}`)
+    }
+    if (projectContext.tone) {
+      contextInstructions.push(`- Tone: ${projectContext.tone}`)
+    }
+  }
+
+  const contextBlock = contextInstructions.length > 1
+    ? `\n\n${contextInstructions.join('\n')}`
+    : ''
+
+  // Calculate maxOutputTokens based on selection length and mode (1 token ≈ 4 characters)
   const estimatedTokens = selectionLength ? Math.ceil(selectionLength / 4) : 100
 
   let system: string
@@ -57,7 +80,7 @@ export default eventHandler(async (event) => {
 
   switch (mode) {
     case 'fix':
-      system = `You are a writing assistant for content editing. Fix spelling and grammar errors in the given text.
+      system = `You are a writing assistant for content editing. Fix spelling and grammar errors in the given text.${contextBlock}
 
 Rules:
 - Fix typos, grammar, and punctuation
@@ -70,7 +93,7 @@ Only output the corrected text, nothing else.`
       maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
       break
     case 'improve':
-      system = `You are a writing assistant for content editing. Improve the writing quality of the given text.
+      system = `You are a writing assistant for content editing. Improve the writing quality of the given text.${contextBlock}
 
 Rules:
 - Enhance clarity and readability
@@ -82,7 +105,7 @@ Only output the improved text, nothing else.`
       maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
       break
     case 'simplify':
-      system = `You are a writing assistant for content editing. Simplify the given text to make it easier to understand.
+      system = `You are a writing assistant for content editing. Simplify the given text to make it easier to understand.${contextBlock}
 
 Rules:
 - Use simpler words and shorter sentences
@@ -93,7 +116,7 @@ Only output the simplified text, nothing else.`
       maxOutputTokens = estimatedTokens
       break
     case 'translate':
-      system = `You are a writing assistant. Translate the given text to ${language || 'English'}.
+      system = `You are a writing assistant. Translate the given text to ${language || 'English'}.${contextBlock}
 
 Rules:
 - Translate prose and explanations
@@ -106,7 +129,7 @@ Only output the translated text, nothing else.`
       break
     case 'continue':
     default:
-      system = `You are a writing assistant helping with content editing.
+      system = `You are a writing assistant helping with content editing.${contextBlock}
 
 CRITICAL RULES:
 - Output ONLY the NEW text that comes AFTER the user's input
