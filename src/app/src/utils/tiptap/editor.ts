@@ -33,6 +33,13 @@ export const getMarkItems = (t: TFunction) => [
   { kind: 'mark', mark: 'code', label: t('studio.tiptap.toolbar.code'), icon: 'i-lucide-code' },
 ] satisfies EditorToolbarItem[]
 
+export const getAITransformItems = (t: TFunction) => [
+  { mode: 'fix', label: t('studio.tiptap.ai.fix'), icon: 'i-lucide-wand-sparkles' },
+  { mode: 'improve', label: t('studio.tiptap.ai.improve'), icon: 'i-lucide-sparkles' },
+  { mode: 'simplify', label: t('studio.tiptap.ai.simplify'), icon: 'i-lucide-minimize-2' },
+  { mode: 'translate', label: t('studio.tiptap.ai.translate'), icon: 'i-lucide-languages' },
+] as const
+
 export const getStandardToolbarItems = (t: TFunction) => [
   [
     {
@@ -74,6 +81,10 @@ export const getStandardToolbarItems = (t: TFunction) => [
     {
       kind: 'slot',
       slot: 'span-style' as const,
+    },
+    {
+      kind: 'slot',
+      slot: 'ai-transform' as const,
     },
   ],
 ] satisfies EditorToolbarItem[][]

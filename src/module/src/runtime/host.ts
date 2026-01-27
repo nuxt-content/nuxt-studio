@@ -71,6 +71,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
   const host: StudioHost = {
     meta: {
       dev: false,
+      ai: useRuntimeConfig().public.studio.ai || false,
       getComponents: () => meta.components.value,
       defaultLocale: useRuntimeConfig().public.studio.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
