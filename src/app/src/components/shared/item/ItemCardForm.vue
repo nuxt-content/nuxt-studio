@@ -288,12 +288,9 @@ async function onSubmit() {
                 <div class="flex items-center gap-1">
                   <UFormField
                     name="prefix"
-                    :ui="{ error: 'hidden' }"
+                    :error="false"
                     class="w-12"
                   >
-                    <template #error>
-                      <span />
-                    </template>
                     <UInput
                       v-model="state.prefix"
                       type="text"
@@ -308,13 +305,9 @@ async function onSubmit() {
                   </UFormField>
                   <UFormField
                     name="name"
-                    :ui="{ error: 'hidden' }"
+                    :error="false"
                     class="flex-1 min-w-0"
                   >
-                    <!-- TODO: should use :error="false" when fixed -->
-                    <template #error>
-                      <span />
-                    </template>
                     <UInput
                       ref="nameInputRef"
                       v-model="state.name"
@@ -329,12 +322,8 @@ async function onSubmit() {
                   <UFormField
                     v-if="!isDirectory"
                     name="extension"
-                    :ui="{ error: 'hidden' }"
+                    :error="false"
                   >
-                    <!-- TODO: should use :error="false" when fixed -->
-                    <template #error>
-                      <span />
-                    </template>
                     <USelect
                       v-model="state.extension as string"
                       :items="config.allowed"
