@@ -13,9 +13,9 @@ import { ContentFileExtension, StudioItemActionId } from '../../../types'
 import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { parseName, getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../../utils/file'
+import { slugifyString } from '../../../utils/string'
 import { upperFirst } from 'scule'
 import { useI18n } from 'vue-i18n'
-import slugify from 'slugify'
 
 const { context } = useStudio()
 const { t } = useI18n()
@@ -56,7 +56,7 @@ const originalExtension = computed(() => {
 })
 const originalPrefix = computed(() => props.renamedItem?.prefix || null)
 const fullName = computed(() => {
-  const baseName = state.name
+  const baseName = slugifyString(state.name)
   const prefixedName = state.prefix ? `${state.prefix}.${baseName}` : baseName
   return isDirectory.value ? prefixedName : `${prefixedName}.${state.extension}`
 })
@@ -136,7 +136,7 @@ watch(validationErrors, (errors) => {
 })
 
 const routePath = computed(() => {
-  const name = state.name === 'index' ? '/' : state.name
+  const name = state.name === 'index' ? '/' : slugifyString(state.name).toLowerCase()
   const routePath = props.config.editable ? name : `${name}.${state.extension}`
   return withLeadingSlash(joinURL(props.parentItem.routePath!, parseName(routePath).name))
 })
@@ -214,7 +214,7 @@ async function onSubmit() {
   isLoading.value = true
 
   let params: CreateFileParams | RenameFileParams | CreateFolderParams
-  const newFsPath = withoutLeadingSlash(joinURL(props.parentItem.fsPath, slugify(fullName.value))).toLowerCase()
+  const newFsPath = withoutLeadingSlash(joinURL(props.parentItem.fsPath, fullName.value)).toLowerCase()
 
   if (newFsPath === props.renamedItem?.fsPath) {
     isLoading.value = false
