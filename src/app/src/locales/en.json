@@ -76,7 +76,8 @@
     },
     "nav": {
       "content": "Content",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Commit message",

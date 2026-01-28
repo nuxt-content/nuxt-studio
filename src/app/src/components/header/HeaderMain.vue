@@ -23,6 +23,11 @@ const items = computed(() => [
     value: 'media',
     to: '/media',
   },
+  {
+    label: t('studio.nav.ai'),
+    value: 'ai',
+    to: '/ai',
+  },
 ])
 
 const current = computed({

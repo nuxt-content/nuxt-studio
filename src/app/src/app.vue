@@ -72,7 +72,7 @@ host.on.mounted(async () => {
 
 const direction = ref<'left' | 'right'>('left')
 const isReviewTransition = ref(false)
-const directionOrder = ['content', 'media']
+const directionOrder = ['content', 'media', 'ai']
 
 router.beforeEach((to, from) => {
   if (to.name === 'review' || from.name === 'review') {

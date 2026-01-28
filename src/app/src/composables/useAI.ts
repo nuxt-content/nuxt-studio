@@ -1,6 +1,7 @@
 import { useCompletion } from '@ai-sdk/vue'
 import { ref } from 'vue'
 import type { AIGenerateOptions } from '../../../shared/types/ai'
+import type { CollectionInfo } from '@nuxt/content'
 
 export function useAI() {
   const host = window.useStudioHost()
@@ -20,6 +21,7 @@ export function useAI() {
       improve: emptyPromise,
       simplify: emptyPromise,
       translate: emptyPromise,
+      analyze: emptyPromise,
     }
   }
 
@@ -35,10 +37,6 @@ export function useAI() {
   })
 
   async function generate(options: AIGenerateOptions): Promise<string> {
-    if (!enabled) {
-      throw new Error('AI features are not enabled')
-    }
-
     await complete(options.prompt, {
       body: {
         mode: options.mode,
@@ -74,6 +72,39 @@ export function useAI() {
     return generate({ prompt: text, mode: 'translate', language })
   }
 
+  async function analyze(collection: CollectionInfo): Promise<string> {
+    const response = await fetch('/__nuxt_studio/ai/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ collection }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const reader = response.body?.getReader()
+    const decoder = new TextDecoder()
+
+    if (!reader) {
+      throw new Error('No response body')
+    }
+
+    let result = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      const chunk = decoder.decode(value)
+      result += chunk
+      completion.value = result
+    }
+
+    return result
+  }
+
   return {
     enabled,
     isLoading,
@@ -86,5 +117,6 @@ export function useAI() {
     improve,
     simplify,
     translate,
+    analyze,
   }
 }

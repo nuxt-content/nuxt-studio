@@ -3,6 +3,8 @@ import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, readBody, createError, useSession, getRequestProtocol } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import type { AIGenerateOptions } from '../../../../../../shared/types/ai'
+import { queryCollection } from '@nuxt/content/server'
+import type { Collections } from '@nuxt/content'
 
 export default eventHandler(async (event) => {
   const config = useRuntimeConfig(event)
@@ -49,27 +51,57 @@ export default eventHandler(async (event) => {
   // Shared rules context
   const preserveMarkdown = 'IMPORTANT: Preserve all markdown formatting (bold, italic, links, etc.) exactly as in the original.'
 
-  // Build context instructions for the AI
+  // Build complete context for AI
   const projectContext = aiConfig?.context
-  const contextInstructions: string[] = []
+  const contextParts: string[] = []
+
+  // Add project metadata
   if (projectContext) {
-    contextInstructions.push('Project Context:')
+    const metadata: string[] = []
     if (projectContext.title) {
-      contextInstructions.push(`- Project: ${projectContext.title}`)
+      metadata.push(`- Project: ${projectContext.title}`)
     }
     if (projectContext.description) {
-      contextInstructions.push(`- Description: ${projectContext.description}`)
+      metadata.push(`- Description: ${projectContext.description}`)
     }
     if (projectContext.style) {
-      contextInstructions.push(`- Writing style: ${projectContext.style}`)
+      metadata.push(`- Writing style: ${projectContext.style}`)
     }
     if (projectContext.tone) {
-      contextInstructions.push(`- Tone: ${projectContext.tone}`)
+      metadata.push(`- Tone: ${projectContext.tone}`)
+    }
+
+    if (metadata.length > 0) {
+      contextParts.push(`Project Context:\n${metadata.join('\n')}`)
+    }
+
+    // Load content context
+    if (['improve', 'continue', 'simplify'].includes(mode as string)) {
+      const collectionName = projectContext.collectionName as string || 'studio'
+      const contentPath = projectContext.contentPath as string || '.studio/CONTEXT.md'
+
+      try {
+        const contextFile = await queryCollection(event, collectionName as keyof Collections)
+          .where('path', '=', contentPath.replace(/\.md$/, ''))
+          .first()
+
+        if (contextFile?.rawbody) {
+        // Limit to ~4K tokens (~16K chars) to stay within token budget
+          const MAX_CONTEXT_LENGTH = 16000
+          const analyzedContext = contextFile.rawbody.substring(0, MAX_CONTEXT_LENGTH)
+
+          contextParts.push(`Writing Guidelines:\n${analyzedContext}`)
+        }
+      }
+      catch (error) {
+        console.error('Analyzed context not found or not readable:', error)
+      }
     }
   }
 
-  const contextBlock = contextInstructions.length > 1
-    ? `\n\n${contextInstructions.join('\n')}`
+  // Combine all context into single block
+  const context = contextParts.length > 0
+    ? `\n\n${contextParts.join('\n\n')}`
     : ''
 
   // Calculate maxOutputTokens based on selection length and mode (1 token ≈ 4 characters)
@@ -80,7 +112,7 @@ export default eventHandler(async (event) => {
 
   switch (mode) {
     case 'fix':
-      system = `You are a writing assistant for content editing. Fix spelling and grammar errors in the given text.${contextBlock}
+      system = `You are a writing assistant for content editing. Fix spelling and grammar errors in the given text.${context}
 
 Rules:
 - Fix typos, grammar, and punctuation
@@ -93,7 +125,7 @@ Only output the corrected text, nothing else.`
       maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
       break
     case 'improve':
-      system = `You are a writing assistant for content editing. Improve the writing quality of the given text.${contextBlock}
+      system = `You are a writing assistant for content editing. Improve the writing quality of the given text.${context}
 
 Rules:
 - Enhance clarity and readability
@@ -105,7 +137,7 @@ Only output the improved text, nothing else.`
       maxOutputTokens = Math.ceil(estimatedTokens * 1.5)
       break
     case 'simplify':
-      system = `You are a writing assistant for content editing. Simplify the given text to make it easier to understand.${contextBlock}
+      system = `You are a writing assistant for content editing. Simplify the given text to make it easier to understand.${context}
 
 Rules:
 - Use simpler words and shorter sentences
@@ -116,7 +148,7 @@ Only output the simplified text, nothing else.`
       maxOutputTokens = estimatedTokens
       break
     case 'translate':
-      system = `You are a writing assistant. Translate the given text to ${language || 'English'}.${contextBlock}
+      system = `You are a writing assistant. Translate the given text to ${language || 'English'}.${context}
 
 Rules:
 - Translate prose and explanations
@@ -129,7 +161,7 @@ Only output the translated text, nothing else.`
       break
     case 'continue':
     default:
-      system = `You are a writing assistant helping with content editing.${contextBlock}
+      system = `You are a writing assistant helping with content editing.${context}
 
 CRITICAL RULES:
 - Output ONLY the NEW text that comes AFTER the user's input

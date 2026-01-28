@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import fsDriver from 'unstorage/drivers/fs'
 import { createStorage } from 'unstorage'
+import { z } from 'zod'
 import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
@@ -108,6 +109,17 @@ export interface ModuleOptions {
        * The tone to use (e.g., "friendly and concise", "formal and professional", "casual").
        */
       tone?: string
+      /**
+       * The name of the collection storing AI context files.
+       * @default 'studio'
+       */
+      collectionName?: string
+      /**
+       * Path to the context file containing writing guidelines and examples.
+       * This file helps the AI understand your project's writing style and conventions.
+       * @default '.studio/CONTEXT.md'
+       */
+      contentPath?: string
     }
   }
 
@@ -218,6 +230,8 @@ export default defineNuxtModule<ModuleOptions>({
         description: '',
         style: '',
         tone: '',
+        collectionName: 'studio',
+        contentPath: '.studio/CONTEXT.md',
       },
     },
     repository: {
@@ -296,6 +310,51 @@ export default defineNuxtModule<ModuleOptions>({
 
       options.ai!.context!.title = options.ai!.context?.title || packageJsonContext.title
       options.ai!.context!.description = options.ai!.context?.description || packageJsonContext.description
+
+      // Configure content collections to handle AI context file
+      const collectionName = options.ai!.context?.collectionName
+      const contentPath = options.ai!.context?.contentPath
+
+      // Modify collections after content module loads
+      nuxt.hook('modules:done', async () => {
+        // @ts-expect-error - content options are added by @nuxt/content module
+        const contentOptions = nuxt.options.content
+
+        if (contentOptions?.collections) {
+          // Add context file to exclude patterns for all existing collections
+          for (const existingCollectionName in contentOptions.collections) {
+            const collection = contentOptions.collections[existingCollectionName]
+
+            // Ensure source is an object
+            if (typeof collection.source === 'string') {
+              collection.source = {
+                include: collection.source,
+                exclude: [contentPath],
+              }
+            }
+            // Update existing source exclude array
+            else if (collection.source && typeof collection.source === 'object') {
+              if (!collection.source.exclude) {
+                collection.source.exclude = []
+              }
+              if (!collection.source.exclude.includes(contentPath)) {
+                collection.source.exclude.push(contentPath)
+              }
+            }
+          }
+
+          // Create studio collection for the context file
+          contentOptions.collections[collectionName] = {
+            type: 'data',
+            source: {
+              include: contentPath,
+            },
+            schema: z.object({
+              rawbody: z.string(),
+            }),
+          }
+        }
+      })
     }
 
     // Enable checkoutOutdatedBuildInterval to detect new deployments
@@ -434,6 +493,12 @@ export default defineNuxtModule<ModuleOptions>({
         method: 'post',
         route: '/__nuxt_studio/ai/generate',
         handler: runtime('./server/routes/ai/generate.post'),
+      })
+
+      addServerHandler({
+        method: 'post',
+        route: '/__nuxt_studio/ai/analyze',
+        handler: runtime('./server/routes/ai/analyze.post'),
       })
     }
   },
