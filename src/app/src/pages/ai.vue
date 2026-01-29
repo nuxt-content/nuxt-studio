@@ -77,6 +77,9 @@ async function analyzeCollection() {
         content: result,
       })
 
+      // Wait for the tree to be rebuilt by the hook
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       // Select the newly created file to show the editor
       await aiContextTree!.selectItemByFsPath(currentContextFilePath.value!)
     }

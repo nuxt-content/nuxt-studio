@@ -157,15 +157,16 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     host.app.requestRerender()
   }
 
-  if (type === StudioFeature.Content) {
-    hooks.hook('studio:draft:document:updated', async ({ caller }) => {
-      console.info('studio:draft:document:updated have been called by', caller)
+  if (type === StudioFeature.Media) {
+    hooks.hook('studio:draft:media:updated', async ({ caller }) => {
+      console.info('studio:draft:media:updated have been called by', caller)
       await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }
   else {
-    hooks.hook('studio:draft:media:updated', async ({ caller }) => {
-      console.info('studio:draft:media:updated have been called by', caller)
+    // Content and AI trees listen to document updates
+    hooks.hook('studio:draft:document:updated', async ({ caller }) => {
+      console.info('studio:draft:document:updated have been called by', caller)
       await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }
