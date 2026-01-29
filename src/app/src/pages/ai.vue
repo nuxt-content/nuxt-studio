@@ -132,17 +132,6 @@ function contextFilePath(collection: CollectionInfo) {
       </div>
     </div>
 
-    <pre>
-      Current tree item:
-      {{ currentTreeItem?.fsPath }}
-      {{ currentTreeItem?.type }}
-    </pre>
-    <pre>
-      Current draft item:
-      {{ currentDraftItem?.fsPath }}
-      {{ currentDraftItem?.status }}
-    </pre>
-
     <div class="flex-1 relative">
       <div
         v-if="aiContextTree!.draft.isLoading.value"

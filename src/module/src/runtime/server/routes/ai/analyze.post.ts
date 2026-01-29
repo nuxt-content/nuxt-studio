@@ -319,7 +319,8 @@ ELIMINATE:
 - Redundant explanations
 - Generic advice that applies to all content
 - Multiple examples of the same pattern
-- Long prose when a list/table works better`
+- Long prose when a list/table works better
+- Code examples with backticks (describe patterns in plain text)`
   }
   else {
     // No content samples available - generate template
@@ -376,7 +377,8 @@ AVOID:
 - Redundant examples of the same pattern
 - Obvious advice that applies to all content
 - Long prose explanations when a list would work
-- Repeating the same formatting rules in multiple sections`
+- Repeating the same formatting rules in multiple sections
+- Code examples with backticks (describe patterns in plain text)`
 
   return streamText({
     model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
