@@ -75,7 +75,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     meta: {
       dev: false,
       ai: {
-        enabled: typeof aiConfig === 'object' ? aiConfig.enabled : aiConfig,
+        enabled: typeof aiConfig === 'object' ? aiConfig.enabled : false,
         context: {
           collectionName: aiConfig.context.collectionName,
           contentFolder: aiConfig.context.contentFolder,

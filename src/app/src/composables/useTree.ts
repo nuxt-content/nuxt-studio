@@ -1,4 +1,4 @@
-import type { DatabaseItem, StudioHost, TreeItem } from '../types'
+import type { DatabaseItem, StudioHost, TreeItem, DraftItem, MediaItem } from '../types'
 import { StudioFeature, TreeStatus, DraftStatus } from '../types'
 import { ref, computed } from 'vue'
 import type { useDraftDocuments } from './useDraftDocuments'
@@ -16,10 +16,21 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
 
   const rootItem = computed<TreeItem>(() => {
     const draftedTreeItems = draft.list.value.filter(draft => draft.status !== DraftStatus.Pristine)
+    let name = 'content'
+    let fsPath = '/'
+
+    if (type === StudioFeature.Media) {
+      name = 'public'
+    }
+    else if (type === StudioFeature.AI) {
+      name = host.meta.ai.context.contentFolder
+      fsPath = host.meta.ai.context.contentFolder
+    }
+
     return {
-      name: type === StudioFeature.Content ? 'content' : 'public',
+      name,
       type: 'root',
-      fsPath: '/',
+      fsPath,
       children: tree.value,
       status: draftedTreeItems.length > 0 ? TreeStatus.Updated : null,
       prefix: null,
@@ -98,14 +109,48 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
 
   // Trigger tree rebuild to update files status
   async function handleDraftUpdate(selectItem: boolean = true) {
-    const hostDb = type === StudioFeature.Content ? host.document.db : host.media
-    const list = await hostDb.list() as DatabaseItem[]
+    let draftList: DraftItem<DatabaseItem | MediaItem>[]
+    let dbList: DatabaseItem[]
 
-    tree.value = buildTree(list, draft.list.value, devMode.value)
+    // Media
+    if (type === StudioFeature.Media) {
+      dbList = await host.media.list() as DatabaseItem[]
+      draftList = draft.list.value
+    }
+    // Content
+    else {
+      const allDbItems = await host.document.db.list() as DatabaseItem[]
+      const allDraftItems = draft.list.value
+
+      const isInContextFolder = (item: DatabaseItem | DraftItem<DatabaseItem | MediaItem>) => {
+        if (!host.meta.ai.enabled) {
+          return false
+        }
+
+        const contextFolder = host.meta.ai.context.contentFolder
+        if (!contextFolder) return false
+
+        return item.fsPath?.startsWith(`${contextFolder}/`)
+      }
+
+      if (type === StudioFeature.AI) {
+        dbList = allDbItems.filter(isInContextFolder)
+        draftList = allDraftItems.filter(isInContextFolder)
+      }
+      else {
+        dbList = allDbItems.filter(item => !isInContextFolder(item))
+        draftList = allDraftItems.filter(item => !isInContextFolder(item))
+      }
+    }
+
+    tree.value = buildTree(dbList, draftList, devMode.value)
 
     // Reselect current item to update status
     if (selectItem) {
-      select(findItemFromFsPath(tree.value, currentItem.value.fsPath)!)
+      const item = findItemFromFsPath(tree.value, currentItem.value.fsPath)
+      if (item) {
+        select(item)
+      }
     }
 
     // Rerender host app

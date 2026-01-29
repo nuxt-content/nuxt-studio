@@ -40,7 +40,8 @@ export const useStudio = createSharedComposable(() => {
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
   const draftMedias = useDraftMedias(host, gitProvider)
   const mediaTree = useTree(StudioFeature.Media, host, draftMedias)
-  const context = useContext(host, gitProvider, documentTree, mediaTree)
+  const aiContextTree = host.meta.ai.enabled ? useTree(StudioFeature.AI, host, draftDocuments) : undefined
+  const context = useContext(host, gitProvider, documentTree, mediaTree, aiContextTree)
 
   ui.setLocale(host.meta.defaultLocale)
 
@@ -82,6 +83,7 @@ export const useStudio = createSharedComposable(() => {
     context,
     documentTree,
     mediaTree,
+    aiContextTree,
   }
 })
 

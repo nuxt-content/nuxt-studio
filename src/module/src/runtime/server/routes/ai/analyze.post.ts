@@ -276,83 +276,112 @@ Folder Depth: ${collectionMetadata.architecture.depth} level${collectionMetadata
       })
       .join('\n\n---\n\n')
 
-    prompt = `You are analyzing a ${collectionMetadata.contentType} collection to create a comprehensive writing style guide.
+    prompt = `Analyze this ${collectionMetadata.contentType} collection to create an efficient AI writing guide.
 
-${projectInfo ? `Project Information:\n${projectInfo}\n` : ''}
+${projectInfo ? `Project Context:\n${projectInfo}\n` : ''}
 Collection Metadata:
 ${metadataText}
 
-Below are ${contentSamples.length} content samples (out of ${collectionMetadata.totalDocuments} total markdown files):
+Content Samples (${contentSamples.length} of ${collectionMetadata.totalDocuments} markdown files):
 
 ${samplesText}
 
-Based on these actual content samples and collection metadata, generate a CONTEXT.md file that captures:
+Generate a concise CONTEXT.md guide with this EXACT structure:
 
-1. **Collection Overview**: What type of content is this? (${collectionMetadata.contentType})
-   - Purpose and scope
-   - Organization structure (${collectionMetadata.architecture.structure})
+## 1. Quick Rules (REQUIRED FIRST SECTION)
+Extract 3-7 critical non-negotiable patterns observed in samples:
+- Most impactful formatting rules
+- Core voice/tone characteristics
+- Essential structural requirements
 
-2. **Writing Style**: The actual tone, voice, and approach observed in the samples
-   - How technical vs. conversational is the writing?
-   - Are examples used frequently? How are they presented?
-   - What makes this content unique?
+## 2. Writing Style (concise)
+- Tone characteristics (2-3 bullet points)
+- Technical depth level
+- How examples are used
 
-3. **Formatting Conventions**: Patterns you observe:
-   - How are code snippets, technical terms, and commands formatted?
-   - Use of bold, italic, lists, callouts
-   - Heading structure and organization
-   - Frontmatter patterns (if any)
+## 3. Formatting Conventions (use lists, not prose)
 
-4. **Content Structure**: Common patterns:
-   - How are topics introduced and explained?
-   - Length and depth of explanations
-   - Use of examples, diagrams, or references
-   - Navigation patterns (based on folder structure)
+## 4. Content Structure
+- Document opening pattern
+- Typical section flow
+- Link strategy
 
-5. **Target Audience**: Based on complexity and terminology, who is this for?
+## 5. Target Audience (1-2 sentences max)
 
-6. **Key Principles**: 3-5 concrete guidelines for maintaining consistency
+## 6. Key Principles (3-5 actionable rules)
 
-Focus on OBSERVED PATTERNS from the ${collectionMetadata.totalDocuments} markdown samples, not generic advice.
-Be specific about what makes this ${collectionMetadata.contentType} effective.`
+FOCUS ON:
+- Patterns ACTUALLY OBSERVED in these ${collectionMetadata.totalDocuments} samples
+- What makes this ${collectionMetadata.contentType} unique
+- Actionable, specific guidance (not generic advice)
+
+ELIMINATE:
+- Redundant explanations
+- Generic advice that applies to all content
+- Multiple examples of the same pattern
+- Long prose when a list/table works better`
   }
   else {
     // No content samples available - generate template
-    prompt = `You are creating a writing style guide for a Nuxt Content project.
+    prompt = `Create a concise writing style guide for a Nuxt Content project.
 
-${projectInfo ? `Project Information:\n${projectInfo}\n` : ''}Generate a comprehensive CONTEXT.md file that serves as a writing guide for AI-assisted content generation.
+${projectInfo ? `Project Context:\n${projectInfo}\n` : ''}
+Generate a CONTEXT.md template optimized for AI consumption.
 
-The file should include:
+Use this EXACT structure:
 
-1. **Project Overview**: Brief description of the project and its purpose
-2. **Writing Style**: The tone, voice, and approach to use (e.g., technical but approachable, formal documentation, conversational blog style)
-3. **Formatting Conventions**: Guidelines for:
-   - How to format inline code, code blocks, and technical terms
-   - When to use bold, italic, or other emphasis
-   - How to structure lists, tables, and callouts
-4. **Content Structure**: Patterns for organizing content:
-   - Heading hierarchy and conventions
-   - Introduction and conclusion patterns
-   - How to structure tutorials vs reference docs
-5. **Target Audience**: Who reads this content and their technical level
-6. **Key Principles**: Core guidelines to maintain consistency and quality`
+## 1. Quick Rules (REQUIRED FIRST)
+List 5-7 essential patterns:
+- Core formatting rules
+- Voice/tone essentials
+- Key structural requirements
+
+## 2. Writing Style
+- Tone (e.g., technical but approachable)
+- Voice characteristics
+- Example usage
+
+## 3. Formatting Conventions (table format)
+| Element | Format |
+|---------|---------|
+| Inline code | \`code\` |
+| Bold | **term** |
+
+## 4. Content Structure
+- Heading hierarchy
+- Opening/closing patterns
+- Tutorial vs reference structure
+
+## 5. Target Audience (1 sentence)
+
+## 6. Key Principles (3-5 rules)
+
+Keep concise. Prefer lists/tables over prose. Be actionable and specific.`
   }
 
   const system = `You are a writing consultant specializing in AI writing style guides.
 
-Create a practical, actionable context file that will guide AI-assisted content generation for a Nuxt Content project.
-Focus on specific, concrete guidelines rather than generic advice.
+Create a practical, actionable context file optimized for AI consumption that will guide content generation for a Nuxt Content project.
 
-Output ONLY the markdown content for the guide file. Do not include any preamble or explanation.
-Start directly with a markdown heading like "# AI Writing Guide".
+CRITICAL STRUCTURE REQUIREMENTS:
+1. START with a "# Quick Rules" section (3-7 bullet points) - the most essential non-negotiable patterns
+2. Follow with detailed sections
+3. Be concise and avoid redundancy - prefer tables/lists over prose
+4. Focus on OBSERVED patterns from actual samples, not generic advice
 
-Format your response as a well-structured markdown document.
-Keep it concise but actionable (~1000-1500 words).`
+Output ONLY the markdown content. Start directly with "# Quick Rules".
+Target length: 800-1200 words (20-30% shorter than typical guides).
+
+AVOID:
+- Redundant examples of the same pattern
+- Obvious advice that applies to all content
+- Long prose explanations when a list would work
+- Repeating the same formatting rules in multiple sections`
 
   return streamText({
     model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
     system,
     prompt,
-    maxOutputTokens: 2500,
+    maxOutputTokens: 2000,
   }).toTextStreamResponse()
 })

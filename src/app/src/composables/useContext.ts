@@ -31,6 +31,7 @@ export const useContext = createSharedComposable((
   gitProvider: ReturnType<typeof useGitProvider>,
   documentTree: ReturnType<typeof useTree>,
   mediaTree: ReturnType<typeof useTree>,
+  aiContextTree?: ReturnType<typeof useTree>,
 ) => {
   const route = useRoute()
   const router = useRouter()
@@ -61,10 +62,16 @@ export const useContext = createSharedComposable((
    */
   const actionInProgress = ref<StudioActionInProgress | null>(null)
   const activeTree = computed(() => {
-    if (route.name === 'media') {
-      return mediaTree
+    switch (route.name) {
+      case 'media':
+        return mediaTree
+      case 'content':
+        return documentTree
+      case 'ai':
+        return aiContextTree!
+      default:
+        return documentTree
     }
-    return documentTree
   })
 
   const itemActions = computed<StudioAction<StudioItemActionId>[]>(() => {
