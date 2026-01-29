@@ -24,7 +24,13 @@ export * from './form'
 export interface StudioHost {
   meta: {
     dev: boolean
-    ai: boolean
+    ai: {
+      enabled: boolean
+      context: {
+        collectionName: string
+        contentFolder: string
+      }
+    }
     getComponents: () => ComponentMeta[]
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
@@ -76,6 +82,7 @@ export interface StudioHost {
   }
   collection: {
     getByFsPath: (fsPath: string) => CollectionInfo | undefined
+    list: () => CollectionInfo[]
   }
   user: {
     get: () => StudioUser

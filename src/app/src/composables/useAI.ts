@@ -5,7 +5,7 @@ import type { CollectionInfo } from '@nuxt/content'
 
 export function useAI() {
   const host = window.useStudioHost()
-  const enabled = host.meta.ai
+  const enabled = host.meta.ai.enabled
 
   if (!enabled) {
     const emptyPromise = async () => ''

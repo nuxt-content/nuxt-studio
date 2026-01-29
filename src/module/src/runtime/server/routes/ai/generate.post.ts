@@ -5,6 +5,7 @@ import { useRuntimeConfig } from '#imports'
 import type { AIGenerateOptions } from '../../../../../../shared/types/ai'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections } from '@nuxt/content'
+import type { DatabasePageItem } from 'nuxt-studio/app'
 
 export default eventHandler(async (event) => {
   const config = useRuntimeConfig(event)
@@ -75,26 +76,33 @@ export default eventHandler(async (event) => {
       contextParts.push(`Project Context:\n${metadata.join('\n')}`)
     }
 
-    // Load content context
+    // Load content context - try to find context file for all collections
     if (['improve', 'continue', 'simplify'].includes(mode as string)) {
-      const collectionName = projectContext.collectionName as string || 'studio'
-      const contentPath = projectContext.contentPath as string || '.studio/CONTEXT.md'
+      const studioCollectionName = projectContext.collection?.name || 'studio'
 
       try {
-        const contextFile = await queryCollection(event, collectionName as keyof Collections)
-          .where('path', '=', contentPath.replace(/\.md$/, ''))
-          .first()
+        // Query all files from the studio collection
+        const contextFiles = await queryCollection(event, studioCollectionName as keyof Collections)
+          .path(`${projectContext.collection?.name}.md`)
+          .all() as Array<DatabasePageItem>
+
+        // Try to find any .md file and use the first one
+        // In the future, we could pass the current collection from the client
+        const contextFile = contextFiles.find(file =>
+          file.path?.endsWith('.md'),
+        )
 
         if (contextFile?.rawbody) {
-        // Limit to ~4K tokens (~16K chars) to stay within token budget
+          // Limit to ~4K tokens (~16K chars) to stay within token budget
           const MAX_CONTEXT_LENGTH = 16000
+          console.log(contextFile.rawbody)
           const analyzedContext = contextFile.rawbody.substring(0, MAX_CONTEXT_LENGTH)
 
           contextParts.push(`Writing Guidelines:\n${analyzedContext}`)
         }
       }
       catch (error) {
-        console.error('Analyzed context not found or not readable:', error)
+        console.error('Context files not found or not readable:', error)
       }
     }
   }

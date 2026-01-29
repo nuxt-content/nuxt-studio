@@ -1,63 +1,106 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAI } from '../composables/useAI'
+import { ref, onMounted, computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
+import { useAI } from '../composables/useAI'
+import type { CollectionInfo } from '@nuxt/content'
+import type { DatabaseItem, DraftItem } from '../types'
+import { DraftStatus } from '../types'
 
-const { completion, analyze, enabled } = useAI()
 const { host } = useStudio()
+const ai = useAI()
+const collections = ref<CollectionInfo[]>([])
+const contextFiles = ref<Map<string, DatabaseItem>>(new Map())
+const loading = ref(true)
+const selectedCollection = ref<CollectionInfo | null>(null)
+const selectedDraft = ref<DraftItem | null>(null)
 const isAnalyzing = ref(false)
-const error = ref('')
-const selectedCollection = ref<string | undefined>(undefined)
 
-const collectionOptions = [
-  { label: 'Documentation', value: 'docs' },
-  { label: 'Blog', value: 'blog' },
-  { label: 'Marketing', value: 'marketing' },
-  { label: 'Other', value: 'other' },
-]
+const contextFile = computed(() => {
+  if (!selectedCollection.value) return null
+  return contextFiles.value.get(selectedCollection.value.name)
+})
 
-async function analyzeContent() {
-  if (!selectedCollection.value) {
-    error.value = 'Please select a collection'
-    return
-  }
-
-  isAnalyzing.value = true
-  error.value = ''
-  completion.value = ''
-
+// Load all collections and their context files
+onMounted(async () => {
   try {
-    // Get all documents to extract collection info
-    const documents = await host.document.db.list()
+    // Get all collections except the studio collection itself
+    const allCollections = host.collection.list()
+    const studioCollectionName = host.meta.ai.context.collectionName
 
-    // Find a document from the selected collection to get CollectionInfo
-    const sampleDoc = documents.find(doc => doc._collection === selectedCollection.value)
+    collections.value = allCollections.filter(c => c.name !== studioCollectionName)
 
-    if (!sampleDoc) {
-      throw new Error(`No documents found in collection: ${selectedCollection.value}`)
+    for (const collection of collections.value) {
+      const contextFsPath = `${host.meta.ai.context.contentFolder}/${collection.name}.md`
+      const contextFile = await host.document.db.get(contextFsPath)
+
+      if (contextFile) {
+        contextFiles.value.set(collection.name, contextFile)
+      }
     }
-
-    // Get collection info from the host
-    const collectionInfo = host.collection.getByFsPath(sampleDoc.id)
-
-    if (!collectionInfo) {
-      throw new Error(`Collection info not found for: ${selectedCollection.value}`)
-    }
-
-    await analyze(collectionInfo)
   }
-  catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to analyze content'
-    console.error('Analysis error:', err)
-  }
+  catch { /* Collections will remain empty */ }
   finally {
-    isAnalyzing.value = false
+    loading.value = false
+  }
+})
+
+async function openContextFile(collection: CollectionInfo) {
+  selectedCollection.value = collection
+  const contextFile = contextFiles.value.get(collection.name)
+
+  if (contextFile) {
+    // Load the draft for editing
+    const contextPath = `${host.meta.ai.context.contentFolder}/${collection.name}.md`
+    const draft: DraftItem = {
+      fsPath: contextPath,
+      status: DraftStatus.Pristine,
+      original: contextFile,
+      modified: contextFile,
+    }
+    selectedDraft.value = draft
+  }
+  else {
+    selectedDraft.value = null
   }
 }
 
-function copyToClipboard() {
-  if (typeof window !== 'undefined' && window.navigator?.clipboard) {
-    window.navigator.clipboard.writeText(completion.value)
+function closeEditor() {
+  selectedCollection.value = null
+  selectedDraft.value = null
+}
+
+async function analyzeCollection() {
+  if (!selectedCollection.value) return
+
+  isAnalyzing.value = true
+  try {
+    const result = await ai.analyze(selectedCollection.value)
+
+    // Create the context file with analyzed content
+    const contextPath = `${host.meta.ai.context.contentFolder}/${selectedCollection.value.name}.md`
+    await host.document.db.create(contextPath, result)
+
+    // Refresh and load the new file
+    const documents = await host.document.db.list()
+    const newFile = documents.find(doc =>
+      doc._path === contextPath.replace(/\.md$/, '')
+      || doc.id === contextPath,
+    )
+
+    if (newFile) {
+      contextFiles.value.set(selectedCollection.value.name, newFile)
+      // Load it into the editor
+      const draft: DraftItem = {
+        fsPath: contextPath,
+        status: DraftStatus.Created,
+        modified: newFile,
+      }
+      selectedDraft.value = draft
+    }
+  }
+  catch { /* TODO: handle error */ }
+  finally {
+    isAnalyzing.value = false
   }
 }
 </script>
@@ -66,77 +109,130 @@ function copyToClipboard() {
   <div class="h-full flex flex-col">
     <div class="flex items-center justify-between gap-2 px-4 py-1 border-b-[0.5px] border-default bg-muted/70">
       <div class="flex items-center gap-2">
+        <UButton
+          v-if="selectedCollection"
+          icon="i-lucide-arrow-left"
+          color="neutral"
+          variant="ghost"
+          size="xs"
+          @click="closeEditor"
+        />
         <UIcon
           name="i-lucide-sparkles"
           class="size-4 text-primary"
         />
         <h2 class="text-sm font-medium">
-          AI Context
+          {{ selectedCollection ? selectedCollection.name : 'AI Context' }}
         </h2>
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto p-4">
+    <!-- Show ContentEditor when a file is selected -->
+    <ContentEditor
+      v-if="selectedDraft"
+      :draft-item="selectedDraft"
+    />
+
+    <!-- Show analyze button when collection is selected but no file exists -->
+    <div
+      v-else-if="selectedCollection && !contextFile"
+      class="flex-1 flex items-center justify-center p-4"
+    >
+      <div class="max-w-md text-center space-y-4">
+        <UIcon
+          name="i-lucide-sparkles"
+          class="size-12 mx-auto text-primary opacity-50"
+        />
+        <div>
+          <h3 class="text-lg font-medium mb-2">
+            No style guide
+          </h3>
+          <p class="text-sm text-muted mb-4">
+            Generate a comprehensive AI writing guide by analyzing the content in the <strong>{{ selectedCollection.name }}</strong> collection.
+          </p>
+        </div>
+        <UButton
+          icon="i-lucide-sparkles"
+          :loading="isAnalyzing"
+          @click="analyzeCollection"
+        >
+          {{ isAnalyzing ? 'Analyzing...' : 'Analyze Collection' }}
+        </UButton>
+      </div>
+    </div>
+
+    <!-- Show collections list when nothing is selected -->
+    <div
+      v-else
+      class="flex-1 overflow-y-auto p-4"
+    >
       <div class="max-w-2xl mx-auto space-y-4">
         <div class="space-y-2">
           <h3 class="text-sm font-medium">
-            Content Analysis
+            Collection Context Files
           </h3>
           <p class="text-sm text-muted">
-            Generate a writing style guide by analyzing your existing content.
+            Manage AI writing style guides for each collection. Each collection can have its own context file to help the AI provide better completions, formatting, and improvements to your content.
           </p>
         </div>
 
-        <div class="space-y-3">
-          <div class="space-y-2">
-            <label class="text-sm font-medium">
-              Collection
-            </label>
-            <USelect
-              v-model="selectedCollection"
-              :items="collectionOptions"
-              placeholder="Select a collection"
-            />
-          </div>
-
-          <UButton
-            :loading="isAnalyzing"
-            :disabled="isAnalyzing || !enabled"
-            icon="i-lucide-sparkles"
-            @click="analyzeContent"
-          >
-            {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
-          </UButton>
-        </div>
-
         <div
-          v-if="error"
-          class="p-4 rounded-lg bg-red-500/10 border border-red-500/20"
+          v-if="loading"
+          class="flex items-center justify-center py-8"
         >
-          <p class="text-sm text-red-500">
-            {{ error }}
-          </p>
+          <UIcon
+            name="i-lucide-loader-2"
+            class="size-5 animate-spin text-muted"
+          />
         </div>
 
         <div
-          v-if="completion"
+          v-else-if="collections.length === 0"
+          class="p-8 text-center text-muted"
+        >
+          <UIcon
+            name="i-lucide-folder-open"
+            class="size-12 mx-auto mb-2 opacity-50"
+          />
+          <p>No collections found</p>
+        </div>
+
+        <div
+          v-else
           class="space-y-2"
         >
-          <div class="flex items-center justify-between">
-            <h4 class="text-sm font-medium">
-              Generated Context
-            </h4>
-            <UButton
-              size="xs"
-              variant="soft"
-              icon="i-lucide-copy"
-              @click="copyToClipboard"
-            >
-              Copy
-            </UButton>
-          </div>
-          <div class="p-4 rounded-lg bg-muted border border-default overflow-auto max-h-96">
-            <pre class="text-xs whitespace-pre-wrap font-mono">{{ completion }}</pre>
+          <div
+            v-for="collection in collections"
+            :key="collection.name"
+            class="flex items-center justify-between p-4 rounded-lg border border-default hover:bg-muted/50 cursor-pointer transition-colors"
+            @click="openContextFile(collection)"
+          >
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <UIcon
+                  :name="contextFiles.has(collection.name) ? 'i-lucide-file-text' : 'i-lucide-file-plus'"
+                  class="size-4"
+                  :class="contextFiles.has(collection.name) ? 'text-primary' : 'text-muted'"
+                />
+                <h4 class="text-sm font-medium">
+                  {{ collection.name }}
+                </h4>
+                <UBadge
+                  v-if="collection.type"
+                  size="xs"
+                  variant="subtle"
+                >
+                  {{ collection.type }}
+                </UBadge>
+              </div>
+              <p class="text-xs text-muted mt-1">
+                {{ contextFiles.has(collection.name) ? collection.name + '.md' : 'Missing style guide' }}
+              </p>
+            </div>
+            <UIcon
+              name="i-lucide-chevron-right"
+              class="size-4 text-muted"
+            />
           </div>
         </div>
       </div>

@@ -5,11 +5,12 @@ import { useRuntimeConfig } from '#imports'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections, CollectionInfo } from '@nuxt/content'
 import { generateContentFromDocument } from '../../../utils/document/generate'
+import type { DatabasePageItem } from 'nuxt-studio/app'
 
 /**
  * Detect content type based on patterns in titles, paths, and structure
  */
-function detectContentType(items: any[]): string {
+function detectContentType(items: DatabasePageItem[]): string {
   let blogScore = 0
   let docsScore = 0
   let marketingScore = 0
@@ -68,7 +69,7 @@ function detectContentType(items: any[]): string {
 /**
  * Analyze folder structure and architecture
  */
-function analyzeArchitecture(items: any[]): { usesNestedFolders: boolean, depth: number, structure: string } {
+function analyzeArchitecture(items: DatabasePageItem[]): { usesNestedFolders: boolean, depth: number, structure: string } {
   const paths = items.map(item => item.path || '').filter(Boolean)
 
   let maxDepth = 0
@@ -197,7 +198,7 @@ export default eventHandler(async (event) => {
     const documents = await queryCollection(event, collection.name as keyof Collections)
       .limit(MAX_SAMPLES)
       .where('extension', '=', 'md')
-      .all()
+      .all() as Array<DatabasePageItem>
 
     collectionMetadata.totalDocuments = documents.length
 
@@ -217,7 +218,7 @@ export default eventHandler(async (event) => {
       // Use generateContentFromDocument to get the raw markdown content
       let excerpt = ''
       try {
-        const rawContent = await generateContentFromDocument(document)
+        const rawContent = await generateContentFromDocument(document as DatabasePageItem)
         if (rawContent) {
           excerpt = rawContent
         }
@@ -237,17 +238,14 @@ export default eventHandler(async (event) => {
 
       if (excerpt) {
         contentSamples.push({
-          title: document.title || document.path,
+          title: document.title || document.path || 'Untitled',
           description: document.description,
           excerpt,
         })
       }
     }
   }
-  catch (error) {
-    console.error('Error querying content for analysis:', error)
-    // Continue with empty samples - will generate template-based guide
-  }
+  catch { /* Continue with empty samples, will generate a template-based guide */ }
 
   // Build the analysis prompt with rich metadata
   let prompt: string
@@ -320,7 +318,7 @@ Be specific about what makes this ${collectionMetadata.contentType} effective.`
   }
   else {
     // No content samples available - generate template
-    prompt = `You are creating a writing style guide for a documentation/content project.
+    prompt = `You are creating a writing style guide for a Nuxt Content project.
 
 ${projectInfo ? `Project Information:\n${projectInfo}\n` : ''}Generate a comprehensive CONTEXT.md file that serves as a writing guide for AI-assisted content generation.
 
@@ -340,13 +338,13 @@ The file should include:
 6. **Key Principles**: Core guidelines to maintain consistency and quality`
   }
 
-  const system = `You are a technical writing consultant specializing in documentation style guides.
+  const system = `You are a writing consultant specializing in AI writing style guides.
 
-Create a practical, actionable CONTEXT.md file that will guide AI-assisted content generation.
+Create a practical, actionable context file that will guide AI-assisted content generation for a Nuxt Content project.
 Focus on specific, concrete guidelines rather than generic advice.
 
-Output ONLY the markdown content for the CONTEXT.md file. Do not include any preamble or explanation.
-Start directly with a markdown heading like "# Writing Guide" or "# Content Style Guide".
+Output ONLY the markdown content for the guide file. Do not include any preamble or explanation.
+Start directly with a markdown heading like "# AI Writing Guide".
 
 Format your response as a well-structured markdown document.
 Keep it concise but actionable (~1000-1500 words).`
