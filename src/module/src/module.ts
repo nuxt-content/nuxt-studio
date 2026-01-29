@@ -5,7 +5,6 @@ import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import fsDriver from 'unstorage/drivers/fs'
 import { createStorage } from 'unstorage'
-import { z } from 'zod'
 import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
@@ -317,52 +316,6 @@ export default defineNuxtModule<ModuleOptions>({
 
       options.ai!.context!.title = options.ai!.context?.title || packageJsonContext.title
       options.ai!.context!.description = options.ai!.context?.description || packageJsonContext.description
-
-      // Configure content collections to handle AI context files
-      const collectionName = options.ai!.context?.collection?.name || 'studio'
-      const folder = options.ai!.context?.collection?.folder || '.studio'
-      const includePattern = `${folder}/**`
-
-      // Modify collections after content module loads
-      nuxt.hook('modules:done', async () => {
-        // @ts-expect-error - content options are added by @nuxt/content module
-        const contentOptions = nuxt.options.content
-
-        if (contentOptions?.collections) {
-          // Add context files to exclude patterns for all existing collections
-          for (const existingCollectionName in contentOptions.collections) {
-            const collection = contentOptions.collections[existingCollectionName]
-
-            // Ensure source is an object
-            if (typeof collection.source === 'string') {
-              collection.source = {
-                include: collection.source,
-                exclude: [includePattern],
-              }
-            }
-            // Update existing source exclude array
-            else if (collection.source && typeof collection.source === 'object') {
-              if (!collection.source.exclude) {
-                collection.source.exclude = []
-              }
-              if (!collection.source.exclude.includes(includePattern)) {
-                collection.source.exclude.push(includePattern)
-              }
-            }
-          }
-
-          // Create studio collection for context files
-          contentOptions.collections[collectionName] = {
-            type: 'data',
-            source: {
-              include: includePattern,
-            },
-            schema: z.object({
-              rawbody: z.string(),
-            }),
-          }
-        }
-      })
     }
 
     // Enable checkoutOutdatedBuildInterval to detect new deployments
