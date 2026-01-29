@@ -52,7 +52,6 @@ const ai = useAI()
 
 const tiptapJSON = ref<JSONContent>()
 
-// AI Floating Buttons
 const showAIButtons = ref(false)
 const aiButtonsRect = ref<DOMRect | null>(null)
 const aiButtonsCallbacks = ref<{
@@ -190,6 +189,7 @@ const aiExtensions = computed(() => {
 
   return [
     AICompletion.configure({
+      enabled: () => preferences.value.enableAICompletion,
       onRequest: async (prompt: string) => {
         return await ai.continue(prompt)
       },

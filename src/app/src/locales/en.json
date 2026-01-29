@@ -25,7 +25,9 @@
       "copiedToClipboard": "Copied to clipboard",
       "copyToClipboard": "Copy to clipboard",
       "publishChanges": "Publish changes",
-      "backToContent": "Back to content"
+      "backToContent": "Back to content",
+      "disableAICompletion": "Disable AI completion",
+      "enableAICompletion": "Enable AI completion"
     },
     "notifications": {
       "error": {

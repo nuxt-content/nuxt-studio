@@ -4,6 +4,7 @@ import { Decoration, DecorationSet } from '@tiptap/pm/view'
 
 export interface CompletionOptions {
   onRequest?: (prompt: string) => Promise<string>
+  enabled?: () => boolean
 }
 
 export interface CompletionStorage {
@@ -39,6 +40,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
   addOptions() {
     return {
       onRequest: undefined,
+      enabled: () => true,
     }
   },
 
@@ -59,7 +61,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
           ({ editor, state }) => {
             const { to } = state.selection
 
-            if (!this.options.onRequest || this.storage.isLoading) {
+            if (!this.options.enabled?.() || !this.options.onRequest || this.storage.isLoading) {
               return false
             }
 
@@ -207,6 +209,13 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
       new Plugin({
         key: new PluginKey('aiCompletionAutoTrigger'),
         appendTransaction: (_transactions, _oldState, newState) => {
+          // Don't auto-trigger if disabled
+          const enabled = this.options.enabled?.()
+
+          if (!enabled) {
+            return null
+          }
+
           // Clear any existing timer
           if (storage.debounceTimer) {
             clearTimeout(storage.debounceTimer)
