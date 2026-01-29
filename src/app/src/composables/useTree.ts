@@ -7,10 +7,12 @@ import { buildTree, findItemFromFsPath, findItemFromRoute, findParentFromFsPath 
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
 import { useStudioState } from './useStudioState'
+import { useAI } from './useAI'
 
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
   const { preferences, setLocation, devMode } = useStudioState()
+  const { contextFolder } = useAI()
 
   const tree = ref<TreeItem[]>([])
 
@@ -23,8 +25,8 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       name = 'public'
     }
     else if (type === StudioFeature.AI) {
-      name = host.meta.ai.context.contentFolder
-      fsPath = host.meta.ai.context.contentFolder
+      name = contextFolder
+      fsPath = contextFolder
     }
 
     return {
@@ -123,11 +125,6 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       const allDraftItems = draft.list.value
 
       const isInContextFolder = (item: DatabaseItem | DraftItem<DatabaseItem | MediaItem>) => {
-        if (!host.meta.ai.enabled) {
-          return false
-        }
-
-        const contextFolder = host.meta.ai.context.contentFolder
         if (!contextFolder) return false
 
         return item.fsPath?.startsWith(`${contextFolder}/`)

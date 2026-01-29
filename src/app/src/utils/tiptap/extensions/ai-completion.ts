@@ -65,8 +65,8 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
               return false
             }
 
-            // Get context: up to 1000 characters before cursor
-            const contextStart = Math.max(0, to - 1000)
+            // Get context: up to 500 characters before cursor
+            const contextStart = Math.max(0, to - 500)
             const context = state.doc.textBetween(contextStart, to, '\n')
 
             // Don't trigger if context is too short or just whitespace
@@ -245,7 +245,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
 
           // Only trigger if the user typed actual content (not just spaces/newlines)
           // and the text ends with a word character or punctuation
-          if (textBeforeCursor.trim().length === 0 || /\s$/.test(textBeforeCursor)) {
+          if (textBeforeCursor.trim().length === 0) {
             return null
           }
 

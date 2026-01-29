@@ -6,11 +6,13 @@ import type { CollectionInfo } from '@nuxt/content'
 export function useAI() {
   const host = window.useStudioHost()
   const enabled = host.meta.ai.enabled
+  const contextFolder = host.meta.ai.context?.contentFolder
 
   if (!enabled) {
     const emptyPromise = async () => ''
     return {
       enabled: false,
+      contextFolder,
       isLoading: ref(false),
       error: ref(undefined),
       completion: ref(''),
@@ -107,6 +109,7 @@ export function useAI() {
 
   return {
     enabled,
+    contextFolder,
     isLoading,
     error,
     completion,

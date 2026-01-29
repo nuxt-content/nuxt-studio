@@ -187,9 +187,14 @@ const aiExtensions = computed(() => {
     return []
   }
 
+  // Check if current document is from .studio collection (AI context files)
+  const isAIContextFile = computed(() => {
+    return document.value?.fsPath?.startsWith(ai.contextFolder)
+  })
+
   return [
     AICompletion.configure({
-      enabled: () => preferences.value.enableAICompletion,
+      enabled: () => preferences.value.enableAICompletion && !isAIContextFile.value,
       onRequest: async (prompt: string) => {
         return await ai.continue(prompt)
       },

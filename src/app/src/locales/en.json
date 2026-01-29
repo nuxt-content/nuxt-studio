@@ -27,7 +27,8 @@
       "publishChanges": "Publish changes",
       "backToContent": "Back to content",
       "disableAICompletion": "Disable AI completion",
-      "enableAICompletion": "Enable AI completion"
+      "enableAICompletion": "Enable AI completion",
+      "regenerateAIContext": "Regenerate AI context"
     },
     "notifications": {
       "error": {

@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useStudio } from '../composables/useStudio'
-import { useStudioState } from '../composables/useStudioState'
 import { useAI } from '../composables/useAI'
-import { TreeStatus, StudioItemActionId, StudioFeature } from '../types'
+import { TreeStatus, StudioItemActionId } from '../types'
 import type { CollectionInfo } from '@nuxt/content'
 import { findItemFromFsPath } from '../utils/tree'
 
 const { host, context, aiContextTree } = useStudio()
-const { location } = useStudioState()
 const ai = useAI()
 
 const isAnalyzing = ref(false)
@@ -17,15 +15,33 @@ const selectedCollection = ref<CollectionInfo | null>(null)
 const currentTreeItem = computed(() => aiContextTree!.currentItem.value)
 const currentDraftItem = computed(() => aiContextTree!.draft.current.value)
 
+// Get the active collection - either from selectedCollection or derived from current file
+const activeCollection = computed(() => {
+  if (selectedCollection.value) {
+    return selectedCollection.value
+  }
+
+  // If we have a current file open, derive collection from its path
+  if (currentDraftItem.value?.fsPath) {
+    const fileName = currentDraftItem.value.fsPath.split('/').pop()
+    if (fileName?.endsWith('.md')) {
+      const collectionName = fileName.replace('.md', '')
+      return collections.value.find(c => c.name === collectionName)
+    }
+  }
+
+  return null
+})
+
 const currentContextFilePath = computed(() => {
-  if (!selectedCollection.value) return null
-  return contextFilePath(selectedCollection.value)
+  if (!activeCollection.value) return null
+  return contextFilePath(activeCollection.value)
 })
 
 // Get all collections except the studio collection itself
 const collections = computed(() => {
   const allCollections = host.collection.list()
-  const studioCollectionName = host.meta.ai.context.collectionName
+  const studioCollectionName = ai.contextFolder
   return allCollections.filter(c => c.name !== studioCollectionName)
 })
 
@@ -34,14 +50,6 @@ function hasContextFile(collection: CollectionInfo): boolean {
   const contextPath = contextFilePath(collection)
   return !!findItemFromFsPath(aiContextTree!.root.value, contextPath)
 }
-
-// Initialize AI context tree on mount
-onMounted(async () => {
-  // Check if we should restore a saved AI location
-  if (location.value.active && location.value.feature === StudioFeature.AI) {
-    await aiContextTree!.selectItemByFsPath(location.value.fsPath)
-  }
-})
 
 async function openContextFile(collection: CollectionInfo) {
   selectedCollection.value = collection
@@ -59,19 +67,26 @@ async function closeEditor() {
 }
 
 async function analyzeCollection() {
-  if (!selectedCollection.value) return
+  if (!activeCollection.value) return
 
   isAnalyzing.value = true
 
   try {
     // Generate AI analysis
-    const result = await ai.analyze(selectedCollection.value)
+    const result = await ai.analyze(activeCollection.value)
 
-    if (currentDraftItem.value === currentContextFilePath.value) {
-      // TODO update if item already exist
-      // await documentTree.draft.update(currentContextFilePath.value, )
+    // Check if we have a draft for this file (file is open in editor)
+    if (currentDraftItem.value) {
+      // Update existing draft
+      const documentFromContent = host.document.generate.documentFromContent
+      const databaseItem = await documentFromContent(currentContextFilePath.value!, result)
+
+      if (databaseItem) {
+        await aiContextTree!.draft.update(currentContextFilePath.value!, databaseItem)
+      }
     }
     else {
+      // Create new file using action handler
       await context.itemActionHandler[StudioItemActionId.CreateDocument]({
         fsPath: currentContextFilePath.value!,
         content: result,
@@ -80,7 +95,7 @@ async function analyzeCollection() {
       // Wait for the tree to be rebuilt by the hook
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Select the newly created file to show the editor
+      // Select the newly created file in the tree
       await aiContextTree!.selectItemByFsPath(currentContextFilePath.value!)
     }
   }
@@ -91,7 +106,7 @@ async function analyzeCollection() {
 }
 
 function contextFilePath(collection: CollectionInfo) {
-  return `${host.meta.ai.context.contentFolder}/${collection.name}.md`
+  return `${ai.contextFolder}/${collection.name}.md`
 }
 </script>
 
@@ -105,7 +120,7 @@ function contextFilePath(collection: CollectionInfo) {
           class="size-4 animate-spin"
         />
         <UButton
-          v-else-if="currentTreeItem.type === 'file' || selectedCollection"
+          v-else-if="currentTreeItem.type === 'file' || activeCollection"
           icon="i-lucide-arrow-left"
           color="neutral"
           variant="ghost"
@@ -118,17 +133,32 @@ function contextFilePath(collection: CollectionInfo) {
               ? 'Analyzing collection and generating AI guidelines...'
               : (
                 currentTreeItem.type === 'file'
-                  ? `${currentTreeItem.name} collection guide`
+                  ? `${currentTreeItem.name.replace('.md', '')} collection guide`
                   : 'AI writing style guide'
               )
           }}
         </h2>
       </div>
-      <div
-        v-if="isAnalyzing && ai.completion.value"
-        class="text-xs text-muted"
-      >
-        {{ ai.completion.value.length }} characters
+      <div class="flex items-center gap-2">
+        <div
+          v-if="isAnalyzing && ai.completion.value"
+          class="text-xs text-muted"
+        >
+          {{ ai.completion.value.length }} characters
+        </div>
+        <UTooltip
+          v-else-if="currentTreeItem.type === 'file' && currentDraftItem"
+          :text="$t('studio.tooltips.regenerateAIContext')"
+        >
+          <UButton
+            icon="i-lucide-refresh-cw"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            :disabled="isAnalyzing"
+            @click="analyzeCollection"
+          />
+        </UTooltip>
       </div>
     </div>
 
@@ -156,7 +186,7 @@ function contextFilePath(collection: CollectionInfo) {
 
         <!-- Show analyze button when collection is selected but no file exists -->
         <div
-          v-else-if="selectedCollection"
+          v-else-if="activeCollection"
           class="h-full flex items-center justify-center p-4"
         >
           <div class="max-w-md text-center space-y-4">
@@ -169,7 +199,7 @@ function contextFilePath(collection: CollectionInfo) {
                 No style guide
               </h3>
               <p class="text-sm text-muted mb-4">
-                Generate a comprehensive AI writing guide by analyzing the content in the <strong>{{ selectedCollection.name }}</strong> collection.
+                Generate a comprehensive AI writing guide by analyzing the content in the <strong>{{ activeCollection.name }}</strong> collection.
               </p>
             </div>
             <UButton
