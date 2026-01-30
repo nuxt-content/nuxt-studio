@@ -20,6 +20,7 @@ export * from './config'
 export * from './media'
 export * from './content'
 export * from './form'
+export * from './ai'
 
 export interface StudioHost {
   meta: {

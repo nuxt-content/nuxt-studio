@@ -14,4 +14,6 @@ export interface AIGenerateOptions {
   mode?: AIMode
   language?: string
   selectionLength?: number
+  fsPath?: string
+  collectionName?: string
 }

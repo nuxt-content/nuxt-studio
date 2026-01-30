@@ -67,9 +67,74 @@ function detectContentType(items: DatabasePageItem[]): string {
 }
 
 /**
+ * Build a file tree structure for visualization
+ */
+function buildFileTree(items: DatabasePageItem[]): string {
+  const paths = items.map(item => item.path || item.fsPath || '').filter(Boolean)
+  if (paths.length === 0) return 'No files found'
+
+  // Build tree structure
+  interface TreeNode {
+    name: string
+    children: Map<string, TreeNode>
+    isFile: boolean
+  }
+
+  const root: TreeNode = { name: '', children: new Map(), isFile: false }
+
+  // Build tree
+  for (const path of paths) {
+    const parts = path.split('/').filter(Boolean)
+    let current = root
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i] || ''
+      const isFile = i === parts.length - 1
+
+      if (part && !current.children.has(part)) {
+        current.children.set(part, { name: part, children: new Map(), isFile })
+      }
+
+      const next = current.children.get(part)
+      if (!next) continue
+      current = next
+    }
+  }
+
+  // Convert tree to string representation
+  function renderTree(node: TreeNode, prefix = ''): string[] {
+    const lines: string[] = []
+
+    const entries = Array.from(node.children.entries())
+      .sort(([, a], [, b]) => {
+        // Directories first, then files
+        if (a.isFile !== b.isFile) return a.isFile ? 1 : -1
+        return a.name.localeCompare(b.name)
+      })
+
+    entries.forEach(([name, child], index) => {
+      const isLastChild = index === entries.length - 1
+      const connector = isLastChild ? '└── ' : '├── '
+      const icon = child.isFile ? '📄 ' : '📁 '
+
+      lines.push(`${prefix}${connector}${icon}${name}`)
+
+      if (!child.isFile && child.children.size > 0) {
+        const childPrefix = prefix + (isLastChild ? '    ' : '│   ')
+        lines.push(...renderTree(child, childPrefix))
+      }
+    })
+
+    return lines
+  }
+
+  return renderTree(root, '').join('\n')
+}
+
+/**
  * Analyze folder structure and architecture
  */
-function analyzeArchitecture(items: DatabasePageItem[]): { usesNestedFolders: boolean, depth: number, structure: string } {
+function analyzeArchitecture(items: DatabasePageItem[]): { usesNestedFolders: boolean, depth: number, structure: string, fileTree: string } {
   const paths = items.map(item => item.path || '').filter(Boolean)
 
   let maxDepth = 0
@@ -99,7 +164,9 @@ function analyzeArchitecture(items: DatabasePageItem[]): { usesNestedFolders: bo
     structure = `Nested hierarchy (${folderCount} folders, max depth: ${maxDepth} levels)`
   }
 
-  return { usesNestedFolders, depth: maxDepth, structure }
+  const fileTree = buildFileTree(items)
+
+  return { usesNestedFolders, depth: maxDepth, structure, fileTree }
 }
 
 /**
@@ -188,6 +255,7 @@ export default eventHandler(async (event) => {
     totalDocuments: 0,
     contentType: 'general content',
     architecture: {
+      fileTree: '',
       usesNestedFolders: false,
       depth: 0,
       structure: '',
@@ -265,6 +333,11 @@ Content Type: ${collectionMetadata.contentType}
 Architecture: ${collectionMetadata.architecture.structure}
 Nested Folders: ${collectionMetadata.architecture.usesNestedFolders ? 'Yes' : 'No'}
 Folder Depth: ${collectionMetadata.architecture.depth} level${collectionMetadata.architecture.depth === 1 ? '' : 's'}
+
+File Structure:
+\`\`\`
+${collectionMetadata.architecture.fileTree}
+\`\`\`
 `.trim()
 
     // We have actual content samples - analyze them
@@ -294,21 +367,26 @@ Extract 3-7 critical non-negotiable patterns observed in samples:
 - Core voice/tone characteristics
 - Essential structural requirements
 
-## 2. Writing Style (concise)
+## 2. Collection Architecture
+Include the file tree structure above to show how content is organized.
+Explain the folder organization pattern and how it relates to content hierarchy.
+
+## 3. Writing Style (concise)
 - Tone characteristics (2-3 bullet points)
 - Technical depth level
 - How examples are used
 
-## 3. Formatting Conventions (use lists, not prose)
+## 4. Formatting Conventions (use lists, not prose)
 
-## 4. Content Structure
+## 5. Content Structure
 - Document opening pattern
 - Typical section flow
 - Link strategy
+- How file location affects content style
 
-## 5. Target Audience (1-2 sentences max)
+## 6. Target Audience (1-2 sentences max)
 
-## 6. Key Principles (3-5 actionable rules)
+## 7. Key Principles (3-5 actionable rules)
 
 FOCUS ON:
 - Patterns ACTUALLY OBSERVED in these ${collectionMetadata.totalDocuments} samples

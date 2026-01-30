@@ -1,6 +1,6 @@
 import { useCompletion } from '@ai-sdk/vue'
 import { ref } from 'vue'
-import type { AIGenerateOptions } from '../../../shared/types/ai'
+import type { AIGenerateOptions } from '../types'
 import type { CollectionInfo } from '@nuxt/content'
 
 export function useAI() {
@@ -44,6 +44,8 @@ export function useAI() {
         mode: options.mode,
         language: options.language,
         selectionLength: options.selectionLength,
+        fsPath: options.fsPath,
+        collectionName: options.collectionName,
       },
     })
 
@@ -54,24 +56,24 @@ export function useAI() {
     return completion.value
   }
 
-  async function continueText(prompt: string): Promise<string> {
-    return generate({ prompt, mode: 'continue' })
+  async function continueText(prompt: string, fsPath?: string, collectionName?: string): Promise<string> {
+    return generate({ prompt, mode: 'continue', fsPath, collectionName })
   }
 
-  async function fix(text: string): Promise<string> {
-    return generate({ prompt: text, mode: 'fix' })
+  async function fix(text: string, fsPath?: string, collectionName?: string): Promise<string> {
+    return generate({ prompt: text, mode: 'fix', fsPath, collectionName })
   }
 
-  async function improve(text: string): Promise<string> {
-    return generate({ prompt: text, mode: 'improve' })
+  async function improve(text: string, fsPath?: string, collectionName?: string): Promise<string> {
+    return generate({ prompt: text, mode: 'improve', fsPath, collectionName })
   }
 
-  async function simplify(text: string): Promise<string> {
-    return generate({ prompt: text, mode: 'simplify' })
+  async function simplify(text: string, fsPath?: string, collectionName?: string): Promise<string> {
+    return generate({ prompt: text, mode: 'simplify', fsPath, collectionName })
   }
 
-  async function translate(text: string, language: string): Promise<string> {
-    return generate({ prompt: text, mode: 'translate', language })
+  async function translate(text: string, language: string, fsPath?: string, collectionName?: string): Promise<string> {
+    return generate({ prompt: text, mode: 'translate', language, fsPath, collectionName })
   }
 
   async function analyze(collection: CollectionInfo): Promise<string> {
