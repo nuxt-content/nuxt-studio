@@ -6,14 +6,14 @@ import type { Draft07 } from '@nuxt/content'
 
 const nodeProps = defineProps(nodeViewProps)
 
-const { host, documentTree } = useStudio()
+const { host, context } = useStudio()
 
 const collapsed = ref(true)
 
 const textColor = computed(() => collapsed.value ? 'text-muted group-hover/header:text-default' : 'text-default')
 
 const collection = computed(() => {
-  const currentItem = documentTree.currentItem.value
+  const currentItem = context.activeTree.value.currentItem.value
   if (!currentItem?.fsPath) return null
   return host.collection.getByFsPath(currentItem.fsPath)
 })
@@ -26,11 +26,19 @@ const frontmatterJSON = computed({
     nodeProps.updateAttributes({ frontmatter: value })
   },
 })
+
+// Hide frontmatter for AI context files (.studio collection)
+const shouldShowFrontmatter = computed(() => {
+  if (!collection.value) return true
+  const aiContextCollectionName = host.meta.ai?.context?.collectionName
+  return collection.value.name !== aiContextCollectionName
+})
 </script>
 
 <template>
   <NodeViewWrapper as="div">
     <div
+      v-if="shouldShowFrontmatter"
       class="group mt-4 mb-3 transition-all duration-150"
       contenteditable="false"
     >

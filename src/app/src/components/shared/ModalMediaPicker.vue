@@ -48,9 +48,9 @@ const handleMediaSelect = (media: TreeItem) => {
   emit('select', media)
 }
 
-const handleUpload = () => {
+const handleUpload = async () => {
   emit('cancel')
-  context.switchFeature(StudioFeature.Media)
+  await context.switchFeature(StudioFeature.Media)
 }
 
 const handleUseExternal = () => {

@@ -23,6 +23,11 @@ const items = computed(() => [
     value: 'media',
     to: '/media',
   },
+  {
+    label: t('studio.nav.ai'),
+    value: 'ai',
+    to: '/ai',
+  },
 ])
 
 const current = computed({
@@ -33,10 +38,8 @@ const current = computed({
     const currentItem = context.activeTree.value.currentItem.value
     setLocation(name, currentItem.fsPath)
 
-    // Ensure root item status is up to date when navigating by selecting computed
-    if (currentItem.type === 'root') {
-      await context.activeTree.value.select(context.activeTree.value.rootItem.value)
-    }
+    // Ensure active tree select the approriate draft
+    await context.activeTree.value.select(context.activeTree.value.currentItem.value)
   },
 })
 </script>

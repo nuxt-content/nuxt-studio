@@ -25,7 +25,10 @@
       "copiedToClipboard": "Copied to clipboard",
       "copyToClipboard": "Copy to clipboard",
       "publishChanges": "Publish changes",
-      "backToContent": "Back to content"
+      "backToContent": "Back to content",
+      "disableAICompletion": "Disable AI completion",
+      "enableAICompletion": "Enable AI completion",
+      "regenerateAIContext": "Regenerate AI context"
     },
     "notifications": {
       "error": {
@@ -76,7 +79,8 @@
     },
     "nav": {
       "content": "Content",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Commit message",
@@ -233,6 +237,13 @@
         "insertBefore": "Insert before",
         "insertAfter": "Insert after",
         "delete": "Delete"
+      },
+      "ai": {
+        "fix": "Fix Grammar & Spelling",
+        "improve": "Improve writing and clarity",
+        "simplify": "Minimize and simplify text",
+        "translate": "Translate to French",
+        "selectionTooLarge": "Selection too large (max {max} characters)"
       },
       "element": {
         "addSlot": "Add slot",

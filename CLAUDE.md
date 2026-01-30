@@ -248,6 +248,152 @@ description: 'meta description of the page'
 - JSON files
 - The code editor is the only one that can edit raw content, this is a debug editor we don't want to improve it contrary to the other editors.
 
+### AI Features
+
+Studio integrates AI-powered content assistance using Claude models via Vercel AI Gateway. AI features are optional and require configuration.
+
+#### Configuration
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  studio: {
+    ai: {
+      apiKey: process.env.STUDIO_VERCEL_API_GATEWAY_KEY,
+      context: {
+        title: 'My Project',
+        description: 'Project description',
+        style: 'Technical and concise',
+        tone: 'Professional',
+        collection: {
+          name: 'studio'  // Internal collection name for context files
+          folder: '.studio'  // Folder where the context files are stored in the content folder
+        }
+      }
+    }
+  }
+})
+```
+
+**Environment Variable**:
+```bash
+STUDIO_VERCEL_API_GATEWAY_KEY=xxx  # Vercel AI Gateway API key
+```
+
+#### AI Tab (Configuration)
+
+The AI tab (`/ai` route) is for **configuration only** - it manages AI context files stored in an internal `.studio` collection:
+
+- **Purpose**: Generate and manage AI writing style guides per collection
+- **Context Files**: `.studio/{collection-name}.md` files that contextualize AI for each collection
+- **Analysis**: Uses Claude Sonnet 4.5 to analyze collection content and generate comprehensive style guides
+- **UI**:
+  - List all collections with status badges (Generated/Not generated)
+  - Editor for viewing/editing context files
+  - Refresh button to regenerate context from collection
+  - "Analyze Collection" button for new context files
+
+**Key Behavior**:
+- Context files are in the `.studio` collection (internal, not user-facing)
+- Users access AI tab directly by clicking the AI tab button
+- Selecting files from preview **always** goes to Content tab (not AI tab)
+- AI tab is independent from user content workflow
+
+#### AI Completion (TipTap Extension)
+
+In-editor AI text completion that auto-suggests continuations while typing:
+
+**Features**:
+- Auto-triggers 500ms after user stops typing
+- Uses Claude Haiku 4.5 for speed (~300-500ms response)
+- Shows suggestions as gray italic text at cursor
+- Accept with `Tab`, dismiss with `Escape` or continue typing
+- Manual trigger with `Cmd/Ctrl+J`
+
+**Configuration**:
+- Toggle in footer: sparkles button (only visible when AI enabled)
+- Stored in preferences: `enableAICompletion` (default: true)
+- Automatically disabled for `.studio` context files (prevents AI interfering with AI guidelines)
+
+**Implementation**:
+- Extension: `src/app/src/utils/tiptap/extensions/ai-completion.ts`
+- Context: Sends 500 characters before cursor
+- Debounced: Waits 500ms of no typing before requesting
+- Max output: 40 tokens (~1 sentence)
+
+#### AI Transform Actions
+
+Selection-based content improvements via bubble toolbar:
+
+**Modes**:
+- **Fix**: Grammar and spelling correction
+- **Improve**: Enhanced clarity and engagement
+- **Simplify**: Simpler words and shorter sentences
+- **Translate**: Translate to another language (default: French)
+
+**Features**:
+- Available in TipTap bubble toolbar when text is selected
+- Uses Claude Sonnet 4.5 for quality
+- Shows accept/decline buttons after transformation
+- Max selection: 500 characters
+- Selection auto-trims to exclude structural elements (lists, code blocks, MDC components)
+- Only processes inline content (preserves document structure)
+
+**Implementation**:
+- Extension: `src/app/src/utils/tiptap/extensions/ai-transform.ts`
+- Component: `src/app/src/components/content/ContentEditorAIValidation.vue`
+- Preserves all markdown formatting (bold, italic, links, etc.)
+
+#### Model Selection Strategy
+
+- **Continue mode**: Claude Haiku 4.5 (optimized for speed)
+- **Transform modes**: Claude Sonnet 4.5 (optimized for quality)
+- Context size: 500 chars for continue, full selection for transforms
+
+#### Server Routes
+
+```
+/__nuxt_studio/ai/generate   # POST - AI generation endpoint
+/__nuxt_studio/ai/analyze    # POST - Collection analysis endpoint
+```
+
+**Authentication**: Skipped in dev mode, requires session in production.
+
+#### Context Loading (Future)
+
+Collection-specific context files can be loaded during AI operations:
+- Query `.studio/{collection-name}.md` from studio collection
+- Include in AI prompt for contextualized responses
+- Currently commented out (lines 94-101 in generate.post.ts)
+- Ready to enable when needed for better AI personalization
+
+#### Important Implementation Details
+
+**Draft Update Prevention**:
+- Draft updates from AI don't trigger infinite loops
+- `useStudio.ts` route handler only calls hooks when document is unfocused or not current
+- Prevents: AI update → draft update → hook → tree rebuild → update → hook (loop)
+
+**Route Handling**:
+- Preview selections always route to Content tab (not AI tab)
+- `.studio` files are internal config, never shown in preview
+- AI tab accessed only by direct navigation
+
+**Performance Optimizations**:
+- Haiku for completions: ~300-500ms (vs 2-3s with Sonnet)
+- Reduced context: 500 chars (vs 1000) for continue mode
+- Skips context file loading for continue mode
+
+#### Key Files
+
+- `src/module/src/runtime/server/routes/ai/generate.post.ts` - AI generation endpoint
+- `src/module/src/runtime/server/routes/ai/analyze.post.ts` - Collection analysis
+- `src/app/src/composables/useAI.ts` - AI composable
+- `src/app/src/utils/tiptap/extensions/ai-completion.ts` - Completion extension
+- `src/app/src/utils/tiptap/extensions/ai-transform.ts` - Transform extension
+- `src/app/src/pages/ai.vue` - AI tab interface
+- `src/app/src/components/content/ContentEditorTipTap.vue` - TipTap integration
+
 ### Draft system
 
 **In production mode:**

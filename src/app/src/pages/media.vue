@@ -79,7 +79,7 @@ async function onFileDrop(event: DragEvent) {
                   name="i-lucide-folder"
                   class="size-3.5 text-muted"
                 />
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+                <h3 class="text-xs uppercase tracking-wider text-muted">
                   {{ $t('studio.headings.directories') }}
                 </h3>
                 <UBadge
@@ -104,7 +104,7 @@ async function onFileDrop(event: DragEvent) {
                   name="i-lucide-image"
                   class="size-3.5 text-muted"
                 />
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">
+                <h3 class="text-xs uppercase tracking-wider text-muted">
                   {{ $t('studio.headings.media') }}
                 </h3>
                 <UBadge

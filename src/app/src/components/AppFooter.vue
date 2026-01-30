@@ -53,6 +53,12 @@ const syncTooltipText = computed(() => {
     : t('studio.tooltips.linkEditor')
 })
 
+const aiCompletionTooltipText = computed(() => {
+  return preferences.value.enableAICompletion
+    ? t('studio.tooltips.disableAICompletion')
+    : t('studio.tooltips.enableAICompletion')
+})
+
 function closeStudio() {
   unsetActiveLocation()
   ui.close()
@@ -123,6 +129,19 @@ function closeStudio() {
           :color="preferences.syncEditorAndRoute ? 'info' : 'neutral'"
           :class="!preferences.syncEditorAndRoute && 'opacity-50'"
           @click="updatePreference('syncEditorAndRoute', !preferences.syncEditorAndRoute)"
+        />
+      </UTooltip>
+      <UTooltip
+        v-if="host.meta.ai.enabled"
+        :text="aiCompletionTooltipText"
+        :delay-duration="0"
+      >
+        <UButton
+          icon="i-lucide-sparkles"
+          variant="ghost"
+          :color="preferences.enableAICompletion ? 'info' : 'neutral'"
+          :class="!preferences.enableAICompletion && 'opacity-50'"
+          @click="updatePreference('enableAICompletion', !preferences.enableAICompletion)"
         />
       </UTooltip>
       <UButton

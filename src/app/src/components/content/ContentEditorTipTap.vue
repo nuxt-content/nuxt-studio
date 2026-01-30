@@ -6,7 +6,7 @@ import type { PropType } from 'vue'
 import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { MDCRoot, Toc } from '@nuxtjs/mdc'
 import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
-import type { DraftItem, DatabasePageItem } from '../../types'
+import type { DraftItem, DatabasePageItem, AIGenerateOptions } from '../../types'
 import type { MarkdownRoot } from '@nuxt/content'
 import type { EditorCustomHandlers } from '@nuxt/ui'
 import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmojiMenu.vue.d.ts'
@@ -17,7 +17,7 @@ import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph } from '../../utils/tiptap/editor'
+import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph, getAITransformItems } from '../../utils/tiptap/editor'
 import { Element } from '../../utils/tiptap/extensions/element'
 import { Image } from '../../utils/tiptap/extensions/image'
 import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
@@ -30,7 +30,11 @@ import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
+import ContentEditorAIValidation from './ContentEditorAIValidation.vue'
 import { Binding } from '../../utils/tiptap/extensions/binding'
+import { AICompletion } from '../../utils/tiptap/extensions/ai-completion'
+import { AITransform } from '../../utils/tiptap/extensions/ai-transform'
+import { useAI } from '../../composables/useAI'
 
 const props = defineProps({
   draftItem: {
@@ -44,8 +48,16 @@ const document = defineModel<DatabasePageItem>()
 const { host } = useStudio()
 const { preferences } = useStudioState()
 const { t } = useI18n()
+const ai = useAI()
 
 const tiptapJSON = ref<JSONContent>()
+
+const showAIButtons = ref(false)
+const aiButtonsRect = ref<DOMRect | null>(null)
+const aiButtonsCallbacks = ref<{
+  onAccept: () => void
+  onDecline: () => void
+} | null>(null)
 
 const removeReservedKeys = host.document.utils.removeReservedKeys
 
@@ -169,10 +181,195 @@ const toolbarItems = computed(() => getStandardToolbarItems(t))
 const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
   emoji => !emoji.name.startsWith('regional_indicator_'),
 )
+
+const aiExtensions = computed(() => {
+  if (!ai.enabled) {
+    return []
+  }
+
+  // Check if current document is from .studio collection (AI context files)
+  const isAIContextFile = computed(() => {
+    return document.value?.fsPath?.startsWith(ai.contextFolder)
+  })
+
+  return [
+    AICompletion.configure({
+      enabled: () => preferences.value.enableAICompletion && !isAIContextFile.value,
+      onRequest: async (prompt: string, hintOptions) => {
+        if (!document.value?.fsPath) {
+          return ''
+        }
+
+        const collection = host.collection.getByFsPath(document.value!.fsPath!)
+
+        return await ai.continue(prompt, document.value?.fsPath, collection?.name, hintOptions)
+      },
+    }),
+    AITransform.configure({
+      onShowButtons: (data) => {
+        showAIButtons.value = true
+        aiButtonsRect.value = data.rect
+        aiButtonsCallbacks.value = {
+          onAccept: data.onAccept,
+          onDecline: data.onDecline,
+        }
+      },
+      onHideButtons: () => {
+        showAIButtons.value = false
+        aiButtonsRect.value = null
+        aiButtonsCallbacks.value = null
+      },
+    }),
+  ]
+})
+
+const MAX_AI_SELECTION_LENGTH = 500
+
+function isAISelectionTooLarge(editor: Editor): boolean {
+  const { from, to } = editor.state.selection
+  const selectedText = editor.state.doc.textBetween(from, to, '\n')
+  return selectedText.length > MAX_AI_SELECTION_LENGTH
+}
+
+function getAITransformMenuItems(editor: Editor) {
+  if (!ai.enabled) {
+    return []
+  }
+
+  const transformItems = getAITransformItems(t)
+  return [
+    transformItems.map(item => ({
+      label: item.label,
+      icon: item.icon,
+      onSelect: () => handleAITransform(editor, item.mode),
+    })),
+  ]
+}
+
+/**
+ * Trims selection to exclude structural elements (lists, code blocks, MDC components).
+ * Keeps inline formatting (bold, italic, links) but stops at structural boundaries.
+ */
+function trimSelectionToTextOnly(editor: Editor) {
+  const { from, to } = editor.state.selection
+
+  return { from, to }
+  // const { doc } = editor.state
+
+  // let trimmedTo = to
+  // let currentPos = from
+
+  // // Structural elements to exclude (lists, code blocks, MDC components, etc.)
+  // const structuralNodeTypes = [
+  //   'bulletList',
+  //   'orderedList',
+  //   'listItem',
+  //   'codeBlock',
+  //   'element', // MDC components
+  //   'slot', // MDC component slots
+  //   'blockquote',
+  //   'heading',
+  // ]
+
+  // // Traverse through the selection
+  // doc.nodesBetween(from, to, (node, pos) => {
+  //   // If we haven't reached the position yet, skip
+  //   if (pos < currentPos) return true
+
+  //   // Check if this node is a structural element we want to exclude
+  //   const isStructural = structuralNodeTypes.includes(node.type.name)
+
+  //   if (isStructural && pos > from) {
+  //     // Found a structural element, trim selection to before it
+  //     trimmedTo = pos
+  //     return false // Stop traversal
+  //   }
+
+  //   currentPos = pos + node.nodeSize
+  //   return true
+  // })
+
+  // return { from, to: trimmedTo }
+}
+
+async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simplify' | 'translate') {
+  const { empty } = editor.state.selection
+
+  if (empty) return
+
+  // Trim selection to exclude structural elements
+  const { from, to } = trimSelectionToTextOnly(editor)
+
+  // If selection became empty after trimming, do nothing
+  if (from >= to) return
+
+  // Update selection to trimmed range
+  editor.chain().setTextSelection({ from, to }).run()
+
+  // Get selected text
+  const selectedText = editor.state.doc.textBetween(from, to, '\n')
+  const selectionLength = selectedText.length
+
+  // Start transformation with AI call
+  editor.commands.transformSelection(mode, async () => {
+    // Map the mode to the appropriate AI function
+    let result: string
+
+    // Get the collection name for the current file
+    const collection = document.value?.fsPath
+      ? host.collection.getByFsPath(document.value.fsPath)
+      : null
+
+    const options: AIGenerateOptions = {
+      prompt: selectedText,
+      selectionLength: selectionLength,
+      fsPath: document.value?.fsPath,
+      collectionName: collection?.name,
+    }
+
+    switch (mode) {
+      case 'fix':
+        result = await ai.generate({ ...options, mode: 'fix' })
+        break
+      case 'improve':
+        result = await ai.generate({ ...options, mode: 'improve' })
+        break
+      case 'simplify':
+        result = await ai.generate({ ...options, mode: 'simplify' })
+        break
+      case 'translate':
+        result = await ai.generate({ ...options, mode: 'translate', language: 'fr' })
+        break
+      default:
+        result = selectedText
+    }
+
+    return result
+  })
+}
+
+function handleAIAccept() {
+  if (aiButtonsCallbacks.value) {
+    aiButtonsCallbacks.value.onAccept()
+  }
+}
+
+function handleAIDecline() {
+  if (aiButtonsCallbacks.value) {
+    aiButtonsCallbacks.value.onDecline()
+  }
+}
 </script>
 
 <template>
   <div class="h-full flex flex-col">
+    <ContentEditorAIValidation
+      :show="showAIButtons"
+      :rect="aiButtonsRect"
+      @accept="handleAIAccept"
+      @decline="handleAIDecline"
+    />
+
     <ContentEditorTipTapDebug
       v-if="preferences.debug"
       :current-tiptap="currentTiptap"
@@ -207,6 +404,7 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         CodeBlock,
         Emoji,
         Binding,
+        ...aiExtensions,
       ]"
       :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
@@ -220,6 +418,28 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         </template>
         <template #span-style>
           <TiptapSpanStylePopover :editor="editor" />
+        </template>
+        <template #ai-transform>
+          <UTooltip
+            :text="isAISelectionTooLarge(editor) ? $t('studio.tiptap.ai.selectionTooLarge', { max: MAX_AI_SELECTION_LENGTH }) : undefined"
+            :disabled="!isAISelectionTooLarge(editor)"
+          >
+            <UDropdownMenu
+              v-slot="{ open }"
+              :items="getAITransformMenuItems(editor)"
+              :modal="false"
+              :disabled="isAISelectionTooLarge(editor)"
+            >
+              <UButton
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-sparkles"
+                :active="open"
+                :disabled="isAISelectionTooLarge(editor)"
+              />
+            </UDropdownMenu>
+          </UTooltip>
         </template>
       </UEditorToolbar>
 
