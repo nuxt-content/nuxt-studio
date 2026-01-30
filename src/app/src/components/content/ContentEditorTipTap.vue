@@ -195,14 +195,14 @@ const aiExtensions = computed(() => {
   return [
     AICompletion.configure({
       enabled: () => preferences.value.enableAICompletion && !isAIContextFile.value,
-      onRequest: async (prompt: string) => {
+      onRequest: async (prompt: string, hintOptions) => {
         if (!document.value?.fsPath) {
           return ''
         }
 
         const collection = host.collection.getByFsPath(document.value!.fsPath!)
 
-        return await ai.continue(prompt, document.value?.fsPath, collection?.name)
+        return await ai.continue(prompt, document.value?.fsPath, collection?.name, hintOptions)
       },
     }),
     AITransform.configure({

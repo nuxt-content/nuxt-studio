@@ -9,6 +9,12 @@ export type AIMode
     | 'simplify'
     | 'translate'
 
+export interface AIHintOptions {
+  isNewLine?: boolean
+  isInHeading?: boolean
+  isAtEndOfNode?: boolean
+}
+
 export interface AIGenerateOptions {
   prompt: string
   mode?: AIMode
@@ -16,4 +22,5 @@ export interface AIGenerateOptions {
   selectionLength?: number
   fsPath?: string
   collectionName?: string
+  hintOptions?: AIHintOptions
 }

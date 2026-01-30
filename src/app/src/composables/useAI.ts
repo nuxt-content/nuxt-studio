@@ -46,6 +46,7 @@ export function useAI() {
         selectionLength: options.selectionLength,
         fsPath: options.fsPath,
         collectionName: options.collectionName,
+        hintOptions: options.hintOptions,
       },
     })
 
@@ -56,8 +57,8 @@ export function useAI() {
     return completion.value
   }
 
-  async function continueText(prompt: string, fsPath?: string, collectionName?: string): Promise<string> {
-    return generate({ prompt, mode: 'continue', fsPath, collectionName })
+  async function continueText(prompt: string, fsPath?: string, collectionName?: string, hintOptions?: AIGenerateOptions['hintOptions']): Promise<string> {
+    return generate({ prompt, mode: 'continue', fsPath, collectionName, hintOptions })
   }
 
   async function fix(text: string, fsPath?: string, collectionName?: string): Promise<string> {

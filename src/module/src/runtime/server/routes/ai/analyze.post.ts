@@ -248,7 +248,7 @@ export default eventHandler(async (event) => {
     excerpt: string
   }> = []
 
-  const MAX_SAMPLES = 15 // Limit samples to stay within token budget
+  const MAX_SAMPLES = 30 // Limit samples to stay within token budget
   const MAX_EXCERPT_LENGTH = 600 // Characters per excerpt
 
   const collectionMetadata = {

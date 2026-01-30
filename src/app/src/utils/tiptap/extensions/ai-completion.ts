@@ -1,9 +1,11 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import type { AIHintOptions } from '../../../types/ai'
+import { generateHintOptions, tiptapSliceToMarkdown } from '../completion'
 
 export interface CompletionOptions {
-  onRequest?: (prompt: string) => Promise<string>
+  onRequest?: (prompt: string, hintOptions?: AIHintOptions) => Promise<string>
   enabled?: () => boolean
 }
 
@@ -65,20 +67,24 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
               return false
             }
 
-            // Get context: up to 500 characters before cursor
-            const contextStart = Math.max(0, to - 500)
-            const context = state.doc.textBetween(contextStart, to, '\n')
-
-            // Don't trigger if context is too short or just whitespace
-            if (context.trim().length < 3) {
-              return false
-            }
-
             this.storage.isLoading = true
             this.storage.position = to
 
-            this.options
-              .onRequest(context)
+            const maxChars = 500
+            const contextStart = Math.max(0, to - maxChars * 2)
+
+            // Generate hint options based on cursor position
+            const hintOptions = generateHintOptions(state, to)
+
+            tiptapSliceToMarkdown(state, contextStart, to, maxChars)
+              .then((markdown) => {
+                if (!markdown) {
+                  this.storage.isLoading = false
+                  return
+                }
+
+                return this.options.onRequest!(markdown, hintOptions)
+              })
               .then((suggestion) => {
                 // Only show if suggestion is not empty and position hasn't changed
                 if (suggestion && suggestion.trim().length > 0 && this.storage.position === to) {

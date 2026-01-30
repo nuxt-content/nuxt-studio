@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections } from '@nuxt/content'
-import type { DatabasePageItem } from 'nuxt-studio/app'
+import type { DatabasePageItem, AIHintOptions } from 'nuxt-studio/app'
 import type { ModuleOptions } from '../../../module'
 
 /**
@@ -19,7 +19,7 @@ export function buildLocationContext(fsPath?: string, collectionName?: string): 
   locationParts.push(`- File: ${fsPath}`)
 
   return locationParts.length > 0
-    ? `File Location:\n${locationParts.join('\n')}`
+    ? `# File Location:\n${locationParts.join('\n')}`
     : null
 }
 
@@ -46,8 +46,37 @@ export function buildMetadataContext(projectContext?: NonNullable<ModuleOptions[
   }
 
   return metadata.length > 0
-    ? `Project Context:\n${metadata.join('\n')}`
+    ? `# Project Context:\n${metadata.join('\n')}`
     : null
+}
+
+/**
+ * Build cursor position hint context
+ */
+export function buildHintContext(hintOptions?: AIHintOptions): string | null {
+  if (!hintOptions) {
+    return null
+  }
+
+  const { isNewLine, isInHeading, isAtEndOfNode } = hintOptions
+
+  let hint: string
+  if (isNewLine) {
+    hint = 'The previous line is COMPLETE and FINISHED. Do NOT continue or expand it. Generate the FIRST words of a NEW paragraph that comes AFTER (1 sentence max)'
+  }
+  else if (isInHeading && !isAtEndOfNode) {
+    hint = 'Cursor is in the middle of a heading - complete with 2-4 words max'
+  }
+  else if (isInHeading && isAtEndOfNode) {
+    hint = 'Cursor is at the end of a heading - complete with 2-4 words max'
+  }
+  else {
+    hint = 'Cursor is continuing the current line/paragraph (1 sentence max)'
+  }
+
+  const result = `# Cursor Position:\n- ${hint}`
+
+  return result
 }
 
 /**
@@ -102,10 +131,17 @@ export async function buildAIContext(
     collectionName?: string
     mode?: string
     projectContext?: NonNullable<ModuleOptions['ai']>['context']
+    hintOptions?: AIHintOptions
   },
 ): Promise<string> {
-  const { fsPath, collectionName, mode, projectContext } = options
+  const { fsPath, collectionName, mode, projectContext, hintOptions } = options
   const contextParts: string[] = []
+
+  // Add cursor position hints
+  const hintContext = buildHintContext(hintOptions)
+  if (hintContext) {
+    contextParts.push(hintContext)
+  }
 
   // Add file location context
   const locationContext = buildLocationContext(fsPath, collectionName)
@@ -128,9 +164,11 @@ export async function buildAIContext(
   }
 
   // Combine all context into single block
-  return contextParts.length > 0
+  const finalContext = contextParts.length > 0
     ? `\n\n${contextParts.join('\n\n')}`
     : ''
+
+  return finalContext
 }
 
 /**
@@ -217,7 +255,7 @@ export function getContinuePrompt(context: string): string {
 
 CRITICAL RULES:
 - Output ONLY the NEW text that comes AFTER the user's input
-- NEVER repeat any words from the end of the user's text
-- Keep completions short (1 sentence max)
+- NEVER repeat, continue, or expand any words from the end of the user's text
+- Follow the length guidance specified in the Cursor Position hint above
 - Match the tone and style of the existing text`
 }

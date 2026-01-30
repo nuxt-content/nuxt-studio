@@ -46,7 +46,7 @@ export default eventHandler(async (event) => {
 
   const gateway = createGateway({ apiKey })
 
-  const { prompt, mode, language, selectionLength, fsPath, collectionName } = await readBody<AIGenerateOptions>(event)
+  const { prompt, mode, language, selectionLength, fsPath, collectionName, hintOptions } = await readBody<AIGenerateOptions>(event)
 
   if (!prompt) {
     throw createError({
@@ -76,6 +76,7 @@ export default eventHandler(async (event) => {
     collectionName,
     mode,
     projectContext,
+    hintOptions,
   })
 
   // Generate system prompt based on mode
