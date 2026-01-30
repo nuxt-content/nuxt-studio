@@ -118,13 +118,9 @@ defineShortcuts({
 
       <UFormField
         name="commitMessage"
+        :error="false"
         class="w-full"
-        :ui="{ error: 'hidden' }"
       >
-        <template #error>
-          <span />
-        </template>
-
         <UInput
           v-model="state.commitMessage"
           :placeholder="$t('studio.placeholders.commitMessage')"

@@ -1,4 +1,5 @@
 import { ImageFileExtension, VideoFileExtension, AudioFileExtension, ContentFileExtension } from '../types'
+import { slugifyString } from './string'
 
 export const IMAGE_EXTENSIONS = [
   ImageFileExtension.PNG,
@@ -112,9 +113,4 @@ export function slugifyFileName(fileName: string): string {
   const slugifiedName = slugifyString(normalized)
 
   return `${slugifiedName}.${extension}`
-}
-
-function slugifyString(str: string): string {
-  return str.replace(/[\s_()@#$%^&*+={}';:"<>?/|`~!-]+/g, '-')
-    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
 }
