@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { useStudioState } from './composables/useStudioState'
 import * as locales from '@nuxt/ui/locale'
 
-const { host, ui, isReady, context } = useStudio()
+const { host, ui, isReady, context, documentTree } = useStudio()
 const { location } = useStudioState()
 const router = useRouter()
 
@@ -48,14 +48,13 @@ async function editContentFile(fsPath: string) {
     await router.push('/content')
   }
 
-  await context.activeTree.value.selectItemByFsPath(fsPath)
-
+  await documentTree.selectItemByFsPath(fsPath)
   ui.open()
 }
 
 async function open() {
   await router.push(`/${location.value.feature}`)
-  await context.activeTree.value.selectItemByFsPath(location.value.fsPath)
+  await documentTree.selectItemByFsPath(location.value.fsPath)
   ui.open()
 }
 
