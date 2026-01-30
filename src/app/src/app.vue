@@ -44,7 +44,12 @@ function detectActiveDocuments() {
 }
 
 async function editContentFile(fsPath: string) {
+  if (context.currentFeature.value !== 'content') {
+    await router.push('/content')
+  }
+
   await context.activeTree.value.selectItemByFsPath(fsPath)
+
   ui.open()
 }
 

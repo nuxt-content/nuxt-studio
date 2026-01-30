@@ -45,6 +45,8 @@ export const useContext = createSharedComposable((
         return StudioFeature.Media
       case 'content':
         return StudioFeature.Content
+      case 'ai':
+        return StudioFeature.AI
       default:
         return null
     }
@@ -209,6 +211,9 @@ export const useContext = createSharedComposable((
     [StudioItemActionId.RevertAllItems]: async () => {
       await documentTree.draft.revertAll()
       await mediaTree.draft.revertAll()
+      if (aiContextTree) {
+        await aiContextTree.draft.revertAll()
+      }
     },
   }
 
@@ -233,7 +238,7 @@ export const useContext = createSharedComposable((
       // @ts-expect-error params is null
       await itemActionHandler[StudioItemActionId.RevertAllItems]()
 
-      router.push('/content')
+      await router.push('/content')
     },
   }
 
@@ -241,8 +246,8 @@ export const useContext = createSharedComposable((
     actionInProgress.value = null
   }
 
-  function switchFeature(feature: StudioFeature) {
-    router.push(`/${feature}`)
+  async function switchFeature(feature: StudioFeature) {
+    await router.push(`/${feature}`)
   }
 
   return {

@@ -160,6 +160,12 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }
+  else if (type === StudioFeature.AI) {
+    hooks.hook('studio:draft:ai:updated', async ({ caller }) => {
+      console.info('studio:draft:ai:updated have been called by', caller)
+      await handleDraftUpdate(caller !== 'useDraftBase.load')
+    })
+  }
   else {
     // Content and AI trees listen to document updates
     hooks.hook('studio:draft:document:updated', async ({ caller }) => {
