@@ -288,6 +288,19 @@
         "noSource": "画像ソースがありません",
         "edit": "画像を編集",
         "delete": "画像を削除"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

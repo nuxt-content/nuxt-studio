@@ -288,6 +288,19 @@
         "noSource": "无图像源",
         "edit": "编辑图像",
         "delete": "删除图像"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

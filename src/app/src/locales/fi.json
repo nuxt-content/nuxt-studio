@@ -288,6 +288,19 @@
         "noSource": "Ei kuvan lähdettä",
         "edit": "Muokkaa kuvaa",
         "delete": "Poista kuva"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

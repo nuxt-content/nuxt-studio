@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0](https://github.com/nuxt-content/studio/compare/v1.1.1...v1.2.0) (2026-01-23)
+
+### Features
+
+* **editor:** custom image extension ([#294](https://github.com/nuxt-content/studio/issues/294)) ([6ca0818](https://github.com/nuxt-content/studio/commit/6ca0818111e7213760941029c48d0fb0cfd9637a))
+* **editor:** custom video extension ([#300](https://github.com/nuxt-content/studio/issues/300)) ([d05ac37](https://github.com/nuxt-content/studio/commit/d05ac378c7cfa857a5285c703b2aa22b8b942a23))
+
+### Bug Fixes
+
+* **editor:** duplicated boolean props ([#299](https://github.com/nuxt-content/studio/issues/299)) ([ff99c64](https://github.com/nuxt-content/studio/commit/ff99c64f66d2504376dc35f74b80323ef285f320))
+* **editor:** separate classes by dots ([#301](https://github.com/nuxt-content/studio/issues/301)) ([be0a4d2](https://github.com/nuxt-content/studio/commit/be0a4d21e9b42cc468b2c4ed0b8262d6c5e4de89))
+* **ItemCardForm:** ensure fsPath has no leading path ([55eddac](https://github.com/nuxt-content/studio/commit/55eddac614904322875a4de9d0a6b7c98fd5289b))
+* **lint:** no any ([d14b94b](https://github.com/nuxt-content/studio/commit/d14b94bbc6a15329438b61574d762e3a80fcd4e2))
+* **state:** create custom shared composable ([3ff2a1f](https://github.com/nuxt-content/studio/commit/3ff2a1fc6737bfcf469fda8db6cedabfa72eeaf3))
+* **tree:** sort items numerically by prefix then name ([#293](https://github.com/nuxt-content/studio/issues/293)) ([7ceacde](https://github.com/nuxt-content/studio/commit/7ceacde9ee445b48492c7e03da872ed8f2773c48))
+
 ## [1.1.1](https://github.com/nuxt-content/studio/compare/v1.1.0...v1.1.1) (2026-01-19)
 
 ### Bug Fixes

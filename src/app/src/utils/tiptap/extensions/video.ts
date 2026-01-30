@@ -1,88 +1,115 @@
-import { mergeAttributes, Node } from '@tiptap/core'
+import { Node, mergeAttributes } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import TiptapExtensionVideo from '../../../components/tiptap/extension/TiptapExtensionVideo.vue'
+import { sanitizeMediaUrl } from '../props'
 
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    Video: {
-      /**
-       * Add video element
-       */
-      addVideo: () => ReturnType
-    }
-  }
+export interface VideoOptions {
+  inline: boolean
+  HTMLAttributes: Record<string, unknown>
 }
 
-// https://www.codemzy.com/blog/tiptap-video-embed-extension
-export const Video = Node.create({
+export const Video = Node.create<VideoOptions>({
   name: 'video',
-  priority: 1000,
-  group: 'block',
-  selectable: false,
-  inline: false,
 
   addOptions() {
     return {
+      inline: false,
       HTMLAttributes: {},
     }
   },
 
+  inline() {
+    return this.options.inline
+  },
+
+  group() {
+    return this.options.inline ? 'inline' : 'block'
+  },
+
+  draggable: true,
+
   addAttributes() {
     return {
-      key: {
-        default: '',
-      },
-      src: {
-        default: null,
-      },
-      alt: {
-        default: null,
-      },
-      title: {
-        default: null,
-      },
-      width: {
-        default: null,
-      },
-      height: {
-        default: null,
-      },
       props: {
-        parseHTML(element) {
-          return JSON.parse(element.getAttribute('props') || '{}')
+        default: {},
+        parseHTML: (element) => {
+          return {
+            src: element.getAttribute('src') || '',
+            poster: element.getAttribute('poster') || '',
+            width: element.getAttribute('width') || '',
+            height: element.getAttribute('height') || '',
+            class: element.getAttribute('class') || '',
+            controls: element.hasAttribute('controls'),
+            autoplay: element.hasAttribute('autoplay'),
+            loop: element.hasAttribute('loop'),
+            muted: element.hasAttribute('muted'),
+          }
         },
-        default: null,
+        renderHTML: (attributes) => {
+          const props = attributes.props || {}
+          const attrs: Record<string, string | boolean> = {}
+
+          // Sanitize URL
+          const sanitizedSrc = sanitizeMediaUrl(props.src, 'video')
+          if (sanitizedSrc) attrs.src = sanitizedSrc
+
+          // Sanitize poster URL (poster is an image)
+          if (props.poster) {
+            const sanitizedPoster = sanitizeMediaUrl(props.poster, 'image')
+            if (sanitizedPoster) attrs.poster = sanitizedPoster
+          }
+
+          // Other attributes
+          if (props.width) attrs.width = String(props.width)
+          if (props.height) attrs.height = String(props.height)
+          if (props.class) attrs.class = String(props.class)
+
+          // Boolean attributes
+          if (props.controls) attrs.controls = true
+          if (props.autoplay) attrs.autoplay = true
+          if (props.loop) attrs.loop = true
+          if (props.muted) attrs.muted = true
+
+          return attrs
+        },
       },
     }
   },
 
   parseHTML() {
-    return [{ tag: 'div[data-type="video"]' }]
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    const mergedAttributes = mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-type': 'video' })
     return [
-      'div',
-      mergedAttributes,
+      {
+        tag: 'video[src]',
+      },
     ]
   },
 
-  addCommands() {
-    return {
-      addVideo: () => ({ state, chain }) => {
-        const { selection } = state
-        const range = { from: selection.from, to: selection.to }
-        const key = `${Date.now() % 1e6}-${Number.parseInt(String(Math.random() * 1e3))}`
+  renderHTML({ node }) {
+    const props = node.attrs.props || {}
+    const attrs: Record<string, string | boolean> = {}
 
-        return chain()
-          .insertContentAt(range, {
-            type: this.name,
-            attrs: { tag: 'video', key },
-          })
-          .run()
-      },
+    // Sanitize URL
+    const sanitizedSrc = sanitizeMediaUrl(props.src, 'video')
+    if (sanitizedSrc) attrs.src = sanitizedSrc
+
+    // Sanitize poster URL (poster is an image)
+    if (props.poster) {
+      const sanitizedPoster = sanitizeMediaUrl(props.poster, 'image')
+      if (sanitizedPoster) attrs.poster = sanitizedPoster
     }
+
+    // Other attributes
+    if (props.width) attrs.width = String(props.width)
+    if (props.height) attrs.height = String(props.height)
+    if (props.class) attrs.class = String(props.class)
+
+    // Boolean attributes
+    if (props.controls) attrs.controls = true
+    if (props.autoplay) attrs.autoplay = true
+    if (props.loop) attrs.loop = true
+    if (props.muted) attrs.muted = true
+
+    return ['video', mergeAttributes(this.options.HTMLAttributes, attrs)]
   },
 
   addNodeView() {

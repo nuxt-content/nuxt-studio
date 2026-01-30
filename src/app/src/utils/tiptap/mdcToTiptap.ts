@@ -22,7 +22,7 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {} } }),
   // 'nuxt-img': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
   // 'nuxt-picture': node => createTipTapNode(node as MDCElement, 'image', { attrs: { tag: (node as MDCElement).tag, props: (node as MDCElement).props || {}, src: (node as MDCElement).props?.src, alt: (node as MDCElement).props?.alt } }),
-  video: node => createTipTapNode(node as MDCElement, 'video'),
+  video: node => createVideoTipTapNode(node as MDCElement),
   template: node => createTemplateNode(node as MDCElement),
   pre: node => createPreNode(node as MDCElement),
   p: node => createParagraphNode(node as MDCElement),
@@ -210,6 +210,34 @@ function createTipTapNode(node: MDCElement, type: string, extra: Record<string, 
   return tiptapNode
 }
 
+function createVideoTipTapNode(node: MDCElement) {
+  const props = node.props || {}
+  const booleanProps = ['controls', 'autoplay', 'loop', 'muted']
+
+  // Normalize boolean properties from string "true"/"false" to actual booleans
+  // Also handle props with ':' prefix (e.g., ':controls' from shorthand syntax)
+  const normalizedProps = Object.entries(props).reduce((acc, [key, value]) => {
+    // Remove ':' prefix if present
+    const cleanKey = key.startsWith(':') ? key.substring(1) : key
+
+    if (booleanProps.includes(cleanKey)) {
+      // Convert string "true"/"false" to boolean, or keep existing boolean
+      if (value === 'true' || value === true) {
+        acc[cleanKey] = true
+      }
+      else if (value === 'false' || value === false) {
+        acc[cleanKey] = false
+      }
+    }
+    else {
+      acc[cleanKey] = value
+    }
+    return acc
+  }, {} as Record<string, unknown>)
+
+  return createTipTapNode(node, 'video', { attrs: { props: normalizedProps } })
+}
+
 function createTemplateNode(node: MDCElement) {
   const name = Object.keys(node.props || {}).find(prop => prop?.startsWith('v-slot:'))?.replace('v-slot:', '') || 'default'
 
@@ -314,7 +342,7 @@ function createSpanStyleNode(node: MDCElement) {
   const spanClass = (node as MDCElement).props?.class || (node as MDCElement).props?.className
   const spanAttrs = {
     style: isValidAttr(spanStyle) ? String(spanStyle).trim() : undefined,
-    class: isValidAttr(spanClass) ? String(spanClass).trim() : undefined,
+    class: isValidAttr(spanClass) ? (typeof spanClass === 'string' ? spanClass : (spanClass as Array<string>).join(' ')).trim() : undefined,
   }
   const cleanedNode = { ...(node as MDCElement), props: { ...(node as MDCElement).props } }
 

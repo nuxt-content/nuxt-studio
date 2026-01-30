@@ -1,6 +1,6 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import Slugger from 'github-slugger'
-import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText } from '@nuxtjs/mdc'
+import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText, MDCComment } from '@nuxtjs/mdc'
 import rehypeShiki from '@nuxtjs/mdc/dist/runtime/highlighter/rehype'
 import { createShikiHighlighter } from '@nuxtjs/mdc/runtime/highlighter/shiki'
 import { bundledThemes, bundledLanguages as bundledLangs, createJavaScriptRegexEngine } from 'shiki'
@@ -46,7 +46,7 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'code': (node: JSONContent) => createElement(node, 'code', { props: node.attrs }),
   'codeBlock': (node: JSONContent) => createCodeBlockElement(node),
   'image': (node: JSONContent) => createImageElement(node),
-  'video': (node: JSONContent) => createElement(node, 'video'),
+  'video': (node: JSONContent) => createVideoElement(node),
   'binding': (node: JSONContent) => {
     const defaultValue = (node.attrs as Record<string, unknown> | undefined)?.defaultValue as string
     const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
@@ -178,7 +178,7 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
   }
 }
 
-export const createParagraphElement = (node: JSONContent, propsArray: string[][], rest: object = {}): MDCElement => {
+export const createParagraphElement = (node: JSONContent, propsArray: Array<[string, string | string[]]>, rest: object = {}): MDCElement => {
   const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
@@ -296,14 +296,19 @@ function createCodeBlockElement(node: JSONContent): MDCElement {
 function createImageElement(node: JSONContent): MDCElement {
   // Get props from node.attrs.props (new structure) or fallback to direct attrs (old structure)
   const props = node.attrs?.props || {}
-  const imageProps = {
-    src: props.src || node.attrs?.src,
-    alt: props.alt || node.attrs?.alt,
-    ...(props.title && { title: props.title }),
-    ...(props.width && { width: props.width }),
-    ...(props.height && { height: props.height }),
-    ...(props.class && { class: props.class }),
-  }
+  const imageProps: Record<string, string | number> = {}
+
+  // Only add properties if they have non-empty values
+  const src = props.src || node.attrs?.src
+  if (src) imageProps.src = src
+
+  const alt = props.alt || node.attrs?.alt
+  if (alt) imageProps.alt = alt
+
+  if (props.title) imageProps.title = props.title
+  if (props.width) imageProps.width = props.width
+  if (props.height) imageProps.height = props.height
+  if (props.class) imageProps.class = props.class
 
   // handle nuxt image components
   if (['nuxt-img', 'nuxt-picture'].includes(node.attrs?.tag)) {
@@ -311,6 +316,37 @@ function createImageElement(node: JSONContent): MDCElement {
   }
   else {
     return createElement(node, 'img', { props: imageProps })
+  }
+}
+
+function createVideoElement(node: JSONContent): MDCElement {
+  const props = node.attrs?.props || {}
+  const videoProps: Record<string, string | boolean | number> = {}
+
+  // Source is required
+  if (props.src || node.attrs?.src) {
+    videoProps.src = props.src || node.attrs?.src
+  }
+
+  // Optional string attributes
+  if (props.poster) videoProps.poster = props.poster
+  if (props.width) videoProps.width = props.width
+  if (props.height) videoProps.height = props.height
+  if (props.class) videoProps.class = props.class
+
+  // Optional boolean attributes
+  if (props[':controls']) videoProps[':controls'] = 'true'
+  if (props[':autoplay']) videoProps[':autoplay'] = 'true'
+  if (props[':loop']) videoProps[':loop'] = 'true'
+  if (props[':muted']) videoProps[':muted'] = 'true'
+
+  return {
+    type: 'element',
+    tag: 'video',
+    props: videoProps,
+    children: (node.content?.flatMap(tiptapNodeToMDC) || []).filter((child): child is MDCElement | MDCText | MDCComment =>
+      child.type !== 'root',
+    ),
   }
 }
 
