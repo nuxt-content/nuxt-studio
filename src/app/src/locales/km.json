@@ -1,0 +1,363 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "កែប្រែទំព័រ",
+      "retryPublish": "ព្យាយាមបង្ហោះម្តងទៀត",
+      "reloadApp": "ផ្ទុកកម្មវិធីឡើងវិញ",
+      "reload": "ផ្ទុកឡើងវិញ",
+      "signOut": "ចាកចេញពីគណនី",
+      "review": "ពិនិត្យឡើងវិញ",
+      "publish": "បង្ហោះ",
+      "back": "ត្រលប់ទៅក្រោយ",
+      "backToEdition": "ត្រលប់ទៅការកែសម្រួល",
+      "seeChanges": "មើលការផ្លាស់ប្តូរ"
+    },
+    "headings": {
+      "directories": "ថតឯកសារ",
+      "files": "ឯកសារ",
+      "media": "មេឌៀ",
+      "pageSettings": "ការកំណត់ទំព័រ"
+    },
+    "tooltips": {
+      "toggleStudio": "បិទ/បើក Studio",
+      "unlinkEditor": "បំបាត់តភ្ជាប់កម្មវិធីកែសម្រួលនិងការមើលជាមុន",
+      "linkEditor": "ភ្ជាប់កម្មវិធីកែសម្រួលនិងការមើលជាមុន",
+      "copiedToClipboard": "បានចម្លងទៅក្លីបបត",
+      "copyToClipboard": "ចម្លងទៅក្លីបបត",
+      "publishChanges": "ការបង្ហោះការផ្លាស់ប្តូរ",
+      "backToContent": "ត្រលប់ទៅមាតិកា"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "បានកើតមានកំហុសមិនស្គាល់"
+      }
+    },
+    "publish": {
+      "failedTitle": "ការបង្ហោះបរាជ័យ",
+      "summary": "នៅលើ {branch} នៃឃ្លាំង {repo}",
+      "errorTitle": "កំហុសក្នុងពេលការបង្ហោះ {providerName}",
+      "failedGeneric": "បរាជ័យក្នុងការបង្ហោះការផ្លាស់ប្តូរ"
+    },
+    "review": {
+      "title": "ពិនិត្យការផ្លាស់ប្តូរ",
+      "created": "បានបង្កើត",
+      "updated": "បានធ្វើបច្ចុប្បន្នភាព",
+      "renamed": "បានផ្លាស់ប្តូរឈ្មោះ",
+      "deleted": "បានលុប"
+    },
+    "publishSuccess": {
+      "title": "ការផ្លាស់ប្តូរបានបង្ហោះ",
+      "summary": "{count} ការផ្លាស់ប្តូរបានបង្ហោះនៅលើ {branch} នៃ {repo} | {count} ការផ្លាស់ប្តូរបានការបង្ហោះនៅលើ {branch} នៃឃ្លាំង {repo}",
+      "alertTitleWaiting": "កំពុងរង់ចាំការដាក់ឱ្យប្រើប្រាស់...",
+      "alertTitleComplete": "ការដាក់ឱ្យប្រើប្រាស់បានបញ្ចប់",
+      "alertDescWaiting": "គេហទំព័រត្រូវការដាក់ឱ្យប្រើប្រាស់ដើម្បីឱ្យការផ្លាស់ប្តូរអាចមើលឃើញក្នុង Studio។",
+      "alertDescComplete": "កំណែថ្មីនៃគេហទំព័ររបស់អ្នកបានដាក់ឱ្យប្រើប្រាស់។ សូមផ្ទុកកម្មវិធីឡើងវិញដើម្បីមើលការផ្លាស់ប្តូរក្នុង Studio។"
+    },
+    "newVersionBanner": {
+      "title": "បានរកឃើញកំណែគេហទំព័រថ្មី",
+      "description": "កំណែថ្មីនៃគេហទំព័ររបស់អ្នកបានដាក់ឱ្យប្រើប្រាស់។ ផ្ទុកកម្មវិធីឡើងវិញដើម្បីមើលការផ្លាស់ប្តូរចុងក្រោយ។",
+      "reloadButton": "ផ្ទុកឡើងវិញ"
+    },
+    "footer": {
+      "developer_view": "ទិដ្ឋភាពអ្នកអភិវឌ្ឍន៍",
+      "localFilesystem": "កំពុងប្រើប្រាស់ប្រព័ន្ធឯកសារក្នុងតំបន់",
+      "debugMode": "ពេលវេលាសាកល្បង"
+    },
+    "alert": {
+      "mdcFormatting": "ការធ្វើទម្រង់ត្រូវបានអនុវត្តដើម្បីផ្គូផ្គងជាមួយស្តង់ដារវាក្យសរសេរី MDC។"
+    },
+    "conflict": {
+      "title": "បានរកឃើញជម្លោះ",
+      "repository": "ឃ្លាំង",
+      "branch": "Branch",
+      "file": "ឯកសារ",
+      "description": "មាតិកានៅលើ {providerName} ខុសគ្នាពីកំណែគេហទំព័ររបស់អ្នក។ ត្រូវប្រាកដថាការផ្លាស់ប្តូរចុងក្រោយរបស់អ្នកត្រូវបានដាក់ឱ្យប្រើប្រាស់ ហើយផ្ទុកទំព័រឡើងវិញ។",
+      "websiteVersion": "គេហទំព័រ"
+    },
+    "nav": {
+      "content": "មាតិកា",
+      "media": "មេឌៀ"
+    },
+    "placeholders": {
+      "commitMessage": "សារការប្តេធ្វើបច្ចុប្បន្នភាព",
+      "order": "លេខលំដាប់",
+      "fileName": "ឈ្មោះឯកសារ"
+    },
+    "validation": {
+      "commitRequired": "សារការប្តេធ្វើបច្ចុប្បន្នភាពត្រូវបានទាមទារ",
+      "nameEmpty": "ឈ្មោះមិនអាចទទេបាន",
+      "nameEndsWithDot": "ឈ្មោះមិនអាចបញ្ចប់ដោយ '.'",
+      "nameStartsWithSlash": "ឈ្មោះមិនអាចចាប់ផ្តើមដោយ '/'",
+      "nameExists": "ឈ្មោះមានស្រាប់រួច",
+      "prefixDigitsOnly": "បុព្រាមុខត្រូវតែជាខ្សែអក្សរមានតែលេខ",
+      "prefixNonNegativeInteger": "បុព្រាមុខត្រូវតែជាលេខគតិបន្តិច"
+    },
+    "media": {
+      "altFilePreview": "មើលឯកសារជាមុន",
+      "altImagePreview": "មើលរូបភាពជាមុន",
+      "playAudio": "ដាក់អូឌីយ៉ូ",
+      "audioTagNotSupported": "កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រ ស្លាកអូឌីយ៉ូ។",
+      "playVideo": "ដាក់វីដេអូ",
+      "videoTagNotSupported": "កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រ ស្លាកវីដេអូ។",
+      "metaWidth": "ទទឹង",
+      "metaHeight": "កម្ពស់",
+      "metaType": "ប្រភេទ",
+      "metaDuration": "រយៈពេល",
+      "metaSize": "ទំហំ",
+      "fileName": "ឈ្មោះឯកសារ",
+      "publicPath": "ផ្លូវសាធារណៈ",
+      "providerPath": "ផ្លូវ {providerName}",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "បើកសកម្មភាព",
+      "cancel": "បោះបង់",
+      "submit": "ដាក់ស្នើ"
+    },
+    "actions": {
+      "confirmAction": "ចុចម្តងទៀតដើម្បី {action}",
+      "verbs": {
+        "create": "បង្កើត",
+        "delete": "លុប",
+        "rename": "ផ្លាស់ប្តូរឈ្មោះ",
+        "upload": "ផ្ទុកឡើង",
+        "duplicate": "ធ្វើ certified copy"
+      },
+      "labels": {
+        "createDocument": "ឯកសារថ្មី",
+        "createDocumentFolder": "ថតថ្មី",
+        "createMediaFolder": "ថតមេឌៀថ្មី",
+        "renameItem": "ផ្លាស់ប្តូរឈ្មោះ",
+        "deleteItem": "លុប",
+        "uploadMedia": "ផ្ទុកមេឌៀឡើង",
+        "duplicateItem": "ចម្លង",
+        "revertItem": "ដកការផ្លាស់ប្តូរ",
+        "publishBranch": "ការបង្ហោះ branch",
+        "openGitProvider": "បើកនៅលើ {providerName}",
+        "switchToTipTap": "ប្រើកម្មវិធីកែសម្រួលរូបភាព",
+        "switchToCode": "ប្រើកម្មវិធីកែសម្រួលកូដ"
+      },
+      "tooltips": {
+        "createDocument": "បង្កើតឯកសារថ្មី",
+        "createDocumentFolder": "បង្កើតថតថ្មី",
+        "createMediaFolder": "បង្កើតថតមេឌៀថ្មី",
+        "renameItem": "ផ្លាស់ប្តូរឈ្មោះឯកសារ",
+        "deleteItem": "លុបឯកសារ",
+        "uploadMedia": "ផ្ទុកមេឌៀឡើង",
+        "duplicateItem": "ចម្លងឯកសារ",
+        "revertItem": "ដកការផ្លាស់ប្តូរ",
+        "publishBranch": "ការបង្ហោះ branch"
+      }
+    },
+    "items": {
+      "itemCount": "1 ធាតុ | {count} ធាតុ"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "ចំណងជើង ១",
+        "h2": "ចំណងជើង ២",
+        "h3": "ចំណងជើង ៣"
+      },
+      "styles": {
+        "bold": "អក្សរដិត",
+        "italic": "អក្សរទ្រេត"
+      },
+      "lists": {
+        "bulleted": "បញ្ជីជាចំណុចៗ",
+        "numbered": "បញ្ជីជាលេខ"
+      },
+      "other": {
+        "emojis": "អីមូជី",
+        "blockquote": "សម្រង់ពាក្យសម្តី",
+        "code": "កូដ",
+        "inlineCode": "កូដក្នុងជួរ",
+        "link": "តំណភ្ជាប់",
+        "image": "រូបភាព"
+      },
+      "writeSomething": "សរសេរអ្វីមួយ",
+      "snippets": {
+        "title": "ចំណងជើង",
+        "item1": "ធាតុទី ១",
+        "item2": "ធាតុទី ២",
+        "language": "ភាសា",
+        "code": "កូដ",
+        "link": "តំណភ្ជាប់",
+        "alt": "អត្ថបទជំនួស",
+        "src": "ប្រភព",
+        "value": "តម្លៃ"
+      },
+      "docs": {
+        "path": "ផ្លូវក្នុងគម្រោង៖",
+        "props": "លក្ខណៈសម្បត្តិ",
+        "slots": "ប្រលោះ",
+        "type": "ប្រភេទ",
+        "required": "ចាំបាច់",
+        "default": "លំនាំដើម"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "សរសេរ វាយ '/' សម្រាប់ពាក្យបញ្ជា...",
+        "components": "ធាតុប្រសាទ"
+      },
+      "toolbar": {
+        "h1": "ចំណងជើង ១",
+        "h2": "ចំណងជើង ២",
+        "h3": "ចំណងជើង ៣",
+        "h4": "ចំណងជើង ៤",
+        "bulletList": "បញ្ជីចំណុច",
+        "orderedList": "បញ្ជីលេខ",
+        "blockquote": "ប្លុកសេចក្តីថ្លែងការណ៍",
+        "codeBlock": "ប្លុកកូដ",
+        "bold": "អក្សរដិត",
+        "italic": "អក្សរទ្រេត",
+        "strike": "ឆ្លាក់",
+        "code": "កូដ",
+        "headings": "ចំណងជើង"
+      },
+      "suggestion": {
+        "style": "រចនាប័ទ្ម",
+        "paragraph": "កថាខណ្ឌ",
+        "insert": "បញ្ចូល",
+        "image": "រូបភាព",
+        "video": "វីដេអូ",
+        "horizontalRule": "បន្ទាត់ផ្តេក"
+      },
+      "drag": {
+        "turnInto": "ផ្លាស់ប្តូរទៅជា",
+        "resetFormatting": "កំណត់ទម្រង់ឡើងវិញ",
+        "duplicate": "ចម្លង",
+        "copyToClipboard": "ចម្លងទៅក្លីបបត",
+        "moveUp": "ផ្លាស់ទៅខាងលើ",
+        "moveDown": "ផ្លាស់ទៅខាងក្រោម",
+        "insertBefore": "បញ្ចូលមុន",
+        "insertAfter": "បញ្ចូលក្រោយ",
+        "delete": "លុប"
+      },
+      "element": {
+        "addSlot": "បន្ថែមរន្ធ",
+        "editProps": "កែប្រែលក្ខណៈសម្បត្តិ",
+        "delete": "លុប",
+        "prop": "លក្ខណៈសម្បត្តិ",
+        "props": {
+          "label": "លក្ខណៈសម្បត្តិ",
+          "itemsCount": "{count} ធាតុ | {count} ធាតុ",
+          "fieldsCount": "{count} វាល | {count} វាល",
+          "edit": "កែប្រែ {type}"
+        }
+      },
+      "slot": {
+        "searchPlaceholder": "ស្វែងរក ឬបង្កើតរន្ធ...",
+        "deleteSlot": "លុបរន្ធ",
+        "noSlotsAvailable": "គ្មានរន្ធស្រេចចិត្ត"
+      },
+      "inlineElement": {
+        "editContent": "កែប្រែមាតិកា",
+        "editProps": "កែប្រែលក្ខណៈសម្បត្តិ",
+        "delete": "លុប",
+        "editContentLabel": "កែប្រែមាតិកា {name}",
+        "enterContentPlaceholder": "បញ្ចូលមាតិកា...",
+        "apply": "អនុវត្ត"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filename.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "ដាក់តំណ...",
+        "applyLink": "អនុវត្តតំណ",
+        "openInNewWindow": "បើកក្នុងបង្អួចថ្មី",
+        "removeLink": "ដកតំណ"
+      },
+      "spanStyle": {
+        "label": "រចនាប័ទ្ម span",
+        "stylePlaceholder": "រចនាប័ទ្ម៖ ឧ. color: tomato; font-weight: 600;",
+        "classPlaceholder": "ថ្នាក់៖ បំបែកដោយដកការ",
+        "apply": "អនុវត្ត",
+        "remove": "ដក"
+      },
+      "binding": {
+        "variablePlaceholder": "ឈ្មោះប្តូរភាព",
+        "defaultValuePlaceholder": "តម្លៃលំនាំដើម"
+      },
+      "image": {
+        "source": "URL ប្រភពរូបភាព",
+        "altText": "អត្ថបទជំនួស",
+        "title": "ចំណងជើងរូបភាព",
+        "width": "ទទឹង",
+        "height": "កម្ពស់",
+        "noSource": "គ្មានប្រភពរូបភាព",
+        "edit": "កែប្រែរូបភាព",
+        "delete": "លុបរូបភាព"
+      },
+      "video": {
+        "source": "URL ប្រភពវីដេអូ",
+        "poster": "URL រូបភាព poster",
+        "width": "ទទឹង",
+        "height": "កម្ពស់",
+        "controls": "បង្ហាញឧបករណ៍បញ្ជា",
+        "autoplay": "ដាក់ដោយស្វ័យប្រវត្តិ",
+        "loop": "ចង្វាក់",
+        "muted": "បិទសំឡេង",
+        "noSource": "គ្មានប្រភពវីដេអូ",
+        "edit": "កែប្រែវីដេអូ",
+        "delete": "លុបវីដេអូ"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "ជ្រើសរើសរូបភាព",
+        "description": "ជ្រើសរើសរូបភាពពីបណ្តាញមេឌៀរបស់អ្នក",
+        "notAvailable": "គ្មានរូបភាពក្នុងបណ្តាញមេឌៀរបស់អ្នក",
+        "upload": "ផ្ទុកឡើង",
+        "useExternal": "ប្រើប្រភពខាងក្រៅ"
+      },
+      "video": {
+        "title": "ជ្រើសរើសវីដេអូ",
+        "description": "ជ្រើសរើសវីដេអូពីបណ្តាញមេឌៀរបស់អ្នក",
+        "notAvailable": "គ្មានវីដេអូក្នុងបណ្តាញមេឌៀរបស់អ្នក",
+        "upload": "ផ្ទុកឡើង",
+        "useExternal": "ប្រើប្រភពខាងក្រៅ"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "បន្ថែម {label}",
+        "deleteItem": "លុបធាតុ",
+        "editItem": "កែប្រែធាតុ",
+        "unsupportedType": "ប្រភេទអារេ {type} មិនត្រូវបានគាំទ្រ"
+      },
+      "object": {
+        "noProperties": "គ្មានលក្ខណៈសម្បត្តិកំណត់",
+        "enterPlaceholder": "បញ្ចូល {field}..."
+      },
+      "section": {
+        "propertyCount": "1 លក្ខណៈសម្បត្តិ | {count} លក្ខណៈសម្បត្តិ"
+      },
+      "media": {
+        "placeholder": "បញ្ចូលផ្លូវក្និត ឬ URL សាធារណៈ...",
+        "searchPlaceholder": "ស្វែងរករូបភាព...",
+        "noImagesFound": "រកមិនឃើញរូបភាព",
+        "noImagesAvailable": "គ្មានរូបភាព",
+        "imageCount": "{count} នៃ {total} រូបភាព | {count} នៃ {total} រូបភាព"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "ស្វែងរករូបតំណាង...",
+        "noIconsFound": "រកមិនឃើញរូបតំណាង",
+        "searchHint": "វាយយ៉ាងហោចណាស់ ២ តួអក្សរ ដើម្បីស្វែងរក",
+        "libraries": "បណ្តាញ៖",
+        "allLibraries": "ទាំងអស់"
+      },
+      "text": {
+        "placeholder": "បញ្ចូលអត្ថបទ...",
+        "selectPlaceholder": "ជ្រើសរើសជម្រើស..."
+      },
+      "date": {
+        "selectDate": "ជ្រើសរើសកាលបរិច្ឆេទ"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    }
+  }
+}
