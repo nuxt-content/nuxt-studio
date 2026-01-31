@@ -68,12 +68,15 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     return useContent().queryCollection(collection)
   }
 
+  const runtimeConfig = useRuntimeConfig()
+
   const host: StudioHost = {
     meta: {
       dev: false,
       getComponents: () => meta.components.value,
-      defaultLocale: useRuntimeConfig().public.studio.i18n?.defaultLocale || 'en',
+      defaultLocale: runtimeConfig.public.studio.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
+      media: runtimeConfig.public.studio.media,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {

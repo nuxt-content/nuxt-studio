@@ -3,6 +3,7 @@ import { joinURL } from 'ufo'
 import type { DraftItem, StudioHost, GitFile, DatabaseItem, MediaItem, BaseItem } from '../types'
 import { ContentFileExtension } from '../types'
 import { DraftStatus } from '../types/draft'
+import { isOSSMedia } from '../types/media'
 import { checkConflict, findDescendantsFromFsPath } from '../utils/draft'
 import type { useGitProvider } from './useGitProvider'
 import { useHooks } from './useHooks'
@@ -197,8 +198,13 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       return Promise.all(keys.map(async (key) => {
         const item = await storage.getItem(key) as DraftItem
         if (item.status === DraftStatus.Pristine) {
-          await storage.removeItem(key)
-          return null
+          // Don't delete OSS items - they need to persist even if status is Pristine
+          // In dev mode, all drafts have Pristine status, but OSS files are real uploads
+          const mediaItem = item.modified as MediaItem | undefined
+          if (!mediaItem || !isOSSMedia(mediaItem)) {
+            await storage.removeItem(key)
+            return null
+          }
         }
         return item
       }))

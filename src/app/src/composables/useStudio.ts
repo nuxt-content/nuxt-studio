@@ -54,6 +54,9 @@ export const useStudio = createSharedComposable(() => {
     await draftDocuments.load()
     await draftMedias.load()
 
+    // Load OSS files from R2/S3 if configured
+    await draftMedias.loadOSSFiles()
+
     host.app.requestRerender()
     isReady.value = true
 
