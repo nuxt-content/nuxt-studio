@@ -5,11 +5,11 @@ import { useRuntimeConfig } from '#imports'
 import {
   buildAIContext,
   calculateMaxTokens,
-  getFixPrompt,
-  getImprovePrompt,
-  getSimplifyPrompt,
-  getTranslatePrompt,
-  getContinuePrompt,
+  getFixSystem,
+  getImproveSystem,
+  getSimplifySystem,
+  getTranslateSystem,
+  getContinueSystem,
 } from '../../utils/ai'
 import type { AIGenerateOptions } from 'nuxt-studio/app'
 
@@ -83,20 +83,20 @@ export default eventHandler(async (event) => {
   let system: string
   switch (mode) {
     case 'fix':
-      system = getFixPrompt(context)
+      system = getFixSystem(context)
       break
     case 'improve':
-      system = getImprovePrompt(context)
+      system = getImproveSystem(context)
       break
     case 'simplify':
-      system = getSimplifyPrompt(context)
+      system = getSimplifySystem(context)
       break
     case 'translate':
-      system = getTranslatePrompt(context, language)
+      system = getTranslateSystem(context, language)
       break
     case 'continue':
     default:
-      system = getContinuePrompt(context)
+      system = getContinueSystem(context)
       break
   }
 

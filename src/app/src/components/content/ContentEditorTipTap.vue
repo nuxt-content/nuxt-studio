@@ -34,6 +34,7 @@ import ContentEditorAIValidation from './ContentEditorAIValidation.vue'
 import { Binding } from '../../utils/tiptap/extensions/binding'
 import { AICompletion } from '../../utils/tiptap/extensions/ai-completion'
 import { AITransform } from '../../utils/tiptap/extensions/ai-transform'
+import { CustomPlaceholder } from '../../utils/tiptap/extensions/custom-placeholder'
 import { useAI } from '../../composables/useAI'
 
 const props = defineProps({
@@ -392,6 +393,9 @@ function handleAIDecline() {
         },
       }"
       :extensions="[
+        CustomPlaceholder.configure({
+          placeholder: $t('studio.tiptap.editor.placeholder'),
+        }),
         Frontmatter,
         Image,
         ImagePicker,
@@ -406,7 +410,6 @@ function handleAIDecline() {
         Binding,
         ...aiExtensions,
       ]"
-      :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
       <UEditorToolbar
         :editor="editor"

@@ -7,21 +7,65 @@ import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
  * Generate AI hint options based on cursor position in the editor
  */
 export function generateHintOptions(state: EditorState, cursorPos: number): AIHintOptions {
-  // Check if cursor is at the start of a new line
-  const textBeforeCursor = state.doc.textBetween(Math.max(0, cursorPos - 10), cursorPos, '\n')
-  const isNewLine = textBeforeCursor.endsWith('\n') || cursorPos === 0
+  // Get context before cursor for analysis
+  const textBeforeCursor = state.doc.textBetween(Math.max(0, cursorPos - 100), cursorPos, '\n', '\n')
+  const trimmedText = textBeforeCursor.trimEnd()
 
-  // Get the current node info
+  // Get current node info
   const $pos = state.doc.resolve(cursorPos)
   const parentNode = $pos.parent
-  const isInHeading = parentNode.type.name === 'heading'
-  const isAtEndOfNode = cursorPos === $pos.end()
+  const nodeType = parentNode.type.name
+  const isAtStartOfNode = $pos.parentOffset === 0
 
-  return {
-    isNewLine,
-    isInHeading,
-    isAtEndOfNode,
+  // Check if there's text after cursor in the same node
+  const nodeEndPos = $pos.end()
+  const textAfterCursor = state.doc.textBetween(cursorPos, nodeEndPos, '\n', '\n')
+  const hasTextAfter = textAfterCursor.trim().length > 0
+
+  // Determine cursor context
+  let cursor: AIHintOptions['cursor']
+
+  if (nodeType === 'heading') {
+    // In a heading
+    if (isAtStartOfNode || cursorPos === 0) {
+      cursor = 'heading-new'
+    }
+    else if (hasTextAfter) {
+      cursor = 'heading-middle'
+    }
+    else {
+      cursor = 'heading-continue'
+    }
   }
+  else if (nodeType === 'paragraph') {
+    // In a paragraph
+    const isNewParagraph = cursorPos === 0
+      || textBeforeCursor.match(/\n\n\s*$/) !== null
+      || (isAtStartOfNode && textBeforeCursor.endsWith('\n'))
+
+    // Check if after sentence-ending punctuation (with or without space)
+    const isAfterSentenceEnd = /[.!?]\s*$/.test(trimmedText)
+
+    if (isNewParagraph) {
+      cursor = 'paragraph-new'
+    }
+    else if (isAfterSentenceEnd) {
+      // After "." in same node → sentence-new (takes precedence over paragraph-middle)
+      cursor = 'sentence-new'
+    }
+    else if (hasTextAfter) {
+      cursor = 'paragraph-middle'
+    }
+    else {
+      cursor = 'paragraph-continue'
+    }
+  }
+  else {
+    // Default to paragraph continue for other node types
+    cursor = 'paragraph-continue'
+  }
+
+  return { cursor }
 }
 
 /**

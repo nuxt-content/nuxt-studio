@@ -34,6 +34,10 @@ declare module '@tiptap/core' {
       dismissCompletion: () => ReturnType
     }
   }
+
+  interface Storage {
+    aiCompletion: CompletionStorage
+  }
 }
 
 export const AICompletion = Extension.create<CompletionOptions, CompletionStorage>({

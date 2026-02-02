@@ -54,29 +54,41 @@ export function buildMetadataContext(projectContext?: NonNullable<ModuleOptions[
  * Build cursor position hint context
  */
 export function buildHintContext(hintOptions?: AIHintOptions): string | null {
-  if (!hintOptions) {
+  if (!hintOptions || !hintOptions.cursor) {
     return null
   }
 
-  const { isNewLine, isInHeading, isAtEndOfNode } = hintOptions
+  const { cursor } = hintOptions
 
   let hint: string
-  if (isNewLine) {
-    hint = 'The previous line is COMPLETE and FINISHED. Do NOT continue or expand it. Generate the FIRST words of a NEW paragraph that comes AFTER (1 sentence max)'
-  }
-  else if (isInHeading && !isAtEndOfNode) {
-    hint = 'Cursor is in the middle of a heading - complete with 2-4 words max'
-  }
-  else if (isInHeading && isAtEndOfNode) {
-    hint = 'Cursor is at the end of a heading - complete with 2-4 words max'
-  }
-  else {
-    hint = 'Cursor is continuing the current line/paragraph (1 sentence max)'
+
+  switch (cursor) {
+    case 'heading-new':
+      hint = '⚠️ CRITICAL: User is STARTING A NEW HEADING. Generate ONLY a short and concise heading. DO NOT write full sentences or paragraphs.'
+      break
+    case 'heading-continue':
+      hint = '⚠️ CRITICAL: User is CONTINUING a heading. The cursor is located at the end of the heading. Generate ONLY the end of the heading to complete it. DO NOT write full sentences or paragraphs.'
+      break
+    case 'heading-middle':
+      hint = '⚠️ CRITICAL: User is IN THE MIDDLE of a heading with text after the cursor. Generate ONLY 1-3 words that fit naturally between the existing text. Keep it brief and coherent with what comes after.'
+      break
+    case 'paragraph-new':
+      hint = '⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH. Generate the opening sentence of the new paragraph. If there is a heading before the paragraph, your sentence idea should match the heading. If you fill that a subheading should be used instead of a paragraph, you can start with a subheading and add a paragraph after it.'
+      break
+    case 'sentence-new':
+      hint = '⚠️ CRITICAL: User is STARTING A NEW SENTENCE within a paragraph. Generate a new sentence that continues the thought of the previous ones. You must not add an heading in first position of your sentence.'
+      break
+    case 'paragraph-middle':
+      hint = '⚠️ CRITICAL: User is IN THE MIDDLE of a paragraph with text after the cursor. Generate ONLY a few words (3-8 words MAXIMUM) that connect naturally with the text that follows. DO NOT write complete sentences or end with punctuation. You must not add headings in your sentence.'
+      break
+    case 'paragraph-continue':
+      hint = '⚠️ CRITICAL: User is CONTINUING within a sentence. The cursor is located at the end of the sentence. Generate a few words to complete the current thought. DO NOT start new sentences. You must not add headings in your sentence.'
+      break
+    default:
+      hint = '⚠️ CRITICAL: Generate ONLY what is needed to continue naturally (ONE sentence MAXIMUM). You must not add headings in your sentence.'
   }
 
-  const result = `# Cursor Position:\n- ${hint}`
-
-  return result
+  return `# 🎯 CURSOR POSITION REQUIREMENT (MUST FOLLOW):\n${hint}`
 }
 
 /**
@@ -137,12 +149,6 @@ export async function buildAIContext(
   const { fsPath, collectionName, mode, projectContext, hintOptions } = options
   const contextParts: string[] = []
 
-  // Add cursor position hints
-  const hintContext = buildHintContext(hintOptions)
-  if (hintContext) {
-    contextParts.push(hintContext)
-  }
-
   // Add file location context
   const locationContext = buildLocationContext(fsPath, collectionName)
   if (locationContext) {
@@ -163,12 +169,26 @@ export async function buildAIContext(
     }
   }
 
+  // Add cursor position hints LAST (recency bias - most important for continue mode)
+  const hintContext = buildHintContext(hintOptions)
+  if (hintContext) {
+    contextParts.push(hintContext)
+  }
+
   // Combine all context into single block
   const finalContext = contextParts.length > 0
     ? `\n\n${contextParts.join('\n\n')}`
     : ''
 
   return finalContext
+}
+
+/**
+ * Estimate token count from text length
+ * (1 token ≈ 4 characters)
+ */
+export function estimateTokenCount(text: string): number {
+  return Math.ceil(text.length / 4)
 }
 
 /**
@@ -194,7 +214,7 @@ export function calculateMaxTokens(selectionLength: number = 100, mode: string):
 /**
  * Generate system prompt for "fix" mode
  */
-export function getFixPrompt(context: string): string {
+export function getFixSystem(context: string): string {
   return `You are a writing assistant for content editing. Fix spelling and grammar errors in the given text.${context}
 
 Rules:
@@ -209,7 +229,7 @@ Only output the corrected text, nothing else.`
 /**
  * Generate system prompt for "improve" mode
  */
-export function getImprovePrompt(context: string): string {
+export function getImproveSystem(context: string): string {
   return `You are a writing assistant for content editing. Improve the writing quality of the given text.${context}
 
 Rules:
@@ -223,7 +243,7 @@ Only output the improved text, nothing else.`
 /**
  * Generate system prompt for "simplify" mode
  */
-export function getSimplifyPrompt(context: string): string {
+export function getSimplifySystem(context: string): string {
   return `You are a writing assistant for content editing. Simplify the given text to make it easier to understand.${context}
 
 Rules:
@@ -236,7 +256,7 @@ Only output the simplified text, nothing else.`
 /**
  * Generate system prompt for "translate" mode
  */
-export function getTranslatePrompt(context: string, language: string = 'English'): string {
+export function getTranslateSystem(context: string, language: string = 'English'): string {
   return `You are a writing assistant. Translate the given text to ${language}.${context}
 
 Rules:
@@ -250,12 +270,12 @@ Only output the translated text, nothing else.`
 /**
  * Generate system prompt for "continue" mode
  */
-export function getContinuePrompt(context: string): string {
-  return `You are a writing assistant helping with content editing.${context}
+export function getContinueSystem(context: string): string {
+  return `You are a writing assistant helping with content editing inside a Tiptap editor representing a Markdown document. ${context}
 
-CRITICAL RULES:
-- Output ONLY the NEW text that comes AFTER the user's input
+CRITICAL RULES (MUST FOLLOW):
 - NEVER repeat, continue, or expand any words from the end of the user's text
-- Follow the length guidance specified in the Cursor Position hint above
-- Match the tone and style of the existing text`
+- Match the tone and style of the existing text
+
+⚠️ MOST IMPORTANT: Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.`
 }
