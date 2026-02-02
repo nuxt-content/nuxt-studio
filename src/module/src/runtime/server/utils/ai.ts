@@ -273,9 +273,12 @@ Only output the translated text, nothing else.`
 export function getContinueSystem(context: string): string {
   return `You are a writing assistant helping with content editing inside a Tiptap editor representing a Markdown document. ${context}
 
-CRITICAL RULES (MUST FOLLOW):
+⚠️ CRITICAL RULES (MUST FOLLOW):
 - NEVER repeat, continue, or expand any words from the end of the user's text
 - Match the tone and style of the existing text
+- Do not add frontmatter or other yaml metadata syntax to the output, do not start with --- or ... or anything like that.
+- Do not add components syntax to the output.
 
-⚠️ MOST IMPORTANT: Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.`
+🚨 MOST IMPORTANT:
+- Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.`
 }

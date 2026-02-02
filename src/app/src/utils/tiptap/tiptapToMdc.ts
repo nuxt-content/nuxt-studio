@@ -153,8 +153,16 @@ export async function tiptapSliceToMDC(
   // Convert to TipTap JSON
   const tiptapJSON = sliceDoc.toJSON()
 
+  // Skip frontmatter node from the slice (not needed for AI context)
+  const content = tiptapJSON.content || []
+  const filteredContent = content.filter((node: JSONContent) => node.type !== 'frontmatter')
+  const cleanedJSON = {
+    ...tiptapJSON,
+    content: filteredContent,
+  }
+
   // Convert TipTap JSON to MDC AST
-  return await tiptapToMDC(tiptapJSON, {})
+  return await tiptapToMDC(cleanedJSON, {})
 }
 
 /***************************************************************
