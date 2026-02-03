@@ -62,7 +62,7 @@ export function buildHintContext(hintOptions?: AIHintOptions): string | null {
     return null
   }
 
-  const { cursor, previousNodeType, headingText } = hintOptions
+  const { cursor, previousNodeType, headingText, currentComponent, currentSlot } = hintOptions
 
   let hint: string
 
@@ -82,7 +82,7 @@ export function buildHintContext(hintOptions?: AIHintOptions): string | null {
         hint = `⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH immediately after the heading "${headingText}". Generate a paragraph that introduces and explains the topic announced by this heading. Your paragraph MUST be directly related to the heading's subject. Write 1-2 complete sentences that provide substance to the section.`
       }
       else {
-        hint = '⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH. Generate the opening sentence of the new paragraph. If there is a heading before the paragraph, your sentence idea should match the heading. If you fill that a subheading should be used instead of a paragraph, you can start with a subheading and add a paragraph after it.'
+        hint = '⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH. Generate the opening sentence of the new paragraph. If there is a heading before the paragraph, your sentence idea should match the heading.'
       }
       break
     case 'sentence-new':
@@ -98,7 +98,68 @@ export function buildHintContext(hintOptions?: AIHintOptions): string | null {
       hint = '⚠️ CRITICAL: Generate ONLY what is needed to continue naturally (ONE sentence MAXIMUM). You must not add headings in your sentence.'
   }
 
+  // Add component and slot context if available
+  const componentContext = buildComponentContext(currentComponent, currentSlot)
+  if (componentContext) {
+    hint += `\n\n${componentContext}`
+  }
+
   return `# 🎯 CURSOR POSITION REQUIREMENT (MUST FOLLOW):\n${hint}`
+}
+
+/**
+ * Build context about the current component and slot being edited
+ */
+function buildComponentContext(componentName?: string, slotName?: string): string | null {
+  if (!componentName) {
+    return null
+  }
+
+  const parts: string[] = []
+  parts.push(`📦 COMPONENT CONTEXT: You are writing content for the <${componentName}> component`)
+
+  if (slotName) {
+    // Provide specific guidance based on common slot names
+    const slotGuidance = getSlotGuidance(slotName, componentName)
+    parts.push(slotGuidance)
+  }
+
+  return parts.join('\n')
+}
+
+/**
+ * Get specific content guidance based on slot name
+ */
+function getSlotGuidance(slotName: string, componentName: string): string {
+  const normalizedSlot = slotName.toLowerCase()
+
+  // Common slot patterns and their guidance
+  if (normalizedSlot === 'title' || normalizedSlot.includes('title')) {
+    return `📝 SLOT: "${slotName}" - Generate a SHORT, CONCISE title (3-8 words maximum). Titles should be clear and descriptive, not full sentences.`
+  }
+
+  if (normalizedSlot === 'description' || normalizedSlot.includes('description')) {
+    return `📝 SLOT: "${slotName}" - Generate ONE SENTENCE that describes or summarizes. Keep it concise and informative (15-25 words).`
+  }
+
+  if (normalizedSlot === 'default') {
+    return `📝 SLOT: "${slotName}" (main content) - Generate content that explains or elaborates on the ${componentName} component's purpose. Provide substantial, relevant information.`
+  }
+
+  if (normalizedSlot.includes('header') || normalizedSlot.includes('heading')) {
+    return `📝 SLOT: "${slotName}" - Generate a brief heading or label. Keep it short and clear (2-6 words).`
+  }
+
+  if (normalizedSlot.includes('footer')) {
+    return `📝 SLOT: "${slotName}" - Generate concluding or supplementary content. Keep it brief and relevant.`
+  }
+
+  if (normalizedSlot.includes('caption') || normalizedSlot.includes('label')) {
+    return `📝 SLOT: "${slotName}" - Generate a short label or caption (2-8 words). Be descriptive but concise.`
+  }
+
+  // Generic slot guidance
+  return `📝 SLOT: "${slotName}" - Generate appropriate content for this slot within the ${componentName} component.`
 }
 
 /**

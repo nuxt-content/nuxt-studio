@@ -44,6 +44,36 @@ export function applyExtraSpace(text: string, extraSpace: 'before' | 'after' | n
 }
 
 /**
+ * Detect if cursor is inside a component and which slot
+ */
+export function detectComponentContext(state: EditorState, cursorPos: number): { currentComponent?: string, currentSlot?: string } {
+  const $pos = state.doc.resolve(cursorPos)
+
+  // Walk up the node tree to find component and slot
+  let currentComponent: string | undefined
+  let currentSlot: string | undefined
+
+  for (let depth = $pos.depth; depth >= 0; depth--) {
+    const node = $pos.node(depth)
+    const nodeType = node.type.name
+
+    // Check if this is a component node (in Studio, components are 'element' nodes with a 'tag' attribute)
+    if (nodeType === 'element') {
+      // Get component name from 'tag' attribute
+      currentComponent = node.attrs?.tag
+      break
+    }
+
+    // Check if this is a slot node
+    if (nodeType === 'slot') {
+      currentSlot = node.attrs?.name || 'default'
+    }
+  }
+
+  return { currentComponent, currentSlot }
+}
+
+/**
  * Generate AI hint options based on cursor position in the editor
  *
  */
@@ -67,17 +97,26 @@ export function generateHintOptions(state: EditorState, cursorPos: number): AIHi
   let previousNodeType: string | undefined
   let headingText: string | undefined
 
-  // Look for the previous sibling or traverse up to find a heading
-  const nodeIndex = $pos.index($pos.depth)
-  if (nodeIndex > 0) {
-    const previousNode = $pos.parent.child(nodeIndex - 1)
-    previousNodeType = previousNode.type.name
+  // Look for the previous sibling at the parent level (typically document level)
+  // If we're in a paragraph, we need to look at the document's children to find previous heading
+  if ($pos.depth > 0) {
+    const parentDepth = $pos.depth - 1
+    const nodeIndex = $pos.index(parentDepth)
 
-    // If previous node is a heading, capture its text
-    if (previousNodeType === 'heading') {
-      headingText = previousNode.textContent
+    if (nodeIndex > 0) {
+      const parentNode = $pos.node(parentDepth)
+      const previousNode = parentNode.child(nodeIndex - 1)
+      previousNodeType = previousNode.type.name
+
+      // If previous node is a heading, capture its text
+      if (previousNodeType === 'heading') {
+        headingText = previousNode.textContent
+      }
     }
   }
+
+  // Detect component and slot context
+  const { currentComponent, currentSlot } = detectComponentContext(state, cursorPos)
 
   // Determine cursor context
   let cursor: AIHintOptions['cursor']
@@ -126,6 +165,8 @@ export function generateHintOptions(state: EditorState, cursorPos: number): AIHi
     cursor,
     previousNodeType,
     headingText,
+    currentComponent,
+    currentSlot,
   }
 }
 

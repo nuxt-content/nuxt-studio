@@ -22,6 +22,8 @@ export interface AIHintOptions {
   cursor: CursorContext
   previousNodeType?: string
   headingText?: string
+  currentComponent?: string
+  currentSlot?: string
 }
 
 export interface AIGenerateOptions {
