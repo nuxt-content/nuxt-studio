@@ -281,6 +281,11 @@ export function getContinueSystem(context: string): string {
 - Do not add frontmatter or other yaml metadata syntax to the output, do not start with --- or ... or anything like that.
 - Do not add components syntax to the output.
 
+🚫 STRUCTURAL MARKDOWN SYNTAX FORBIDDEN:
+- DO NOT generate heading markdown syntax (# ## ### etc.) - the editor handles document structure
+- DO NOT create lists, code blocks, or other structural elements unless explicitly in that context
+- Generate ONLY plain text content that fits the current cursor position
+
 🚨 MOST IMPORTANT:
 - Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.`
 }

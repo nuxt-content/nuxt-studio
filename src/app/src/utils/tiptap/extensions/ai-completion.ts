@@ -161,12 +161,6 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
 
   addKeyboardShortcuts() {
     return {
-      'Tab': () => {
-        if (this.storage.suggestion) {
-          return this.editor.commands.acceptCompletion()
-        }
-        return false
-      },
       'Escape': () => {
         if (this.storage.suggestion) {
           return this.editor.commands.dismissCompletion()
@@ -298,6 +292,22 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             })
 
             return DecorationSet.create(state.doc, [decoration])
+          },
+        },
+      }),
+      // Handle Tab key at DOM level to prevent focus navigation
+      new Plugin({
+        key: new PluginKey('aiCompletionTab'),
+        props: {
+          handleKeyDown: (_view, event) => {
+            // Only handle Tab key when suggestion is visible
+            if (event.key === 'Tab' && storage.visible && storage.suggestion) {
+              event.preventDefault()
+              event.stopPropagation()
+              editor.commands.acceptCompletion()
+              return true
+            }
+            return false
           },
         },
       }),
