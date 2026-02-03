@@ -5,12 +5,8 @@ import { useRuntimeConfig } from '#imports'
 import {
   buildAIContext,
   calculateMaxTokens,
-  getFixSystem,
-  getImproveSystem,
-  getSimplifySystem,
-  getTranslateSystem,
-  getContinueSystem,
-} from '../../utils/ai'
+  getSystem,
+} from '../../utils/ai/generate'
 import type { AIGenerateOptions } from 'nuxt-studio/app'
 
 export default eventHandler(async (event) => {
@@ -80,25 +76,7 @@ export default eventHandler(async (event) => {
   })
 
   // Generate system prompt based on mode
-  let system: string
-  switch (mode) {
-    case 'fix':
-      system = getFixSystem(context)
-      break
-    case 'improve':
-      system = getImproveSystem(context)
-      break
-    case 'simplify':
-      system = getSimplifySystem(context)
-      break
-    case 'translate':
-      system = getTranslateSystem(context, language)
-      break
-    case 'continue':
-    default:
-      system = getContinueSystem(context)
-      break
-  }
+  const system = getSystem(mode || 'continue', context, language)
 
   // Calculate maxOutputTokens based on selection length and mode
   const maxOutputTokens = calculateMaxTokens(selectionLength, mode || 'continue')

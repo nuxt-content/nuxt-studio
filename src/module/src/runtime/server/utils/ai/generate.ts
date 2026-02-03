@@ -1,8 +1,12 @@
+/**
+ * AI generation utilities for text completion and transformation
+ */
+
 import type { H3Event } from 'h3'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections } from '@nuxt/content'
 import type { DatabasePageItem, AIHintOptions } from 'nuxt-studio/app'
-import type { ModuleOptions } from '../../../module'
+import type { ModuleOptions } from '../../../../module'
 
 /**
  * Build file location context
@@ -58,7 +62,7 @@ export function buildHintContext(hintOptions?: AIHintOptions): string | null {
     return null
   }
 
-  const { cursor } = hintOptions
+  const { cursor, previousNodeType, headingText } = hintOptions
 
   let hint: string
 
@@ -73,7 +77,13 @@ export function buildHintContext(hintOptions?: AIHintOptions): string | null {
       hint = '⚠️ CRITICAL: User is IN THE MIDDLE of a heading with text after the cursor. Generate ONLY 1-3 words that fit naturally between the existing text. Keep it brief and coherent with what comes after.'
       break
     case 'paragraph-new':
-      hint = '⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH. Generate the opening sentence of the new paragraph. If there is a heading before the paragraph, your sentence idea should match the heading. If you fill that a subheading should be used instead of a paragraph, you can start with a subheading and add a paragraph after it.'
+      // Special handling when starting a paragraph right after a heading
+      if (previousNodeType === 'heading' && headingText) {
+        hint = `⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH immediately after the heading "${headingText}". Generate a paragraph that introduces and explains the topic announced by this heading. Your paragraph MUST be directly related to the heading's subject. Write 1-2 complete sentences that provide substance to the section.`
+      }
+      else {
+        hint = '⚠️ CRITICAL: User is STARTING A NEW PARAGRAPH. Generate the opening sentence of the new paragraph. If there is a heading before the paragraph, your sentence idea should match the heading. If you fill that a subheading should be used instead of a paragraph, you can start with a subheading and add a paragraph after it.'
+      }
       break
     case 'sentence-new':
       hint = '⚠️ CRITICAL: User is STARTING A NEW SENTENCE within a paragraph. Generate a new sentence that continues the thought of the previous ones. You must not add an heading in first position of your sentence.'
@@ -184,14 +194,6 @@ export async function buildAIContext(
 }
 
 /**
- * Estimate token count from text length
- * (1 token ≈ 4 characters)
- */
-export function estimateTokenCount(text: string): number {
-  return Math.ceil(text.length / 4)
-}
-
-/**
  * Calculate max output tokens based on selection length and mode
  * (1 token ≈ 4 characters)
  */
@@ -281,4 +283,23 @@ export function getContinueSystem(context: string): string {
 
 🚨 MOST IMPORTANT:
 - Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.`
+}
+
+/**
+ * Generate system prompt based on mode
+ */
+export function getSystem(mode: string, context: string, language: string = 'English'): string {
+  switch (mode) {
+    case 'fix':
+      return getFixSystem(context)
+    case 'improve':
+      return getImproveSystem(context)
+    case 'simplify':
+      return getSimplifySystem(context)
+    case 'translate':
+      return getTranslateSystem(context, language)
+    case 'continue':
+    default:
+      return getContinueSystem(context)
+  }
 }
