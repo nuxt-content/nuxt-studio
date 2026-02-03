@@ -209,7 +209,7 @@ export function calculateMaxTokens(selectionLength: number = 100, mode: string):
       return estimatedTokens
     case 'continue':
     default:
-      return 40
+      return 60
   }
 }
 
@@ -280,6 +280,7 @@ export function getContinueSystem(context: string): string {
 - Match the tone and style of the existing text
 - Do not add frontmatter or other yaml metadata syntax to the output, do not start with --- or ... or anything like that.
 - Do not add components syntax to the output.
+- ALWAYS complete your sentences - never stop mid-sentence or mid-word, even if it means going slightly over the suggested length
 
 🚫 STRUCTURAL MARKDOWN SYNTAX FORBIDDEN:
 - DO NOT generate heading markdown syntax (# ## ### etc.) - the editor handles document structure
@@ -287,7 +288,8 @@ export function getContinueSystem(context: string): string {
 - Generate ONLY plain text content that fits the current cursor position
 
 🚨 MOST IMPORTANT:
-- Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.`
+- Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.
+- FINISH YOUR SENTENCE: Your output must end at a natural sentence boundary (. ! ? or similar punctuation).`
 }
 
 /**
