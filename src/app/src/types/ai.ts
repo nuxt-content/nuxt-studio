@@ -20,6 +20,8 @@ export type CursorContext
 
 export interface AIHintOptions {
   cursor: CursorContext
+  previousNodeType?: string
+  headingText?: string
 }
 
 export interface AIGenerateOptions {

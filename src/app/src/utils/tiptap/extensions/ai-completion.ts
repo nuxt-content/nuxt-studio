@@ -2,7 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { AIHintOptions } from '../../../types/ai'
-import { generateHintOptions, tiptapSliceToMarkdown } from '../completion'
+import { applyExtraSpace, detectExtraSpace, generateHintOptions, tiptapSliceToMarkdown } from '../completion'
 
 export interface CompletionOptions {
   onRequest?: (prompt: string, hintOptions?: AIHintOptions) => Promise<string>
@@ -15,6 +15,7 @@ export interface CompletionStorage {
   isLoading: boolean
   visible: boolean
   debounceTimer: number | null
+  extraSpace: 'before' | 'after' | null
 }
 
 declare module '@tiptap/core' {
@@ -57,6 +58,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
       isLoading: false,
       visible: false,
       debounceTimer: null,
+      extraSpace: null,
     }
   },
 
@@ -73,6 +75,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
 
             this.storage.isLoading = true
             this.storage.position = to
+            this.storage.extraSpace = detectExtraSpace(state, to)
 
             const maxChars = 500
             const contextStart = Math.max(0, to - maxChars * 2)
@@ -92,7 +95,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
               .then((suggestion) => {
                 // Only show if suggestion is not empty and position hasn't changed
                 if (suggestion && suggestion.trim().length > 0 && this.storage.position === to) {
-                  this.storage.suggestion = suggestion
+                  this.storage.suggestion = applyExtraSpace(suggestion, this.storage.extraSpace)
                   this.storage.isLoading = false
                   this.storage.visible = true
                   editor.view.dispatch(editor.state.tr)
@@ -102,6 +105,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
                   this.storage.suggestion = ''
                   this.storage.position = null
                   this.storage.visible = false
+                  this.storage.extraSpace = null
                 }
               })
               .catch(() => {
@@ -109,6 +113,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
                 this.storage.suggestion = ''
                 this.storage.position = null
                 this.storage.visible = false
+                this.storage.extraSpace = null
               })
 
             return true
@@ -126,6 +131,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             this.storage.suggestion = ''
             this.storage.position = null
             this.storage.visible = false
+            this.storage.extraSpace = null
 
             return true
           },
@@ -145,6 +151,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             this.storage.suggestion = ''
             this.storage.position = null
             this.storage.visible = false
+            this.storage.extraSpace = null
             editor.view.dispatch(editor.state.tr)
 
             return true
@@ -239,6 +246,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             storage.suggestion = ''
             storage.position = null
             storage.visible = false
+            storage.extraSpace = null
             return newState.tr
           }
 
