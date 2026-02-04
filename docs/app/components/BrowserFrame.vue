@@ -1,21 +1,23 @@
+<template>
+  <div class="group rounded-md overflow-hidden ring-1 ring-default">
+    <div
+      class="flex items-center gap-1.5 px-3 py-2 bg-muted/30 border-b border-default"
+      aria-hidden="true"
+    >
+      <span class="size-2.5 rounded-full bg-muted/90 group-hover:bg-red-500 transition-colors duration-200" />
+      <span class="size-2.5 rounded-full bg-muted/90 group-hover:bg-yellow-500 transition-colors duration-200" />
+      <span class="size-2.5 rounded-full bg-muted/90 group-hover:bg-green-500 transition-colors duration-200" />
+      <span
+        v-if="title"
+        class="ml-2 text-xs text-muted"
+      >{{ title }}</span>
+    </div>
+    <slot mdc-unwrap="p" />
+  </div>
+</template>
+
 <script setup lang="ts">
 defineProps<{
   title?: string
 }>()
 </script>
-
-<template>
-  <div class="w-fit rounded-xl border border-muted bg-accented shadow-md overflow-hidden px-2 pb-2">
-    <div class="flex justify-between items-center px-2 py-2 bg-accented border-accented border-b">
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 bg-red-500 rounded-full" />
-        <span class="w-3 h-3 bg-yellow-500 rounded-full" />
-        <span class="w-3 h-3 bg-green-500 rounded-full" />
-      </div>
-      <div class="text-muted">
-        {{ title }}
-      </div>
-    </div>
-    <slot mdc-unwrap="p" />
-  </div>
-</template>
