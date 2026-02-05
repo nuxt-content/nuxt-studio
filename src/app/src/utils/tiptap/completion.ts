@@ -3,6 +3,10 @@ import type { AIHintOptions } from '../../types/ai'
 import { tiptapSliceToMDC } from './tiptapToMdc'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 
+function isWhitespace(char: string): boolean {
+  return /\s/.test(char)
+}
+
 /**
  * Detect where a space needs to be added when inserting AI completion
  */
@@ -11,17 +15,17 @@ export function detectExtraSpace(state: EditorState, cursorPos: number): 'before
   const charAfter = cursorPos < state.doc.content.size ? state.doc.textBetween(cursorPos, cursorPos + 1) : ''
 
   // If space already exists before or after, no space needed
-  if (charBefore === ' ' || charAfter === ' ') {
+  if (isWhitespace(charBefore) || isWhitespace(charAfter)) {
     return null
   }
 
   // If there's text after cursor, prioritize adding space after (forward completion)
-  if (charAfter !== '' && charAfter !== ' ') {
+  if (charAfter !== '' && !isWhitespace(charAfter)) {
     return 'after'
   }
 
   // If there's text before cursor (and no text after), add space before
-  if (charBefore !== '' && charBefore !== ' ') {
+  if (charBefore !== '' && !isWhitespace(charBefore)) {
     return 'before'
   }
 
