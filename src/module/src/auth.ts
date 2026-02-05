@@ -16,7 +16,13 @@ export function validateAuthConfig(options: ModuleOptions): void {
   const hasGitHubAuth = options.auth?.github?.clientId && options.auth?.github?.clientSecret
   const hasGitLabAuth = options.auth?.gitlab?.applicationId && options.auth?.gitlab?.applicationSecret
   const hasGoogleAuth = options.auth?.google?.clientId && options.auth?.google?.clientSecret
+  const hasSSOServer = options.auth?.sso?.serverUrl && options.auth?.sso?.clientId && options.auth?.sso?.clientSecret
   const hasGoogleModerators = (process.env.STUDIO_GOOGLE_MODERATORS?.split(',') || []).length > 0
+
+  // SSO server enabled - GitHub token is passed through from SSO when users login with GitHub
+  if (hasSSOServer) {
+    return
+  }
 
   // Google OAuth enabled
   if (hasGoogleAuth) {
@@ -45,6 +51,7 @@ export function validateAuthConfig(options: ModuleOptions): void {
         `In order to authenticate users, you need to set up a ${providerUpperCase} OAuth application.`,
         `Please set the \`STUDIO_${providerUpperCase}_CLIENT_ID\` and \`STUDIO_${providerUpperCase}_CLIENT_SECRET\` environment variables,`,
         `Alternatively, you can set up a Google OAuth application and set the \`STUDIO_GOOGLE_CLIENT_ID\` and \`STUDIO_GOOGLE_CLIENT_SECRET\` environment variables alongside with \`STUDIO_${providerUpperCase}_TOKEN\` to push changes to the repository.`,
+        `You can also use an SSO server by setting \`STUDIO_SSO_URL\`, \`STUDIO_SSO_CLIENT_ID\`, and \`STUDIO_SSO_CLIENT_SECRET\`.`,
       ].join(' '))
     }
   }
