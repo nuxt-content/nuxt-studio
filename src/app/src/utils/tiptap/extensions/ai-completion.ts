@@ -5,7 +5,7 @@ import type { AIHintOptions } from '../../../types/ai'
 import { applyExtraSpace, detectExtraSpace, generateHintOptions, tiptapSliceToMarkdown } from '../completion'
 
 export interface CompletionOptions {
-  onRequest?: (prompt: string, hintOptions?: AIHintOptions) => Promise<string>
+  onRequest?: (previousContext: string, nextContext: string, hintOptions?: AIHintOptions) => Promise<string>
   enabled?: () => boolean
 }
 
@@ -77,20 +77,26 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             this.storage.position = to
             this.storage.extraSpace = detectExtraSpace(state, to)
 
-            const maxChars = 500
-            const contextStart = Math.max(0, to - maxChars * 2)
+            // Context lengths optimized for AI completion
+            const maxPreviousChars = 400 // Content before cursor
+            const maxNextChars = 200 // Content after cursor
+
+            // Extract context before cursor
+            const previousStart = Math.max(0, to - maxPreviousChars * 2)
+
+            // Extract context after cursor
+            const nextEnd = Math.min(state.doc.content.size, to + maxNextChars * 2)
 
             // Generate hint options based on cursor position
             const hintOptions = generateHintOptions(state, to)
 
-            tiptapSliceToMarkdown(state, contextStart, to, maxChars)
-              .then((markdown) => {
-                if (!markdown) {
-                  this.storage.isLoading = false
-                  return
-                }
-
-                return this.options.onRequest!(markdown, hintOptions)
+            // Extract both previous and next context in parallel
+            Promise.all([
+              tiptapSliceToMarkdown(state, previousStart, to, maxPreviousChars),
+              tiptapSliceToMarkdown(state, to, nextEnd, maxNextChars),
+            ])
+              .then(([previousMarkdown, nextMarkdown]) => {
+                return this.options.onRequest!(previousMarkdown, nextMarkdown, hintOptions)
               })
               .then((suggestion) => {
                 // Only show if suggestion is not empty and position hasn't changed

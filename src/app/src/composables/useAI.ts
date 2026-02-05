@@ -39,8 +39,14 @@ export function useAI() {
   })
 
   async function generate(options: AIGenerateOptions): Promise<string> {
-    await complete(options.prompt, {
+    // For continue mode, use previousContext. For other modes, use prompt.
+    const promptText = options.mode === 'continue' ? (options.previousContext || '') : (options.prompt || '')
+
+    await complete(promptText, {
       body: {
+        prompt: options.prompt,
+        previousContext: options.previousContext,
+        nextContext: options.nextContext,
         mode: options.mode,
         language: options.language,
         selectionLength: options.selectionLength,
@@ -57,8 +63,11 @@ export function useAI() {
     return completion.value
   }
 
-  async function continueText(prompt: string, fsPath?: string, collectionName?: string, hintOptions?: AIGenerateOptions['hintOptions']): Promise<string> {
-    return generate({ prompt, mode: 'continue', fsPath, collectionName, hintOptions })
+  async function continueText(options: Partial<AIGenerateOptions>): Promise<string> {
+    return generate({
+      ...options,
+      mode: 'continue',
+    })
   }
 
   async function fix(text: string, fsPath?: string, collectionName?: string): Promise<string> {

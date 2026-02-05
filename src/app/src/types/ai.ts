@@ -27,7 +27,9 @@ export interface AIHintOptions {
 }
 
 export interface AIGenerateOptions {
-  prompt: string
+  prompt?: string // For transform modes (fix, improve, simplify, translate)
+  previousContext?: string // Text before cursor position (required for continue mode)
+  nextContext?: string // Text after cursor position (for continue mode)
   mode?: AIMode
   language?: string
   selectionLength?: number

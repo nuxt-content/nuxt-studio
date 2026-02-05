@@ -13,6 +13,7 @@ import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmoj
 import { ref, watch, computed } from 'vue'
 import { titleCase } from 'scule'
 import { useI18n } from 'vue-i18n'
+import { consola } from 'consola'
 import { useStudio } from '../../composables/useStudio'
 import { useStudioState } from '../../composables/useStudioState'
 import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
@@ -196,14 +197,26 @@ const aiExtensions = computed(() => {
   return [
     AICompletion.configure({
       enabled: () => preferences.value.enableAICompletion && !isAIContextFile.value,
-      onRequest: async (prompt: string, hintOptions) => {
-        if (!document.value?.fsPath) {
-          return ''
+      onRequest: async (previousContext: string, nextContext: string, hintOptions) => {
+        try {
+          if (!document.value?.fsPath) {
+            return ''
+          }
+
+          const collection = host.collection.getByFsPath(document.value!.fsPath!)
+
+          return await ai.continue({
+            previousContext,
+            nextContext,
+            fsPath: document.value.fsPath,
+            collectionName: collection?.name,
+            hintOptions,
+          })
         }
-
-        const collection = host.collection.getByFsPath(document.value!.fsPath!)
-
-        return await ai.continue(prompt, document.value?.fsPath, collection?.name, hintOptions)
+        catch (error) {
+          consola.error('[AI Completion] Error:', error)
+          return '' // Return empty string to gracefully handle error
+        }
       },
     }),
     AITransform.configure({

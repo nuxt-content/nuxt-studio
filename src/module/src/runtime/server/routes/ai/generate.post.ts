@@ -42,13 +42,24 @@ export default eventHandler(async (event) => {
 
   const gateway = createGateway({ apiKey })
 
-  const { prompt, mode, language, selectionLength, fsPath, collectionName, hintOptions } = await readBody<AIGenerateOptions>(event)
+  const { prompt, previousContext, nextContext, mode, language, selectionLength, fsPath, collectionName, hintOptions } = await readBody<AIGenerateOptions>(event)
 
-  if (!prompt) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Prompt is required',
-    })
+  // For continue mode, require previousContext. For other modes, use prompt.
+  if (mode === 'continue') {
+    if (!previousContext) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'previousContext is required for continue mode',
+      })
+    }
+  }
+  else {
+    if (!prompt) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'prompt is required for transform modes',
+      })
+    }
   }
 
   if (!fsPath) {
@@ -78,13 +89,27 @@ export default eventHandler(async (event) => {
   // Generate system prompt based on mode
   const system = getSystem(mode || 'continue', context, language)
 
+  // Build the actual prompt based on mode
+  let finalPrompt: string
+  if (mode === 'continue') {
+    // For continue mode, format with clear before/after sections
+    finalPrompt = previousContext!
+    if (nextContext) {
+      finalPrompt = `${previousContext}[CURSOR]${nextContext}`
+    }
+  }
+  else {
+    // For transform modes, use the prompt field
+    finalPrompt = prompt!
+  }
+
   // Calculate maxOutputTokens based on selection length and mode
   const maxOutputTokens = calculateMaxTokens(selectionLength, mode || 'continue')
 
   return streamText({
     model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
     system,
-    prompt,
+    prompt: finalPrompt,
     maxOutputTokens,
   }).toTextStreamResponse()
 })
