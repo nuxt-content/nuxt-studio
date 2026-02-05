@@ -94,7 +94,8 @@
     "vue-tsc": "^3.2.2"
   },
   "resolutions": {
-    "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@f82fed2"
+    "@nuxtjs/mdc": "https://pkg.pr.new/@nuxtjs/mdc@f82fed2",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@c2a1c47"
   },
   "packageManager": "pnpm@10.28.1",
   "keywords": [

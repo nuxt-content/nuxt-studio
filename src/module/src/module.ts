@@ -228,7 +228,6 @@ export default defineNuxtModule<ModuleOptions>({
     dev: true,
     route: '/_studio',
     ai: {
-      apiKey: process.env.AI_GATEWAY_API_KEY,
       context: {
         title: '',
         description: '',
@@ -294,6 +293,12 @@ export default defineNuxtModule<ModuleOptions>({
 
     if (!nuxt.options.dev && !nuxt.options._prepare) {
       validateAuthConfig(options)
+    }
+
+    // Read AI API key from environment if not provided in options
+    if (!options.ai?.apiKey && process.env.AI_GATEWAY_API_KEY) {
+      options.ai = options.ai || {}
+      options.ai.apiKey = process.env.AI_GATEWAY_API_KEY
     }
 
     // Default AI context
