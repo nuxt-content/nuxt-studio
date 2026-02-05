@@ -242,8 +242,13 @@
         "fix": "Fix Grammar & Spelling",
         "improve": "Improve writing and clarity",
         "simplify": "Minimize and simplify text",
-        "translate": "Translate to French",
-        "selectionTooLarge": "Selection too large (max {max} characters)"
+        "translate": "Translate",
+        "translateTo": "Translate to",
+        "targetLanguage": "Target Language",
+        "targetLanguageDescription": "Enter the language you want to translate to (e.g., Spanish, French, German)",
+        "targetLanguagePlaceholder": "e.g., Spanish",
+        "selectionTooLarge": "Selection too large (max {max} characters)",
+        "cancel": "Cancel"
       },
       "element": {
         "addSlot": "Add slot",

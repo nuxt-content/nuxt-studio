@@ -6,7 +6,7 @@ import type { PropType } from 'vue'
 import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { MDCRoot, Toc } from '@nuxtjs/mdc'
 import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
-import type { DraftItem, DatabasePageItem, AIGenerateOptions } from '../../types'
+import type { DraftItem, DatabasePageItem, AIGenerateOptions } from '../../../types'
 import type { MarkdownRoot } from '@nuxt/content'
 import type { EditorCustomHandlers } from '@nuxt/ui'
 import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmojiMenu.vue.d.ts'
@@ -14,29 +14,30 @@ import { ref, watch, computed } from 'vue'
 import { titleCase } from 'scule'
 import { useI18n } from 'vue-i18n'
 import { consola } from 'consola'
-import { useStudio } from '../../composables/useStudio'
-import { useStudioState } from '../../composables/useStudioState'
-import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
-import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph, getAITransformItems } from '../../utils/tiptap/editor'
-import { Element } from '../../utils/tiptap/extensions/element'
-import { Image } from '../../utils/tiptap/extensions/image'
-import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
-import { VideoPicker } from '../../utils/tiptap/extensions/video-picker'
-import { Video } from '../../utils/tiptap/extensions/video'
-import { Slot } from '../../utils/tiptap/extensions/slot'
-import { Frontmatter } from '../../utils/tiptap/extensions/frontmatter'
-import { CodeBlock } from '../../utils/tiptap/extensions/code-block'
-import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
-import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
+import { useStudio } from '../../../composables/useStudio'
+import { useStudioState } from '../../../composables/useStudioState'
+import { mdcToTiptap } from '../../../utils/tiptap/mdcToTiptap'
+import { tiptapToMDC } from '../../../utils/tiptap/tiptapToMdc'
+import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph, getAITransformItems } from '../../../utils/tiptap/editor'
+import { Element } from '../../../utils/tiptap/extensions/element'
+import { Image } from '../../../utils/tiptap/extensions/image'
+import { ImagePicker } from '../../../utils/tiptap/extensions/image-picker'
+import { VideoPicker } from '../../../utils/tiptap/extensions/video-picker'
+import { Video } from '../../../utils/tiptap/extensions/video'
+import { Slot } from '../../../utils/tiptap/extensions/slot'
+import { Frontmatter } from '../../../utils/tiptap/extensions/frontmatter'
+import { CodeBlock } from '../../../utils/tiptap/extensions/code-block'
+import { InlineElement } from '../../../utils/tiptap/extensions/inline-element'
+import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
-import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
-import ContentEditorAIValidation from './ContentEditorAIValidation.vue'
-import { Binding } from '../../utils/tiptap/extensions/binding'
-import { AICompletion } from '../../utils/tiptap/extensions/ai-completion'
-import { AITransform } from '../../utils/tiptap/extensions/ai-transform'
-import { CustomPlaceholder } from '../../utils/tiptap/extensions/custom-placeholder'
-import { useAI } from '../../composables/useAI'
+import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
+import ContentEditorAIValidation from './ai/ContentEditorAIValidation.vue'
+import ContentEditorAILanguageSelection from './ContentEditorAILanguageSelection.vue'
+import { Binding } from '../../../utils/tiptap/extensions/binding'
+import { AICompletion } from '../../../utils/tiptap/extensions/ai-completion'
+import { AITransform } from '../../../utils/tiptap/extensions/ai-transform'
+import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
+import { useAI } from '../../../composables/useAI'
 
 const props = defineProps({
   draftItem: {
@@ -54,8 +55,11 @@ const ai = useAI()
 
 const tiptapJSON = ref<JSONContent>()
 
-const showAIButtons = ref(false)
-const aiButtonsRect = ref<DOMRect | null>(null)
+const isAIValidationVisible = ref(false)
+const isAILanguageInputVisible = ref(false)
+const aiValidationDomRect = ref<DOMRect | null>(null)
+const aiLanguageInputDomRect = ref<DOMRect | null>(null)
+
 const aiButtonsCallbacks = ref<{
   onAccept: () => void
   onDecline: () => void
@@ -170,6 +174,7 @@ const suggestionItems = computed(() => [
 ] satisfies EditorSuggestionMenuItem[][])
 
 const selectedNode = ref<JSONContent | null>(null)
+
 const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
   if (!selectedNode.value) {
     return []
@@ -221,16 +226,16 @@ const aiExtensions = computed(() => {
     }),
     AITransform.configure({
       onShowButtons: (data) => {
-        showAIButtons.value = true
-        aiButtonsRect.value = data.rect
+        isAIValidationVisible.value = true
+        aiValidationDomRect.value = data.rect
         aiButtonsCallbacks.value = {
           onAccept: data.onAccept,
           onDecline: data.onDecline,
         }
       },
       onHideButtons: () => {
-        showAIButtons.value = false
-        aiButtonsRect.value = null
+        isAIValidationVisible.value = false
+        aiValidationDomRect.value = null
         aiButtonsCallbacks.value = null
       },
     }),
@@ -255,7 +260,14 @@ function getAITransformMenuItems(editor: Editor) {
     transformItems.map(item => ({
       label: item.label,
       icon: item.icon,
-      onSelect: () => handleAITransform(editor, item.mode),
+      onSelect: () => {
+        if (item.mode === 'translate') {
+          showAILanguageInput(editor)
+        }
+        else {
+          handleAITransform(editor, item.mode)
+        }
+      },
     })),
   ]
 }
@@ -306,7 +318,21 @@ function trimSelectionToTextOnly(editor: Editor) {
   // return { from, to: trimmedTo }
 }
 
-async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simplify' | 'translate') {
+function showAILanguageInput(editor: Editor) {
+  const { from, to } = editor.state.selection
+  const startCoords = editor.view.coordsAtPos(from)
+  const endCoords = editor.view.coordsAtPos(to)
+
+  const left = Math.min(startCoords.left, endCoords.left)
+  const right = Math.max(startCoords.right, endCoords.right)
+  const top = Math.min(startCoords.top, endCoords.top)
+  const bottom = Math.max(startCoords.bottom, endCoords.bottom)
+
+  aiLanguageInputDomRect.value = new DOMRect(left, top, right - left, bottom - top)
+  isAILanguageInputVisible.value = true
+}
+
+async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simplify' | 'translate', language?: string) {
   const { empty } = editor.state.selection
 
   if (empty) return
@@ -352,7 +378,7 @@ async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simp
         result = await ai.generate({ ...options, mode: 'simplify' })
         break
       case 'translate':
-        result = await ai.generate({ ...options, mode: 'translate', language: 'fr' })
+        result = await ai.generate({ ...options, mode: 'translate', language: language || 'English' })
         break
       default:
         result = selectedText
@@ -373,17 +399,21 @@ function handleAIDecline() {
     aiButtonsCallbacks.value.onDecline()
   }
 }
+
+function handleLanguageSubmit(language: string, editor: Editor) {
+  handleAITransform(editor, 'translate', language)
+  isAILanguageInputVisible.value = false
+  aiLanguageInputDomRect.value = null
+}
+
+function handleLanguageCancel() {
+  isAILanguageInputVisible.value = false
+  aiLanguageInputDomRect.value = null
+}
 </script>
 
 <template>
   <div class="h-full flex flex-col">
-    <ContentEditorAIValidation
-      :show="showAIButtons"
-      :rect="aiButtonsRect"
-      @accept="handleAIAccept"
-      @decline="handleAIDecline"
-    />
-
     <ContentEditorTipTapDebug
       v-if="preferences.debug"
       :current-tiptap="currentTiptap"
@@ -492,6 +522,20 @@ function handleAIDecline() {
       <UEditorEmojiMenu
         :editor="editor"
         :items="emojiItems"
+      />
+
+      <ContentEditorAIValidation
+        :show="isAIValidationVisible"
+        :rect="aiValidationDomRect"
+        @accept="handleAIAccept"
+        @decline="handleAIDecline"
+      />
+
+      <ContentEditorAILanguageSelection
+        :rect="aiLanguageInputDomRect"
+        :show="isAILanguageInputVisible"
+        @submit="(language) => handleLanguageSubmit(language, editor)"
+        @cancel="handleLanguageCancel"
       />
     </UEditor>
   </div>
