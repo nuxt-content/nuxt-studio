@@ -259,7 +259,7 @@ Studio integrates AI-powered content assistance using Claude models via Vercel A
 export default defineNuxtConfig({
   studio: {
     ai: {
-      apiKey: process.env.STUDIO_VERCEL_API_GATEWAY_KEY,
+      apiKey: process.env.AI_GATEWAY_API_KEY,
       context: {
         title: 'My Project',
         description: 'Project description',
@@ -277,7 +277,7 @@ export default defineNuxtConfig({
 
 **Environment Variable**:
 ```bash
-STUDIO_VERCEL_API_GATEWAY_KEY=xxx  # Vercel AI Gateway API key
+AI_GATEWAY_API_KEY=xxx  # Vercel AI Gateway API key
 ```
 
 #### AI Tab (Configuration)

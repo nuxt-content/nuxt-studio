@@ -36,7 +36,7 @@ export default eventHandler(async (event) => {
   if (!apiKey) {
     throw createError({
       statusCode: 503,
-      statusMessage: 'AI features are not enabled. Please set STUDIO_VERCEL_API_GATEWAY_KEY environment variable.',
+      statusMessage: 'AI features are not enabled. Please set AI_GATEWAY_API_KEY environment variable.',
     })
   }
 

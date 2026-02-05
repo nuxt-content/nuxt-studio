@@ -1,6 +1,7 @@
 import { streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, createError, useSession, getRequestProtocol, readBody } from 'h3'
+import { consola } from 'consola'
 import { useRuntimeConfig } from '#imports'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections, CollectionInfo } from '@nuxt/content'
@@ -15,6 +16,8 @@ import {
 } from '../../utils/ai/analyze'
 import type { ContentSample, CollectionMetadata } from '../../../../types/ai'
 import { ContentType } from '../../../../types/ai'
+
+const logger = consola.withTag('Nuxt Studio')
 
 /**
  * AI-powered content analysis endpoint.
@@ -66,7 +69,7 @@ export default eventHandler(async (event) => {
   if (!apiKey) {
     throw createError({
       statusCode: 503,
-      statusMessage: 'AI features are not enabled. Please set STUDIO_VERCEL_API_GATEWAY_KEY environment variable.',
+      statusMessage: 'AI features are not enabled. Please set AI_GATEWAY_API_KEY environment variable.',
     })
   }
 
@@ -131,7 +134,7 @@ export default eventHandler(async (event) => {
         }
       }
       catch (err) {
-        console.warn('Failed to generate content from document:', err)
+        logger.warn('Failed to generate content from document:', err)
         // Fallback to description if generation fails
         if (document.description) {
           excerpt = document.description
@@ -153,7 +156,7 @@ export default eventHandler(async (event) => {
     }
   }
   catch (error) {
-    console.error('[AI] Error querying collection:', error)
+    logger.error('[AI] Error querying collection:', error)
   }
 
   // Validate that we have content samples

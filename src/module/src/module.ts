@@ -83,7 +83,7 @@ export interface ModuleOptions {
     /**
      * The Vercel API Gateway key for AI features.
      * When set, AI-powered content generation will be enabled.
-     * @default process.env.STUDIO_VERCEL_API_GATEWAY_KEY
+     * @default process.env.AI_GATEWAY_API_KEY
      */
     apiKey?: string
     /**
@@ -228,7 +228,7 @@ export default defineNuxtModule<ModuleOptions>({
     dev: true,
     route: '/_studio',
     ai: {
-      apiKey: process.env.STUDIO_VERCEL_API_GATEWAY_KEY,
+      apiKey: process.env.AI_GATEWAY_API_KEY,
       context: {
         title: '',
         description: '',

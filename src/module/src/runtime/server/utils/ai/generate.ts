@@ -3,10 +3,13 @@
  */
 
 import type { H3Event } from 'h3'
+import { consola } from 'consola'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections } from '@nuxt/content'
 import type { DatabasePageItem, AIHintOptions } from 'nuxt-studio/app'
 import type { ModuleOptions } from '../../../../module'
+
+const logger = consola.withTag('Nuxt Studio')
 
 /**
  * Build file location context
@@ -86,13 +89,13 @@ export function buildHintContext(hintOptions?: AIHintOptions): string | null {
       }
       break
     case 'sentence-new':
-      hint = '⚠️ CRITICAL: User is STARTING A NEW SENTENCE within a paragraph. Generate a new sentence that continues the thought of the previous ones. You must not add an heading in first position of your sentence.'
+      hint = '⚠️ CRITICAL: User is STARTING A NEW SENTENCE within a paragraph. Generate ONE COMPLETE SENTENCE that continues the thought of the previous ones, ending with proper punctuation (. ! ?). You must not add an heading in first position of your sentence.'
       break
     case 'paragraph-middle':
       hint = '⚠️ CRITICAL: User is IN THE MIDDLE of a paragraph with text after the cursor. Generate ONLY a few words (3-8 words MAXIMUM) that connect naturally with the text that follows. DO NOT write complete sentences or end with punctuation. You must not add headings in your sentence.'
       break
     case 'paragraph-continue':
-      hint = '⚠️ CRITICAL: User is CONTINUING within a sentence. The cursor is located at the end of the sentence. Generate a few words to complete the current thought. DO NOT start new sentences. You must not add headings in your sentence.'
+      hint = '⚠️ CRITICAL: User is CONTINUING within a sentence. The cursor is located mid-sentence. Generate the remaining words needed to COMPLETE THE CURRENT SENTENCE with proper ending punctuation (. ! ?). DO NOT start new sentences after completing this one. You must not add headings in your sentence.'
       break
     default:
       hint = '⚠️ CRITICAL: Generate ONLY what is needed to continue naturally (ONE sentence MAXIMUM). You must not add headings in your sentence.'
@@ -198,7 +201,7 @@ export async function buildCollectionSummaryContext(
     }
   }
   catch (error) {
-    console.error('[AI] Error loading collection summary:', error)
+    logger.error('[AI] Error loading collection summary:', error)
   }
 
   return null
@@ -341,16 +344,17 @@ export function getContinueSystem(context: string): string {
 - Match the tone and style of the existing text
 - Do not add frontmatter or other yaml metadata syntax to the output, do not start with --- or ... or anything like that.
 - Do not add components syntax to the output.
-- ALWAYS complete your sentences - never stop mid-sentence or mid-word, even if it means going slightly over the suggested length
 
 🚫 STRUCTURAL MARKDOWN SYNTAX FORBIDDEN:
 - DO NOT generate heading markdown syntax (# ## ### etc.) - the editor handles document structure
 - DO NOT create lists, code blocks, or other structural elements unless explicitly in that context
 - Generate ONLY plain text content that fits the current cursor position
 
-🚨 MOST IMPORTANT:
+🚨 MOST IMPORTANT - SENTENCE COMPLETION:
 - Strictly follow the CURSOR POSITION REQUIREMENT and length guidance specified above.
-- FINISH YOUR SENTENCE: Your output must end at a natural sentence boundary (. ! ? or similar punctuation).`
+- When completing a sentence within a paragraph, you MUST end with proper punctuation (. ! ?)
+- NEVER stop mid-sentence or mid-word - always reach a natural sentence boundary
+- Your output must form a complete, grammatically correct sentence when combined with the preceding text`
 }
 
 /**

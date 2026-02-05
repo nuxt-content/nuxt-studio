@@ -1,6 +1,7 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import { consola } from 'consola'
 
 export interface AITransformOptions {
   onShowButtons?: (data: {
@@ -23,6 +24,8 @@ export interface AITransformState {
     diff: Array<{ type: 'added' | 'removed' | 'unchanged', text: string }>
   } | null
 }
+
+const logger = consola.withTag('Nuxt Studio')
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -273,7 +276,7 @@ export const AITransform = Extension.create<AITransformOptions>({
                 }
               })
               .catch((error) => {
-                console.error('AI transform error:', error)
+                logger.error('AI transform error:', error)
                 const tr = editor.state.tr.setMeta(aiTransformPluginKey, {
                   isTransforming: false,
                   showingDiff: false,
