@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addTemplate, addServerImports } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addTemplate, addServerImports, useLogger } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
 import { defu } from 'defu'
 import { resolve } from 'node:path'
@@ -8,6 +8,16 @@ import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templat
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
 import { validateAuthConfig } from './auth'
+
+const logger = useLogger('nuxt-studio')
+
+interface DetectedRepository {
+  provider: 'github' | 'gitlab'
+  owner: string
+  repo: string
+  branch?: string
+  instanceUrl?: string
+}
 
 interface MetaOptions {
   /**
@@ -255,6 +265,15 @@ export default defineNuxtModule<ModuleOptions>({
       options.dev = false
     }
 
+    // Auto-detect repository from CI environment variables when not explicitly configured
+    if (!options.repository?.owner && !options.repository?.repo) {
+      const detected = detectRepositoryFromCI()
+      if (detected) {
+        options.repository = defu(detected, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
+        logger.info(`Auto-detected repository from CI environment: \`${detected.provider}:${detected.owner}/${detected.repo}\``)
+      }
+    }
+
     if (!nuxt.options.dev && !nuxt.options._prepare) {
       validateAuthConfig(options)
     }
@@ -394,3 +413,57 @@ export default defineNuxtModule<ModuleOptions>({
     })
   },
 })
+
+/**
+ * Auto-detect repository details from CI environment variables.
+ * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
+ */
+function detectRepositoryFromCI(): DetectedRepository | undefined {
+  // Vercel
+  if (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG && ['github', 'gitlab'].includes(process.env.VERCEL_GIT_PROVIDER!)) {
+    return {
+      provider: process.env.VERCEL_GIT_PROVIDER as 'github' | 'gitlab',
+      owner: process.env.VERCEL_GIT_REPO_OWNER,
+      repo: process.env.VERCEL_GIT_REPO_SLUG,
+      branch: process.env.VERCEL_GIT_COMMIT_REF,
+    }
+  }
+
+  // Netlify
+  if (process.env.NETLIFY && process.env.REPOSITORY_URL) {
+    const match = process.env.REPOSITORY_URL.match(/(?:github\.com|gitlab\.com)[:/]([^/]+)\/([^/.]+)/)
+    if (match?.[1] && match[2]) {
+      const isGitLab = process.env.REPOSITORY_URL.includes('gitlab.com')
+      return {
+        provider: isGitLab ? 'gitlab' : 'github',
+        owner: match[1],
+        repo: match[2],
+        branch: process.env.BRANCH,
+      }
+    }
+  }
+
+  // GitHub Actions
+  if (process.env.GITHUB_ACTIONS && process.env.GITHUB_REPOSITORY?.includes('/')) {
+    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
+    return {
+      provider: 'github',
+      owner,
+      repo,
+      branch: process.env.GITHUB_REF_NAME,
+    }
+  }
+
+  // GitLab CI
+  if (process.env.GITLAB_CI && process.env.CI_PROJECT_NAMESPACE && process.env.CI_PROJECT_NAME) {
+    return {
+      provider: 'gitlab',
+      owner: process.env.CI_PROJECT_NAMESPACE,
+      repo: process.env.CI_PROJECT_NAME,
+      branch: process.env.CI_COMMIT_BRANCH,
+      instanceUrl: process.env.CI_SERVER_URL,
+    }
+  }
+
+  return undefined
+}
