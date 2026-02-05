@@ -274,6 +274,19 @@ function contextFilePath(collection: CollectionInfo) {
                   class="size-4 text-muted"
                 />
               </div>
+              <UAlert
+                color="secondary"
+                variant="subtle"
+                icon="i-lucide-flask-conical"
+                title="Context files are currently experimental and may change in future releases."
+                :actions="[{
+                  label: 'Learn more',
+                  to: 'https://nuxt.studio/ai',
+                  target: '_blank',
+                  color: 'secondary',
+                  variant: 'outline',
+                }]"
+              />
             </div>
           </div>
         </div>

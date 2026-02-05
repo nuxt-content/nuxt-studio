@@ -2,11 +2,13 @@
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { ref, computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
+import { useAI } from '../../../composables/useAI'
 import type { Draft07 } from '@nuxt/content'
 
 const nodeProps = defineProps(nodeViewProps)
 
 const { host, context } = useStudio()
+const ai = useAI()
 
 const collapsed = ref(true)
 
@@ -27,11 +29,17 @@ const frontmatterJSON = computed({
   },
 })
 
-// Hide frontmatter for AI context files (.studio collection)
+// Hide frontmatter for AI context files (.studio folder)
 const shouldShowFrontmatter = computed(() => {
-  if (!collection.value) return true
-  const aiContextCollectionName = host.meta.ai?.context?.collectionName
-  return collection.value.name !== aiContextCollectionName
+  const currentItem = context.activeTree.value.currentItem.value
+  if (!currentItem?.fsPath) return true
+
+  // Check if file is in the AI context folder
+  if (ai.enabled && ai.contextFolder) {
+    return !currentItem.fsPath.startsWith(ai.contextFolder)
+  }
+
+  return true
 })
 </script>
 

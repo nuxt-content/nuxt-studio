@@ -5,30 +5,46 @@ import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../composables/useStudio'
 import type { StudioFeature } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
+import { useAI } from '../../composables/useAI'
+import type { TabsItem } from '@nuxt/ui/components/Tabs.vue.d.ts'
 
 const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
+const ai = useAI()
 const { t } = useI18n()
 const { setLocation, devMode } = useStudioState()
 
-const items = computed(() => [
-  {
-    label: t('studio.nav.content'),
-    value: 'content',
-    to: '/content',
-  },
-  {
-    label: t('studio.nav.media'),
-    value: 'media',
-    to: '/media',
-  },
-  {
-    label: t('studio.nav.ai'),
-    value: 'ai',
-    to: '/ai',
-  },
-])
+const items = computed(() => {
+  const tabs: TabsItem[] = [
+    {
+      label: t('studio.nav.content'),
+      value: 'content',
+      to: '/content',
+    },
+    {
+      label: t('studio.nav.media'),
+      value: 'media',
+      to: '/media',
+    },
+  ]
+
+  // Only add AI tab if AI is enabled
+  if (ai.enabled) {
+    tabs.push({
+      label: `${t('studio.nav.ai')}`,
+      value: 'ai',
+      to: '/ai',
+      badge: {
+        label: 'Experimental',
+        color: 'secondary',
+        size: 'xs',
+      },
+    })
+  }
+
+  return tabs
+})
 
 const current = computed({
   get: () => route.name as string,
