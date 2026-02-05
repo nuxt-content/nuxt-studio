@@ -29,8 +29,8 @@ const items = computed(() => {
     },
   ]
 
-  // Only add AI tab if AI is enabled
-  if (ai.enabled) {
+  // Only add AI tab if AI is enabled and in dev mode
+  if (ai.enabled && devMode.value) {
     tabs.push({
       label: `${t('studio.nav.ai')}`,
       value: 'ai',

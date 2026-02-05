@@ -23,7 +23,6 @@ export default defineNuxtConfig({
       private: false,
     },
     ai: {
-      apiKey: process.env.STUDIO_VERCEL_API_GATEWAY_KEY,
       context: {
         title: 'Nuxt Studio playground',
         description: 'Playground for Nuxt Studio similar to the official documentation.',

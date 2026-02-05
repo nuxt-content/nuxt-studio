@@ -218,6 +218,23 @@ function contextFilePath(collection: CollectionInfo) {
           class="h-full overflow-y-auto p-4"
         >
           <div class="max-w-2xl mx-auto space-y-4">
+            <UAlert
+              color="secondary"
+              variant="subtle"
+              icon="i-lucide-flask-conical"
+              title="Context files are currently experimental and only available for generation in development mode."
+              to="https://nuxt.studio/ai"
+              :actions="[{
+                label: 'Learn more',
+                to: 'https://nuxt.studio/ai',
+                target: '_blank',
+                color: 'secondary',
+                variant: 'outline',
+                size: 'xs',
+              }]"
+              :ui="{ icon: 'size-4', title: 'text-xs' }"
+            />
+
             <div class="space-y-2">
               <h3 class="text-sm font-medium">
                 Collection Context Files
@@ -274,19 +291,6 @@ function contextFilePath(collection: CollectionInfo) {
                   class="size-4 text-muted"
                 />
               </div>
-              <UAlert
-                color="secondary"
-                variant="subtle"
-                icon="i-lucide-flask-conical"
-                title="Context files are currently experimental and may change in future releases."
-                :actions="[{
-                  label: 'Learn more',
-                  to: 'https://nuxt.studio/ai',
-                  target: '_blank',
-                  color: 'secondary',
-                  variant: 'outline',
-                }]"
-              />
             </div>
           </div>
         </div>
