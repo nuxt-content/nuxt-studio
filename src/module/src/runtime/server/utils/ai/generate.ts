@@ -261,7 +261,11 @@ export async function buildAIContext(
  * Calculate max output tokens based on selection length and mode
  * (1 token ≈ 4 characters)
  */
-export function calculateMaxTokens(selectionLength: number = 100, mode: string): number {
+export function calculateMaxTokens(
+  selectionLength: number = 100,
+  mode: string,
+  hintOptions?: AIHintOptions,
+): number {
   const estimatedTokens = Math.ceil(selectionLength / 4)
 
   switch (mode) {
@@ -270,9 +274,20 @@ export function calculateMaxTokens(selectionLength: number = 100, mode: string):
     case 'translate':
       return Math.ceil(estimatedTokens * 1.5)
     case 'simplify':
-      return estimatedTokens
+      return estimatedTokens * 0.7
     case 'continue':
     default:
+      // Context-aware token limits for continue mode
+      if (hintOptions?.cursor === 'paragraph-new') {
+        // Starting a new paragraph needs more tokens for 1-2 complete sentences
+        // Especially after a heading where substantial content is expected
+        return hintOptions.previousNodeType === 'heading' ? 150 : 120
+      }
+      else if (hintOptions?.cursor === 'sentence-new') {
+        // Starting a new sentence within a paragraph - one complete sentence
+        return 90
+      }
+      // Default for other contexts (heading, mid-paragraph, etc.)
       return 60
   }
 }

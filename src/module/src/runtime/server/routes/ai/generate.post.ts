@@ -103,8 +103,8 @@ export default eventHandler(async (event) => {
     finalPrompt = prompt!
   }
 
-  // Calculate maxOutputTokens based on selection length and mode
-  const maxOutputTokens = calculateMaxTokens(selectionLength, mode || 'continue')
+  // Calculate maxOutputTokens based on selection length, mode, and cursor context
+  const maxOutputTokens = calculateMaxTokens(selectionLength, mode || 'continue', hintOptions)
 
   return streamText({
     model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
