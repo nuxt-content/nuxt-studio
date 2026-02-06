@@ -335,7 +335,7 @@ export default defineNuxtModule<ModuleOptions>({
       const detected = detectRepositoryFromCI()
       if (detected) {
         options.repository = defu(detected, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
-        logger.info(`Auto-detected repository from CI environment: \`${detected.provider}:${detected.owner}/${detected.repo}\`#${detected.branch}`)
+        logger.info(`Auto-detected repository from CI environment: ${detected.provider}:${detected.owner}/${detected.repo}#${detected.branch}`)
       }
     }
 
