@@ -15,7 +15,7 @@ export const useStudioState = createSharedComposable(() => {
   }
 
   function unsetActiveLocation() {
-    location.value.active = false
+    location.value = { ...location.value, active: false }
   }
 
   function setManifestId(id: string) {
