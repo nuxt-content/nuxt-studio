@@ -17,6 +17,7 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
   const editor = shallowRef<Editor.IStandaloneCodeEditor | null>(null)
   let isInitialized = false
   let initialContent = options.initialContent || ''
+  let stopColorModeWatch: (() => void) | null = null
 
   const getTheme = (mode: 'light' | 'dark' = 'dark') => {
     return mode === 'light' ? 'vitesse-light' : 'vitesse-dark'
@@ -67,7 +68,7 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
     editor.value.setModel(model)
 
     // Watch for color mode changes
-    watch(options.colorMode, (newMode) => {
+    stopColorModeWatch = watch(options.colorMode, (newMode) => {
       editor.value?.updateOptions({
         theme: getTheme(newMode),
       })
@@ -77,7 +78,7 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
   }
 
   // Watch target to initialize when it becomes available
-  watch(
+  const stopTargetWatch = watch(
     target,
     () => {
       if (unref(target) && !isInitialized) {
@@ -122,6 +123,13 @@ export function useMonaco(target: Ref<HTMLElement | undefined>, options: UseMona
 
   // Cleanup
   onUnmounted(() => {
+    // Stop watchers to prevent memory leaks
+    stopTargetWatch()
+    if (stopColorModeWatch) {
+      stopColorModeWatch()
+    }
+
+    // Dispose editor
     editor.value?.dispose()
   })
 
