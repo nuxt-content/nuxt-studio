@@ -269,6 +269,9 @@ export default defineNuxtConfig({
           name: 'studio'  // Internal collection name for context files
           folder: '.studio'  // Folder where the context files are stored in the content folder
         }
+      },
+      experimental: {
+        collectionContext: true  // Enable collection-specific AI context (requires studio collection setup)
       }
     }
   }
@@ -282,11 +285,16 @@ AI_GATEWAY_API_KEY=xxx  # Vercel AI Gateway API key
 
 #### AI Tab (Configuration)
 
+**EXPERIMENTAL**: This feature requires enabling `ai.experimental.collectionContext` and defining a studio collection in `content.config.ts`.
+
 The AI tab (`/ai` route) is for **configuration only** - it manages AI context files stored in an internal `.studio` collection:
 
 - **Purpose**: Generate and manage AI writing style guides per collection
 - **Context Files**: `.studio/{collection-name}.md` files that contextualize AI for each collection
 - **Analysis**: Uses Claude Sonnet 4.5 to analyze collection content and generate comprehensive style guides
+- **Requirements**:
+  - Enable `ai.experimental.collectionContext: true` in nuxt.config.ts
+  - Define a studio collection in content.config.ts (see example below)
 - **UI**:
   - List all collections with status badges (Generated/Not generated)
   - Editor for viewing/editing context files
@@ -295,9 +303,24 @@ The AI tab (`/ai` route) is for **configuration only** - it manages AI context f
 
 **Key Behavior**:
 - Context files are in the `.studio` collection (internal, not user-facing)
-- Users access AI tab directly by clicking the AI tab button
+- Users access AI tab directly by clicking the AI tab button (only visible when experimental flag is enabled)
 - Selecting files from preview **always** goes to Content tab (not AI tab)
 - AI tab is independent from user content workflow
+
+**Required Collection Setup**:
+```ts
+// content.config.ts
+export default defineContentConfig({
+  collections: {
+    studio: defineCollection({
+      type: 'page',
+      source: {
+        include: '.studio/**/*.md',
+      },
+    }),
+  }
+})
+```
 
 #### AI Completion (TipTap Extension)
 
