@@ -350,6 +350,8 @@ async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simp
   const selectedText = editor.state.doc.textBetween(from, to, '\n')
   const selectionLength = selectedText.length
 
+  editor.commands.blur()
+
   // Start transformation with AI call
   editor.commands.transformSelection(mode, async () => {
     // Map the mode to the appropriate AI function

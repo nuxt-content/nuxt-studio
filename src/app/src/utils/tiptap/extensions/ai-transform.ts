@@ -413,7 +413,7 @@ export const AITransform = Extension.create<AITransformOptions>({
                 else if (part.type === 'added') {
                   decorations.push(
                     Decoration.inline(currentPos, currentPos + partLength, {
-                      style: 'background: #bbf7d0; color: #166534; border-radius: 0.25rem; padding: 0.125rem 0.25rem; font-weight: 500;',
+                      style: 'background: #dbeafe; color: #1e40af; border-radius: 0.25rem; padding: 0.125rem 0.25rem; font-weight: 500;',
                       class: 'ai-diff-added',
                     }),
                   )
