@@ -36,7 +36,7 @@ const items = computed(() => {
       value: 'ai',
       to: '/ai',
       badge: {
-        label: 'Experimental',
+        label: t('studio.badges.experimental'),
         color: 'secondary',
         size: 'xs',
       },

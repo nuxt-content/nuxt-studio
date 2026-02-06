@@ -374,6 +374,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analyzing collection and generating AI guidelines...",
+      "collectionGuide": "{collectionName} collection guide",
+      "writingStyleGuide": "AI writing style guide",
+      "characterCount": "{count} characters",
+      "noStyleGuide": "No style guide",
+      "noStyleGuideDescription": "Generate a comprehensive AI writing guide by analyzing the content in the {collectionName} collection.",
+      "analyzing": "Analyzing...",
+      "analyzeCollection": "Analyze Collection",
+      "experimentalAlert": "Context files are currently experimental and only available for generation in development mode.",
+      "learnMore": "Learn more",
+      "collectionContextFiles": "Collection Context Files",
+      "collectionContextDescription": "Manage AI writing style guides for each collection. Each collection can have its own context file to help the AI provide better completions, formatting, and improvements to your content.",
+      "noCollectionsFound": "No collections found",
+      "generated": "Generated",
+      "notGenerated": "Not generated"
+    },
+    "badges": {
+      "experimental": "Experimental"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} file"
     }
   }
 }

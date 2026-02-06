@@ -130,11 +130,11 @@ function contextFilePath(collection: CollectionInfo) {
         <h2 class="text-sm font-medium">
           {{
             isAnalyzing
-              ? 'Analyzing collection and generating AI guidelines...'
+              ? $t('studio.ai.analyzingCollection')
               : (
                 currentTreeItem.type === 'file'
-                  ? `${currentTreeItem.name.replace('.md', '')} collection guide`
-                  : 'AI writing style guide'
+                  ? $t('studio.ai.collectionGuide', { collectionName: currentTreeItem.name.replace('.md', '') })
+                  : $t('studio.ai.writingStyleGuide')
               )
           }}
         </h2>
@@ -144,7 +144,7 @@ function contextFilePath(collection: CollectionInfo) {
           v-if="isAnalyzing && ai.completion.value"
           class="text-xs text-muted"
         >
-          {{ ai.completion.value.length }} characters
+          {{ $t('studio.ai.characterCount', { count: ai.completion.value.length }) }}
         </div>
         <UTooltip
           v-else-if="currentTreeItem.type === 'file' && currentDraftItem"
@@ -196,10 +196,10 @@ function contextFilePath(collection: CollectionInfo) {
             />
             <div>
               <h3 class="text-lg font-medium mb-2">
-                No style guide
+                {{ $t('studio.ai.noStyleGuide') }}
               </h3>
               <p class="text-sm text-muted mb-4">
-                Generate a comprehensive AI writing guide by analyzing the content in the <strong>{{ activeCollection.name }}</strong> collection.
+                {{ $t('studio.ai.noStyleGuideDescription', { collectionName: activeCollection.name }) }}
               </p>
             </div>
             <UButton
@@ -207,7 +207,7 @@ function contextFilePath(collection: CollectionInfo) {
               :loading="isAnalyzing"
               @click="analyzeCollection"
             >
-              {{ isAnalyzing ? 'Analyzing...' : 'Analyze Collection' }}
+              {{ isAnalyzing ? $t('studio.ai.analyzing') : $t('studio.ai.analyzeCollection') }}
             </UButton>
           </div>
         </div>
@@ -222,10 +222,10 @@ function contextFilePath(collection: CollectionInfo) {
               color="secondary"
               variant="subtle"
               icon="i-lucide-flask-conical"
-              title="Context files are currently experimental and only available for generation in development mode."
+              :title="$t('studio.ai.experimentalAlert')"
               to="https://nuxt.studio/ai"
               :actions="[{
-                label: 'Learn more',
+                label: $t('studio.ai.learnMore'),
                 to: 'https://nuxt.studio/ai',
                 target: '_blank',
                 color: 'secondary',
@@ -237,10 +237,10 @@ function contextFilePath(collection: CollectionInfo) {
 
             <div class="space-y-2">
               <h3 class="text-sm font-medium">
-                Collection Context Files
+                {{ $t('studio.ai.collectionContextFiles') }}
               </h3>
               <p class="text-sm text-muted">
-                Manage AI writing style guides for each collection. Each collection can have its own context file to help the AI provide better completions, formatting, and improvements to your content.
+                {{ $t('studio.ai.collectionContextDescription') }}
               </p>
             </div>
 
@@ -252,7 +252,7 @@ function contextFilePath(collection: CollectionInfo) {
                 name="i-lucide-folder-open"
                 class="size-12 mx-auto mb-2 opacity-50"
               />
-              <p>No collections found</p>
+              <p>{{ $t('studio.ai.noCollectionsFound') }}</p>
             </div>
 
             <div
@@ -282,7 +282,7 @@ function contextFilePath(collection: CollectionInfo) {
                       :variant="hasContextFile(collection) ? 'subtle' : 'outline'"
                       :color="hasContextFile(collection) ? 'success' : 'neutral'"
                     >
-                      {{ hasContextFile(collection) ? 'Generated' : 'Not generated' }}
+                      {{ hasContextFile(collection) ? $t('studio.ai.generated') : $t('studio.ai.notGenerated') }}
                     </UBadge>
                   </div>
                 </div>
