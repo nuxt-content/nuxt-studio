@@ -248,6 +248,235 @@ description: 'meta description of the page'
 - JSON files
 - The code editor is the only one that can edit raw content, this is a debug editor we don't want to improve it contrary to the other editors.
 
+### AI Features
+
+Studio integrates AI-powered content assistance using Claude models via Vercel AI Gateway. AI features are optional and require configuration.
+
+#### Configuration
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  studio: {
+    ai: {
+      apiKey: process.env.AI_GATEWAY_API_KEY,
+      context: {
+        title: 'My Project',
+        description: 'Project description',
+        style: 'Technical and concise',
+        tone: 'Professional',
+        collection: {
+          name: 'studio'  // Internal collection name for context files
+          folder: '.studio'  // Folder where the context files are stored in the content folder
+        }
+      }
+    }
+  }
+})
+```
+
+**Environment Variable**:
+```bash
+AI_GATEWAY_API_KEY=xxx  # Vercel AI Gateway API key
+```
+
+#### AI Tab (Configuration)
+
+The AI tab (`/ai` route) is for **configuration only** - it manages AI context files stored in an internal `.studio` collection:
+
+- **Purpose**: Generate and manage AI writing style guides per collection
+- **Context Files**: `.studio/{collection-name}.md` files that contextualize AI for each collection
+- **Analysis**: Uses Claude Sonnet 4.5 to analyze collection content and generate comprehensive style guides
+- **UI**:
+  - List all collections with status badges (Generated/Not generated)
+  - Editor for viewing/editing context files
+  - Refresh button to regenerate context from collection
+  - "Analyze Collection" button for new context files
+
+**Key Behavior**:
+- Context files are in the `.studio` collection (internal, not user-facing)
+- Users access AI tab directly by clicking the AI tab button
+- Selecting files from preview **always** goes to Content tab (not AI tab)
+- AI tab is independent from user content workflow
+
+#### AI Completion (TipTap Extension)
+
+In-editor AI text completion that auto-suggests continuations while typing:
+
+**Features**:
+- Auto-triggers 500ms after user stops typing
+- Uses Claude Haiku 4.5 for speed (~300-500ms response)
+- Shows suggestions as gray italic text at cursor
+- Accept with `Tab`, dismiss with `Escape` or continue typing
+- Manual trigger with `Cmd/Ctrl+J`
+
+**Configuration**:
+- Toggle in footer: sparkles button (only visible when AI enabled)
+- Stored in preferences: `enableAICompletion` (default: true)
+- Automatically disabled for `.studio` context files (prevents AI interfering with AI guidelines)
+
+**Implementation**:
+- Extension: `src/app/src/utils/tiptap/extensions/ai-completion.ts`
+- Context: Sends 400 characters before cursor + 200 characters after cursor
+- Debounced: Waits 500ms of no typing before requesting
+- Max output: 40 tokens (~1 sentence)
+
+#### AI Transform Actions
+
+Selection-based content improvements via bubble toolbar:
+
+**Modes**:
+- **Fix**: Grammar and spelling correction
+- **Improve**: Enhanced clarity and engagement
+- **Simplify**: Simpler words and shorter sentences
+- **Translate**: Translate to another language (default: French)
+
+**Features**:
+- Available in TipTap bubble toolbar when text is selected
+- Uses Claude Sonnet 4.5 for quality
+- Shows accept/decline buttons after transformation
+- Max selection: 500 characters
+- Selection auto-trims to exclude structural elements (lists, code blocks, MDC components)
+- Only processes inline content (preserves document structure)
+
+**Implementation**:
+- Extension: `src/app/src/utils/tiptap/extensions/ai-transform.ts`
+- Component: `src/app/src/components/content/ContentEditorAIValidation.vue`
+- Preserves all markdown formatting (bold, italic, links, etc.)
+
+#### Model Selection Strategy
+
+- **Continue mode**: Claude Haiku 4.5 (optimized for speed)
+- **Transform modes**: Claude Sonnet 4.5 (optimized for quality)
+- Context size: 500 chars for continue, full selection for transforms
+
+#### Server Routes
+
+```
+/__nuxt_studio/ai/generate   # POST - AI generation endpoint
+/__nuxt_studio/ai/analyze    # POST - Collection analysis endpoint
+```
+
+**Authentication**: Skipped in dev mode, requires session in production.
+
+#### Context Loading (Future)
+
+Collection-specific context files can be loaded during AI operations:
+- Query `.studio/{collection-name}.md` from studio collection
+- Include in AI prompt for contextualized responses
+- Currently commented out (lines 94-101 in generate.post.ts)
+- Ready to enable when needed for better AI personalization
+
+#### Context Building System
+
+Studio builds AI context from multiple sources in a specific order for optimal results:
+
+**Context Components** (in order of addition):
+1. **File Location**: Collection name and file path
+2. **Project Metadata**: Title, description, style, tone from config
+3. **Collection Guidelines**: `.studio/{collection-name}.md` context file (16K chars max, ~4K tokens)
+   - Only loaded for: `improve`, `continue`, `simplify` modes
+   - Skipped for: `fix`, `translate` modes (for performance)
+4. **Cursor Position Hints**: Added LAST for recency bias (most important for continue mode)
+5. **Component/Slot Context**: When editing MDC component slots
+
+**Slot-Specific Guidance**:
+- `title` slots: 3-8 words maximum, concise headings
+- `description` slots: One sentence, 15-25 words
+- `default` slots: Substantial content explaining component purpose
+- `header`/`heading` slots: 2-6 words, brief labels
+- `footer` slots: Concluding/supplementary content
+- `caption`/`label` slots: 2-8 words, descriptive but concise
+
+#### Token Calculation Logic
+
+AI responses are dynamically sized based on mode and context (1 token ≈ 4 characters):
+
+**Transform Modes**:
+- `fix`: 1.5x original selection length
+- `improve`: 1.5x original selection length
+- `translate`: 1.5x original selection length
+- `simplify`: 0.7x original selection length
+
+**Continue Mode** (context-aware):
+- `paragraph-new`: 120-150 tokens (1-2 complete sentences)
+  - 150 tokens after headings (expects substantial intro)
+- `sentence-new`: 90 tokens (one complete sentence)
+- Other contexts: 60 tokens (default completion)
+
+#### Cursor Position Awareness
+
+Studio detects cursor position to generate contextually appropriate completions:
+
+- **`heading-new`**: Starting a new heading → generates short, concise heading (no full sentences)
+- **`heading-continue`**: End of heading → completes the heading
+- **`heading-middle`**: Mid-heading with text after → inserts 1-3 connecting words
+- **`paragraph-new`**: Starting new paragraph → generates opening sentence
+  - Special: After heading → generates intro paragraph related to heading topic
+- **`sentence-new`**: Starting new sentence within paragraph → one complete sentence
+- **`paragraph-middle`**: Mid-paragraph with text after → 3-8 bridging words only
+- **`paragraph-continue`**: Mid-sentence → completes current sentence with punctuation
+
+This ensures AI never generates headings when you're writing paragraphs, or full sentences when you need a few bridging words.
+
+#### Security & Safety
+
+**Prompt Injection Protection**:
+- System prompts explicitly instruct AI to treat user text as content, not instructions
+- Prevents selected text from being interpreted as commands
+- Each mode has dedicated system prompt with safety rules
+
+**API Key Security**:
+- API key stored as environment variable only
+- Never exposed to client-side code
+- All AI requests proxied through server routes
+
+**Context Isolation**:
+- AI completion automatically disabled when editing `.studio` context files
+- Prevents AI from interfering with AI guideline documents
+
+#### Limitations & Best Practices
+
+**Known Limitations**:
+- Max selection for transforms: 500 characters
+- Collection context capped at 16,000 characters (~4K tokens)
+- Continue mode uses 400 chars before + 200 chars after cursor for context
+- AI may require 1-2 attempts for perfect results
+
+**Best Practices**:
+- Create collection-specific context files for better AI results
+- Use descriptive project metadata (title, description, style, tone)
+- For long content, transform in smaller selections
+- Use `continue` for writing, `improve` for polishing
+- Use `fix` before `improve` if content has errors
+
+#### Important Implementation Details
+
+**Draft Update Prevention**:
+- Draft updates from AI don't trigger infinite loops
+- `useStudio.ts` route handler only calls hooks when document is unfocused or not current
+- Prevents: AI update → draft update → hook → tree rebuild → update → hook (loop)
+
+**Route Handling**:
+- Preview selections always route to Content tab (not AI tab)
+- `.studio` files are internal config, never shown in preview
+- AI tab accessed only by direct navigation
+
+**Performance Optimizations**:
+- Haiku for completions: ~300-500ms (vs 2-3s with Sonnet)
+- Reduced context: 600 chars total (400 before + 200 after) for continue mode
+- Skips context file loading for continue mode
+
+#### Key Files
+
+- `src/module/src/runtime/server/routes/ai/generate.post.ts` - AI generation endpoint
+- `src/module/src/runtime/server/routes/ai/analyze.post.ts` - Collection analysis
+- `src/app/src/composables/useAI.ts` - AI composable
+- `src/app/src/utils/tiptap/extensions/ai-completion.ts` - Completion extension
+- `src/app/src/utils/tiptap/extensions/ai-transform.ts` - Transform extension
+- `src/app/src/pages/ai.vue` - AI tab interface
+- `src/app/src/components/content/ContentEditorTipTap.vue` - TipTap integration
+
 ### Draft system
 
 **In production mode:**

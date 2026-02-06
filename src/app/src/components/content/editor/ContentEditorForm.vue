@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { ContentFileExtension, type DatabasePageItem, type DraftItem } from '../../types'
+import { ContentFileExtension, type DatabasePageItem, type DraftItem } from '../../../types'
 import type { PropType } from 'vue'
-import { jsonToYaml, yamlToJson } from '../../utils/data'
-import { useStudio } from '../../composables/useStudio'
+import { jsonToYaml, yamlToJson } from '../../../utils/data'
+import { useStudio } from '../../../composables/useStudio'
 
 const props = defineProps({
   draftItem: {

@@ -5,25 +5,46 @@ import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../composables/useStudio'
 import type { StudioFeature } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
+import { useAI } from '../../composables/useAI'
+import type { TabsItem } from '@nuxt/ui/components/Tabs.vue.d.ts'
 
 const router = useRouter()
 const route = useRoute()
 const { context } = useStudio()
+const ai = useAI()
 const { t } = useI18n()
 const { setLocation, devMode } = useStudioState()
 
-const items = computed(() => [
-  {
-    label: t('studio.nav.content'),
-    value: 'content',
-    to: '/content',
-  },
-  {
-    label: t('studio.nav.media'),
-    value: 'media',
-    to: '/media',
-  },
-])
+const items = computed(() => {
+  const tabs: TabsItem[] = [
+    {
+      label: t('studio.nav.content'),
+      value: 'content',
+      to: '/content',
+    },
+    {
+      label: t('studio.nav.media'),
+      value: 'media',
+      to: '/media',
+    },
+  ]
+
+  // Only add AI tab if AI is enabled and in dev mode
+  if (ai.enabled && devMode.value) {
+    tabs.push({
+      label: `${t('studio.nav.ai')}`,
+      value: 'ai',
+      to: '/ai',
+      badge: {
+        label: t('studio.badges.experimental'),
+        color: 'secondary',
+        size: 'xs',
+      },
+    })
+  }
+
+  return tabs
+})
 
 const current = computed({
   get: () => route.name as string,
@@ -33,10 +54,8 @@ const current = computed({
     const currentItem = context.activeTree.value.currentItem.value
     setLocation(name, currentItem.fsPath)
 
-    // Ensure root item status is up to date when navigating by selecting computed
-    if (currentItem.type === 'root') {
-      await context.activeTree.value.select(context.activeTree.value.rootItem.value)
-    }
+    // Ensure active tree select the approriate draft
+    await context.activeTree.value.select(context.activeTree.value.currentItem.value)
   },
 })
 </script>

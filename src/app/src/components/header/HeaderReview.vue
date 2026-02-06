@@ -63,11 +63,11 @@ async function publishChanges() {
     await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: state.commitMessage })
 
     state.commitMessage = ''
-    router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
+    await router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
   }
   catch (error) {
     const err = error as Error
-    router.push({
+    await router.push({
       path: '/error',
       query: {
         error: err.message || t('studio.publish.failedGeneric'),
@@ -80,16 +80,16 @@ async function publishChanges() {
 }
 
 async function backToEditor() {
-  router.push(`/${location.value.feature}`)
+  await router.push(`/${location.value.feature}`)
   await context.activeTree.value.selectItemByFsPath(location.value.fsPath)
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore defineShortcuts is auto-imported
 defineShortcuts({
-  escape: () => {
+  escape: async () => {
     state.commitMessage = ''
-    router.push('/content')
+    await router.push('/content')
   },
 })
 </script>
