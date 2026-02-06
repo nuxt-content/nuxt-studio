@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, type PropType } from 'vue'
-import { useStudio } from '../../composables/useStudio'
-import { useMonacoDiff } from '../../composables/useMonacoDiff'
+import { useStudio } from '../../../composables/useStudio'
+import { useMonacoDiff } from '../../../composables/useMonacoDiff'
 
 const props = defineProps({
   language: {

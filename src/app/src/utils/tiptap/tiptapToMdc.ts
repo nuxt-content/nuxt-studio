@@ -8,6 +8,7 @@ import { visit } from 'unist-util-visit'
 import type { SyntaxHighlightTheme } from '../../types/content'
 import { getEmojiUnicode } from '../emoji'
 import { cleanSpanProps, normalizeProps } from './props'
+import type { EditorState } from '@tiptap/pm/state'
 
 type TiptapToMDCMap = Record<string, (node: JSONContent) => MDCRoot | MDCNode | MDCNode[]>
 
@@ -132,6 +133,38 @@ export function tiptapNodeToMDC(node: JSONContent): MDCRoot | MDCNode | MDCNode[
   }
 }
 
+/**
+ * Serialize a portion of the TipTap document to mdc
+ */
+export async function tiptapSliceToMDC(
+  state: EditorState,
+  from: number,
+  to: number,
+): Promise<{ body: MDCRoot, data: Record<string, unknown> }> {
+  // Get the document slice
+  const slice = state.doc.slice(from, to)
+
+  // Create a temporary document containing just this slice
+  const sliceDoc = state.schema.nodeFromJSON({
+    type: 'doc',
+    content: slice.content.toJSON(),
+  })
+
+  // Convert to TipTap JSON
+  const tiptapJSON = sliceDoc.toJSON()
+
+  // Skip frontmatter node from the slice (not needed for AI context)
+  const content = tiptapJSON.content || []
+  const filteredContent = content.filter((node: JSONContent) => node.type !== 'frontmatter')
+  const cleanedJSON = {
+    ...tiptapJSON,
+    content: filteredContent,
+  }
+
+  // Convert TipTap JSON to MDC AST
+  return await tiptapToMDC(cleanedJSON, {})
+}
+
 /***************************************************************
  *********************** Create element methods ****************
  ***************************************************************/
@@ -178,7 +211,7 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
   }
 }
 
-export const createParagraphElement = (node: JSONContent, propsArray: Array<[string, string | string[]]>, rest: object = {}): MDCElement => {
+function createParagraphElement(node: JSONContent, propsArray: Array<[string, string | string[]]>, rest: object = {}): MDCElement {
   const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null

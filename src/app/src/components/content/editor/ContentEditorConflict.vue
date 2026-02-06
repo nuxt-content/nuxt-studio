@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
-import type { ContentConflict, DraftItem } from '../../types'
-import { useMonacoDiff } from '../../composables/useMonacoDiff'
-import { useStudio } from '../../composables/useStudio'
-import { ContentFileExtension, StudioFeature } from '../../types'
+import type { ContentConflict, DraftItem } from '../../../types'
+import { useMonacoDiff } from '../../../composables/useMonacoDiff'
+import { useStudio } from '../../../composables/useStudio'
+import { ContentFileExtension, StudioFeature } from '../../../types'
 
 const props = defineProps({
   draftItem: {

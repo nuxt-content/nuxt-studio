@@ -1,7 +1,7 @@
 import { useLogger } from '@nuxt/kit'
 import type { ModuleOptions } from './module'
 
-const logger = useLogger('nuxt-studio')
+const logger = useLogger('Nuxt Studio')
 
 export function validateAuthConfig(options: ModuleOptions): void {
   const provider = options.repository?.provider || 'github'

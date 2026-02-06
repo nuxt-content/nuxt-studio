@@ -2,18 +2,20 @@
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { ref, computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
+import { useAI } from '../../../composables/useAI'
 import type { Draft07 } from '@nuxt/content'
 
 const nodeProps = defineProps(nodeViewProps)
 
-const { host, documentTree } = useStudio()
+const { host, context } = useStudio()
+const ai = useAI()
 
 const collapsed = ref(true)
 
 const textColor = computed(() => collapsed.value ? 'text-muted group-hover/header:text-default' : 'text-default')
 
 const collection = computed(() => {
-  const currentItem = documentTree.currentItem.value
+  const currentItem = context.activeTree.value.currentItem.value
   if (!currentItem?.fsPath) return null
   return host.collection.getByFsPath(currentItem.fsPath)
 })
@@ -26,11 +28,25 @@ const frontmatterJSON = computed({
     nodeProps.updateAttributes({ frontmatter: value })
   },
 })
+
+// Hide frontmatter for AI context files (.studio folder)
+const shouldShowFrontmatter = computed(() => {
+  const currentItem = context.activeTree.value.currentItem.value
+  if (!currentItem?.fsPath) return true
+
+  // Check if file is in the AI context folder
+  if (ai.enabled && ai.contextFolder) {
+    return !currentItem.fsPath.startsWith(ai.contextFolder)
+  }
+
+  return true
+})
 </script>
 
 <template>
   <NodeViewWrapper as="div">
     <div
+      v-if="shouldShowFrontmatter"
       class="group mt-4 mb-3 transition-all duration-150"
       contenteditable="false"
     >

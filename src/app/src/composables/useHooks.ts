@@ -6,6 +6,9 @@ export const useHooks = createSharedComposable(() => {
     'studio:draft:document:updated': (
       { caller, selectItem }: { caller: string, selectItem?: boolean },
     ) => void
+    'studio:draft:ai:updated': (
+      { caller, selectItem }: { caller: string, selectItem?: boolean },
+    ) => void
     'studio:draft:media:updated': (
       { caller, selectItem }: { caller: string, selectItem?: boolean },
     ) => void

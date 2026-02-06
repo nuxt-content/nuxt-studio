@@ -25,7 +25,10 @@
       "copiedToClipboard": "Copied to clipboard",
       "copyToClipboard": "Copy to clipboard",
       "publishChanges": "Publish changes",
-      "backToContent": "Back to content"
+      "backToContent": "Back to content",
+      "disableAICompletion": "Disable AI completion",
+      "enableAICompletion": "Enable AI completion",
+      "regenerateAIContext": "Regenerate AI context"
     },
     "notifications": {
       "error": {
@@ -76,7 +79,8 @@
     },
     "nav": {
       "content": "Content",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Commit message",
@@ -234,6 +238,18 @@
         "insertAfter": "Insert after",
         "delete": "Delete"
       },
+      "ai": {
+        "fix": "Fix Grammar & Spelling",
+        "improve": "Improve writing and clarity",
+        "simplify": "Minimize and simplify text",
+        "translate": "Translate",
+        "translateTo": "Translate to",
+        "targetLanguage": "Target Language",
+        "targetLanguageDescription": "Enter the language you want to translate to (e.g., Spanish, French, German)",
+        "targetLanguagePlaceholder": "e.g., Spanish",
+        "selectionTooLarge": "Selection too large (max {max} characters)",
+        "cancel": "Cancel"
+      },
       "element": {
         "addSlot": "Add slot",
         "editProps": "Edit props",
@@ -358,6 +374,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analyzing collection and generating AI guidelines...",
+      "collectionGuide": "{collectionName} collection guide",
+      "writingStyleGuide": "AI writing style guide",
+      "characterCount": "{count} characters",
+      "noStyleGuide": "No style guide",
+      "noStyleGuideDescription": "Generate a comprehensive AI writing guide by analyzing the content in the {collectionName} collection.",
+      "analyzing": "Analyzing...",
+      "analyzeCollection": "Analyze Collection",
+      "experimentalAlert": "Context files are currently experimental and only available for generation in development mode.",
+      "learnMore": "Learn more",
+      "collectionContextFiles": "Collection Context Files",
+      "collectionContextDescription": "Manage AI writing style guides for each collection. Each collection can have its own context file to help the AI provide better completions, formatting, and improvements to your content.",
+      "noCollectionsFound": "No collections found",
+      "generated": "Generated",
+      "notGenerated": "Not generated"
+    },
+    "badges": {
+      "experimental": "Experimental"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} file"
     }
   }
 }

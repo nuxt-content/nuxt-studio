@@ -21,11 +21,21 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
   const remotePathPrefix = type === 'media' ? 'public' : 'content'
   const hostDb = type === 'media' ? host.media : host.document.db
-  const hookName = `studio:draft:${type}:updated` as const
   const areDocumentsEqual = host.document.utils.areEqual
+  const aiContextFolder = host.meta.ai?.context?.contentFolder
+  const aiEnabled = host.meta.ai?.enabled
 
   const hooks = useHooks()
   const { devMode } = useStudioState()
+
+  const hookName = (fsPath: string): 'studio:draft:document:updated' | 'studio:draft:ai:updated' | 'studio:draft:media:updated' => {
+    const name = `studio:draft:${type}:updated`
+    if (aiEnabled && fsPath.startsWith(`${aiContextFolder}/`)) {
+      return 'studio:draft:ai:updated'
+    }
+
+    return name as 'studio:draft:document:updated' | 'studio:draft:ai:updated' | 'studio:draft:media:updated'
+  }
 
   async function get(fsPath: string): Promise<DraftItem<T> | undefined> {
     return list.value.find(item => item.fsPath === fsPath) as DraftItem<T>
@@ -60,7 +70,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     list.value.push(draftItem)
 
     if (rerender) {
-      await hooks.callHook(hookName, { caller: 'useDraftBase.create' })
+      await hooks.callHook(hookName(fsPath), { caller: 'useDraftBase.create' })
     }
 
     return draftItem
@@ -116,7 +126,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       }
 
       if (rerender) {
-        await hooks.callHook(hookName, { caller: 'useDraftBase.remove' })
+        await hooks.callHook(hookName(fsPath), { caller: 'useDraftBase.remove' })
       }
     }
   }
@@ -150,7 +160,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
 
     if (rerender) {
-      await hooks.callHook(hookName, { caller: 'useDraftBase.revert' })
+      await hooks.callHook(hookName(fsPath), { caller: 'useDraftBase.revert' })
     }
   }
 
@@ -161,7 +171,14 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       await revert(draftItem.fsPath, { rerender: false })
     }
 
-    await hooks.callHook(hookName, { caller: 'useDraftBase.revertAll' })
+    await hooks.callHook(`studio:draft:${type}:updated`, { caller: 'useDraftBase.revertAll' })
+
+    if (aiEnabled) {
+      const iaFsPath = itemsToRevert.find(item => item.fsPath.startsWith(`${aiContextFolder}/`))?.fsPath
+      if (iaFsPath) {
+        await hooks.callHook('studio:draft:ai:updated', { caller: 'useDraftBase.revertAll' })
+      }
+    }
   }
 
   async function unselect() {
@@ -217,7 +234,11 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       }
     }))
 
-    await hooks.callHook(hookName, { caller: 'useDraftBase.load', selectItem: false })
+    await hooks.callHook(`studio:draft:${type}:updated`, { caller: 'useDraftBase.load' })
+
+    if (type === 'document' && aiEnabled) {
+      await hooks.callHook('studio:draft:ai:updated', { caller: 'useDraftBase.load' })
+    }
   }
 
   function getStatus(modified: BaseItem, original: BaseItem): DraftStatus {

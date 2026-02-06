@@ -1,11 +1,14 @@
 import { defineNuxtPlugin, useRuntimeConfig } from '#imports'
+import { consola } from 'consola'
 import { defineStudioActivationPlugin } from '../utils/activation'
 import type { Repository, UseStudioHost } from 'nuxt-studio/app'
+
+const logger = consola.withTag('Nuxt Studio')
 
 export default defineNuxtPlugin(() => {
   defineStudioActivationPlugin(async (user) => {
     const config = useRuntimeConfig()
-    console.log(`
+    logger.info(`
   ███████╗████████╗██╗   ██╗██████╗ ██╗ ██████╗     ██████╗ ███████╗██╗   ██╗
   ██╔════╝╚══██╔══╝██║   ██║██╔══██╗██║██╔═══██╗    ██╔══██╗██╔════╝██║   ██║
   ███████╗   ██║   ██║   ██║██║  ██║██║██║   ██║    ██║  ██║█████╗  ██║   ██║

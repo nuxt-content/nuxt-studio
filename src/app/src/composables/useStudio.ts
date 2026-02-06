@@ -12,6 +12,7 @@ import { StudioFeature } from '../types'
 import { documentStorage, mediaStorage, nullStorageDriver } from '../utils/storage'
 import { useHooks } from './useHooks'
 import { useStudioState } from './useStudioState'
+import { useAI } from './useAI'
 
 export const useStudio = createSharedComposable(() => {
   const isReady = ref(false)
@@ -36,11 +37,13 @@ export const useStudio = createSharedComposable(() => {
 
   const gitProvider = useGitProvider(gitOptions, devMode.value)
   const ui = useUI(host)
+  const ai = useAI()
   const draftDocuments = useDraftDocuments(host, gitProvider)
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
   const draftMedias = useDraftMedias(host, gitProvider)
   const mediaTree = useTree(StudioFeature.Media, host, draftMedias)
-  const context = useContext(host, gitProvider, documentTree, mediaTree)
+  const aiContextTree = ai.enabled ? useTree(StudioFeature.AI, host, draftDocuments) : undefined
+  const context = useContext(host, gitProvider, documentTree, mediaTree, aiContextTree)
 
   ui.setLocale(host.meta.defaultLocale)
 
@@ -59,8 +62,13 @@ export const useStudio = createSharedComposable(() => {
 
     host.on.routeChange(async (to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
       if (ui.isOpen.value && preferences.value.syncEditorAndRoute) {
-        if (documentTree.currentItem.value.routePath === to.path) {
+        if (context.activeTree.value.currentItem.value.routePath === to.path) {
           return
+        }
+
+        // Always switch to Content tab when navigating via host website links
+        if (context.currentFeature.value !== StudioFeature.Content) {
+          await context.switchFeature(StudioFeature.Content)
         }
 
         await documentTree.selectByRoute(to)
@@ -82,11 +90,14 @@ export const useStudio = createSharedComposable(() => {
     context,
     documentTree,
     mediaTree,
+    aiContextTree,
   }
 })
 
 function initDevelopmentMode() {
   const { host, documentTree, mediaTree, context, ui } = useStudio()
+  const aiEnabled = host.meta.ai?.enabled
+  const aiContextFolder = host.meta.ai?.context?.contentFolder
   const hooks = useHooks()
 
   // Disable browser storages
@@ -94,25 +105,27 @@ function initDevelopmentMode() {
   mediaStorage.mount('/', nullStorageDriver)
 
   host.on.documentUpdate(async (fsPath: string, type: 'remove' | 'update') => {
-    const item = documentTree.draft.list.value.find(item => item.fsPath === fsPath)
+    const item = context.activeTree.value.draft.list.value.find(item => item.fsPath === fsPath)
 
     if (type === 'remove') {
       if (item) {
-        await documentTree.draft.remove([fsPath])
+        await context.activeTree.value.draft.remove([fsPath])
       }
     }
     else if (item) {
       // Update draft if the document is not focused or the current item is not the one that was updated
-      if (!window.document.hasFocus() || documentTree.currentItem.value?.fsPath !== fsPath) {
+      if (!window.document.hasFocus() || context.activeTree.value.currentItem.value?.fsPath !== fsPath) {
         const document = await host.document.db.get(fsPath)
         item.modified = document
         item.original = document
-        item.status = mediaTree.draft.getStatus(document as DatabaseItem, item.original as DatabaseItem)
+        item.status = context.activeTree.value.draft.getStatus(document as DatabaseItem, item.original as DatabaseItem)
         item.version = item.version ? item.version + 1 : 1
       }
     }
 
-    await hooks.callHook('studio:draft:document:updated', { caller: 'useStudio.on.documentUpdate' })
+    const isAIUpdate = aiEnabled ? fsPath.startsWith(aiContextFolder) : false
+    const hookName = isAIUpdate ? 'studio:draft:ai:updated' : 'studio:draft:document:updated'
+    await hooks.callHook(hookName, { caller: 'useStudio.on.documentUpdate' })
   })
 
   host.on.mediaUpdate(async (fsPath: string, type: 'remove' | 'update') => {
@@ -136,12 +149,13 @@ function initDevelopmentMode() {
     await hooks.callHook('studio:draft:media:updated', { caller: 'useStudio.on.mediaUpdate' })
   })
 
-  host.on.requestDocumentEdit((fsPath: string) => {
+  host.on.requestDocumentEdit(async (fsPath: string) => {
+    // Always route to Content tab when selecting from host website
     if (context.currentFeature.value !== StudioFeature.Content) {
-      context.switchFeature(StudioFeature.Content)
+      await context.switchFeature(StudioFeature.Content)
     }
 
-    documentTree.selectItemByFsPath(fsPath)
+    await documentTree.selectItemByFsPath(fsPath)
     ui.open()
   })
 }

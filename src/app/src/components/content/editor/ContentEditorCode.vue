@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus } from '../../types'
+import { ContentFileExtension, type DatabasePageItem, type DraftItem, DraftStatus } from '../../../types'
 import type { PropType } from 'vue'
-import { setupSuggestion } from '../../utils/monaco'
-import { useStudio } from '../../composables/useStudio'
-import { useMonaco } from '../../composables/useMonaco'
+import { setupSuggestion } from '../../../utils/monaco'
+import { useStudio } from '../../../composables/useStudio'
+import { useMonaco } from '../../../composables/useMonaco'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({

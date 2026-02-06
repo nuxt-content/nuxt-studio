@@ -2,12 +2,12 @@
 import { computed, ref, watch, type PropType } from 'vue'
 import { decompressTree } from '@nuxt/content/runtime'
 import type { MarkdownRoot } from '@nuxt/content'
-import { DraftStatus, type DatabasePageItem, type DraftItem, type DatabaseItem } from '../../types'
-import { useStudio } from '../../composables/useStudio'
-import { useStudioState } from '../../composables/useStudioState'
-import { fromBase64ToUTF8 } from '../../utils/string'
-import { areContentEqual } from '../../utils/content'
-import { ContentFileExtension } from '../../types'
+import { DraftStatus, type DatabasePageItem, type DraftItem, type DatabaseItem } from '../../../types'
+import { useStudio } from '../../../composables/useStudio'
+import { useStudioState } from '../../../composables/useStudioState'
+import { fromBase64ToUTF8 } from '../../../utils/string'
+import { areContentEqual } from '../../../utils/content'
+import { ContentFileExtension } from '../../../types'
 
 const props = defineProps({
   draftItem: {

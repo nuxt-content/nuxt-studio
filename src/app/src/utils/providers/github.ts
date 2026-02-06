@@ -1,5 +1,6 @@
 import { ofetch } from 'ofetch'
 import { joinURL } from 'ufo'
+import { consola } from 'consola'
 import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions } from '../../types'
 import { StudioFeature } from '../../types'
 import { DraftStatus } from '../../types/draft'
@@ -11,6 +12,7 @@ interface GitHubUser {
 }
 
 const NUXT_STUDIO_COAUTHOR = 'Co-authored-by: Nuxt Studio <noreply@nuxt.studio>'
+const logger = consola.withTag('Nuxt Studio')
 
 export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail } = options
@@ -101,11 +103,11 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     catch (error) {
       // Handle different types of errors gracefully
       if ((error as { status?: number }).status === 404) {
-        console.warn(`File not found on GitHub: ${path}`)
+        logger.warn(`File not found on GitHub: ${path}`)
         return null
       }
 
-      console.error(`Failed to fetch file from GitHub: ${path}`, error)
+      logger.error(`Failed to fetch file from GitHub: ${path}`, error)
 
       // For development, show alert. In production, you might want to use a toast notification
       if (process.env.NODE_ENV === 'development') {

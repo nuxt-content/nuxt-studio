@@ -1,10 +1,13 @@
 import { createSingletonPromise } from '@vueuse/core'
+import { consola } from 'consola'
 import themeLight from './theme-light'
 import themeDark from './theme-dark'
 
 export { setupSuggestion } from './mdc-compilation'
 export type { editor as Editor } from 'modern-monaco/editor-core'
 export type Monaco = Awaited<ReturnType<typeof import('modern-monaco')['init']>>
+
+const logger = consola.withTag('Nuxt Studio')
 
 export const setupMonaco = createSingletonPromise(async () => {
   // List from https://github.com/microsoft/vscode/blob/2022aede9218d2fe7668115a75fa56032f863014/build/lib/i18n.js#L24C1-L34C3
@@ -31,7 +34,7 @@ export const setupMonaco = createSingletonPromise(async () => {
     finalLocale = locale
   }
   else {
-    console.warn(`[Monaco] could not load locale '${locale}'. Valid locales: ${validNlsLanguages.join(', ')}`)
+    logger.warn(`[Monaco] could not load locale '${locale}'. Valid locales: ${validNlsLanguages.join(', ')}`)
     finalLocale = 'en'
   }
 
@@ -42,7 +45,7 @@ export const setupMonaco = createSingletonPromise(async () => {
     }
   }
   catch (e) {
-    console.error(`[Monaco] error while loading locale: ${finalLocale}`, e)
+    logger.error(`[Monaco] error while loading locale: ${finalLocale}`, e)
   }
 
   // @ts-expect-error -- use dynamic import to reduce bundle size
