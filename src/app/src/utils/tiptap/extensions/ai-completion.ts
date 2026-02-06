@@ -239,6 +239,20 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
     }
   },
 
+  onDestroy() {
+    // Critical: Clear debounce timer to prevent memory leaks
+    if (this.storage.debounceTimer) {
+      clearTimeout(this.storage.debounceTimer)
+      this.storage.debounceTimer = null
+    }
+
+    // Clear all storage to release references
+    this.storage.suggestion = ''
+    this.storage.position = null
+    this.storage.visible = false
+    this.storage.extraSpace = null
+  },
+
   addProseMirrorPlugins() {
     // Use explicit variable names to avoid minification hoisting issues
     const extensionStorage = this.storage
