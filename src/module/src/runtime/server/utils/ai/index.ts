@@ -3,8 +3,8 @@
  */
 
 // Re-export types
-export { ContentType } from '../../../../types/ai'
-export type { ContentSample, CollectionMetadata, CollectionArchitecture } from '../../../../types/ai'
+export { ContentType } from '../../types/ai'
+export type { ContentSample, CollectionMetadata, CollectionArchitecture } from '../../types/ai'
 
 // Re-export generate utilities
 export {

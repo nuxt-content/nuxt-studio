@@ -14,8 +14,8 @@ import {
   buildAnalysisPrompt,
   getAnalyzeSystem,
 } from '../../utils/ai/analyze'
-import type { ContentSample, CollectionMetadata } from '../../../../types/ai'
-import { ContentType } from '../../../../types/ai'
+import type { ContentSample, CollectionMetadata } from '../../types/ai'
+import { ContentType } from '../../types/ai'
 
 const logger = consola.withTag('Nuxt Studio')
 

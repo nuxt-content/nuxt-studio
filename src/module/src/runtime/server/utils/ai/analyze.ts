@@ -4,8 +4,8 @@
 
 import type { DatabasePageItem } from 'nuxt-studio/app'
 import type { ModuleOptions } from '../../../../module'
-import { ContentType } from '../../../../types/ai'
-import type { ContentSample, CollectionMetadata, CollectionArchitecture } from '../../../../types/ai'
+import { ContentType } from '../../types/ai'
+import type { ContentSample, CollectionMetadata, CollectionArchitecture } from '../../types/ai'
 
 /**
  * Detect content type based on patterns in titles, paths, and structure
