@@ -25,7 +25,7 @@ const userMenuItems = computed(() => [
         //   slot: 'view-mode' as const,
         // }
         {
-          label: `${host.repository.owner}/${host.repository.repo}`,
+          label: `${host.repository.owner}/${host.repository.repo}#${host.repository.branch}`,
           icon: gitProvider.icon,
           to: repositoryUrl.value,
           target: '_blank',
