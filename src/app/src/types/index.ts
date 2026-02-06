@@ -27,6 +27,9 @@ export interface StudioHost {
     dev: boolean
     ai: {
       enabled: boolean
+      experimental: {
+        collectionContext: boolean
+      }
       context: {
         collectionName: string
         contentFolder: string

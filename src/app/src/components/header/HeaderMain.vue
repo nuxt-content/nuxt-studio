@@ -29,8 +29,8 @@ const items = computed(() => {
     },
   ]
 
-  // Only add AI tab if AI is enabled and in dev mode
-  if (ai.enabled && devMode.value) {
+  // Only add AI tab in dev mode if experimental collection context is enabled
+  if (devMode.value && ai.experimentalCollectionContext) {
     tabs.push({
       label: `${t('studio.nav.ai')}`,
       value: 'ai',

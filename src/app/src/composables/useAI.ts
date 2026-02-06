@@ -7,12 +7,14 @@ export function useAI() {
   const host = window.useStudioHost()
   const enabled = host.meta.ai.enabled
   const contextFolder = host.meta.ai.context?.contentFolder
+  const experimentalCollectionContext = host.meta.ai.experimental?.collectionContext ?? false
 
   if (!enabled) {
     const emptyPromise = async () => ''
     return {
       enabled: false,
       contextFolder,
+      experimentalCollectionContext: false,
       isLoading: ref(false),
       error: ref(undefined),
       completion: ref(''),
@@ -122,6 +124,7 @@ export function useAI() {
   return {
     enabled,
     contextFolder,
+    experimentalCollectionContext,
     isLoading,
     error,
     completion,
