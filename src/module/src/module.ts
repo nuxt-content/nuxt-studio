@@ -271,7 +271,7 @@ export default defineNuxtModule<ModuleOptions>({
       const detected = detectRepositoryFromCI()
       if (detected) {
         options.repository = defu(detected, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
-        logger.info(`Auto-detected repository from CI environment: \`${detected.provider}:${detected.owner}/${detected.repo}\``)
+        logger.info(`Auto-detected repository from CI environment: \`${detected.provider}:${detected.owner}/${detected.repo}\`#${detected.branch}`)
       }
     }
 
@@ -424,7 +424,6 @@ export default defineNuxtModule<ModuleOptions>({
  * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
  */
 function detectRepositoryFromCI(): DetectedRepository | undefined {
-  console.log('detectRepositoryFromCI', process.env.VERCEL_GIT_REPO_OWNER, process.env.VERCEL_GIT_REPO_SLUG, process.env.VERCEL_GIT_PROVIDER)
   // Vercel
   if (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG && ['github', 'gitlab'].includes(process.env.VERCEL_GIT_PROVIDER!)) {
     return {
