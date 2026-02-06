@@ -2,10 +2,8 @@
  * Utility functions for AI transform operations
  */
 
-export interface DiffPart {
-  type: 'added' | 'removed' | 'unchanged'
-  text: string
-}
+import type { DiffPart } from '../../types/ai'
+import { AI_LIMITS } from '../../types/ai'
 
 interface InternalDiffPart extends DiffPart {
   inNew: boolean
@@ -16,11 +14,7 @@ interface LCSMatch {
   updatedIdx: number
 }
 
-/**
- * Maximum number of tokens to process for diff highlighting
- * LCS is O(n*m) which can be expensive for large texts
- */
-const MAX_TOKENS = 500
+const MAX_TOKENS = AI_LIMITS.MAX_DIFF_TOKENS
 
 /**
  * Split text into tokens (words + whitespace)

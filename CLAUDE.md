@@ -317,7 +317,7 @@ In-editor AI text completion that auto-suggests continuations while typing:
 
 **Implementation**:
 - Extension: `src/app/src/utils/tiptap/extensions/ai-completion.ts`
-- Context: Sends 500 characters before cursor
+- Context: Sends 400 characters before cursor + 200 characters after cursor
 - Debounced: Waits 500ms of no typing before requesting
 - Max output: 40 tokens (~1 sentence)
 
@@ -440,7 +440,7 @@ This ensures AI never generates headings when you're writing paragraphs, or full
 **Known Limitations**:
 - Max selection for transforms: 500 characters
 - Collection context capped at 16,000 characters (~4K tokens)
-- Continue mode uses 500 chars before cursor for context
+- Continue mode uses 400 chars before + 200 chars after cursor for context
 - AI may require 1-2 attempts for perfect results
 
 **Best Practices**:
@@ -464,7 +464,7 @@ This ensures AI never generates headings when you're writing paragraphs, or full
 
 **Performance Optimizations**:
 - Haiku for completions: ~300-500ms (vs 2-3s with Sonnet)
-- Reduced context: 500 chars (vs 1000) for continue mode
+- Reduced context: 600 chars total (400 before + 200 after) for continue mode
 - Skips context file loading for continue mode
 
 #### Key Files

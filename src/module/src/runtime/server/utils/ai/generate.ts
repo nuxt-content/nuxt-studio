@@ -7,6 +7,7 @@ import { consola } from 'consola'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections } from '@nuxt/content'
 import type { DatabasePageItem, AIHintOptions } from 'nuxt-studio/app'
+import { AI_LIMITS } from 'nuxt-studio/app'
 import type { ModuleOptions } from '../../../../module'
 
 const logger = consola.withTag('Nuxt Studio')
@@ -194,8 +195,7 @@ export async function buildCollectionSummaryContext(
 
     if (contextFile?.rawbody && typeof contextFile.rawbody === 'string') {
       // Limit to ~4K tokens (~16K chars) to stay within token budget
-      const MAX_CONTEXT_LENGTH = 16000
-      const analyzedContext = contextFile.rawbody.substring(0, MAX_CONTEXT_LENGTH)
+      const analyzedContext = contextFile.rawbody.substring(0, AI_LIMITS.MAX_CONTEXT_LENGTH)
 
       return `Writing Guidelines (from ${contextFilePath}):\n${analyzedContext}`
     }

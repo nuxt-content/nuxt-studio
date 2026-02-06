@@ -37,3 +37,35 @@ export interface AIGenerateOptions {
   collectionName?: string
   hintOptions?: AIHintOptions
 }
+
+/**
+ * Diff part for AI transform highlighting
+ */
+export interface DiffPart {
+  type: 'added' | 'removed' | 'unchanged'
+  text: string
+}
+
+/**
+ * Callbacks for AI transform accept/decline actions
+ */
+export interface AITransformCallbacks {
+  onAccept: () => void
+  onDecline: () => void
+}
+
+/**
+ * AI feature limits and constraints
+ */
+export const AI_LIMITS = {
+  /** Maximum selection length for AI transforms (in characters) */
+  MAX_SELECTION_LENGTH: 1000,
+  /** Maximum tokens for diff computation (LCS is O(n*m)) */
+  MAX_DIFF_TOKENS: 500,
+  /** Maximum context length for collection guidelines (in characters) */
+  MAX_CONTEXT_LENGTH: 16000,
+  /** Context sent before cursor for continue mode (in characters) */
+  CONTINUE_PREVIOUS_CONTEXT: 400,
+  /** Context sent after cursor for continue mode (in characters) */
+  CONTINUE_NEXT_CONTEXT: 200,
+} as const

@@ -3,18 +3,14 @@ import type { Ref } from 'vue'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { consola } from 'consola'
-import type { AIGenerateOptions, DatabasePageItem } from '../types'
+import type { AIGenerateOptions, AITransformCallbacks, DatabasePageItem } from '../types'
+import { AI_LIMITS } from '../types/ai'
 import { AICompletion } from '../utils/tiptap/extensions/ai-completion'
 import { AITransform } from '../utils/tiptap/extensions/ai-transform'
 import { getAITransformItems } from '../utils/tiptap/editor'
 import { useStudio } from './useStudio'
 import { useStudioState } from './useStudioState'
 import { useAI } from './useAI'
-
-export interface AITransformCallbacks {
-  onAccept: () => void
-  onDecline: () => void
-}
 
 /**
  * Composable for managing AI features in TipTap editor
@@ -25,7 +21,7 @@ export function useTiptapEditorAI(document: Ref<DatabasePageItem | undefined>) {
   const { preferences } = useStudioState()
   const { host } = useStudio()
 
-  const MAX_AI_SELECTION_LENGTH = 1000
+  const MAX_AI_SELECTION_LENGTH = AI_LIMITS.MAX_SELECTION_LENGTH
 
   // State
   const isAIValidationVisible = ref(false)
@@ -209,6 +205,11 @@ export function useTiptapEditorAI(document: Ref<DatabasePageItem | undefined>) {
     // Get selected text
     const selectedText = editor.state.doc.textBetween(from, to, '\n')
     const selectionLength = selectedText.length
+
+    // Validate selection size before processing
+    if (selectionLength > MAX_AI_SELECTION_LENGTH) {
+      return
+    }
 
     editor.commands.blur()
 

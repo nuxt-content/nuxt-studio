@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { AIHintOptions } from '../../../types/ai'
+import { AI_LIMITS } from '../../../types/ai'
 import { applyExtraSpace, detectExtraSpace, generateHintOptions, markdownSliceToTiptap, tiptapSliceToMarkdown } from '../../ai/completion'
 
 export interface CompletionOptions {
@@ -78,8 +79,8 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
             this.storage.extraSpace = detectExtraSpace(state, to)
 
             // Context lengths optimized for AI completion
-            const maxPreviousChars = 400 // Content before cursor
-            const maxNextChars = 200 // Content after cursor
+            const maxPreviousChars = AI_LIMITS.CONTINUE_PREVIOUS_CONTEXT
+            const maxNextChars = AI_LIMITS.CONTINUE_NEXT_CONTEXT
 
             // Extract context before cursor
             const previousStart = Math.max(0, to - maxPreviousChars * 2)
