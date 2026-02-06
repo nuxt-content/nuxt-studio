@@ -6,8 +6,9 @@
     "build": "nuxt build --extends docus"
   },
   "dependencies": {
-    "docus": "^5.4.4",
+    "@aws-sdk/client-s3": "^3.978.0",
     "better-sqlite3": "^12.6.2",
+    "docus": "^5.4.4",
     "nuxt": "^4.2.2",
     "nuxt-studio": "workspace:*"
   }

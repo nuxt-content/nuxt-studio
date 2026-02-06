@@ -22,5 +22,14 @@ export default defineNuxtConfig({
       rootDir: 'playground/docus',
       private: false,
     },
+    // OSS upload configuration (enable image paste/drop in TipTap editor)
+    media: {
+      enabled: true,
+      endpoint: '/api/studio-upload',
+      listEndpoint: '/api/studio-media',
+      deleteEndpoint: '/api/studio-delete',
+      maxFileSize: 10 * 1024 * 1024, // 10MB
+      allowedTypes: ['image/*'],
+    },
   },
 })

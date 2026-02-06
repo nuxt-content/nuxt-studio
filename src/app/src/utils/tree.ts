@@ -3,9 +3,11 @@ import {
   TreeStatus,
   type DraftItem,
   type TreeItem,
+  type MediaItem,
 } from '../types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { BaseItem } from '../types/item'
+import { isOSSMedia } from '../types/media'
 import { getFileExtension, parseName } from './file'
 
 export const COLOR_STATUS_MAP: { [key in TreeStatus]?: string } = {
@@ -57,7 +59,22 @@ TreeItem[] {
     return dbItems
   }
 
-  const virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
+  // Add OSS-only items from drafts (they don't exist on filesystem in dev mode)
+  // Note: In dev mode, all drafts have status=Pristine, so we check ALL drafts for ossUrl
+  function addOSSOnlyDraftItemsInDbItems(dbItems: BaseItem[], allDrafts: DraftItem[]) {
+    dbItems = [...dbItems]
+    for (const draft of allDrafts) {
+      const mediaItem = draft.modified as MediaItem | undefined
+      // Only add if it's an OSS item and not already in dbItems
+      if (mediaItem && isOSSMedia(mediaItem) && !dbItems.some(item => item.fsPath === draft.fsPath)) {
+        dbItems.push(mediaItem as BaseItem)
+      }
+    }
+    return dbItems
+  }
+
+  let virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
+  virtualDbItems = addOSSOnlyDraftItemsInDbItems(virtualDbItems, draftList || [])
 
   for (const dbItem of virtualDbItems) {
     const itemHasPathField = 'path' in dbItem && dbItem.path

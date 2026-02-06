@@ -21,12 +21,22 @@ export * from './media'
 export * from './content'
 export * from './form'
 
+export interface MediaUploadConfig {
+  enabled: boolean
+  endpoint: string
+  listEndpoint?: string
+  deleteEndpoint?: string
+  maxFileSize: number
+  allowedTypes: string[]
+}
+
 export interface StudioHost {
   meta: {
     dev: boolean
     getComponents: () => ComponentMeta[]
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
+    media?: MediaUploadConfig
   }
   on: {
     routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void
