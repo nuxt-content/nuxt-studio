@@ -266,7 +266,8 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Auto-detect repository from CI environment variables when not explicitly configured
-    if (!options.repository?.owner && !options.repository?.repo) {
+    const isProdBuild = nuxt.options.dev === false && nuxt.options._prepare === false
+    if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
       const detected = detectRepositoryFromCI()
       if (detected) {
         options.repository = defu(detected, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
@@ -274,11 +275,11 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    if (!options.repository?.owner && !options.repository?.repo) {
+    if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
       throw new Error('Repository owner and repository name are required')
     }
 
-    if (!nuxt.options.dev && !nuxt.options._prepare) {
+    if (isProdBuild) {
       validateAuthConfig(options)
     }
 
