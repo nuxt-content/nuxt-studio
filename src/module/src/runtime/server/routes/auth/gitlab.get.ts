@@ -5,7 +5,7 @@ import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import type { UserSchema } from '@gitbeaker/core'
 import { useRuntimeConfig } from '#imports'
-import { generateOAuthState, validateOAuthState } from '../../../utils/auth'
+import { generateOAuthState, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 
 export interface OAuthGitLabConfig {
