@@ -3,7 +3,7 @@ import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import { consola } from 'consola'
-import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../../utils/auth'
+import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 
 const logger = consola.withTag('Nuxt Studio')

@@ -2,7 +2,7 @@ import { eventHandler, createError, getQuery, sendRedirect, getRequestURL, getCo
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../../utils/auth'
+import { generateOAuthState, requestAccessToken, validateOAuthState, generatePKCECodeVerifier, generateCodeChallenge, consumePKCECodeVerifier } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 
 export interface SSOUser {
@@ -74,8 +74,10 @@ export default eventHandler(async (event: H3Event) => {
   config.redirectURL = config.redirectURL || `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
 
   if (!query.code) {
-    // Initial authorization request (generate and store state)
+    // Initial authorization request (generate and store state + PKCE)
     const state = await generateOAuthState(event)
+    const codeVerifier = await generatePKCECodeVerifier(event)
+    const codeChallenge = await generateCodeChallenge(codeVerifier)
 
     // Redirect to SSO server authorization page
     // Note: No scope needed - SSO server always returns all user info + GitHub token
@@ -86,6 +88,8 @@ export default eventHandler(async (event: H3Event) => {
         client_id: config.clientId,
         redirect_uri: config.redirectURL,
         state,
+        code_challenge: codeChallenge,
+        code_challenge_method: 'S256',
       }),
     )
   }
@@ -93,9 +97,12 @@ export default eventHandler(async (event: H3Event) => {
   // Validate OAuth state and delete the cookie or throw an error
   validateOAuthState(event, query.state as string)
 
+  // Retrieve and consume the PKCE code verifier from cookie
+  const codeVerifier = consumePKCECodeVerifier(event)
+
   const provider = studioConfig?.repository.provider
 
-  // Exchange authorization code for tokens
+  // Exchange authorization code for tokens (with PKCE code_verifier)
   const token = await requestAccessToken(`${serverUrl}/oauth/token`, {
     headers: {
       'Content-Type': 'application/json',
@@ -106,6 +113,7 @@ export default eventHandler(async (event: H3Event) => {
       client_id: config.clientId,
       client_secret: config.clientSecret,
       redirect_uri: config.redirectURL,
+      code_verifier: codeVerifier,
     },
   })
 
