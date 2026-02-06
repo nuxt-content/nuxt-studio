@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { consola } from 'consola'
+import { computeWordDiff, createAddedDiff, DIFF_STYLES, type DiffPart } from '../transform'
 
 export interface AITransformOptions {
   onShowButtons?: (data: {
@@ -21,7 +22,7 @@ export interface AITransformState {
     newText: string
     from: number
     to: number
-    diff: Array<{ type: 'added' | 'removed' | 'unchanged', text: string }>
+    diff: DiffPart[]
   } | null
 }
 
@@ -39,126 +40,6 @@ declare module '@tiptap/core' {
 
 // Plugin key for accessing plugin state
 const aiTransformPluginKey = new PluginKey('aiTransform')
-
-// Improved word-based diff using longest common subsequence
-function computeWordDiff(original: string, updated: string) {
-  // Split into words, preserving whitespace as separate tokens
-  const originalTokens = original.split(/(\s+)/).filter(t => t.length > 0)
-  const updatedTokens = updated.split(/(\s+)/).filter(t => t.length > 0)
-
-  // For large selections, skip diff highlighting to avoid UI blocking
-  // LCS is O(n*m) which can be expensive for large texts
-  const MAX_TOKENS = 500
-  if (originalTokens.length > MAX_TOKENS || updatedTokens.length > MAX_TOKENS) {
-    // Simple fallback: no highlighting for large texts
-    return []
-  }
-
-  // Find LCS (Longest Common Subsequence) to identify matching words
-  const lcsIndices = findLCS(originalTokens, updatedTokens)
-
-  // Build diff based on LCS
-  const parts: Array<{ type: 'added' | 'removed' | 'unchanged', text: string, inNew: boolean }> = []
-  let origIdx = 0
-  let updatedIdx = 0
-  let lcsIdx = 0
-
-  while (origIdx < originalTokens.length || updatedIdx < updatedTokens.length) {
-    const nextLCS = lcsIndices[lcsIdx]
-
-    // Process removed tokens (in original but not in updated)
-    while (nextLCS && origIdx < nextLCS.origIdx) {
-      parts.push({ type: 'removed', text: originalTokens[origIdx], inNew: false })
-      origIdx++
-    }
-
-    // Process added tokens (in updated but not in original)
-    while (nextLCS && updatedIdx < nextLCS.updatedIdx) {
-      parts.push({ type: 'added', text: updatedTokens[updatedIdx], inNew: true })
-      updatedIdx++
-    }
-
-    // Process unchanged token
-    if (nextLCS) {
-      parts.push({ type: 'unchanged', text: updatedTokens[updatedIdx], inNew: true })
-      origIdx++
-      updatedIdx++
-      lcsIdx++
-    }
-    else {
-      // No more LCS matches, everything remaining is added or removed
-      if (origIdx < originalTokens.length) {
-        parts.push({ type: 'removed', text: originalTokens[origIdx], inNew: false })
-        origIdx++
-      }
-      if (updatedIdx < updatedTokens.length) {
-        parts.push({ type: 'added', text: updatedTokens[updatedIdx], inNew: true })
-        updatedIdx++
-      }
-    }
-  }
-
-  // Group consecutive parts with same type that are in the new text
-  const grouped: Array<{ type: 'added' | 'removed' | 'unchanged', text: string }> = []
-
-  for (const part of parts) {
-    if (!part.inNew) continue // Skip removed tokens as they're not in the new document
-
-    const lastGroup = grouped[grouped.length - 1]
-
-    if (lastGroup && lastGroup.type === part.type) {
-      lastGroup.text += part.text
-    }
-    else {
-      grouped.push({ type: part.type, text: part.text })
-    }
-  }
-
-  return grouped
-}
-
-// Find Longest Common Subsequence indices
-function findLCS(arr1: string[], arr2: string[]): Array<{ origIdx: number, updatedIdx: number }> {
-  const m = arr1.length
-  const n = arr2.length
-
-  // Build LCS length matrix
-  const dp: number[][] = Array(m + 1)
-    .fill(0)
-    .map(() => Array(n + 1).fill(0))
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (arr1[i - 1] === arr2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1] + 1
-      }
-      else {
-        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1])
-      }
-    }
-  }
-
-  // Backtrack to find LCS indices
-  const lcs: Array<{ origIdx: number, updatedIdx: number }> = []
-  let i = m
-  let j = n
-
-  while (i > 0 && j > 0) {
-    if (arr1[i - 1] === arr2[j - 1]) {
-      lcs.unshift({ origIdx: i - 1, updatedIdx: j - 1 })
-      i--
-      j--
-    }
-    else if (dp[i - 1][j] > dp[i][j - 1]) {
-      i--
-    }
-    else {
-      j--
-    }
-  }
-
-  return lcs
-}
 
 export const AITransform = Extension.create<AITransformOptions>({
   name: 'aiTransform',
@@ -234,7 +115,7 @@ export const AITransform = Extension.create<AITransformOptions>({
                 // For translation, mark entire text as added (no diff)
                 // For other modes, compute word-by-word diff
                 const diff = mode === 'translate'
-                  ? [{ type: 'added' as const, text: result }]
+                  ? createAddedDiff(result)
                   : computeWordDiff(originalText, result)
 
                 // Then set diff state with decorations
@@ -390,7 +271,7 @@ export const AITransform = Extension.create<AITransformOptions>({
             if (pluginState?.isTransforming && pluginState.selectionRange) {
               const { from, to } = pluginState.selectionRange
               const decoration = Decoration.inline(from, to, {
-                style: 'background: rgba(209, 213, 219, 0.5); color: rgba(107, 114, 128, 0.8); border-radius: 0.25rem; padding: 0.125rem 0.25rem;',
+                style: DIFF_STYLES.loading,
                 class: 'ai-transform-loading',
               })
               return DecorationSet.create(state.doc, [decoration])
@@ -403,7 +284,7 @@ export const AITransform = Extension.create<AITransformOptions>({
               const decorations: Decoration[] = []
               let currentPos = from
 
-              diff.forEach((part: { type: 'added' | 'removed' | 'unchanged', text: string }) => {
+              diff.forEach((part: DiffPart) => {
                 const partLength = part.text.length
 
                 if (part.type === 'unchanged') {
@@ -413,7 +294,7 @@ export const AITransform = Extension.create<AITransformOptions>({
                 else if (part.type === 'added') {
                   decorations.push(
                     Decoration.inline(currentPos, currentPos + partLength, {
-                      style: 'background: #dbeafe; color: #1e40af; border-radius: 0.25rem; padding: 0.125rem 0.25rem; font-weight: 500;',
+                      style: DIFF_STYLES.added,
                       class: 'ai-diff-added',
                     }),
                   )
