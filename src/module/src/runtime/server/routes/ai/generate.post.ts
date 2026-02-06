@@ -78,12 +78,14 @@ export default eventHandler(async (event) => {
 
   // Build complete context for AI
   const projectContext = aiConfig?.context
+  const experimentalCollectionContext = aiConfig?.experimental?.collectionContext ?? false
   const context = await buildAIContext(event, {
     fsPath,
     collectionName,
     mode,
     projectContext,
     hintOptions,
+    experimentalCollectionContext,
   })
 
   // Generate system prompt based on mode
@@ -106,8 +108,15 @@ export default eventHandler(async (event) => {
   // Calculate maxOutputTokens based on selection length, mode, and cursor context
   const maxOutputTokens = calculateMaxTokens(selectionLength, mode || 'continue', hintOptions)
 
+  // Select model based on mode:
+  // - Continue mode: Haiku 4.5 (optimized for speed, ~300-500ms)
+  // - Transform modes: Sonnet 4.5 (optimized for quality)
+  const modelName = mode === 'continue'
+    ? 'anthropic/claude-haiku-4.5'
+    : 'anthropic/claude-sonnet-4.5'
+
   return streamText({
-    model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
+    model: gateway.languageModel(modelName),
     system,
     prompt: finalPrompt,
     maxOutputTokens,
