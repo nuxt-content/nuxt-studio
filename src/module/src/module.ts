@@ -461,7 +461,16 @@ export default defineNuxtModule<ModuleOptions>({
         'nuxt-studio > debug',
         'nuxt-studio > extend',
       ]
+
+      // Support Shiki grammars
+      config.build ||= {}
+      config.build.target = 'es2020'
     })
+
+    // Support Shiki grammars
+    nuxt.options.nitro.esbuild ||= {}
+    nuxt.options.nitro.esbuild.options ||= {}
+    nuxt.options.nitro.esbuild.options.target = 'es2020'
 
     addPlugin(process.env.STUDIO_DEV_SERVER
       ? runtime('./plugins/studio.client.dev')
