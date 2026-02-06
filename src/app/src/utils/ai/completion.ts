@@ -1,8 +1,8 @@
 import type { EditorState } from '@tiptap/pm/state'
 import type { JSONContent } from '@tiptap/vue-3'
 import type { AIHintOptions } from '../../types/ai'
-import { tiptapSliceToMDC } from './tiptapToMdc'
-import { mdcToTiptap } from './mdcToTiptap'
+import { tiptapSliceToMDC } from '../tiptap/tiptapToMdc'
+import { mdcToTiptap } from '../tiptap/mdcToTiptap'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
 

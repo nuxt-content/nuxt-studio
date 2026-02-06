@@ -2,7 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { AIHintOptions } from '../../../types/ai'
-import { applyExtraSpace, detectExtraSpace, generateHintOptions, markdownSliceToTiptap, tiptapSliceToMarkdown } from '../completion'
+import { applyExtraSpace, detectExtraSpace, generateHintOptions, markdownSliceToTiptap, tiptapSliceToMarkdown } from '../../ai/completion'
 
 export interface CompletionOptions {
   onRequest?: (previousContext: string, nextContext: string, hintOptions?: AIHintOptions) => Promise<string>

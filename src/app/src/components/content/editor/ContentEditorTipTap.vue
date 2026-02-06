@@ -1,24 +1,17 @@
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
-import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
-import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
+import { Emoji } from '@tiptap/extension-emoji'
 import type { PropType } from 'vue'
-import type { Editor, JSONContent } from '@tiptap/vue-3'
+import type { JSONContent } from '@tiptap/vue-3'
 import type { MDCRoot, Toc } from '@nuxtjs/mdc'
 import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
-import type { DraftItem, DatabasePageItem, AIGenerateOptions } from '../../../types'
+import type { DraftItem, DatabasePageItem } from '../../../types'
 import type { MarkdownRoot } from '@nuxt/content'
-import type { EditorCustomHandlers } from '@nuxt/ui'
-import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmojiMenu.vue.d.ts'
 import { ref, watch, computed } from 'vue'
-import { titleCase } from 'scule'
-import { useI18n } from 'vue-i18n'
-import { consola } from 'consola'
 import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
 import { mdcToTiptap } from '../../../utils/tiptap/mdcToTiptap'
 import { tiptapToMDC } from '../../../utils/tiptap/tiptapToMdc'
-import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph, getAITransformItems } from '../../../utils/tiptap/editor'
+import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
 import { Element } from '../../../utils/tiptap/extensions/element'
 import { Image } from '../../../utils/tiptap/extensions/image'
 import { ImagePicker } from '../../../utils/tiptap/extensions/image-picker'
@@ -34,10 +27,9 @@ import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import ContentEditorAIValidation from './ai/ContentEditorAIValidation.vue'
 import ContentEditorAILanguageSelection from './ContentEditorAILanguageSelection.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
-import { AICompletion } from '../../../utils/tiptap/extensions/ai-completion'
-import { AITransform } from '../../../utils/tiptap/extensions/ai-transform'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
-import { useAI } from '../../../composables/useAI'
+import { useTiptapEditor } from '../../../composables/useTiptapEditor'
+import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
 
 const props = defineProps({
   draftItem: {
@@ -50,20 +42,32 @@ const document = defineModel<DatabasePageItem>()
 
 const { host } = useStudio()
 const { preferences } = useStudioState()
-const { t } = useI18n()
-const ai = useAI()
+
+const {
+  customHandlers,
+  suggestionItems,
+  toolbarItems,
+  emojiItems,
+  dragHandleItems,
+  setSelectedNode,
+} = useTiptapEditor()
+
+const {
+  MAX_AI_SELECTION_LENGTH,
+  isAIValidationVisible,
+  isAILanguageInputVisible,
+  aiValidationDomRect,
+  aiLanguageInputDomRect,
+  aiExtensions,
+  isAISelectionTooLarge,
+  getAITransformMenuItems,
+  handleAIAccept,
+  handleAIDecline,
+  handleLanguageSubmit,
+  handleLanguageCancel,
+} = useTiptapEditorAI(document)
 
 const tiptapJSON = ref<JSONContent>()
-
-const isAIValidationVisible = ref(false)
-const isAILanguageInputVisible = ref(false)
-const aiValidationDomRect = ref<DOMRect | null>(null)
-const aiLanguageInputDomRect = ref<DOMRect | null>(null)
-
-const aiButtonsCallbacks = ref<{
-  onAccept: () => void
-  onDecline: () => void
-} | null>(null)
 
 const removeReservedKeys = host.document.utils.removeReservedKeys
 
@@ -126,292 +130,6 @@ watch(tiptapJSON, async (json) => {
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string
   }
 })
-
-const componentItems = computed(() => {
-  return host.meta.getComponents().map(component => ({
-    kind: component.name,
-    type: undefined as never,
-    label: titleCase(component.name),
-    icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
-  }))
-})
-
-const customHandlers = computed(() => ({
-  image: {
-    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),
-    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'image-picker' }),
-    isActive: (editor: Editor) => editor.isActive('image-picker'),
-    isDisabled: undefined,
-  },
-  video: {
-    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'video-picker' }),
-    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'video-picker' }),
-    isActive: (editor: Editor) => editor.isActive('video-picker'),
-    isDisabled: undefined,
-  },
-  ...Object.fromEntries(
-    componentItems.value.map(item => [
-      item.kind,
-      {
-        canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
-        execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
-        isActive: (editor: Editor) => editor.isActive(item.kind),
-        isDisabled: undefined,
-      },
-    ]),
-  ),
-}) satisfies EditorCustomHandlers)
-
-const suggestionItems = computed(() => [
-  ...getStandardSuggestionItems(t),
-  [
-    {
-      type: 'label',
-      label: t('studio.tiptap.editor.components'),
-    },
-    ...componentItems.value,
-  ],
-] satisfies EditorSuggestionMenuItem[][])
-
-const selectedNode = ref<JSONContent | null>(null)
-
-const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
-  if (!selectedNode.value) {
-    return []
-  }
-
-  return computeStandardDragActions(editor, selectedNode.value, t)
-}
-
-const toolbarItems = computed(() => getStandardToolbarItems(t))
-
-const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
-  emoji => !emoji.name.startsWith('regional_indicator_'),
-)
-
-const aiExtensions = computed(() => {
-  if (!ai.enabled) {
-    return []
-  }
-
-  // Check if current document is from .studio collection (AI context files)
-  const isAIContextFile = computed(() => {
-    return document.value?.fsPath?.startsWith(ai.contextFolder)
-  })
-
-  return [
-    AICompletion.configure({
-      enabled: () => preferences.value.enableAICompletion && !isAIContextFile.value,
-      onRequest: async (previousContext: string, nextContext: string, hintOptions) => {
-        try {
-          if (!document.value?.fsPath) {
-            return ''
-          }
-
-          const collection = host.collection.getByFsPath(document.value!.fsPath!)
-
-          return await ai.continue({
-            previousContext,
-            nextContext,
-            fsPath: document.value.fsPath,
-            collectionName: collection?.name,
-            hintOptions,
-          })
-        }
-        catch (error) {
-          consola.error('[AI Completion] Error:', error)
-          return '' // Return empty string to gracefully handle error
-        }
-      },
-    }),
-    AITransform.configure({
-      onShowButtons: (data) => {
-        isAIValidationVisible.value = true
-        aiValidationDomRect.value = data.rect
-        aiButtonsCallbacks.value = {
-          onAccept: data.onAccept,
-          onDecline: data.onDecline,
-        }
-      },
-      onHideButtons: () => {
-        isAIValidationVisible.value = false
-        aiValidationDomRect.value = null
-        aiButtonsCallbacks.value = null
-      },
-    }),
-  ]
-})
-
-const MAX_AI_SELECTION_LENGTH = 500
-
-function isAISelectionTooLarge(editor: Editor): boolean {
-  const { from, to } = editor.state.selection
-  const selectedText = editor.state.doc.textBetween(from, to, '\n')
-  return selectedText.length > MAX_AI_SELECTION_LENGTH
-}
-
-function getAITransformMenuItems(editor: Editor) {
-  if (!ai.enabled) {
-    return []
-  }
-
-  const transformItems = getAITransformItems(t)
-  return [
-    transformItems.map(item => ({
-      label: item.label,
-      icon: item.icon,
-      onSelect: () => {
-        if (item.mode === 'translate') {
-          showAILanguageInput(editor)
-        }
-        else {
-          handleAITransform(editor, item.mode)
-        }
-      },
-    })),
-  ]
-}
-
-/**
- * Trims selection to exclude structural elements (lists, code blocks, MDC components).
- * Keeps inline formatting (bold, italic, links) but stops at structural boundaries.
- */
-function trimSelectionToTextOnly(editor: Editor) {
-  const { from, to } = editor.state.selection
-
-  return { from, to }
-  // const { doc } = editor.state
-
-  // let trimmedTo = to
-  // let currentPos = from
-
-  // // Structural elements to exclude (lists, code blocks, MDC components, etc.)
-  // const structuralNodeTypes = [
-  //   'bulletList',
-  //   'orderedList',
-  //   'listItem',
-  //   'codeBlock',
-  //   'element', // MDC components
-  //   'slot', // MDC component slots
-  //   'blockquote',
-  //   'heading',
-  // ]
-
-  // // Traverse through the selection
-  // doc.nodesBetween(from, to, (node, pos) => {
-  //   // If we haven't reached the position yet, skip
-  //   if (pos < currentPos) return true
-
-  //   // Check if this node is a structural element we want to exclude
-  //   const isStructural = structuralNodeTypes.includes(node.type.name)
-
-  //   if (isStructural && pos > from) {
-  //     // Found a structural element, trim selection to before it
-  //     trimmedTo = pos
-  //     return false // Stop traversal
-  //   }
-
-  //   currentPos = pos + node.nodeSize
-  //   return true
-  // })
-
-  // return { from, to: trimmedTo }
-}
-
-function showAILanguageInput(editor: Editor) {
-  const { from, to } = editor.state.selection
-  const startCoords = editor.view.coordsAtPos(from)
-  const endCoords = editor.view.coordsAtPos(to)
-
-  const left = Math.min(startCoords.left, endCoords.left)
-  const right = Math.max(startCoords.right, endCoords.right)
-  const top = Math.min(startCoords.top, endCoords.top)
-  const bottom = Math.max(startCoords.bottom, endCoords.bottom)
-
-  aiLanguageInputDomRect.value = new DOMRect(left, top, right - left, bottom - top)
-  isAILanguageInputVisible.value = true
-}
-
-async function handleAITransform(editor: Editor, mode: 'fix' | 'improve' | 'simplify' | 'translate', language?: string) {
-  const { empty } = editor.state.selection
-
-  if (empty) return
-
-  // Trim selection to exclude structural elements
-  const { from, to } = trimSelectionToTextOnly(editor)
-
-  // If selection became empty after trimming, do nothing
-  if (from >= to) return
-
-  // Update selection to trimmed range
-  editor.chain().setTextSelection({ from, to }).run()
-
-  // Get selected text
-  const selectedText = editor.state.doc.textBetween(from, to, '\n')
-  const selectionLength = selectedText.length
-
-  editor.commands.blur()
-
-  // Start transformation with AI call
-  editor.commands.transformSelection(mode, async () => {
-    // Map the mode to the appropriate AI function
-    let result: string
-
-    // Get the collection name for the current file
-    const collection = document.value?.fsPath
-      ? host.collection.getByFsPath(document.value.fsPath)
-      : null
-
-    const options: AIGenerateOptions = {
-      prompt: selectedText,
-      selectionLength: selectionLength,
-      fsPath: document.value?.fsPath,
-      collectionName: collection?.name,
-    }
-
-    switch (mode) {
-      case 'fix':
-        result = await ai.generate({ ...options, mode: 'fix' })
-        break
-      case 'improve':
-        result = await ai.generate({ ...options, mode: 'improve' })
-        break
-      case 'simplify':
-        result = await ai.generate({ ...options, mode: 'simplify' })
-        break
-      case 'translate':
-        result = await ai.generate({ ...options, mode: 'translate', language: language || 'English' })
-        break
-      default:
-        result = selectedText
-    }
-
-    return result
-  })
-}
-
-function handleAIAccept() {
-  if (aiButtonsCallbacks.value) {
-    aiButtonsCallbacks.value.onAccept()
-  }
-}
-
-function handleAIDecline() {
-  if (aiButtonsCallbacks.value) {
-    aiButtonsCallbacks.value.onDecline()
-  }
-}
-
-function handleLanguageSubmit(language: string, editor: Editor) {
-  handleAITransform(editor, 'translate', language)
-  isAILanguageInputVisible.value = false
-  aiLanguageInputDomRect.value = null
-}
-
-function handleLanguageCancel() {
-  isAILanguageInputVisible.value = false
-  aiLanguageInputDomRect.value = null
-}
 </script>
 
 <template>
@@ -494,7 +212,7 @@ function handleLanguageCancel() {
       <UEditorDragHandle
         v-slot="{ ui }"
         :editor="editor"
-        @node-change="selectedNode = $event"
+        @node-change="setSelectedNode"
       >
         <UDropdownMenu
           v-slot="{ open }"

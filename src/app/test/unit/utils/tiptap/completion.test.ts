@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { detectExtraSpace, detectComponentContext, generateHintOptions } from '../../../../src/utils/tiptap/completion'
+import { detectExtraSpace, detectComponentContext, generateHintOptions } from '../../../../src/utils/ai/completion'
 import {
   mockStateTextWithNoSpaceBefore,
   mockStateTextWithNoSpaceAfter,

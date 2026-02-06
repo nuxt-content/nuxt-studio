@@ -2,7 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { consola } from 'consola'
-import { computeWordDiff, createAddedDiff, DIFF_STYLES, type DiffPart } from '../transform'
+import { computeWordDiff, createAddedDiff, DIFF_STYLES, type DiffPart } from '../../ai/transform'
 
 export interface AITransformOptions {
   onShowButtons?: (data: {
