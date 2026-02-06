@@ -240,8 +240,9 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
   },
 
   addProseMirrorPlugins() {
-    const storage = this.storage
-    const editor = this.editor
+    // Use explicit variable names to avoid minification hoisting issues
+    const extensionStorage = this.storage
+    const extensionEditor = this.editor
 
     return [
       // Auto-trigger plugin
@@ -256,19 +257,19 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
           }
 
           // Clear any existing timer
-          if (storage.debounceTimer) {
-            clearTimeout(storage.debounceTimer)
-            storage.debounceTimer = null
+          if (extensionStorage.debounceTimer) {
+            clearTimeout(extensionStorage.debounceTimer)
+            extensionStorage.debounceTimer = null
           }
 
           const { from, to } = newState.selection
 
           // If suggestion is visible and cursor moved away from the suggestion position, dismiss it
-          if (storage.visible && storage.position !== null && to !== storage.position) {
-            storage.suggestion = ''
-            storage.position = null
-            storage.visible = false
-            storage.extraSpace = null
+          if (extensionStorage.visible && extensionStorage.position !== null && to !== extensionStorage.position) {
+            extensionStorage.suggestion = ''
+            extensionStorage.position = null
+            extensionStorage.visible = false
+            extensionStorage.extraSpace = null
             return newState.tr
           }
 
@@ -276,7 +277,7 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
           // - Already loading
           // - A suggestion is already visible
           // - Selection is not at the end (user is editing in the middle)
-          if (storage.isLoading || storage.visible || from !== to) {
+          if (extensionStorage.isLoading || extensionStorage.visible || from !== to) {
             return null
           }
 
@@ -290,9 +291,9 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
           }
 
           // Debounce: wait 500ms after user stops typing
-          storage.debounceTimer = setTimeout(() => {
-            if (!storage.isLoading && !storage.visible) {
-              editor.commands.triggerCompletion()
+          extensionStorage.debounceTimer = setTimeout(() => {
+            if (!extensionStorage.isLoading && !extensionStorage.visible) {
+              extensionEditor.commands.triggerCompletion()
             }
           }, 500) as unknown as number
 
@@ -304,14 +305,14 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
         key: new PluginKey('aiCompletion'),
         props: {
           decorations(state) {
-            if (!storage.visible || !storage.suggestion || storage.position === null) {
+            if (!extensionStorage.visible || !extensionStorage.suggestion || extensionStorage.position === null) {
               return DecorationSet.empty
             }
 
-            const decoration = Decoration.widget(storage.position, () => {
+            const decoration = Decoration.widget(extensionStorage.position, () => {
               const span = document.createElement('span')
               span.className = 'completion-suggestion'
-              span.textContent = storage.suggestion
+              span.textContent = extensionStorage.suggestion
               span.style.cssText = 'color: rgb(156, 163, 175); opacity: 0.7; pointer-events: none; font-style: italic; display: inline;'
               return span
             }, {
@@ -329,10 +330,10 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
         props: {
           handleKeyDown: (_view, event) => {
             // Only handle Tab key when suggestion is visible
-            if (event.key === 'Tab' && storage.visible && storage.suggestion) {
+            if (event.key === 'Tab' && extensionStorage.visible && extensionStorage.suggestion) {
               event.preventDefault()
               event.stopPropagation()
-              editor.commands.acceptCompletion()
+              extensionEditor.commands.acceptCompletion()
               return true
             }
             return false

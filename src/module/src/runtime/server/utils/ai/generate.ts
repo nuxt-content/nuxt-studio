@@ -274,7 +274,7 @@ export function calculateMaxTokens(
     case 'translate':
       return Math.ceil(estimatedTokens * 1.5)
     case 'simplify':
-      return estimatedTokens * 0.7
+      return Math.ceil(estimatedTokens * 0.7)
     case 'continue':
     default:
       // Context-aware token limits for continue mode
