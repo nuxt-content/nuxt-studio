@@ -1,6 +1,6 @@
 ---
 name: nuxt-ui
-description: Use when building styled UI with @nuxt/ui v4 components (Button, Modal, Form, Table, etc.) - provides ready-to-use components with Tailwind Variants theming. Use vue skill for raw component patterns, reka-ui for headless primitives.
+description: Use when building or working with @nuxt/ui v4 components (Button, Modal, Form, InputDate, Table, etc.) - provides ready-to-use components with Tailwind Variants theming. Use vue skill for raw component patterns, reka-ui for headless primitives.
 license: MIT
 ---
 
@@ -64,15 +64,15 @@ Component library for Vue 3 and Nuxt 4+ built on Reka UI (headless) + Tailwind C
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui'],
-  css: ['~/assets/css/main.css']
-})
+  modules: ["@nuxt/ui"],
+  css: ["~/assets/css/main.css"],
+});
 ```
 
 ```css
 /* assets/css/main.css */
-@import 'tailwindcss';
-@import '@nuxt/ui';
+@import "tailwindcss";
+@import "@nuxt/ui";
 ```
 
 ```vue
