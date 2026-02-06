@@ -5,6 +5,7 @@ import { tiptapSliceToMDC } from '../tiptap/tiptapToMdc'
 import { mdcToTiptap } from '../tiptap/mdcToTiptap'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
+import type { MDCElement, MDCNode, MDCRoot } from '@nuxtjs/mdc'
 
 function isWhitespace(char: string): boolean {
   return /\s/.test(char)
@@ -178,6 +179,32 @@ export function generateHintOptions(state: EditorState, cursorPos: number): AIHi
 }
 
 /**
+ * Clean MDC AST by removing all props (noise for AI context)
+ * For AI completion, only content and structure matter, not implementation details
+ */
+function cleanMDC<T extends MDCRoot | MDCNode>(node: T): T {
+  if (node.type === 'root') {
+    // Recursively clean all children
+    node.children.forEach(child => cleanMDC(child))
+    return node
+  }
+
+  if (node.type === 'element') {
+    const element = node as MDCElement
+
+    // Remove all props from all elements
+    element.props = {}
+
+    // Recursively clean children
+    if (element.children) {
+      element.children.forEach(child => cleanMDC(child))
+    }
+  }
+
+  return node
+}
+
+/**
  * Convert a TipTap editor state slice to markdown string
  */
 export async function tiptapSliceToMarkdown(
@@ -185,12 +212,16 @@ export async function tiptapSliceToMarkdown(
   from: number,
   to: number,
   maxChars?: number,
+  trimDirection: 'start' | 'end' = 'end',
 ): Promise<string> {
   // Convert TipTap slice to MDC AST
   const { body, data } = await tiptapSliceToMDC(state, from, to)
 
+  // Clean the AST by removing component props (reduces noise for AI)
+  const cleanedBody = cleanMDC(body)
+
   // Stringify MDC AST to markdown
-  const markdown = await stringifyMarkdown(body, data)
+  const markdown = await stringifyMarkdown(cleanedBody, data)
 
   if (!markdown) {
     return ''
@@ -198,7 +229,9 @@ export async function tiptapSliceToMarkdown(
 
   // Trim to max length if specified
   if (maxChars && markdown.length > maxChars) {
-    return markdown.slice(-maxChars)
+    // For 'end': take last N chars (content before cursor - most recent text)
+    // For 'start': take first N chars (content after cursor - nearest text)
+    return trimDirection === 'end' ? markdown.slice(-maxChars) : markdown.slice(0, maxChars)
   }
 
   return markdown

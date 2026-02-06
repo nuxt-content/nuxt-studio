@@ -92,8 +92,8 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
 
             // Extract both previous and next context in parallel
             Promise.all([
-              tiptapSliceToMarkdown(state, previousStart, to, maxPreviousChars),
-              tiptapSliceToMarkdown(state, to, nextEnd, maxNextChars),
+              tiptapSliceToMarkdown(state, previousStart, to, maxPreviousChars, 'end'), // Take last N chars before cursor
+              tiptapSliceToMarkdown(state, to, nextEnd, maxNextChars, 'start'), // Take first N chars after cursor
             ])
               .then(([previousMarkdown, nextMarkdown]) => {
                 return this.options.onRequest!(previousMarkdown, nextMarkdown, hintOptions)
