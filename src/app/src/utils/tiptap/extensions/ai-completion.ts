@@ -2,7 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { AIHintOptions } from '../../../types/ai'
-import { applyExtraSpace, detectExtraSpace, generateHintOptions, tiptapSliceToMarkdown } from '../completion'
+import { applyExtraSpace, detectExtraSpace, generateHintOptions, markdownSliceToTiptap, tiptapSliceToMarkdown } from '../completion'
 
 export interface CompletionOptions {
   onRequest?: (previousContext: string, nextContext: string, hintOptions?: AIHintOptions) => Promise<string>
@@ -131,13 +131,34 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
               return false
             }
 
-            const tr = state.tr.insertText(this.storage.suggestion, this.storage.position)
-            editor.view.dispatch(tr)
+            const position = this.storage.position
+            const suggestion = this.storage.suggestion
 
+            // Clear storage immediately
             this.storage.suggestion = ''
             this.storage.position = null
             this.storage.visible = false
             this.storage.extraSpace = null
+
+            // Parse and insert markdown asynchronously
+            markdownSliceToTiptap(suggestion)
+              .then((nodes) => {
+                // Insert the parsed content with marks (bold, italic, links, etc.)
+                if (nodes.length > 0) {
+                  editor.commands.focus()
+                  editor.commands.setTextSelection(position)
+                  editor.commands.insertContent(nodes)
+                }
+                else {
+                  // Fallback to plain text if no nodes were generated
+                  const tr = state.tr.insertText(suggestion, position)
+                  editor.view.dispatch(tr)
+                }
+              })
+              .catch(() => {
+                const tr = state.tr.insertText(suggestion, position)
+                editor.view.dispatch(tr)
+              })
 
             return true
           },
@@ -268,11 +289,11 @@ export const AICompletion = Extension.create<CompletionOptions, CompletionStorag
           }
 
           // Debounce: wait 500ms after user stops typing
-          storage.debounceTimer = window.setTimeout(() => {
+          storage.debounceTimer = setTimeout(() => {
             if (!storage.isLoading && !storage.visible) {
               editor.commands.triggerCompletion()
             }
-          }, 500)
+          }, 500) as unknown as number
 
           return null
         },

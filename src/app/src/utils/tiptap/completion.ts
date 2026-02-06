@@ -1,7 +1,10 @@
 import type { EditorState } from '@tiptap/pm/state'
+import type { JSONContent } from '@tiptap/vue-3'
 import type { AIHintOptions } from '../../types/ai'
 import { tiptapSliceToMDC } from './tiptapToMdc'
+import { mdcToTiptap } from './mdcToTiptap'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
+import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
 
 function isWhitespace(char: string): boolean {
   return /\s/.test(char)
@@ -199,4 +202,26 @@ export async function tiptapSliceToMarkdown(
   }
 
   return markdown
+}
+
+/**
+ * Convert markdown string to TipTap nodes (reverse of tiptapSliceToMarkdown)
+ */
+export async function markdownSliceToTiptap(markdown: string): Promise<JSONContent[]> {
+  // Parse markdown to MDC AST
+  const { body, data } = await parseMarkdown(markdown)
+
+  // Convert MDC AST to TipTap JSON
+  const tiptapDoc = mdcToTiptap(body, data)
+
+  // Extract content nodes (skip frontmatter)
+  const contentNodes = (tiptapDoc.content || []).filter(node => node.type !== 'frontmatter')
+
+  // If the result is a single paragraph, extract its inline content
+  // This is common for AI completions that are just text with inline formatting
+  if (contentNodes.length === 1 && contentNodes[0].type === 'paragraph') {
+    return contentNodes[0].content || []
+  }
+
+  return contentNodes
 }
