@@ -20,8 +20,9 @@ import { ContentType } from '../../../../types/ai'
 const logger = consola.withTag('Nuxt Studio')
 
 /**
+ * EXPERIMENTAL:
  * AI-powered content analysis endpoint.
- * Analyzes existing content to generate an optimal CONTEXT.md file
+ * Analyzes existing content to generate an optimal context file
  * that helps the AI understand the project's writing style and conventions.
  */
 export default eventHandler(async (event) => {
