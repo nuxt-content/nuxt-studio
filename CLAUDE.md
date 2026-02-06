@@ -367,6 +367,89 @@ Collection-specific context files can be loaded during AI operations:
 - Currently commented out (lines 94-101 in generate.post.ts)
 - Ready to enable when needed for better AI personalization
 
+#### Context Building System
+
+Studio builds AI context from multiple sources in a specific order for optimal results:
+
+**Context Components** (in order of addition):
+1. **File Location**: Collection name and file path
+2. **Project Metadata**: Title, description, style, tone from config
+3. **Collection Guidelines**: `.studio/{collection-name}.md` context file (16K chars max, ~4K tokens)
+   - Only loaded for: `improve`, `continue`, `simplify` modes
+   - Skipped for: `fix`, `translate` modes (for performance)
+4. **Cursor Position Hints**: Added LAST for recency bias (most important for continue mode)
+5. **Component/Slot Context**: When editing MDC component slots
+
+**Slot-Specific Guidance**:
+- `title` slots: 3-8 words maximum, concise headings
+- `description` slots: One sentence, 15-25 words
+- `default` slots: Substantial content explaining component purpose
+- `header`/`heading` slots: 2-6 words, brief labels
+- `footer` slots: Concluding/supplementary content
+- `caption`/`label` slots: 2-8 words, descriptive but concise
+
+#### Token Calculation Logic
+
+AI responses are dynamically sized based on mode and context (1 token ≈ 4 characters):
+
+**Transform Modes**:
+- `fix`: 1.5x original selection length
+- `improve`: 1.5x original selection length
+- `translate`: 1.5x original selection length
+- `simplify`: 0.7x original selection length
+
+**Continue Mode** (context-aware):
+- `paragraph-new`: 120-150 tokens (1-2 complete sentences)
+  - 150 tokens after headings (expects substantial intro)
+- `sentence-new`: 90 tokens (one complete sentence)
+- Other contexts: 60 tokens (default completion)
+
+#### Cursor Position Awareness
+
+Studio detects cursor position to generate contextually appropriate completions:
+
+- **`heading-new`**: Starting a new heading → generates short, concise heading (no full sentences)
+- **`heading-continue`**: End of heading → completes the heading
+- **`heading-middle`**: Mid-heading with text after → inserts 1-3 connecting words
+- **`paragraph-new`**: Starting new paragraph → generates opening sentence
+  - Special: After heading → generates intro paragraph related to heading topic
+- **`sentence-new`**: Starting new sentence within paragraph → one complete sentence
+- **`paragraph-middle`**: Mid-paragraph with text after → 3-8 bridging words only
+- **`paragraph-continue`**: Mid-sentence → completes current sentence with punctuation
+
+This ensures AI never generates headings when you're writing paragraphs, or full sentences when you need a few bridging words.
+
+#### Security & Safety
+
+**Prompt Injection Protection**:
+- System prompts explicitly instruct AI to treat user text as content, not instructions
+- Prevents selected text from being interpreted as commands
+- Each mode has dedicated system prompt with safety rules
+
+**API Key Security**:
+- API key stored as environment variable only
+- Never exposed to client-side code
+- All AI requests proxied through server routes
+
+**Context Isolation**:
+- AI completion automatically disabled when editing `.studio` context files
+- Prevents AI from interfering with AI guideline documents
+
+#### Limitations & Best Practices
+
+**Known Limitations**:
+- Max selection for transforms: 500 characters
+- Collection context capped at 16,000 characters (~4K tokens)
+- Continue mode uses 500 chars before cursor for context
+- AI may require 1-2 attempts for perfect results
+
+**Best Practices**:
+- Create collection-specific context files for better AI results
+- Use descriptive project metadata (title, description, style, tone)
+- For long content, transform in smaller selections
+- Use `continue` for writing, `improve` for polishing
+- Use `fix` before `improve` if content has errors
+
 #### Important Implementation Details
 
 **Draft Update Prevention**:
