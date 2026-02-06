@@ -12,14 +12,6 @@ import { validateAuthConfig } from './auth'
 
 const logger = useLogger('nuxt-studio')
 
-interface DetectedRepository {
-  provider: 'github' | 'gitlab'
-  owner: string
-  repo: string
-  branch?: string
-  instanceUrl?: string
-}
-
 interface MetaOptions {
   /**
    * Component filtering options.
@@ -541,7 +533,7 @@ export default defineNuxtModule<ModuleOptions>({
  * Auto-detect repository details from CI environment variables.
  * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
  */
-function detectRepositoryFromCI(): DetectedRepository | undefined {
+function detectRepositoryFromCI(): GitHubRepositoryOptions | GitLabRepositoryOptions | undefined {
   // Vercel
   if (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG && ['github', 'gitlab'].includes(process.env.VERCEL_GIT_PROVIDER!)) {
     return {
