@@ -32,7 +32,7 @@ export function validateAuthConfig(options: ModuleOptions): void {
         'The `STUDIO_GOOGLE_MODERATORS` environment variable is required when using Google OAuth.',
         'Please set the `STUDIO_GOOGLE_MODERATORS` environment variable to a comma-separated list of email of the allowed users.',
         'Only users with these email addresses will be able to access studio with Google OAuth.',
-      ].join(' '))
+      ].join('\n'))
     }
 
     // PAT required for pushing changes to the repository
@@ -40,19 +40,18 @@ export function validateAuthConfig(options: ModuleOptions): void {
       logger.warn([
         `The \`STUDIO_${providerUpperCase}_TOKEN\` environment variable is required when using Google OAuth with ${providerUpperCase} provider.`,
         `This token is used to push changes to the repository when using Google OAuth.`,
-      ].join(' '))
+      ].join('\n'))
     }
   }
   // Google OAuth disabled => GitHub or GitLab OAuth required
   else {
     const missingProviderEnv = provider === 'github' ? !hasGitHubAuth : !hasGitLabAuth
     if (missingProviderEnv) {
-      logger.error([
-        `In order to authenticate users, you need to set up a ${providerUpperCase} OAuth application.`,
-        `Please set the \`STUDIO_${providerUpperCase}_CLIENT_ID\` and \`STUDIO_${providerUpperCase}_CLIENT_SECRET\` environment variables,`,
-        `Alternatively, you can set up a Google OAuth application and set the \`STUDIO_GOOGLE_CLIENT_ID\` and \`STUDIO_GOOGLE_CLIENT_SECRET\` environment variables alongside with \`STUDIO_${providerUpperCase}_TOKEN\` to push changes to the repository.`,
-        `You can also use an SSO server by setting \`STUDIO_SSO_URL\`, \`STUDIO_SSO_CLIENT_ID\`, and \`STUDIO_SSO_CLIENT_SECRET\`.`,
-      ].join(' '))
+      logger.warn([
+        `[Nuxt Studio] In order to use Studio in production mode, you need to setup authentication:`,
+        '- Read more on `https://nuxt.studio/auth-providers`',
+        `- Alternatively, you can disable studio by setting \`$production: { studio: false }\` in your \`nuxt.config.ts\``,
+      ].join('\n'))
     }
   }
 }
