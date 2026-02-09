@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.0](https://github.com/nuxt-content/studio/compare/v1.2.0...v1.3.0) (2026-02-09)
+
+### Features
+
+* **auth:** add support for Studio SSO server + env variables detection ([#320](https://github.com/nuxt-content/studio/issues/320)) ([53d9764](https://github.com/nuxt-content/studio/commit/53d9764d74f9ad35e756b66cead2946a4194d5b3))
+* **editor:** ai completion speed improvements ([#322](https://github.com/nuxt-content/studio/issues/322)) ([0ae35dc](https://github.com/nuxt-content/studio/commit/0ae35dcfc31046879303037bd18a4ded983b9476))
+* **editor:** ai powered content extension ([#305](https://github.com/nuxt-content/studio/issues/305)) ([8aba1f4](https://github.com/nuxt-content/studio/commit/8aba1f44846c39f98622b3505f6dc956541561bb))
+* **i18n:** Add Bengali (bn) and Thai (th) locales ([#297](https://github.com/nuxt-content/studio/issues/297)) ([dde8866](https://github.com/nuxt-content/studio/commit/dde88661d36f16af6fb777790c758d1f494fde5f))
+* **i18n:** Add Khmer (km) locale ([#309](https://github.com/nuxt-content/studio/issues/309)) ([ced73f1](https://github.com/nuxt-content/studio/commit/ced73f1ae8eed10e0df947acccc4d04ff18dc156))
+
+### Bug Fixes
+
+* **ai:** multiple improvements ([2a799be](https://github.com/nuxt-content/studio/commit/2a799be956279f9bc68a6e3a9f3bd122f675ac82))
+* **app:** do not expose variable from app ([0ed82ad](https://github.com/nuxt-content/studio/commit/0ed82ad9561d2e12f21666204e62b9ebbe87b52c))
+* **files:** sanitize names to prevent unintended directory creation ([#312](https://github.com/nuxt-content/studio/issues/312)) ([c131d77](https://github.com/nuxt-content/studio/commit/c131d77f30403e2ffdbbc70b5df74b5a820f22c4))
+* **sso:** enforce PKCE + move the server utils to correct dir ([#323](https://github.com/nuxt-content/studio/issues/323)) ([b2dc60d](https://github.com/nuxt-content/studio/commit/b2dc60da534b664406efefa6490914cbd26b43e9))
+* **state:** active local storage ([acf1a9a](https://github.com/nuxt-content/studio/commit/acf1a9a67b60e7029e5d0b86a8c41185edcab610))
+* **types:** server ai location ([5f81a2a](https://github.com/nuxt-content/studio/commit/5f81a2a10efb332dc3ac563b720486b6e53e2e77))
+
 ## [1.2.0](https://github.com/nuxt-content/studio/compare/v1.1.1...v1.2.0) (2026-01-23)
 
 ### Features
