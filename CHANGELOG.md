@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.3.1](https://github.com/nuxt-content/studio/compare/v1.2.1...v1.3.1) (2026-02-09)
+
 ## [1.2.1](https://github.com/nuxt-content/studio/compare/v1.3.0...v1.2.1) (2026-02-09)
 
 ### Bug Fixes
