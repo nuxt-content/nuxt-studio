@@ -157,8 +157,8 @@ importers:
         specifier: ^12.6.2
         version: 12.6.2
       docus:
-        specifier: ^5.5.0
-        version: 5.5.0(7deddd4af2c5252e56f58869b994d16a)
+        specifier: https://pkg.pr.new/docus@f40ac5e
+        version: https://pkg.pr.new/docus@f40ac5e(7deddd4af2c5252e56f58869b994d16a)
       nuxt:
         specifier: ^4.3.0
         version: 4.3.0(@parcel/watcher@2.5.6)(@types/node@25.2.1)(@vue/compiler-sfc@3.5.27)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@9.39.2(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.2)(lightningcss@1.31.1)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rollup@4.57.1)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.4(typescript@5.9.3))(yaml@2.8.2)
@@ -4320,6 +4320,13 @@ packages:
 
   docus@5.5.0:
     resolution: {integrity: sha512-ly7Lm1NzlmIN3xbxNNd0/vJQKs6pV3oxRWTu1yt7Ypv+GXggwc3CbU/mEREvBE8hsBz5Aor7V9XOr4PLnAtqxQ==}
+    peerDependencies:
+      better-sqlite3: 12.x
+      nuxt: 4.x
+
+  docus@https://pkg.pr.new/docus@f40ac5e:
+    resolution: {integrity: sha512-d/oRyMljO/T6/6nsuCl+DS72p5Ik6zRO58H64led58RIOwBiTDp2O7YxX7E1soMze+Ab10U7YRPMo+gvmcMSsw==, tarball: https://pkg.pr.new/docus@f40ac5e}
+    version: 5.5.0
     peerDependencies:
       better-sqlite3: 12.x
       nuxt: 4.x
@@ -12510,6 +12517,111 @@ snapshots:
   diff@8.0.3: {}
 
   docus@5.5.0(7deddd4af2c5252e56f58869b994d16a):
+    dependencies:
+      '@ai-sdk/gateway': 3.0.35(zod@4.3.6)
+      '@ai-sdk/mcp': 1.0.18(zod@4.3.6)
+      '@ai-sdk/vue': 3.0.69(vue@3.5.27(typescript@5.9.3))(zod@4.3.6)
+      '@iconify-json/lucide': 1.2.88
+      '@iconify-json/simple-icons': 1.2.69
+      '@iconify-json/vscode-icons': 1.2.40
+      '@nuxt/content': 3.11.2(better-sqlite3@12.6.2)(magicast@0.5.2)
+      '@nuxt/image': 2.0.0(db0@0.3.4(better-sqlite3@12.6.2))(idb-keyval@6.2.2)(ioredis@5.9.2)(magicast@0.5.2)
+      '@nuxt/kit': 4.3.0(magicast@0.5.2)
+      '@nuxt/ui': 4.4.0(@nuxt/content@3.11.2(better-sqlite3@12.6.2)(magicast@0.5.2))(@tiptap/extensions@3.19.0(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0))(@tiptap/y-tiptap@3.0.2(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.5)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(change-case@5.4.4)(db0@0.3.4(better-sqlite3@12.6.2))(embla-carousel@8.6.0)(idb-keyval@6.2.2)(ioredis@5.9.2)(magicast@0.5.2)(tailwindcss@4.1.18)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(yjs@13.6.29)(zod@4.3.6)
+      '@nuxtjs/i18n': 10.2.1(@vue/compiler-dom@3.5.27)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@9.39.2(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.2)(magicast@0.5.2)(rollup@4.57.1)(vue@3.5.27(typescript@5.9.3))
+      '@nuxtjs/mcp-toolkit': 0.6.2(magicast@0.5.2)(zod@4.3.6)
+      '@nuxtjs/mdc': 0.20.1(magicast@0.5.2)
+      '@nuxtjs/robots': 5.7.0(magicast@0.5.2)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))(zod@4.3.6)
+      '@shikijs/core': 3.22.0
+      '@shikijs/engine-javascript': 3.22.0
+      '@shikijs/langs': 3.22.0
+      '@shikijs/themes': 3.22.0
+      '@vueuse/core': 14.2.0(vue@3.5.27(typescript@5.9.3))
+      ai: 6.0.69(zod@4.3.6)
+      better-sqlite3: 12.6.2
+      defu: 6.1.4
+      exsolve: 1.0.8
+      git-url-parse: 16.1.0
+      minimark: 0.2.0
+      motion-v: 1.10.2(@vueuse/core@14.2.0(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))
+      nuxt: 4.3.0(@parcel/watcher@2.5.6)(@types/node@25.2.1)(@vue/compiler-sfc@3.5.27)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@9.39.2(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.2)(lightningcss@1.31.1)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rollup@4.57.1)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.4(typescript@5.9.3))(yaml@2.8.2)
+      nuxt-llms: 0.2.0(magicast@0.5.2)
+      nuxt-og-image: 5.1.13(@unhead/vue@2.1.2(vue@3.5.27(typescript@5.9.3)))(magicast@0.5.2)(unstorage@1.17.4(db0@0.3.4(better-sqlite3@12.6.2))(idb-keyval@6.2.2)(ioredis@5.9.2))(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
+      pkg-types: 2.3.0
+      scule: 1.3.0
+      shiki-stream: 0.1.4(vue@3.5.27(typescript@5.9.3))
+      tailwindcss: 4.1.18
+      ufo: 1.6.3
+      zod: 4.3.6
+      zod-to-json-schema: 3.25.1(zod@4.3.6)
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@cfworker/json-schema'
+      - '@deno/kv'
+      - '@electric-sql/pglite'
+      - '@emotion/is-prop-valid'
+      - '@inertiajs/vue3'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@tiptap/extensions'
+      - '@tiptap/y-tiptap'
+      - '@unhead/vue'
+      - '@upstash/redis'
+      - '@valibot/to-json-schema'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - '@vue/compiler-dom'
+      - '@vue/composition-api'
+      - agents
+      - async-validator
+      - aws4fetch
+      - axios
+      - bufferutil
+      - change-case
+      - db0
+      - drauu
+      - drizzle-orm
+      - embla-carousel
+      - eslint
+      - focus-trap
+      - idb-keyval
+      - ioredis
+      - joi
+      - jwt-decode
+      - magicast
+      - mysql2
+      - nprogress
+      - petite-vue-i18n
+      - qrcode
+      - react
+      - react-dom
+      - rollup
+      - solid-js
+      - sortablejs
+      - sqlite3
+      - superstruct
+      - supports-color
+      - typescript
+      - universal-cookie
+      - unstorage
+      - uploadthing
+      - utf-8-validate
+      - valibot
+      - vite
+      - vue
+      - vue-router
+      - yjs
+      - yup
+
+  docus@https://pkg.pr.new/docus@f40ac5e(7deddd4af2c5252e56f58869b994d16a):
     dependencies:
       '@ai-sdk/gateway': 3.0.35(zod@4.3.6)
       '@ai-sdk/mcp': 1.0.18(zod@4.3.6)
