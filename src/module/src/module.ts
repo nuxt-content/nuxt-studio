@@ -39,11 +39,11 @@ interface RepositoryOptions {
   /**
    * The owner of the git repository.
    */
-  owner: string
+  owner?: string
   /**
    * The repository name.
    */
-  repo: string
+  repo?: string
   /**
    * The branch to use for the git repository.
    * @default 'main'
