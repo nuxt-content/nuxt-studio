@@ -452,12 +452,25 @@ async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlight
     (n: unknown) => { Object.assign(n as MDCNode, { tag: (n as Element).tagName, props: (n as Element).properties, tagName: undefined, properties: undefined }) },
   )
 
-  // Remove empty newline text nodes
+  // Remove empty newline text nodes and style elements
   visit(
     mdc,
     (n: unknown) => (n as MDCElement).tag === 'pre',
     (n: unknown) => {
-      ((n as MDCElement).children[0] as MDCElement).children = ((n as MDCElement).children[0] as MDCElement).children.filter((child: MDCNode) => child.type !== 'text' || child.value.trim())
+      ((n as MDCElement).children[0] as MDCElement).children = ((n as MDCElement).children[0] as MDCElement).children.filter((child: MDCNode) => {
+        // Remove style elements added by Shiki
+        if (child.type === 'element' && (child as MDCElement).tag === 'style') {
+          return false
+        }
+
+        // Remove empty text nodes
+        if (child.type === 'text' && !child.value.trim()) {
+          return false
+        }
+
+        // Keep everything else
+        return true
+      })
     },
   )
 }
