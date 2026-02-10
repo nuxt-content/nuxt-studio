@@ -334,9 +334,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped for pristine drafts (optimization)
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.update')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.revert')
   })
@@ -417,9 +417,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped for pristine drafts (optimization)
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.update')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
   })
@@ -544,11 +544,11 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    // Note: useDraftBase.create hook is skipped because rename calls create with rerender: false
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(2)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.load')
     // Update is not called because status is the same (from created to created)
     expect(consoleInfoSpy).not.toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.update')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
   })
 
@@ -605,9 +605,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped because rename calls create with rerender: false
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.revert')
   })
@@ -688,9 +688,9 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath2)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped because rename calls create with rerender: false
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
   })
@@ -903,9 +903,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped for pristine drafts (optimization)
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.remove')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
   })
@@ -1006,9 +1006,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', mediaFsPath)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped because rename calls create with rerender: false
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
   })
@@ -1091,9 +1091,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', newFsPath2)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(4)
+    // Note: useDraftBase.create hook is skipped because rename calls create with rerender: false
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.load')
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
   })
