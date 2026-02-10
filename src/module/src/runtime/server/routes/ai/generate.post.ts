@@ -115,10 +115,14 @@ export default eventHandler(async (event) => {
     ? 'anthropic/claude-haiku-4.5'
     : 'anthropic/claude-sonnet-4.5'
 
+  // Temperature: continue mode benefits from creativity (0.7), transform modes are more deterministic (0.3)
+  const temperature = mode === 'continue' ? 0.7 : 0.3
+
   return streamText({
     model: gateway.languageModel(modelName),
     system,
     prompt: finalPrompt,
     maxOutputTokens,
+    temperature,
   }).toTextStreamResponse()
 })

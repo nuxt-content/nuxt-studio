@@ -1,6 +1,14 @@
 # Changelog
 
-## [1.3.0](https://github.com/nuxt-content/nuxt-studio/compare/v1.2.0...v1.3.0) (2026-02-09)
+## [1.3.1](https://github.com/nuxt-content/studio/compare/v1.2.1...v1.3.1) (2026-02-09)
+
+## [1.2.1](https://github.com/nuxt-content/studio/compare/v1.3.0...v1.2.1) (2026-02-09)
+
+### Bug Fixes
+
+* **ai:** prevent meta commentary in completions and improve prompts ([ecef17e](https://github.com/nuxt-content/studio/commit/ecef17e8eeeb8169657dac7cd59d7d35be6d1ba5))
+
+## [1.3.0](https://github.com/nuxt-content/studio/compare/v1.2.0...v1.3.0) (2026-02-09)
 
 ### Features
 
