@@ -278,6 +278,29 @@
       "binding": {
         "variablePlaceholder": "Имя переменной",
         "defaultValuePlaceholder": "Значение по умолчанию"
+      },
+      "image": {
+        "source": "URL источника изображения",
+        "altText": "Альтернативный текст",
+        "title": "Название изображения",
+        "width": "Ширина",
+        "height": "Высота",
+        "noSource": "Нет источника изображения",
+        "edit": "Редактировать изображение",
+        "delete": "Удалить изображение"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

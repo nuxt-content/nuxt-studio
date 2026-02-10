@@ -10,12 +10,12 @@ import type {
   CreateFolderParams,
 } from '../../../types'
 import { ContentFileExtension, StudioItemActionId } from '../../../types'
-import { joinURL, withLeadingSlash } from 'ufo'
+import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { parseName, getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../../utils/file'
+import { slugifyString } from '../../../utils/string'
 import { upperFirst } from 'scule'
 import { useI18n } from 'vue-i18n'
-import slugify from 'slugify'
 
 const { context } = useStudio()
 const { t } = useI18n()
@@ -56,7 +56,7 @@ const originalExtension = computed(() => {
 })
 const originalPrefix = computed(() => props.renamedItem?.prefix || null)
 const fullName = computed(() => {
-  const baseName = state.name
+  const baseName = slugifyString(state.name)
   const prefixedName = state.prefix ? `${state.prefix}.${baseName}` : baseName
   return isDirectory.value ? prefixedName : `${prefixedName}.${state.extension}`
 })
@@ -136,7 +136,7 @@ watch(validationErrors, (errors) => {
 })
 
 const routePath = computed(() => {
-  const name = state.name === 'index' ? '/' : state.name
+  const name = state.name === 'index' ? '/' : slugifyString(state.name).toLowerCase()
   const routePath = props.config.editable ? name : `${name}.${state.extension}`
   return withLeadingSlash(joinURL(props.parentItem.routePath!, parseName(routePath).name))
 })
@@ -151,7 +151,7 @@ function getInitialContent(extension: string, title: string): string {
       return ''
     case ContentFileExtension.Markdown:
     default:
-      return `# ${title} file`
+      return t('studio.content.initialMarkdownContent', { title })
   }
 }
 
@@ -214,7 +214,7 @@ async function onSubmit() {
   isLoading.value = true
 
   let params: CreateFileParams | RenameFileParams | CreateFolderParams
-  const newFsPath = slugify(joinURL(props.parentItem.fsPath, fullName.value)).toLowerCase()
+  const newFsPath = withoutLeadingSlash(joinURL(props.parentItem.fsPath, fullName.value)).toLowerCase()
 
   if (newFsPath === props.renamedItem?.fsPath) {
     isLoading.value = false
@@ -288,12 +288,9 @@ async function onSubmit() {
                 <div class="flex items-center gap-1">
                   <UFormField
                     name="prefix"
-                    :ui="{ error: 'hidden' }"
+                    :error="false"
                     class="w-12"
                   >
-                    <template #error>
-                      <span />
-                    </template>
                     <UInput
                       v-model="state.prefix"
                       type="text"
@@ -308,13 +305,9 @@ async function onSubmit() {
                   </UFormField>
                   <UFormField
                     name="name"
-                    :ui="{ error: 'hidden' }"
+                    :error="false"
                     class="flex-1 min-w-0"
                   >
-                    <!-- TODO: should use :error="false" when fixed -->
-                    <template #error>
-                      <span />
-                    </template>
                     <UInput
                       ref="nameInputRef"
                       v-model="state.name"
@@ -329,12 +322,8 @@ async function onSubmit() {
                   <UFormField
                     v-if="!isDirectory"
                     name="extension"
-                    :ui="{ error: 'hidden' }"
+                    :error="false"
                   >
-                    <!-- TODO: should use :error="false" when fixed -->
-                    <template #error>
-                      <span />
-                    </template>
                     <USelect
                       v-model="state.extension as string"
                       :items="config.allowed"

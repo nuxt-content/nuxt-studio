@@ -1,9 +1,12 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import { createHooks } from 'hookable'
 
 export const useHooks = createSharedComposable(() => {
   return createHooks<{
     'studio:draft:document:updated': (
+      { caller, selectItem }: { caller: string, selectItem?: boolean },
+    ) => void
+    'studio:draft:ai:updated': (
       { caller, selectItem }: { caller: string, selectItem?: boolean },
     ) => void
     'studio:draft:media:updated': (

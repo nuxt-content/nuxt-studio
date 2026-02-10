@@ -6,7 +6,7 @@ import { pascalCase, titleCase, kebabCase, flatCase } from 'scule'
 import { buildFormTreeFromProps } from '../../utils/tiptap/props'
 import { useStudio } from '../../composables/useStudio'
 import { isEmpty } from '../../utils/object'
-import type { FormTree } from '../../types'
+import type { ComponentMeta, FormTree } from '../../types'
 
 const props = defineProps({
   node: {
@@ -21,13 +21,25 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  overrideMeta: {
+    type: Object as PropType<ComponentMeta>,
+    default: undefined,
+  },
 })
 
 const { host } = useStudio()
 
 const componentTag = computed(() => props.node?.attrs?.tag || props.node?.type?.name)
 const componentName = computed(() => pascalCase(componentTag.value))
-const componentMeta = computed(() => host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
+const componentMeta = computed(() => {
+  // Use override meta if provided (for built-in TipTap nodes like image)
+  if (props.overrideMeta) {
+    return props.overrideMeta
+  }
+
+  // Otherwise look up from components registry
+  return host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value))
+})
 
 // Base form tree
 const formTree = ref<FormTree>({})

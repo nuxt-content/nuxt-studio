@@ -1,0 +1,348 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "แก้ไขหน้านี้",
+      "retryPublish": "ลองพับลิชอีกครั้ง",
+      "reloadApp": "รีเฟรชแอป",
+      "reload": "รีเฟรช",
+      "signOut": "ออกจากระบบ",
+      "review": "รีวิว",
+      "publish": "พับลิช",
+      "back": "กลับ",
+      "backToEdition": "กลับไปแก้ไข",
+      "seeChanges": "ดูการเปลี่ยนแปลง"
+    },
+    "headings": {
+      "directories": "โฟลเดอร์",
+      "files": "ไฟล์",
+      "media": "มีเดีย",
+      "pageSettings": "ตั้งค่าหน้า"
+    },
+    "tooltips": {
+      "toggleStudio": "เปิด/ปิด Studio",
+      "unlinkEditor": "ยกเลิกเชื่อม Editor กับ Preview",
+      "linkEditor": "เชื่อม Editor กับ Preview",
+      "copiedToClipboard": "คัดลอกแล้ว",
+      "copyToClipboard": "คัดลอก",
+      "publishChanges": "พับลิชการเปลี่ยนแปลง",
+      "backToContent": "กลับไปที่คอนเทนต์"
+    },
+    "notifications": {
+      "error": {
+        "unknown": "เกิดข้อผิดพลาดบางอย่าง"
+      }
+    },
+    "publish": {
+      "failedTitle": "พับลิชไม่สำเร็จ",
+      "summary": "บน {branch} ของรีโป {repo}",
+      "errorTitle": "เกิดข้อผิดพลาดระหว่างพับลิชผ่าน {providerName}",
+      "failedGeneric": "พับลิชการเปลี่ยนแปลงไม่สำเร็จ"
+    },
+    "review": {
+      "title": "รีวิวการเปลี่ยนแปลง",
+      "created": "สร้างใหม่",
+      "updated": "อัปเดต",
+      "renamed": "เปลี่ยนชื่อ",
+      "deleted": "ลบ"
+    },
+    "publishSuccess": {
+      "title": "พับลิชแล้ว",
+      "summary": "พับลิช {count} รายการบน {branch} ของรีโป {repo} | พับลิช {count} รายการบน {branch} ของรีโป {repo}",
+      "alertTitleWaiting": "กำลังดีพลอย...",
+      "alertTitleComplete": "ดีพลอยเสร็จแล้ว",
+      "alertDescWaiting": "ต้องดีพลอยเว็บก่อน ถึงจะเห็นการเปลี่ยนแปลงใน Studio",
+      "alertDescComplete": "ดีพลอยเว็บเวอร์ชันใหม่แล้ว รีเฟรชแอปเพื่อดูการเปลี่ยนแปลงใน Studio"
+    },
+    "newVersionBanner": {
+      "title": "พบเว็บเวอร์ชันใหม่",
+      "description": "ดีพลอยเว็บเวอร์ชันใหม่แล้ว รีเฟรชแอปเพื่อดูการเปลี่ยนแปลงล่าสุด",
+      "reloadButton": "รีเฟรช"
+    },
+    "footer": {
+      "developer_view": "โหมดนักพัฒนา",
+      "localFilesystem": "ใช้ไฟล์ในเครื่อง",
+      "debugMode": "โหมดดีบัก"
+    },
+    "alert": {
+      "mdcFormatting": "จัดรูปแบบตามมาตรฐาน MDC แล้ว"
+    },
+    "conflict": {
+      "title": "พบคอนฟลิกต์",
+      "repository": "รีโป",
+      "branch": "บรাঞ্চ",
+      "file": "ไฟล์",
+      "description": "คอนเทนต์บน {providerName} ไม่ตรงกับเวอร์ชันเว็บไซต์ของคุณ ตรวจสอบว่าดีพลอยล่าสุดแล้ว และรีเฟรชหน้า",
+      "websiteVersion": "เว็บไซต์"
+    },
+    "nav": {
+      "content": "คอนเทนต์",
+      "media": "มีเดีย"
+    },
+    "placeholders": {
+      "commitMessage": "ข้อความคอมมิต",
+      "order": "ลำดับ",
+      "fileName": "ชื่อไฟล์"
+    },
+    "validation": {
+      "commitRequired": "ต้องใส่ข้อความคอมมิต",
+      "nameEmpty": "ห้ามเว้นว่างชื่อ",
+      "nameEndsWithDot": "ชื่อต้องไม่ลงท้ายด้วย '.'",
+      "nameStartsWithSlash": "ชื่อต้องไม่ขึ้นต้นด้วย '/'",
+      "nameExists": "ชื่อนี้มีอยู่แล้ว",
+      "prefixDigitsOnly": "Prefix ต้องเป็นตัวเลขเท่านั้น",
+      "prefixNonNegativeInteger": "Prefix ต้องเป็นจำนวนเต็มที่ไม่ติดลบ"
+    },
+    "media": {
+      "altFilePreview": "พรีวิวไฟล์",
+      "altImagePreview": "พรีวิวรูป",
+      "playAudio": "เล่นเสียง",
+      "audioTagNotSupported": "เบราว์เซอร์ของคุณไม่รองรับ audio",
+      "playVideo": "เล่นวิดีโอ",
+      "videoTagNotSupported": "เบราว์เซอร์ของคุณไม่รองรับ video",
+      "metaWidth": "กว้าง",
+      "metaHeight": "สูง",
+      "metaType": "ประเภท",
+      "metaDuration": "ระยะเวลา",
+      "metaSize": "ขนาด",
+      "fileName": "ชื่อไฟล์",
+      "publicPath": "พาธสาธารณะ",
+      "providerPath": "พาธ {providerName}",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "เปิดเมนูการทำงาน",
+      "cancel": "ยกเลิก",
+      "submit": "ยืนยัน"
+    },
+    "actions": {
+      "confirmAction": "กดอีกครั้งเพื่อ {action}",
+      "verbs": {
+        "create": "สร้าง",
+        "delete": "ลบ",
+        "rename": "เปลี่ยนชื่อ",
+        "upload": "อัปโหลด",
+        "duplicate": "ทำสำเนา"
+      },
+      "labels": {
+        "createDocument": "ไฟล์ใหม่",
+        "createDocumentFolder": "โฟลเดอร์ใหม่",
+        "createMediaFolder": "โฟลเดอร์มีเดียใหม่",
+        "renameItem": "เปลี่ยนชื่อ",
+        "deleteItem": "ลบ",
+        "uploadMedia": "อัปโหลดมีเดีย",
+        "duplicateItem": "ทำสำเนา",
+        "revertItem": "ย้อนกลับการเปลี่ยนแปลง",
+        "publishBranch": "พับลิชบรাঞ্চ",
+        "openGitProvider": "เปิดใน {providerName}",
+        "switchToTipTap": "ใช้ตัวแก้ไขแบบภาพ",
+        "switchToCode": "ใช้ตัวแก้ไขโค้ด"
+      },
+      "tooltips": {
+        "createDocument": "สร้างไฟล์ใหม่",
+        "createDocumentFolder": "สร้างโฟลเดอร์ใหม่",
+        "createMediaFolder": "สร้างโฟลเดอร์ใหม่",
+        "renameItem": "เปลี่ยนชื่อไฟล์",
+        "deleteItem": "ลบไฟล์",
+        "uploadMedia": "อัปโหลดมีเดีย",
+        "duplicateItem": "ทำสำเนาไฟล์",
+        "revertItem": "ย้อนกลับการเปลี่ยนแปลง",
+        "publishBranch": "พับลิชบรাঞ্চ"
+      }
+    },
+    "items": {
+      "itemCount": "1 รายการ | {count} รายการ"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "หัวข้อ 1",
+        "h2": "หัวข้อ 2",
+        "h3": "หัวข้อ 3"
+      },
+      "styles": {
+        "bold": "ตัวหนา",
+        "italic": "ตัวเอียง"
+      },
+      "lists": {
+        "bulleted": "รายการจุด",
+        "numbered": "รายการเลข"
+      },
+      "other": {
+        "emojis": "อีโมจิ",
+        "blockquote": "คำคม",
+        "code": "โค้ด",
+        "inlineCode": "โค้ดในบรรทัด",
+        "link": "ลิงก์",
+        "image": "รูป"
+      },
+      "writeSomething": "เขียนอะไรสักอย่าง",
+      "snippets": {
+        "title": "title",
+        "item1": "รายการ 1",
+        "item2": "รายการ 2",
+        "language": "language",
+        "code": "code",
+        "link": "link",
+        "alt": "alt",
+        "src": "src",
+        "value": "value"
+      },
+      "docs": {
+        "path": "พาธในโปรเจกต์:",
+        "props": "Props",
+        "slots": "Slots",
+        "type": "type",
+        "required": "required",
+        "default": "default"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "พิมพ์ '/' เพื่อดูคำสั่ง...",
+        "components": "คอมโพเนนต์"
+      },
+      "toolbar": {
+        "h1": "หัวข้อ 1",
+        "h2": "หัวข้อ 2",
+        "h3": "หัวข้อ 3",
+        "h4": "หัวข้อ 4",
+        "bulletList": "รายการจุด",
+        "orderedList": "รายการเลข",
+        "blockquote": "คำคม",
+        "codeBlock": "บล็อกโค้ด",
+        "bold": "ตัวหนา",
+        "italic": "ตัวเอียง",
+        "strike": "ขีดฆ่า",
+        "code": "โค้ด",
+        "headings": "หัวข้อ"
+      },
+      "suggestion": {
+        "style": "สไตล์",
+        "paragraph": "ย่อหน้า",
+        "insert": "แทรก",
+        "image": "รูป",
+        "video": "วิดีโอ",
+        "horizontalRule": "เส้นคั่น"
+      },
+      "drag": {
+        "turnInto": "เปลี่ยนเป็น",
+        "resetFormatting": "ล้างรูปแบบ",
+        "duplicate": "ทำสำเนา",
+        "copyToClipboard": "คัดลอก",
+        "moveUp": "เลื่อนขึ้น",
+        "moveDown": "เลื่อนลง",
+        "insertBefore": "แทรกก่อนหน้า",
+        "insertAfter": "แทรกถัดไป",
+        "delete": "ลบ"
+      },
+      "element": {
+        "addSlot": "เพิ่มสล็อต",
+        "editProps": "แก้ไข Props",
+        "delete": "ลบ",
+        "prop": "prop",
+        "props": {
+          "label": "props",
+          "itemsCount": "{count} รายการ | {count} รายการ",
+          "fieldsCount": "{count} ฟิลด์ | {count} ฟิลด์",
+          "edit": "แก้ไข {type}"
+        }
+      },
+      "slot": {
+        "searchPlaceholder": "ค้นหาหรือสร้างสล็อต...",
+        "deleteSlot": "ลบสล็อต",
+        "noSlotsAvailable": "ไม่มีสล็อตที่เตรียมไว้"
+      },
+      "inlineElement": {
+        "editContent": "แก้ไขคอนเทนต์",
+        "editProps": "แก้ไข Props",
+        "delete": "ลบ",
+        "editContentLabel": "แก้ไขคอนเทนต์ {name}",
+        "enterContentPlaceholder": "ใส่คอนเทนต์...",
+        "apply": "ใช้งาน"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "filename.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "วางลิงก์...",
+        "applyLink": "ใส่ลิงก์",
+        "openInNewWindow": "เปิดหน้าต่างใหม่",
+        "removeLink": "ลบลิงก์"
+      },
+      "spanStyle": {
+        "label": "สไตล์ Span",
+        "stylePlaceholder": "สไตล์: เช่น color: tomato; font-weight: 600;",
+        "classPlaceholder": "คลาส: คั่นด้วยช่องว่าง",
+        "apply": "ใช้งาน",
+        "remove": "ลบ"
+      },
+      "binding": {
+        "variablePlaceholder": "ชื่อตัวแปร",
+        "defaultValuePlaceholder": "ค่าเริ่มต้น"
+      },
+      "image": {
+        "source": "URL รูป",
+        "altText": "ข้อความแทนรูป",
+        "title": "ชื่อรูป",
+        "width": "กว้าง",
+        "height": "สูง",
+        "noSource": "ไม่มีแหล่งรูป",
+        "edit": "แก้ไขรูป",
+        "delete": "ลบรูป"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "เลือกรูป",
+        "description": "เลือกรูปจากคลังมีเดีย",
+        "notAvailable": "ไม่มีรูปในคลังมีเดีย",
+        "upload": "อัปโหลด"
+      },
+      "video": {
+        "title": "เลือกวิดีโอ",
+        "description": "เลือกวิดีโอจากคลังมีเดีย",
+        "notAvailable": "ไม่มีวิดีโอในคลังมีเดีย",
+        "upload": "อัปโหลด"
+      }
+    },
+    "form": {
+      "array": {
+        "addItem": "เพิ่ม {label}",
+        "deleteItem": "ลบรายการ",
+        "editItem": "แก้ไขรายการ",
+        "unsupportedType": "ยังไม่รองรับ Array {type}"
+      },
+      "object": {
+        "noProperties": "ยังไม่ได้ตั้งค่า",
+        "enterPlaceholder": "กรอก {field}..."
+      },
+      "section": {
+        "propertyCount": "1 รายการ | {count} รายการ"
+      },
+      "media": {
+        "placeholder": "ใส่พาธ หรือ Public URL...",
+        "searchPlaceholder": "ค้นหารูป...",
+        "noImagesFound": "ไม่พบรูป",
+        "noImagesAvailable": "ไม่มีรูป",
+        "imageCount": "{count}/{total} รูป | {count}/{total} รูป"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "ค้นหาไอคอน...",
+        "noIconsFound": "ไม่พบไอคอน",
+        "searchHint": "พิมพ์อย่างน้อย 2 ตัวอักษรเพื่อค้นหา",
+        "libraries": "ไลบรารี:",
+        "allLibraries": "ทั้งหมด"
+      },
+      "text": {
+        "placeholder": "พิมพ์ข้อความ...",
+        "selectPlaceholder": "เลือก..."
+      },
+      "date": {
+        "selectDate": "เลือกวันที่"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    }
+  }
+}

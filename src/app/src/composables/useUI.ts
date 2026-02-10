@@ -1,4 +1,4 @@
-import { createSharedComposable } from '@vueuse/core'
+import { createSharedComposable } from './createSharedComposable'
 import { getCurrentInstance, ref, watch } from 'vue'
 import type { StudioHost } from '../types'
 import { useSidebar } from './useSidebar'

@@ -278,6 +278,29 @@
       "binding": {
         "variablePlaceholder": "Název proměnné",
         "defaultValuePlaceholder": "Výchozí hodnota"
+      },
+      "image": {
+        "source": "URL zdroje obrázku",
+        "altText": "Alternativní text",
+        "title": "Název obrázku",
+        "width": "Šířka",
+        "height": "Výška",
+        "noSource": "Žádný zdroj obrázku",
+        "edit": "Upravit obrázek",
+        "delete": "Smazat obrázek"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

@@ -277,6 +277,29 @@
       "binding": {
         "variablePlaceholder": "اسم المتغير",
         "defaultValuePlaceholder": "القيمة الافتراضية"
+      },
+      "image": {
+        "source": "عنوان URL لمصدر الصورة",
+        "altText": "نص بديل",
+        "title": "عنوان الصورة",
+        "width": "العرض",
+        "height": "الارتفاع",
+        "noSource": "لا يوجد مصدر للصورة",
+        "edit": "تحرير الصورة",
+        "delete": "حذف الصورة"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {

@@ -4,7 +4,7 @@ import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import type { Endpoints } from '@octokit/types'
 import { useRuntimeConfig } from '#imports'
-import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../../utils/auth'
+import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 
 export interface OAuthGitHubConfig {

@@ -11,6 +11,7 @@ import InputNumber from '../components/form/input/InputNumber.vue'
 import InputText from '../components/form/input/InputText.vue'
 import InputObject from '../components/form/input/InputObject.vue'
 import InputArray from '../components/form/input/InputArray.vue'
+import InputTextarea from '../components/form/input/InputTextarea.vue'
 
 export const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   array: InputArray,
@@ -22,6 +23,7 @@ export const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   number: InputNumber,
   string: InputText,
   object: InputObject,
+  textarea: InputTextarea,
 }
 
 export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormTree => {

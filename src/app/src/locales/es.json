@@ -278,6 +278,29 @@
       "binding": {
         "variablePlaceholder": "Nombre de variable",
         "defaultValuePlaceholder": "Valor por defecto"
+      },
+      "image": {
+        "source": "URL de origen de la imagen",
+        "altText": "Texto alternativo",
+        "title": "Título de la imagen",
+        "width": "Ancho",
+        "height": "Alto",
+        "noSource": "Sin fuente de imagen",
+        "edit": "Editar imagen",
+        "delete": "Eliminar imagen"
+      },
+      "video": {
+        "source": "Video source URL",
+        "poster": "Poster image URL",
+        "width": "Width",
+        "height": "Height",
+        "controls": "Show controls",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted",
+        "noSource": "No video source",
+        "edit": "Edit video",
+        "delete": "Delete video"
       }
     },
     "mediaPicker": {
