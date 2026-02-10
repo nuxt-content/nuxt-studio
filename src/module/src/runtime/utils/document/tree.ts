@@ -30,9 +30,9 @@ export function sanitizeDocumentTree(document: DatabaseItem, collection: Collect
           [
             'code',
             { __ignoreMap: '' },
-            (props as Record<string, unknown> || {}).code,
+            (props as Record<string, unknown> || {}).code as MinimarkNode,
           ],
-        ]
+        ] as MinimarkNode
       }
       return node
     })
