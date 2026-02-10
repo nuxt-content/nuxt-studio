@@ -3,6 +3,7 @@
 
 @theme static {
   --font-sans: 'Public Sans', sans-serif;
+  --container-8xl: 90rem;
 
   --color-green-50: #EFFDF5;
   --color-green-100: #D9FBE8;
@@ -18,3 +19,7 @@
 }
 
 @source "../../../content/**/*";
+
+:root {
+  --ui-container: var(--container-8xl);
+}

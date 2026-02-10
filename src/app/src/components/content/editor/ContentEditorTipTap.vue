@@ -1,36 +1,33 @@
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
-import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
-import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
+import { Emoji } from '@tiptap/extension-emoji'
 import type { PropType } from 'vue'
-import type { Editor, JSONContent } from '@tiptap/vue-3'
+import type { JSONContent } from '@tiptap/vue-3'
 import type { MDCRoot, Toc } from '@nuxtjs/mdc'
 import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
-import type { DraftItem, DatabasePageItem } from '../../types'
+import type { DraftItem, DatabasePageItem } from '../../../types'
 import type { MarkdownRoot } from '@nuxt/content'
-import type { EditorCustomHandlers } from '@nuxt/ui'
-import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmojiMenu.vue.d.ts'
 import { ref, watch, computed } from 'vue'
-import { titleCase } from 'scule'
-import { useI18n } from 'vue-i18n'
-import { useStudio } from '../../composables/useStudio'
-import { useStudioState } from '../../composables/useStudioState'
-import { mdcToTiptap } from '../../utils/tiptap/mdcToTiptap'
-import { tiptapToMDC } from '../../utils/tiptap/tiptapToMdc'
-import { getStandardToolbarItems, getStandardSuggestionItems, standardNuxtUIComponents, computeStandardDragActions, removeLastEmptyParagraph } from '../../utils/tiptap/editor'
-import { Element } from '../../utils/tiptap/extensions/element'
-import { Image } from '../../utils/tiptap/extensions/image'
-import { ImagePicker } from '../../utils/tiptap/extensions/image-picker'
-import { VideoPicker } from '../../utils/tiptap/extensions/video-picker'
-import { Video } from '../../utils/tiptap/extensions/video'
-import { Slot } from '../../utils/tiptap/extensions/slot'
-import { Frontmatter } from '../../utils/tiptap/extensions/frontmatter'
-import { CodeBlock } from '../../utils/tiptap/extensions/code-block'
-import { InlineElement } from '../../utils/tiptap/extensions/inline-element'
-import { SpanStyle } from '../../utils/tiptap/extensions/span-style'
+import { useStudio } from '../../../composables/useStudio'
+import { useStudioState } from '../../../composables/useStudioState'
+import { mdcToTiptap } from '../../../utils/tiptap/mdcToTiptap'
+import { tiptapToMDC } from '../../../utils/tiptap/tiptapToMdc'
+import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
+import { Element } from '../../../utils/tiptap/extensions/element'
+import { Image } from '../../../utils/tiptap/extensions/image'
+import { ImagePicker } from '../../../utils/tiptap/extensions/image-picker'
+import { VideoPicker } from '../../../utils/tiptap/extensions/video-picker'
+import { Video } from '../../../utils/tiptap/extensions/video'
+import { Slot } from '../../../utils/tiptap/extensions/slot'
+import { Frontmatter } from '../../../utils/tiptap/extensions/frontmatter'
+import { CodeBlock } from '../../../utils/tiptap/extensions/code-block'
+import { InlineElement } from '../../../utils/tiptap/extensions/inline-element'
+import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
-import TiptapSpanStylePopover from '../tiptap/TiptapSpanStylePopover.vue'
-import { Binding } from '../../utils/tiptap/extensions/binding'
+import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
+import { Binding } from '../../../utils/tiptap/extensions/binding'
+import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
+import { useTiptapEditor } from '../../../composables/useTiptapEditor'
+import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
 
 const props = defineProps({
   draftItem: {
@@ -43,7 +40,30 @@ const document = defineModel<DatabasePageItem>()
 
 const { host } = useStudio()
 const { preferences } = useStudioState()
-const { t } = useI18n()
+
+const {
+  customHandlers,
+  suggestionItems,
+  toolbarItems,
+  emojiItems,
+  dragHandleItems,
+  setSelectedNode,
+} = useTiptapEditor()
+
+const {
+  MAX_AI_SELECTION_LENGTH,
+  isAIValidationVisible,
+  isAILanguageInputVisible,
+  aiValidationDomRect,
+  aiLanguageInputDomRect,
+  aiExtensions,
+  isAISelectionTooLarge,
+  getAITransformMenuItems,
+  handleAIAccept,
+  handleAIDecline,
+  handleLanguageSubmit,
+  handleLanguageCancel,
+} = useTiptapEditorAI(document)
 
 const tiptapJSON = ref<JSONContent>()
 
@@ -108,67 +128,6 @@ watch(tiptapJSON, async (json) => {
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string
   }
 })
-
-const componentItems = computed(() => {
-  return host.meta.getComponents().map(component => ({
-    kind: component.name,
-    type: undefined as never,
-    label: titleCase(component.name),
-    icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
-  }))
-})
-
-const customHandlers = computed(() => ({
-  image: {
-    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),
-    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'image-picker' }),
-    isActive: (editor: Editor) => editor.isActive('image-picker'),
-    isDisabled: undefined,
-  },
-  video: {
-    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'video-picker' }),
-    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'video-picker' }),
-    isActive: (editor: Editor) => editor.isActive('video-picker'),
-    isDisabled: undefined,
-  },
-  ...Object.fromEntries(
-    componentItems.value.map(item => [
-      item.kind,
-      {
-        canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
-        execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
-        isActive: (editor: Editor) => editor.isActive(item.kind),
-        isDisabled: undefined,
-      },
-    ]),
-  ),
-}) satisfies EditorCustomHandlers)
-
-const suggestionItems = computed(() => [
-  ...getStandardSuggestionItems(t),
-  [
-    {
-      type: 'label',
-      label: t('studio.tiptap.editor.components'),
-    },
-    ...componentItems.value,
-  ],
-] satisfies EditorSuggestionMenuItem[][])
-
-const selectedNode = ref<JSONContent | null>(null)
-const dragHandleItems = (editor: Editor): DropdownMenuItem[][] => {
-  if (!selectedNode.value) {
-    return []
-  }
-
-  return computeStandardDragActions(editor, selectedNode.value, t)
-}
-
-const toolbarItems = computed(() => getStandardToolbarItems(t))
-
-const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
-  emoji => !emoji.name.startsWith('regional_indicator_'),
-)
 </script>
 
 <template>
@@ -195,6 +154,9 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         },
       }"
       :extensions="[
+        CustomPlaceholder.configure({
+          placeholder: $t('studio.tiptap.editor.placeholder'),
+        }),
         Frontmatter,
         Image,
         ImagePicker,
@@ -207,8 +169,8 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         CodeBlock,
         Emoji,
         Binding,
+        ...aiExtensions,
       ]"
-      :placeholder="$t('studio.tiptap.editor.placeholder')"
     >
       <UEditorToolbar
         :editor="editor"
@@ -221,12 +183,34 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
         <template #span-style>
           <TiptapSpanStylePopover :editor="editor" />
         </template>
+        <template #ai-transform>
+          <UTooltip
+            :text="isAISelectionTooLarge(editor) ? $t('studio.tiptap.ai.selectionTooLarge', { max: MAX_AI_SELECTION_LENGTH }) : undefined"
+            :disabled="!isAISelectionTooLarge(editor)"
+          >
+            <UDropdownMenu
+              v-slot="{ open }"
+              :items="getAITransformMenuItems(editor)"
+              :modal="false"
+              :disabled="isAISelectionTooLarge(editor)"
+            >
+              <UButton
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-sparkles"
+                :active="open"
+                :disabled="isAISelectionTooLarge(editor)"
+              />
+            </UDropdownMenu>
+          </UTooltip>
+        </template>
       </UEditorToolbar>
 
       <UEditorDragHandle
         v-slot="{ ui }"
         :editor="editor"
-        @node-change="selectedNode = $event"
+        @node-change="setSelectedNode"
       >
         <UDropdownMenu
           v-slot="{ open }"
@@ -256,6 +240,20 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(
       <UEditorEmojiMenu
         :editor="editor"
         :items="emojiItems"
+      />
+
+      <ContentEditorAIValidation
+        :show="isAIValidationVisible"
+        :rect="aiValidationDomRect"
+        @accept="handleAIAccept"
+        @decline="handleAIDecline"
+      />
+
+      <ContentEditorAILanguageSelection
+        :rect="aiLanguageInputDomRect"
+        :show="isAILanguageInputVisible"
+        @submit="(language) => handleLanguageSubmit(language, editor)"
+        @cancel="handleLanguageCancel"
       />
     </UEditor>
   </div>

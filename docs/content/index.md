@@ -209,6 +209,11 @@ A powerful WYSIWYG editor built on TipTap. Write content naturally with full MDC
   :::u-button
   ---
   color: neutral
+  icon: i-simple-icons-github
+  size: xl
+  target: _blank
+  to: https://github.com/nuxt-content/nuxt-studio
+  variant: outline
   label: Learn more about the Visual Editor
   to: /content
   trailingIcon: i-lucide-arrow-right

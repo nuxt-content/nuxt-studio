@@ -3,8 +3,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-function goBack() {
-  router.push('/content')
+async function goBack() {
+  await router.push('/content')
 }
 </script>
 

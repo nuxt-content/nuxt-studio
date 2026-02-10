@@ -151,7 +151,7 @@ function getInitialContent(extension: string, title: string): string {
       return ''
     case ContentFileExtension.Markdown:
     default:
-      return `# ${title} file`
+      return t('studio.content.initialMarkdownContent', { title })
   }
 }
 
