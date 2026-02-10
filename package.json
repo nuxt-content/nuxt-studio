@@ -5,7 +5,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nuxt-content/studio.git"
+    "url": "git+https://github.com/nuxt-content/nuxt-studio.git"
   },
   "license": "MIT",
   "type": "module",

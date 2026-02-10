@@ -35,7 +35,7 @@ Edit content visually, manage media, and publish changes from your production si
   icon: i-simple-icons-github
   size: xl
   target: _blank
-  to: https://github.com/nuxt-content/studio
+  to: https://github.com/nuxt-content/nuxt-studio
   variant: outline
   ---
   Star on GitHub

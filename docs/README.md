@@ -28,7 +28,7 @@ Originally offered as a standalone premium platform, Studio has evolved into a f
 - 📂 **Collections view** - View and manage your content collections in a unified interface
 - 🖼️ **Media optimization** - Optimize your media files in the editor
 - 🤖 **AI Content Assistant** — Receive smart, AI-powered suggestions to enhance your content creation flow
-- 💡 **Community-driven Features** — Have an idea? [Share your suggestions](https://github.com/nuxt-content/studio/discussions) to shape the future of Nuxt Studio
+- 💡 **Community-driven Features** — Have an idea? [Share your suggestions](https://github.com/nuxt-content/nuxt-studio/discussions) to shape the future of Nuxt Studio
 
 ### Resources
 
@@ -224,9 +224,9 @@ pnpm lint
 ## Links
 
 - 📖 [Documentation](https://content.nuxt.com/studio)
-- 🐛 [Report a Bug](https://github.com/nuxt-content/studio/issues/new)
-- 💡 [Feature Request](https://github.com/nuxt-content/studio/issues/new)
-- 🗨️ [Discussions](https://github.com/nuxt-content/studio/discussions)
+- 🐛 [Report a Bug](https://github.com/nuxt-content/nuxt-studio/issues/new)
+- 💡 [Feature Request](https://github.com/nuxt-content/nuxt-studio/issues/new)
+- 🗨️ [Discussions](https://github.com/nuxt-content/nuxt-studio/discussions)
 - 🆇 [Twitter](https://x.com/nuxtstudio)
 - 🦋 [Bluesky](https://bsky.app/profile/nuxt.com)
 
