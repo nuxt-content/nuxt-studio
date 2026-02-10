@@ -3,7 +3,7 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, removeReservedKeysFromDocument, sanitizeDocumentTree } from './utils/document'
+import { applyCollectionSchema, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree } from './utils/document'
 import { getHostStyles, getSidebarWidth, adjustFixedElements } from './utils/sidebar'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -250,7 +250,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         areEqual: (document1: DatabaseItem, document2: DatabaseItem) => areDocumentsEqual(document1, document2),
         isMatchingContent: async (content: string, document: DatabaseItem) => isDocumentMatchingContent(content, document),
         pickReservedKeys: (document: DatabaseItem) => pickReservedKeysFromDocument(document),
-        removeReservedKeys: (document: DatabaseItem) => removeReservedKeysFromDocument(document),
+        cleanDataKeys: (document: DatabaseItem) => cleanDataKeys(document),
         detectActives: () => {
           // TODO: introduce a new convention to detect data contents [data-content-id!]
           const wrappers = document.querySelectorAll('[data-content-id]')

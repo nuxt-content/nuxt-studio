@@ -69,7 +69,8 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
     list.value.push(draftItem)
 
-    if (rerender) {
+    // Skip tree rebuild for pristine drafts - they don't change anything visually
+    if (rerender && draftItem.status !== DraftStatus.Pristine) {
       await hooks.callHook(hookName(fsPath), { caller: 'useDraftBase.create' })
     }
 

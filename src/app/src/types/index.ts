@@ -70,7 +70,7 @@ export interface StudioHost {
       areEqual: (document1: DatabaseItem, document2: DatabaseItem) => boolean
       isMatchingContent: (content: string, document: DatabaseItem) => Promise<boolean>
       pickReservedKeys: (document: DatabaseItem) => DatabaseItem
-      removeReservedKeys: (document: DatabaseItem) => DatabaseItem
+      cleanDataKeys: (document: DatabaseItem) => DatabaseItem
       detectActives: () => Array<{ fsPath: string, title: string }>
     }
     generate: {
