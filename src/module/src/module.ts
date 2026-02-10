@@ -543,11 +543,14 @@ export default defineNuxtModule<ModuleOptions>({
         handler: runtime('./server/routes/ai/generate.post'),
       })
 
-      addServerHandler({
-        method: 'post',
-        route: '/__nuxt_studio/ai/analyze',
-        handler: runtime('./server/routes/ai/analyze.post'),
-      })
+      // Only register analyze handler if experimental collectionContext is enabled
+      if (options.ai?.experimental?.collectionContext) {
+        addServerHandler({
+          method: 'post',
+          route: '/__nuxt_studio/ai/analyze',
+          handler: runtime('./server/routes/ai/analyze.post'),
+        })
+      }
     }
   },
 })

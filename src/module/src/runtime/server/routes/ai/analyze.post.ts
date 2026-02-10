@@ -5,7 +5,6 @@ import { consola } from 'consola'
 import { useRuntimeConfig } from '#imports'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections, CollectionInfo } from '@nuxt/content'
-import { generateContentFromDocument } from '../../../utils/document/generate'
 import type { DatabasePageItem } from 'nuxt-studio/app'
 import {
   detectContentType,
@@ -127,8 +126,10 @@ export default eventHandler(async (event) => {
       }
 
       // Use generateContentFromDocument to get the raw markdown content
+      // Lazy load to avoid loading Shiki/MDC at server startup
       let excerpt = ''
       try {
+        const { generateContentFromDocument } = await import('../../../utils/document/generate')
         const rawContent = await generateContentFromDocument(document as DatabasePageItem)
         if (rawContent) {
           excerpt = rawContent
