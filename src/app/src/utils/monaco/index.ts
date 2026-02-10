@@ -9,19 +9,29 @@ export type Monaco = Awaited<ReturnType<typeof import('modern-monaco')['init']>>
 
 const logger = consola.withTag('Nuxt Studio')
 
+const localeImports: Record<string, () => Promise<unknown>> = {
+  // @ts-expect-error -- CDN import
+  'zh-tw': () => import('https://esm.sh/monaco-editor/esm/nls.messages.zh-tw.js'),
+  // @ts-expect-error -- CDN import
+  'zh-cn': () => import('https://esm.sh/monaco-editor/esm/nls.messages.zh-cn.js'),
+  // @ts-expect-error -- CDN import
+  'ja': () => import('https://esm.sh/monaco-editor/esm/nls.messages.ja.js'),
+  // @ts-expect-error -- CDN import
+  'ko': () => import('https://esm.sh/monaco-editor/esm/nls.messages.ko.js'),
+  // @ts-expect-error -- CDN import
+  'de': () => import('https://esm.sh/monaco-editor/esm/nls.messages.de.js'),
+  // @ts-expect-error -- CDN import
+  'fr': () => import('https://esm.sh/monaco-editor/esm/nls.messages.fr.js'),
+  // @ts-expect-error -- CDN import
+  'es': () => import('https://esm.sh/monaco-editor/esm/nls.messages.es.js'),
+  // @ts-expect-error -- CDN import
+  'ru': () => import('https://esm.sh/monaco-editor/esm/nls.messages.ru.js'),
+  // @ts-expect-error -- CDN import
+  'it': () => import('https://esm.sh/monaco-editor/esm/nls.messages.it.js'),
+}
+
 export const setupMonaco = createSingletonPromise(async () => {
-  // List from https://github.com/microsoft/vscode/blob/2022aede9218d2fe7668115a75fa56032f863014/build/lib/i18n.js#L24C1-L34C3
-  const validNlsLanguages = [
-    'zh-tw',
-    'zh-cn',
-    'ja',
-    'ko',
-    'de',
-    'fr',
-    'es',
-    'ru',
-    'it',
-  ]
+  const validNlsLanguages = Object.keys(localeImports)
 
   const host = window.useStudioHost()
   const locale: string = host.meta.defaultLocale || 'en'
@@ -39,9 +49,9 @@ export const setupMonaco = createSingletonPromise(async () => {
   }
 
   try {
-    if (finalLocale !== 'en') {
-      const nlsUrl = `https://esm.sh/monaco-editor/esm/nls.messages.${finalLocale}.js`
-      await import(/* @vite-ignore */ nlsUrl)
+    // Dynamically load the locale based on finalLocale variable
+    if (finalLocale !== 'en' && localeImports[finalLocale]) {
+      await localeImports[finalLocale]()
     }
   }
   catch (e) {
@@ -94,45 +104,6 @@ export const setupMonaco = createSingletonPromise(async () => {
       return monaco.editor.createDiffEditor(domElement, options, override)
     }) as Monaco['editor']['createDiffEditor'],
   }
-  // await Promise.all([
-  //   // load workers
-  //   (async () => {
-  //     const [
-  //       { default: EditorWorker },
-  //       { default: JsonWorker },
-  //       { default: CssWorker },
-  //       { default: HtmlWorker },
-  //       { default: TsWorker },
-  //     ] = await Promise.all([
-  //       import('monaco-editor/esm/vs/editor/editor.worker?worker'),
-  //       import('monaco-editor/esm/vs/language/json/json.worker?worker'),
-  //       import('monaco-editor/esm/vs/language/css/css.worker?worker'),
-  //       import('monaco-editor/esm/vs/language/html/html.worker?worker'),
-  //       import('monaco-editor/esm/vs/language/typescript/ts.worker?worker'),
-  //     ])
-
-  //     window.MonacoEnvironment = {
-  //       getWorker(_: unknown, label: string) {
-  //         if (label === 'json') return new JsonWorker()
-  //         if (label === 'css' || label === 'scss' || label === 'less') return new CssWorker()
-  //         if (label === 'html' || label === 'handlebars' || label === 'razor' || label === 'vue3') return new HtmlWorker()
-  //         if (label === 'typescript' || label === 'javascript') return new TsWorker()
-  //         return new EditorWorker()
-  //       },
-  //     }
-
-  //     monaco.languages.register({ id: 'mdc', aliases: ['mdc', 'md', 'markdown'] })
-  //     // Register a tokens provider for the language
-  //     monaco.languages.setMonarchTokensProvider('mdc', mdcLanguage)
-  //     monaco.languages.setLanguageConfiguration('mdc', {
-  //       comments: {
-  //         blockComment: ['<!--', '-->'],
-  //       },
-  //     })
-  //   })(),
-  // ])
-
-  // return monaco
 })
 
 export function setupTheme(monaco: Monaco) {
