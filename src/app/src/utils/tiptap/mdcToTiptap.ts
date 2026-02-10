@@ -45,6 +45,9 @@ export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>)
   // Remove invalid text node which added by table syntax
   body.children = (body.children || []).filter(child => child.type !== 'text')
 
+  // This prevents style elements from being loaded into the editor
+  removeStyleElementsFromMDC(body)
+
   const tree = mdcNodeToTiptap(body)
 
   tree.content = [
@@ -112,7 +115,9 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
   return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
 }
 
-/* Create nodes methods */
+/**
+ * Create nodes methods
+ */
 export function createMark(node: MDCNode, mark: string, accumulatedMarks: { type: string, attrs?: object }[] = []): JSONContent[] {
   const attrs = { ...(node as MDCElement).props }
 
@@ -383,4 +388,23 @@ function wrapChildrenWithinSlot(children: MDCElement[]) {
   }
 
   return children
+}
+
+/**
+ * Remove shiki style elements from MDC tree
+ */
+function removeStyleElementsFromMDC(node: MDCRoot | MDCNode): void {
+  if ('children' in node && Array.isArray(node.children)) {
+    // Remove style elements from this level
+    node.children = node.children.filter((child: MDCNode) => {
+      if (child.type === 'element' && (child as MDCElement).tag === 'style') {
+        return false
+      }
+      return true
+    })
+    // Recursively clean children
+    node.children.forEach((child: MDCNode) => {
+      removeStyleElementsFromMDC(child)
+    })
+  }
 }
