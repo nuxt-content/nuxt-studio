@@ -87,7 +87,7 @@ export function cleanDataKeys(document: DatabaseItem): DatabaseItem {
     if (result[key] === null) {
       Reflect.deleteProperty(result, key)
     }
-    
+
     if (Array.isArray(result[key]) && (result[key] as unknown[]).length === 0) {
       Reflect.deleteProperty(result, key)
     }
