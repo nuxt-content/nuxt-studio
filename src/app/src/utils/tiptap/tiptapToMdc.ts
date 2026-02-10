@@ -433,6 +433,16 @@ function createListItemElement(node: JSONContent) {
  ***************************************************************/
 
 async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlightTheme = { default: 'github-light', dark: 'github-dark' }) {
+  // Clean all style elements from MDC tree before applying syntax highlighting
+  if ('children' in mdc && Array.isArray(mdc.children)) {
+    mdc.children = mdc.children.filter((child: MDCNode) => {
+      if (child.type === 'element' && (child as MDCElement).tag === 'style') {
+        return false
+      }
+      return true
+    })
+  }
+
   // @ts-expect-error MDCNode is not compatible with the type of the visitor
   // Convert tag to tagName and props to properties to be compatible with rehype
   visit(mdc, (n: MDCNode) => n.tag !== undefined, (n: MDCNode) => Object.assign(n, { tagName: n.tag, properties: n.props }))
@@ -452,12 +462,14 @@ async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlight
     (n: unknown) => { Object.assign(n as MDCNode, { tag: (n as Element).tagName, props: (n as Element).properties, tagName: undefined, properties: undefined }) },
   )
 
-  // Remove empty newline text nodes and style elements
+  // Remove empty newline text nodes and style elements from code blocks
   visit(
     mdc,
     (n: unknown) => (n as MDCElement).tag === 'pre',
     (n: unknown) => {
-      ((n as MDCElement).children[0] as MDCElement).children = ((n as MDCElement).children[0] as MDCElement).children.filter((child: MDCNode) => {
+      const preNode = n as MDCElement
+      const codeNode = preNode.children[0] as MDCElement
+      codeNode.children = codeNode.children.filter((child: MDCNode) => {
         // Remove style elements added by Shiki
         if (child.type === 'element' && (child as MDCElement).tag === 'style') {
           return false
