@@ -82,7 +82,7 @@
     "@vitejs/plugin-vue": "^6.0.4",
     "eslint": "^10.0.0",
     "idb-keyval": "^6.2.2",
-    "minimark": "^1.0.0",
+    "minimark": "^0.2.0",
     "modern-monaco": "^0.3.7",
     "nuxt-studio": "workspace:*",
     "ofetch": "^1.5.1",
