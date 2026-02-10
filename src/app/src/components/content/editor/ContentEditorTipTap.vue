@@ -75,6 +75,8 @@ const currentTiptap = ref<JSONContent>()
 const currentMDC = ref<{ body: MDCRoot, data: Record<string, unknown> }>()
 const currentContent = ref<string>()
 
+let isConverting = false
+
 // Trigger on document changes
 watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.status}`, async () => {
   const frontmatterJson = cleanDataKeys(document.value!)
@@ -98,6 +100,13 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
 
 // TipTap to Markdown
 watch(tiptapJSON, async (json) => {
+  // Skip if already converting (prevents UEditor v-model from triggering multiple times)
+  if (isConverting) {
+    return
+  }
+
+  isConverting = true
+
   const cleanedTiptap = removeLastEmptyParagraph(json!)
 
   const { body, data } = await tiptapToMDC(cleanedTiptap, {
@@ -127,6 +136,8 @@ watch(tiptapJSON, async (json) => {
     }
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string
   }
+
+  isConverting = false
 })
 </script>
 
