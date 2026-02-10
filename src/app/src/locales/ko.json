@@ -278,29 +278,6 @@
       "binding": {
         "variablePlaceholder": "변수 이름",
         "defaultValuePlaceholder": "기본값"
-      },
-      "image": {
-        "source": "이미지 소스 URL",
-        "altText": "대체 텍스트",
-        "title": "이미지 제목",
-        "width": "너비",
-        "height": "높이",
-        "noSource": "이미지 소스 없음",
-        "edit": "이미지 편집",
-        "delete": "이미지 삭제"
-      },
-      "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
       }
     },
     "mediaPicker": {

@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { useStudioState } from './composables/useStudioState'
 import * as locales from '@nuxt/ui/locale'
 
-const { host, ui, isReady, context, documentTree } = useStudio()
+const { host, ui, isReady, context } = useStudio()
 const { location } = useStudioState()
 const router = useRouter()
 
@@ -44,17 +44,13 @@ function detectActiveDocuments() {
 }
 
 async function editContentFile(fsPath: string) {
-  if (context.currentFeature.value !== 'content') {
-    await router.push('/content')
-  }
-
-  await documentTree.selectItemByFsPath(fsPath)
+  await context.activeTree.value.selectItemByFsPath(fsPath)
   ui.open()
 }
 
 async function open() {
   await router.push(`/${location.value.feature}`)
-  await documentTree.selectItemByFsPath(location.value.fsPath)
+  await context.activeTree.value.selectItemByFsPath(location.value.fsPath)
   ui.open()
 }
 
@@ -76,7 +72,7 @@ host.on.mounted(async () => {
 
 const direction = ref<'left' | 'right'>('left')
 const isReviewTransition = ref(false)
-const directionOrder = ['content', 'media', 'ai']
+const directionOrder = ['content', 'media']
 
 router.beforeEach((to, from) => {
   if (to.name === 'review' || from.name === 'review') {

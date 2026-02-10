@@ -1,4 +1,4 @@
-import { createSharedComposable } from './createSharedComposable'
+import { createSharedComposable } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
 } from '../types'
@@ -31,7 +31,6 @@ export const useContext = createSharedComposable((
   gitProvider: ReturnType<typeof useGitProvider>,
   documentTree: ReturnType<typeof useTree>,
   mediaTree: ReturnType<typeof useTree>,
-  aiContextTree?: ReturnType<typeof useTree>,
 ) => {
   const route = useRoute()
   const router = useRouter()
@@ -45,8 +44,6 @@ export const useContext = createSharedComposable((
         return StudioFeature.Media
       case 'content':
         return StudioFeature.Content
-      case 'ai':
-        return StudioFeature.AI
       default:
         return null
     }
@@ -64,16 +61,10 @@ export const useContext = createSharedComposable((
    */
   const actionInProgress = ref<StudioActionInProgress | null>(null)
   const activeTree = computed(() => {
-    switch (route.name) {
-      case 'media':
-        return mediaTree
-      case 'content':
-        return documentTree
-      case 'ai':
-        return aiContextTree!
-      default:
-        return documentTree
+    if (route.name === 'media') {
+      return mediaTree
     }
+    return documentTree
   })
 
   const itemActions = computed<StudioAction<StudioItemActionId>[]>(() => {
@@ -211,9 +202,6 @@ export const useContext = createSharedComposable((
     [StudioItemActionId.RevertAllItems]: async () => {
       await documentTree.draft.revertAll()
       await mediaTree.draft.revertAll()
-      if (aiContextTree) {
-        await aiContextTree.draft.revertAll()
-      }
     },
   }
 
@@ -238,7 +226,7 @@ export const useContext = createSharedComposable((
       // @ts-expect-error params is null
       await itemActionHandler[StudioItemActionId.RevertAllItems]()
 
-      await router.push('/content')
+      router.push('/content')
     },
   }
 
@@ -246,8 +234,8 @@ export const useContext = createSharedComposable((
     actionInProgress.value = null
   }
 
-  async function switchFeature(feature: StudioFeature) {
-    await router.push(`/${feature}`)
+  function switchFeature(feature: StudioFeature) {
+    router.push(`/${feature}`)
   }
 
   return {

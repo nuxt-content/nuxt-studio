@@ -68,24 +68,11 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     return useContent().queryCollection(collection)
   }
 
-  const runtimeConfig = useRuntimeConfig()
-  const aiConfig = runtimeConfig.public.studio.ai
-
   const host: StudioHost = {
     meta: {
       dev: false,
-      ai: {
-        enabled: aiConfig?.enabled ?? false,
-        experimental: {
-          collectionContext: aiConfig?.experimental?.collectionContext ?? false,
-        },
-        context: {
-          collectionName: aiConfig.context.collectionName,
-          contentFolder: aiConfig.context.contentFolder,
-        },
-      },
       getComponents: () => meta.components.value,
-      defaultLocale: runtimeConfig.public.studio.i18n?.defaultLocale || 'en',
+      defaultLocale: useRuntimeConfig().public.studio.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
     },
     on: {
@@ -336,7 +323,6 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     },
     collection: {
       getByFsPath: (fsPath: string) => getCollectionByFilePath(fsPath, useContentCollections()),
-      list: () => Object.values(useContentCollections()),
     },
   }
 

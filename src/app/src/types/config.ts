@@ -7,7 +7,6 @@ export interface StudioConfig {
   showTechnicalMode: boolean
   editorMode: EditorMode
   debug: boolean
-  enableAICompletion: boolean
 }
 
 export interface StudioLocation {

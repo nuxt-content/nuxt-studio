@@ -2,11 +2,8 @@ import { eventHandler, createError, getQuery, sendRedirect, getRequestURL, getCo
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import { consola } from 'consola'
-import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
+import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
-
-const logger = consola.withTag('Nuxt Studio')
 
 export interface GoogleUser {
   sub: string
@@ -195,7 +192,7 @@ export default eventHandler(async (event: H3Event) => {
 
   if (!moderators.includes(user.email)) {
     if (import.meta.dev && moderators.length === 0) {
-      logger.warn([
+      console.warn([
         '[Nuxt Studio] No moderators defined. Moderators are required for Google authentication.',
         'Please set the `STUDIO_GOOGLE_MODERATORS` environment variable to a comma-separated list of email addresses of the moderators.',
       ].join('\n'))

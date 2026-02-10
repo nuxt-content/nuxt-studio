@@ -1,13 +1,12 @@
 import { readonly, ref } from 'vue'
-import { useStorage } from '@vueuse/core'
-import { createSharedComposable } from './createSharedComposable'
+import { useStorage, createSharedComposable } from '@vueuse/core'
 import type { StudioConfig, StudioLocation } from '../types'
 import { StudioFeature } from '../types/context'
 
 export const useStudioState = createSharedComposable(() => {
   const devMode = ref(false)
   const manifestId = ref<string>('')
-  const preferences = useStorage<StudioConfig>('studio-preferences', { syncEditorAndRoute: true, showTechnicalMode: false, editorMode: 'tiptap', debug: false, enableAICompletion: true })
+  const preferences = useStorage<StudioConfig>('studio-preferences', { syncEditorAndRoute: true, showTechnicalMode: false, editorMode: 'tiptap', debug: false })
   const location = useStorage<StudioLocation>('studio-active', { active: false, feature: StudioFeature.Content, fsPath: '/' })
 
   function setLocation(feature: StudioFeature, fsPath: string) {
@@ -15,7 +14,7 @@ export const useStudioState = createSharedComposable(() => {
   }
 
   function unsetActiveLocation() {
-    location.value = { ...location.value, active: false }
+    location.value.active = false
   }
 
   function setManifestId(id: string) {

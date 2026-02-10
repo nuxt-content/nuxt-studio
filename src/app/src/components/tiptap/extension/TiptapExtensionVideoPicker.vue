@@ -8,7 +8,7 @@ const props = defineProps<NodeViewProps>()
 
 const isOpen = ref(true)
 
-const handleVideoSelect = (video: TreeItem | null) => {
+const handleVideoSelect = (video: TreeItem) => {
   const pos = props.getPos()
 
   if (typeof pos === 'number') {
@@ -19,8 +19,9 @@ const handleVideoSelect = (video: TreeItem | null) => {
       .insertContent({
         type: 'video',
         attrs: {
+          src: video.routePath,
           props: {
-            src: video?.routePath || '',
+            src: video.routePath,
           },
         },
       })

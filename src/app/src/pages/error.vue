@@ -15,8 +15,8 @@ const errorMessage = computed(() => {
 
 const repositoryInfo = computed(() => gitProvider.api.getRepositoryInfo())
 
-async function retry() {
-  await router.push('/review')
+function retry() {
+  router.push('/review')
 }
 </script>
 

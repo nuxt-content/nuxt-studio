@@ -278,29 +278,6 @@
       "binding": {
         "variablePlaceholder": "Variabelnamn",
         "defaultValuePlaceholder": "Standardverdi"
-      },
-      "image": {
-        "source": "Bildekjelde-URL",
-        "altText": "Alternativ tekst",
-        "title": "Bildetittel",
-        "width": "Breidde",
-        "height": "Høgde",
-        "noSource": "Ingen bildekjelde",
-        "edit": "Rediger bilete",
-        "delete": "Slett bilete"
-      },
-      "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
       }
     },
     "mediaPicker": {

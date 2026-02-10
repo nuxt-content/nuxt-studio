@@ -1,13 +1,12 @@
 import type { DatabaseItem, DraftItem, StudioHost, RawFile } from '../types'
 import { DraftStatus } from '../types/draft'
 import type { useGitProvider } from './useGitProvider'
-import { createSharedComposable } from './createSharedComposable'
+import { createSharedComposable } from '@vueuse/core'
 import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
 import { documentStorage as storage } from '../utils/storage'
 import { getFileExtension } from '../utils/file'
 import { useDraftBase } from './useDraftBase'
-import { useAI } from './useAI'
 
 export const useDraftDocuments = createSharedComposable((host: StudioHost, gitProvider: ReturnType<typeof useGitProvider>) => {
   const {
@@ -26,7 +25,6 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
   } = useDraftBase<DatabaseItem>('document', host, gitProvider, storage)
 
   const hooks = useHooks()
-  const ai = useAI()
   const hostDb = host.document.db
   const generateContentFromDocument = host.document.generate.contentFromDocument
 
@@ -49,10 +47,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
 
     // Trigger hook to warn that draft list has changed
     if (existingItem.status !== oldStatus) {
-      const isAIUpdate = ai.enabled ? existingItem.fsPath.startsWith(ai.contextFolder) : false
-
-      const hookName = isAIUpdate ? 'studio:draft:ai:updated' : 'studio:draft:document:updated'
-      await hooks.callHook(hookName, { caller: 'useDraftDocuments.update' })
+      await hooks.callHook('studio:draft:document:updated', { caller: 'useDraftDocuments.update' })
     }
     else {
       // Rerender host app

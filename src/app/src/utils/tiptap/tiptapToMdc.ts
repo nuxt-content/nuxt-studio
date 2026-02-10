@@ -1,6 +1,6 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import Slugger from 'github-slugger'
-import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText, MDCComment } from '@nuxtjs/mdc'
+import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText } from '@nuxtjs/mdc'
 import rehypeShiki from '@nuxtjs/mdc/dist/runtime/highlighter/rehype'
 import { createShikiHighlighter } from '@nuxtjs/mdc/runtime/highlighter/shiki'
 import { bundledThemes, bundledLanguages as bundledLangs, createJavaScriptRegexEngine } from 'shiki'
@@ -8,7 +8,6 @@ import { visit } from 'unist-util-visit'
 import type { SyntaxHighlightTheme } from '../../types/content'
 import { getEmojiUnicode } from '../emoji'
 import { cleanSpanProps, normalizeProps } from './props'
-import type { EditorState } from '@tiptap/pm/state'
 
 type TiptapToMDCMap = Record<string, (node: JSONContent) => MDCRoot | MDCNode | MDCNode[]>
 
@@ -47,7 +46,7 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   'code': (node: JSONContent) => createElement(node, 'code', { props: node.attrs }),
   'codeBlock': (node: JSONContent) => createCodeBlockElement(node),
   'image': (node: JSONContent) => createImageElement(node),
-  'video': (node: JSONContent) => createVideoElement(node),
+  'video': (node: JSONContent) => createElement(node, 'video'),
   'binding': (node: JSONContent) => {
     const defaultValue = (node.attrs as Record<string, unknown> | undefined)?.defaultValue as string
     const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
@@ -133,38 +132,6 @@ export function tiptapNodeToMDC(node: JSONContent): MDCRoot | MDCNode | MDCNode[
   }
 }
 
-/**
- * Serialize a portion of the TipTap document to mdc
- */
-export async function tiptapSliceToMDC(
-  state: EditorState,
-  from: number,
-  to: number,
-): Promise<{ body: MDCRoot, data: Record<string, unknown> }> {
-  // Get the document slice
-  const slice = state.doc.slice(from, to)
-
-  // Create a temporary document containing just this slice
-  const sliceDoc = state.schema.nodeFromJSON({
-    type: 'doc',
-    content: slice.content.toJSON(),
-  })
-
-  // Convert to TipTap JSON
-  const tiptapJSON = sliceDoc.toJSON()
-
-  // Skip frontmatter node from the slice (not needed for AI context)
-  const content = tiptapJSON.content || []
-  const filteredContent = content.filter((node: JSONContent) => node.type !== 'frontmatter')
-  const cleanedJSON = {
-    ...tiptapJSON,
-    content: filteredContent,
-  }
-
-  // Convert TipTap JSON to MDC AST
-  return await tiptapToMDC(cleanedJSON, {})
-}
-
 /***************************************************************
  *********************** Create element methods ****************
  ***************************************************************/
@@ -211,7 +178,7 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
   }
 }
 
-function createParagraphElement(node: JSONContent, propsArray: Array<[string, string | string[]]>, rest: object = {}): MDCElement {
+export const createParagraphElement = (node: JSONContent, propsArray: string[][], rest: object = {}): MDCElement => {
   const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
@@ -327,59 +294,12 @@ function createCodeBlockElement(node: JSONContent): MDCElement {
 }
 
 function createImageElement(node: JSONContent): MDCElement {
-  // Get props from node.attrs.props (new structure) or fallback to direct attrs (old structure)
-  const props = node.attrs?.props || {}
-  const imageProps: Record<string, string | number> = {}
-
-  // Only add properties if they have non-empty values
-  const src = props.src || node.attrs?.src
-  if (src) imageProps.src = src
-
-  const alt = props.alt || node.attrs?.alt
-  if (alt) imageProps.alt = alt
-
-  if (props.title) imageProps.title = props.title
-  if (props.width) imageProps.width = props.width
-  if (props.height) imageProps.height = props.height
-  if (props.class) imageProps.class = props.class
-
   // handle nuxt image components
   if (['nuxt-img', 'nuxt-picture'].includes(node.attrs?.tag)) {
-    return createElement(node, node.attrs?.tag, { props: imageProps })
+    return createElement(node, node.attrs?.tag, { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
   }
   else {
-    return createElement(node, 'img', { props: imageProps })
-  }
-}
-
-function createVideoElement(node: JSONContent): MDCElement {
-  const props = node.attrs?.props || {}
-  const videoProps: Record<string, string | boolean | number> = {}
-
-  // Source is required
-  if (props.src || node.attrs?.src) {
-    videoProps.src = props.src || node.attrs?.src
-  }
-
-  // Optional string attributes
-  if (props.poster) videoProps.poster = props.poster
-  if (props.width) videoProps.width = props.width
-  if (props.height) videoProps.height = props.height
-  if (props.class) videoProps.class = props.class
-
-  // Optional boolean attributes
-  if (props[':controls']) videoProps[':controls'] = 'true'
-  if (props[':autoplay']) videoProps[':autoplay'] = 'true'
-  if (props[':loop']) videoProps[':loop'] = 'true'
-  if (props[':muted']) videoProps[':muted'] = 'true'
-
-  return {
-    type: 'element',
-    tag: 'video',
-    props: videoProps,
-    children: (node.content?.flatMap(tiptapNodeToMDC) || []).filter((child): child is MDCElement | MDCText | MDCComment =>
-      child.type !== 'root',
-    ),
+    return createElement(node, 'img', { props: { alt: node.attrs?.alt, src: node.attrs?.src } })
   }
 }
 
@@ -452,25 +372,12 @@ async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlight
     (n: unknown) => { Object.assign(n as MDCNode, { tag: (n as Element).tagName, props: (n as Element).properties, tagName: undefined, properties: undefined }) },
   )
 
-  // Remove empty newline text nodes and style elements
+  // Remove empty newline text nodes
   visit(
     mdc,
     (n: unknown) => (n as MDCElement).tag === 'pre',
     (n: unknown) => {
-      ((n as MDCElement).children[0] as MDCElement).children = ((n as MDCElement).children[0] as MDCElement).children.filter((child: MDCNode) => {
-        // Remove style elements added by Shiki
-        if (child.type === 'element' && (child as MDCElement).tag === 'style') {
-          return false
-        }
-
-        // Remove empty text nodes
-        if (child.type === 'text' && !child.value.trim()) {
-          return false
-        }
-
-        // Keep everything else
-        return true
-      })
+      ((n as MDCElement).children[0] as MDCElement).children = ((n as MDCElement).children[0] as MDCElement).children.filter((child: MDCNode) => child.type !== 'text' || child.value.trim())
     },
   )
 }

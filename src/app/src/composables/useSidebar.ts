@@ -1,6 +1,5 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
-import { createSharedComposable } from './createSharedComposable'
+import { createSharedComposable, useLocalStorage } from '@vueuse/core'
 
 export const useSidebar = createSharedComposable(() => {
   const MIN_WIDTH = 440

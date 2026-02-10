@@ -37,7 +37,7 @@ export function getCollectionSourceById(id: string, sources: ResolvedCollectionS
       fsPath = prefixAndPath
     }
     else {
-      const path = prefixAndPath.replace(withoutLeadingSlash(prefix), '')
+      const path = prefixAndPath.replace(prefix, '')
       fsPath = join(fixed, path)
     }
 

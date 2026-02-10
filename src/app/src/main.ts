@@ -10,7 +10,6 @@ import { createI18n } from 'vue-i18n'
 import App from './app.vue'
 import Content from './pages/content.vue'
 import Media from './pages/media.vue'
-import AI from './pages/ai.vue'
 import Review from './pages/review.vue'
 import Success from './pages/success.vue'
 import Error from './pages/error.vue'
@@ -33,11 +32,6 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
               name: 'media',
               path: '/media',
               component: Media,
-            },
-            {
-              name: 'ai',
-              path: '/ai',
-              component: AI,
             },
             {
               name: 'review',

@@ -3,7 +3,6 @@ import type { TreeItem } from './tree'
 export enum StudioFeature {
   Content = 'content',
   Media = 'media',
-  AI = 'ai',
 }
 
 export enum StudioItemActionId {

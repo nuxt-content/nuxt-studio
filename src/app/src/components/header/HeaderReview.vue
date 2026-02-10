@@ -63,11 +63,11 @@ async function publishChanges() {
     await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: state.commitMessage })
 
     state.commitMessage = ''
-    await router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
+    router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
   }
   catch (error) {
     const err = error as Error
-    await router.push({
+    router.push({
       path: '/error',
       query: {
         error: err.message || t('studio.publish.failedGeneric'),
@@ -80,16 +80,16 @@ async function publishChanges() {
 }
 
 async function backToEditor() {
-  await router.push(`/${location.value.feature}`)
+  router.push(`/${location.value.feature}`)
   await context.activeTree.value.selectItemByFsPath(location.value.fsPath)
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore defineShortcuts is auto-imported
 defineShortcuts({
-  escape: async () => {
+  escape: () => {
     state.commitMessage = ''
-    await router.push('/content')
+    router.push('/content')
   },
 })
 </script>
@@ -118,9 +118,13 @@ defineShortcuts({
 
       <UFormField
         name="commitMessage"
-        :error="false"
         class="w-full"
+        :ui="{ error: 'hidden' }"
       >
+        <template #error>
+          <span />
+        </template>
+
         <UInput
           v-model="state.commitMessage"
           :placeholder="$t('studio.placeholders.commitMessage')"

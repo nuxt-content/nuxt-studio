@@ -11,7 +11,7 @@ const { mediaTree, context } = useStudio()
 const props = defineProps<{ open: boolean, type: 'image' | 'video' }>()
 
 const emit = defineEmits<{
-  select: [image: TreeItem | null]
+  select: [image: TreeItem]
   cancel: []
 }>()
 
@@ -48,14 +48,9 @@ const handleMediaSelect = (media: TreeItem) => {
   emit('select', media)
 }
 
-const handleUpload = async () => {
+const handleUpload = () => {
   emit('cancel')
-  await context.switchFeature(StudioFeature.Media)
-}
-
-const handleUseExternal = () => {
-  // Emit select with null to trigger manual URL entry
-  emit('select', null)
+  context.switchFeature(StudioFeature.Media)
 }
 </script>
 
@@ -143,22 +138,13 @@ const handleUseExternal = () => {
     </template>
 
     <template #footer>
-      <div class="flex gap-2">
-        <UButton
-          variant="solid"
-          icon="i-lucide-upload"
-          @click="handleUpload"
-        >
-          {{ $t(`studio.mediaPicker.${type}.upload`) }}
-        </UButton>
-        <UButton
-          variant="outline"
-          icon="i-lucide-link"
-          @click="handleUseExternal"
-        >
-          {{ $t(`studio.mediaPicker.${type}.useExternal`) }}
-        </UButton>
-      </div>
+      <UButton
+        variant="outline"
+        icon="i-lucide-upload"
+        @click="handleUpload"
+      >
+        {{ $t(`studio.mediaPicker.${type}.upload`) }}
+      </UButton>
     </template>
   </UModal>
 </template>

@@ -91,7 +91,7 @@ TreeItem[] {
         fileItem.status = getTreeStatus(draftFileItem)
       }
 
-      insertSorted(tree, fileItem)
+      tree.push(fileItem)
       continue
     }
 
@@ -121,7 +121,7 @@ TreeItem[] {
         directoryMap.set(dirFsPath, directory)
 
         if (!directoryChildren.find(child => child.fsPath === dirFsPath)) {
-          insertSorted(directoryChildren, directory)
+          directoryChildren.push(directory)
         }
       }
 
@@ -152,40 +152,12 @@ TreeItem[] {
       fileItem.routePath = dbItem.path as string
     }
 
-    insertSorted(directoryChildren, fileItem)
+    directoryChildren.push(fileItem)
   }
 
   calculateDirectoryStatuses(tree, isDev)
 
   return tree
-}
-
-/**
- * Inserts an item into an array at the correct sorted position based on numeric prefix, then name
- */
-function insertSorted(items: TreeItem[], newItem: TreeItem) {
-  const newPrefix = newItem.prefix !== null ? Number(newItem.prefix) : Infinity
-
-  // Find the correct insertion index
-  let insertIndex = items.length
-  for (let i = 0; i < items.length; i++) {
-    const itemPrefix = items[i].prefix !== null ? Number(items[i].prefix) : Infinity
-
-    // Compare by prefix first
-    if (newPrefix < itemPrefix) {
-      insertIndex = i
-      break
-    }
-    else if (newPrefix === itemPrefix) {
-      // If prefixes are equal, compare by name
-      if (newItem.name.localeCompare(items[i].name) < 0) {
-        insertIndex = i
-        break
-      }
-    }
-  }
-
-  items.splice(insertIndex, 0, newItem)
 }
 
 export function getTreeStatus(draftItem: DraftItem): TreeStatus {

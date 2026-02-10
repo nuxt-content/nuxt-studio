@@ -22,13 +22,5 @@ export default defineNuxtConfig({
       rootDir: 'playground/docus',
       private: false,
     },
-    ai: {
-      context: {
-        title: 'Nuxt Studio playground',
-        description: 'Playground for Nuxt Studio similar to the official documentation.',
-        style: 'technical documentation',
-        tone: 'formal and professional',
-      },
-    },
   },
 })

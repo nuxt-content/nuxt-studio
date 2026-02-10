@@ -2,7 +2,6 @@ import type { MarkdownRoot } from '@nuxt/content'
 import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import type { Node } from 'unist'
-import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
@@ -14,8 +13,6 @@ import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { removeReservedKeysFromDocument } from './schema'
 import { remarkEmojiPlugin } from 'nuxt-studio/app/utils'
-
-const logger = consola.withTag('Nuxt Studio')
 
 export async function generateDocumentFromContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
@@ -42,7 +39,7 @@ export async function generateDocumentFromYAMLContent(id: string, content: strin
   // Keep array contents under `body` key
   let parsed = data
   if (Array.isArray(data)) {
-    logger.warn(`YAML array is not supported in ${id}, moving the array into the \`body\` key`)
+    console.warn(`YAML array is not supported in ${id}, moving the array into the \`body\` key`)
     parsed = { body: data }
   }
 
@@ -66,7 +63,7 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
 
   // Keep array contents under `body` key
   if (Array.isArray(parsed)) {
-    logger.warn(`JSON array is not supported in ${id}, moving the array into the \`body\` key`)
+    console.warn(`JSON array is not supported in ${id}, moving the array into the \`body\` key`)
     parsed = {
       body: parsed,
     }

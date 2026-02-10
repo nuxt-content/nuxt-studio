@@ -20,21 +20,10 @@ export * from './config'
 export * from './media'
 export * from './content'
 export * from './form'
-export * from './ai'
 
 export interface StudioHost {
   meta: {
     dev: boolean
-    ai: {
-      enabled: boolean
-      experimental: {
-        collectionContext: boolean
-      }
-      context: {
-        collectionName: string
-        contentFolder: string
-      }
-    }
     getComponents: () => ComponentMeta[]
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
@@ -86,7 +75,6 @@ export interface StudioHost {
   }
   collection: {
     getByFsPath: (fsPath: string) => CollectionInfo | undefined
-    list: () => CollectionInfo[]
   }
   user: {
     get: () => StudioUser

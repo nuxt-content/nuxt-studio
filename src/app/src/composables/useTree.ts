@@ -1,4 +1,4 @@
-import type { DatabaseItem, StudioHost, TreeItem, DraftItem, MediaItem } from '../types'
+import type { DatabaseItem, StudioHost, TreeItem } from '../types'
 import { StudioFeature, TreeStatus, DraftStatus } from '../types'
 import { ref, computed } from 'vue'
 import type { useDraftDocuments } from './useDraftDocuments'
@@ -7,32 +7,19 @@ import { buildTree, findItemFromFsPath, findItemFromRoute, findParentFromFsPath 
 import type { RouteLocationNormalized } from 'vue-router'
 import { useHooks } from './useHooks'
 import { useStudioState } from './useStudioState'
-import { useAI } from './useAI'
 
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
   const { preferences, setLocation, devMode } = useStudioState()
-  const { contextFolder } = useAI()
 
   const tree = ref<TreeItem[]>([])
 
   const rootItem = computed<TreeItem>(() => {
     const draftedTreeItems = draft.list.value.filter(draft => draft.status !== DraftStatus.Pristine)
-    let name = 'content'
-    let fsPath = '/'
-
-    if (type === StudioFeature.Media) {
-      name = 'public'
-    }
-    else if (type === StudioFeature.AI) {
-      name = contextFolder
-      fsPath = contextFolder
-    }
-
     return {
-      name,
+      name: type === StudioFeature.Content ? 'content' : 'public',
       type: 'root',
-      fsPath,
+      fsPath: '/',
       children: tree.value,
       status: draftedTreeItems.length > 0 ? TreeStatus.Updated : null,
       prefix: null,
@@ -111,65 +98,29 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
 
   // Trigger tree rebuild to update files status
   async function handleDraftUpdate(selectItem: boolean = true) {
-    let draftList: DraftItem<DatabaseItem | MediaItem>[]
-    let dbList: DatabaseItem[]
+    const hostDb = type === StudioFeature.Content ? host.document.db : host.media
+    const list = await hostDb.list() as DatabaseItem[]
 
-    // Media
-    if (type === StudioFeature.Media) {
-      dbList = await host.media.list() as DatabaseItem[]
-      draftList = draft.list.value
-    }
-    // Content
-    else {
-      const allDbItems = await host.document.db.list() as DatabaseItem[]
-      const allDraftItems = draft.list.value
-
-      const isInContextFolder = (item: DatabaseItem | DraftItem<DatabaseItem | MediaItem>) => {
-        if (!contextFolder) return false
-
-        return item.fsPath?.startsWith(`${contextFolder}/`)
-      }
-
-      if (type === StudioFeature.AI) {
-        dbList = allDbItems.filter(isInContextFolder)
-        draftList = allDraftItems.filter(isInContextFolder)
-      }
-      else {
-        dbList = allDbItems.filter(item => !isInContextFolder(item))
-        draftList = allDraftItems.filter(item => !isInContextFolder(item))
-      }
-    }
-
-    tree.value = buildTree(dbList, draftList, devMode.value)
+    tree.value = buildTree(list, draft.list.value, devMode.value)
 
     // Reselect current item to update status
     if (selectItem) {
-      const item = findItemFromFsPath(tree.value, currentItem.value.fsPath)
-      if (item) {
-        select(item)
-      }
+      select(findItemFromFsPath(tree.value, currentItem.value.fsPath)!)
     }
 
     // Rerender host app
     host.app.requestRerender()
   }
 
-  if (type === StudioFeature.Media) {
-    hooks.hook('studio:draft:media:updated', async ({ caller }) => {
-      console.info('studio:draft:media:updated have been called by', caller)
-      await handleDraftUpdate(caller !== 'useDraftBase.load')
-    })
-  }
-  else if (type === StudioFeature.AI) {
-    hooks.hook('studio:draft:ai:updated', async ({ caller }) => {
-      console.info('studio:draft:ai:updated have been called by', caller)
+  if (type === StudioFeature.Content) {
+    hooks.hook('studio:draft:document:updated', async ({ caller }) => {
+      console.info('studio:draft:document:updated have been called by', caller)
       await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }
   else {
-    // Content and AI trees listen to document updates
-    hooks.hook('studio:draft:document:updated', async ({ caller }) => {
-      console.info('studio:draft:document:updated have been called by', caller)
+    hooks.hook('studio:draft:media:updated', async ({ caller }) => {
+      console.info('studio:draft:media:updated have been called by', caller)
       await handleDraftUpdate(caller !== 'useDraftBase.load')
     })
   }

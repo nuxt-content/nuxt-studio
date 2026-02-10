@@ -25,7 +25,7 @@ const userMenuItems = computed(() => [
         //   slot: 'view-mode' as const,
         // }
         {
-          label: `${host.repository.owner}/${host.repository.repo}#${host.repository.branch}`,
+          label: `${host.repository.owner}/${host.repository.repo}`,
           icon: gitProvider.icon,
           to: repositoryUrl.value,
           target: '_blank',
@@ -51,12 +51,6 @@ const syncTooltipText = computed(() => {
   return preferences.value.syncEditorAndRoute
     ? t('studio.tooltips.unlinkEditor')
     : t('studio.tooltips.linkEditor')
-})
-
-const aiCompletionTooltipText = computed(() => {
-  return preferences.value.enableAICompletion
-    ? t('studio.tooltips.disableAICompletion')
-    : t('studio.tooltips.enableAICompletion')
 })
 
 function closeStudio() {
@@ -129,19 +123,6 @@ function closeStudio() {
           :color="preferences.syncEditorAndRoute ? 'info' : 'neutral'"
           :class="!preferences.syncEditorAndRoute && 'opacity-50'"
           @click="updatePreference('syncEditorAndRoute', !preferences.syncEditorAndRoute)"
-        />
-      </UTooltip>
-      <UTooltip
-        v-if="host.meta.ai.enabled"
-        :text="aiCompletionTooltipText"
-        :delay-duration="0"
-      >
-        <UButton
-          icon="i-lucide-sparkles"
-          variant="ghost"
-          :color="preferences.enableAICompletion ? 'info' : 'neutral'"
-          :class="!preferences.enableAICompletion && 'opacity-50'"
-          @click="updatePreference('enableAICompletion', !preferences.enableAICompletion)"
         />
       </UTooltip>
       <UButton

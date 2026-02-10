@@ -1,5 +1,5 @@
 import { flatCase, pascalCase, titleCase, upperFirst } from 'scule'
-import { hasProtocol, isRelative } from 'ufo'
+import { hasProtocol } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
@@ -47,36 +47,64 @@ const HIDDEN_PROPS = [
   'onClick',
 ]
 
-/**
- * Validate and sanitize media URL (images and videos)
- */
-export function sanitizeMediaUrl(url: string, mediaType: 'image' | 'video'): string | null {
-  if (!url) return null
+// https://developer.mozilla.org/fr/docs/Web/HTML/Element/video#attributs
+// const videoProps = [
+//   {
+//     name: 'src',
+//     schema: 'string',
+//   },
+//   {
+//     name: 'autoplay',
+//     schema: 'boolean',
+//   },
+//   {
+//     name: 'controls',
+//     schema: 'boolean',
+//   },
+//   {
+//     name: 'loop',
+//     schema: 'boolean',
+//   },
+//   {
+//     name: 'muted',
+//     schema: 'boolean',
+//   },
+//   {
+//     name: 'poster',
+//     schema: 'string',
+//   },
+//   {
+//     name: 'preload',
+//     schema: 'string',
+//   },
+//   {
+//     name: 'width',
+//     schema: 'number',
+//   },
+//   {
+//     name: 'height',
+//     schema: 'number',
+//   },
+// ] as Array<PropertyMeta>
 
-  // Allow relative URLs (./file.jpg, ../file.mp4)
-  if (isRelative(url)) return url
-
-  // Allow absolute paths from root (/file.jpg)
-  if (url.startsWith('/')) return url
-
-  // Allow data URLs for specific media type
-  if (url.startsWith(`data:${mediaType}/`)) return url
-
-  // For URLs with protocol, only allow http/https
-  if (hasProtocol(url)) {
-    try {
-      const parsed = new URL(url)
-      if (['http:', 'https:'].includes(parsed.protocol)) {
-        return url
-      }
-    }
-    catch {
-      return null
-    }
-  }
-
-  return null
-}
+// const imgProps = [
+//   {
+//     name: 'src',
+//     schema: 'string',
+//   },
+//   {
+//     name: 'alt',
+//     schema: 'string',
+//   },
+//   {
+//     name: 'width',
+//     schema: 'number',
+//   },
+//   {
+//     name: 'height',
+//     schema: 'number',
+//   },
+// ] as Array<PropertyMeta>
 
 /**
  * Check if a value is valid, not null or undefined
@@ -93,25 +121,20 @@ export const isValidAttr = (value?: string | null) => {
  * Clean span props, removing null and undefined values
  */
 export const cleanSpanProps = (attrs?: Record<string, unknown> | null) => {
-  const props: Record<string, string | string[]> = {}
+  const props: Record<string, string> = {}
   if (isValidAttr(attrs?.style as string)) props.style = String(attrs!.style).trim()
-  if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) {
-    const classValue = String((attrs as Record<string, unknown>).class).trim()
-    // Convert space-separated class string back to array for className
-    props.className = classValue.split(' ')
-  }
+  if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) props.class = String((attrs as Record<string, unknown>).class).trim()
   return props
 }
 
 /**
- * Process and normalize element props, preserving className as array
+ * Process and normalize element props, converting className to class
  */
-export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string | string[]]> {
+export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string]> {
   return Object.entries({ ...nodeProps, ...extraProps })
     .map(([key, value]) => {
       if (key === 'className') {
-        // Keep className as array if it's already an array
-        return ['className', value] as [string, string | string[]]
+        return ['class', typeof value === 'string' ? value : (value as Array<string>).join(' ')] as [string, string]
       }
       return [key.trim(), String(value).trim()] as [string, string]
     })
@@ -123,7 +146,7 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
   const props = componentMeta.meta.props
   const nodeProps = node?.attrs?.props || {}
   const formTree: FormTree = {}
-  const componentName = pascalCase(node?.attrs?.tag || componentMeta.name)
+  const componentName = pascalCase(node?.attrs?.tag)
   const componentId = generateComponentId(componentName)
 
   // Meta props
@@ -141,6 +164,25 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
         formTree[propItem.key!] = propItem
       }
     }
+  }
+  // HTML element props
+  else {
+    // let elementProps: Array<PropertyMeta> = []
+    // switch (node?.type?.name) {
+    //   case 'video':
+    //     elementProps = videoProps
+    //     break
+    //   case 'image':
+    //     elementProps = imgProps
+    //     break
+    // }
+
+    // for (const prop of elementProps) {
+    //   const propItem = buildPropItem(componentId, prop, nodeProps)
+    //   if (propItem) {
+    //     formTree[propItem.key!] = propItem
+    //   }
+    // }
   }
 
   // Add custom props added manually by user
