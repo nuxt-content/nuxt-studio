@@ -2,7 +2,7 @@
 export {
   applyCollectionSchema,
   pickReservedKeysFromDocument,
-  removeReservedKeysFromDocument,
+  cleanDataKeys,
   reservedKeys,
 } from './schema'
 
