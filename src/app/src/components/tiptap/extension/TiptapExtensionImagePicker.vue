@@ -16,7 +16,7 @@ const handleImageSelect = (image: TreeItem | null) => {
       .chain()
       .focus()
       .deleteRange({ from: pos, to: pos + 1 })
-      .insertContent({
+      .insertContentAt(pos, {
         type: 'image',
         attrs: {
           props: {
