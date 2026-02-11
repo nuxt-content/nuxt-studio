@@ -48,7 +48,7 @@ export function validateAuthConfig(options: ModuleOptions): void {
     const missingProviderEnv = provider === 'github' ? !hasGitHubAuth : !hasGitLabAuth
     if (missingProviderEnv) {
       logger.warn([
-        `[Nuxt Studio] In order to use Studio in production mode, you need to setup authentication:`,
+        `In order to use Studio in production mode, you need to setup authentication:`,
         '- Read more on `https://nuxt.studio/auth-providers`',
         `- Alternatively, you can disable studio by setting \`$production: { studio: false }\` in your \`nuxt.config.ts\``,
       ].join('\n'))
