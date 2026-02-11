@@ -1,10 +1,8 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import Slugger from 'github-slugger'
-import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText, MDCComment } from '@nuxtjs/mdc'
-import rehypeShiki from '@nuxtjs/mdc/dist/runtime/highlighter/rehype'
-import { createShikiHighlighter } from '@nuxtjs/mdc/runtime/highlighter/shiki'
-import { bundledThemes, bundledLanguages as bundledLangs, createJavaScriptRegexEngine } from 'shiki'
+import type { Highlighter, Element, MDCElement, MDCNode, MDCRoot, MDCText, MDCComment, RehypeHighlightOption } from '@nuxtjs/mdc'
 import { visit } from 'unist-util-visit'
+import type { Root } from 'hast'
 import type { SyntaxHighlightTheme } from '../../types/content'
 import { getEmojiUnicode } from '../emoji'
 import { cleanSpanProps, normalizeProps } from './props'
@@ -58,6 +56,7 @@ const tiptapToMDCMap: TiptapToMDCMap = {
 
 let slugs = new Slugger()
 let shikiHighlighter: Highlighter | undefined
+let rehypeShiki: ((opts: RehypeHighlightOption) => (tree: Root) => Promise<void>) | undefined
 
 /*
  ***************************************************************
@@ -447,13 +446,34 @@ async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlight
   // Convert tag to tagName and props to properties to be compatible with rehype
   visit(mdc, (n: MDCNode) => n.tag !== undefined, (n: MDCNode) => Object.assign(n, { tagName: n.tag, properties: n.props }))
 
-  if (!shikiHighlighter) {
-    shikiHighlighter = createShikiHighlighter({ bundledThemes, bundledLangs, engine: createJavaScriptRegexEngine({ forgiving: true }) })
+  // Lazy load Shiki
+  if (!shikiHighlighter || !rehypeShiki) {
+    const [
+      { bundledThemes, bundledLanguages: bundledLangs, createJavaScriptRegexEngine },
+      { createShikiHighlighter },
+      rehypeShikiModule,
+    ] = await Promise.all([
+      import('shiki'),
+      import('@nuxtjs/mdc/runtime/highlighter/shiki'),
+      import('@nuxtjs/mdc/dist/runtime/highlighter/rehype'),
+    ])
+
+    if (!shikiHighlighter) {
+      shikiHighlighter = createShikiHighlighter({ bundledThemes, bundledLangs, engine: createJavaScriptRegexEngine({ forgiving: true }) })
+    }
+
+    if (!rehypeShiki) {
+      rehypeShiki = rehypeShikiModule.default
+    }
   }
 
-  // Highlight code blocks
-  const shikit = rehypeShiki({ theme: theme as never, highlighter: shikiHighlighter })
-  await shikit(mdc as never)
+  // Apply syntax highlighting
+  if (!rehypeShiki) {
+    throw new Error('rehypeShiki not initialized')
+  }
+  const shikit = rehypeShiki({ theme: theme as unknown as Record<string, string>, highlighter: shikiHighlighter })
+  // MDCRoot has been transformed to hast Root structure by the visit above (tag→tagName, props→properties)
+  await shikit(mdc as unknown as Root)
 
   // Convert back tagName to tag and properties to props to be compatible with MDC
   visit(

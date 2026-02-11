@@ -70,7 +70,6 @@ export default defineConfig({
     include: ['vue', 'vue-router', '@unhead/vue/client', '@nuxt/content/runtime', '@vueuse/core', '@unpic/vue', 'scule', 'zod', 'ufo', 'unstorage', 'unstorage/drivers/indexedb', 'unstorage/drivers/null', 'hookable', 'ofetch', '@nuxtjs/mdc/runtime', 'remark-mdc', 'unist-util-visit', 'destr', 'minimark/stringify', 'prosemirror-state', 'prosemirror-transform', 'prosemirror-model', 'prosemirror-view'],
   },
   build: {
-    target: 'es2020', // Support BigInt literals from Shiki grammars
     cssCodeSplit: false,
     outDir: '../../dist/app',
     lib: {

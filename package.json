@@ -15,6 +15,7 @@
       "types": "./dist/app/main.d.ts",
       "default": "./dist/app/main.js"
     },
+    "./app/*": "./dist/app/*",
     "./app/utils": {
       "types": "./dist/app/shared.d.ts",
       "default": "./dist/app/shared.js"
