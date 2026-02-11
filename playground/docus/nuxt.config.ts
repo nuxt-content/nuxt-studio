@@ -30,5 +30,13 @@ export default defineNuxtConfig({
         tone: 'formal and professional',
       },
     },
+    media: {
+      enabled: true,
+      endpoint: '/api/studio-upload',
+      listEndpoint: '/api/studio-media',
+      deleteEndpoint: '/api/studio-delete',
+      maxFileSize: 10 * 1024 * 1024, // 10MB
+      allowedTypes: ['image/*'],
+    },
   },
 })

@@ -92,7 +92,21 @@ function fetchFromIndexedDB(event, url) {
       return fetch(dbItem.original.path);
     }
 
-    // Created file
+    // OSS-stored file (external URL, no base64 data)
+    if (dbItem.modified?.ossUrl) {
+      return fetch(dbItem.modified.ossUrl)
+        .then(response => {
+          if (!response.ok) throw new Error('OSS fetch failed');
+          return response;
+        })
+        .catch(() => fetch('https://placehold.co/400x300?text=Loading+Error'));
+    }
+
+    // Created file with base64 data
+    if (!dbItem.modified?.raw) {
+      return fetch(event.request);
+    }
+
     const parsed = parseDataUrl(dbItem.modified.raw);
     const bytes = base64ToUint8Array(parsed.base64);
 

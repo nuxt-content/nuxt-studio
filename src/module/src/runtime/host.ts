@@ -87,6 +87,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       getComponents: () => meta.components.value,
       defaultLocale: runtimeConfig.public.studio.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
+      media: runtimeConfig.public.studio.media,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
