@@ -61,6 +61,7 @@
     "nuxt-component-meta": "^0.17.2",
     "remark-mdc": "^3.10.0",
     "shiki": "^3.22.0",
+    "unhead": "^2.1.4",
     "unstorage": "1.17.4",
     "@unhead/vue": "^2.1.4",
     "zod": "^4.3.6",

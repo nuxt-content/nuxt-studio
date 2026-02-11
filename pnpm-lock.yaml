@@ -50,6 +50,9 @@ importers:
       shiki:
         specifier: ^3.22.0
         version: 3.22.0
+      unhead:
+        specifier: ^2.1.4
+        version: 2.1.4
       unstorage:
         specifier: 1.17.4
         version: 1.17.4(db0@0.3.4(better-sqlite3@12.6.2))(idb-keyval@6.2.2)(ioredis@5.9.2)
