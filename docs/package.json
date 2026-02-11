@@ -6,9 +6,11 @@
   },
   "dependencies": {
     "@nuxtjs/plausible": "^2.0.1",
-    "docus": "https://pkg.pr.new/docus@f40ac5e",
+    "@unhead/vue": "^2.1.4",
     "better-sqlite3": "^12.6.2",
+    "docus": "https://pkg.pr.new/docus@f40ac5e",
     "nuxt": "^4.3.0",
-    "nuxt-studio": "workspace:*"
+    "nuxt-studio": "workspace:*",
+    "unhead": "^2.1.4"
   }
 }
