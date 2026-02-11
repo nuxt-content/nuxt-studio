@@ -52,10 +52,3 @@ jobs:
 
       - name: Publish
         run: pnpx pkg-pr-new publish --no-template --pnpm
-
-      - name: Update docs to use pkg.pr.new version
-        run: |
-          STUDIO_HASH=$(git rev-parse --short HEAD)
-          echo "Using nuxt-studio@${STUDIO_HASH}"
-          sed -i "s|\"nuxt-studio\": \"workspace:\*\"|\"nuxt-studio\": \"https://pkg.pr.new/nuxt-studio@${STUDIO_HASH}\"|g" docs/package.json
-          cat docs/package.json | grep nuxt-studio
