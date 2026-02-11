@@ -22,7 +22,14 @@ export default defineNuxtConfig({
       rootDir: 'playground/docus',
       private: false,
     },
-    // OSS upload configuration (enable image paste/drop in TipTap editor)
+    ai: {
+      context: {
+        title: 'Nuxt Studio playground',
+        description: 'Playground for Nuxt Studio similar to the official documentation.',
+        style: 'technical documentation',
+        tone: 'formal and professional',
+      },
+    },
     media: {
       enabled: true,
       endpoint: '/api/studio-upload',

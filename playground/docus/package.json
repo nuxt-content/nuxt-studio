@@ -8,8 +8,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.978.0",
     "better-sqlite3": "^12.6.2",
-    "docus": "^5.4.4",
-    "nuxt": "^4.2.2",
+    "docus": "^5.5.0",
+    "nuxt": "^4.3.0",
     "nuxt-studio": "workspace:*"
   }
 }

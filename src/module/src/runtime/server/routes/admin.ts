@@ -16,8 +16,9 @@ export default eventHandler((event) => {
   const hasGithub = process.env.STUDIO_GITHUB_CLIENT_ID && 'github'
   const hasGitlab = process.env.STUDIO_GITLAB_APPLICATION_ID && 'gitlab'
   const hasGoogle = process.env.STUDIO_GOOGLE_CLIENT_ID && 'google'
+  const hasSSO = (process.env.STUDIO_SSO_URL && process.env.STUDIO_SSO_CLIENT_ID && process.env.STUDIO_SSO_CLIENT_SECRET) && 'sso'
 
-  const providers = [hasGithub, hasGitlab, hasGoogle].filter(Boolean)
+  const providers = [hasGithub, hasGitlab, hasGoogle, hasSSO].filter(Boolean)
   if (providers.length === 0) {
     throw createError({
       statusCode: 404,
@@ -58,6 +59,15 @@ export default eventHandler((event) => {
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
                 Continue with Google
+            </a>`
+    : ''
+
+  const ssoButton = hasSSO
+    ? `<a href="#" class="provider-btn sso" data-provider="sso">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/>
+                </svg>
+                Continue with SSO
             </a>`
     : ''
 
@@ -249,6 +259,17 @@ export default eventHandler((event) => {
             border-color: #d2d3d4;
         }
 
+        .provider-btn.sso {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+
+        .provider-btn.sso:hover {
+            background: var(--border);
+            border-color: #484f58;
+        }
+
         .footer {
             text-align: center;
             margin-top: 32px;
@@ -298,6 +319,7 @@ export default eventHandler((event) => {
             ${githubButton}
             ${gitlabButton}
             ${googleButton}
+            ${ssoButton}
         </div>
 
     </div>

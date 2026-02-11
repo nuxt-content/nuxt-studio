@@ -2,6 +2,7 @@ import type { MarkdownRoot } from '@nuxt/content'
 import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import type { Node } from 'unist'
+import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
@@ -11,8 +12,10 @@ import destr from 'destr'
 import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
-import { removeReservedKeysFromDocument } from './schema'
+import { cleanDataKeys } from './schema'
 import { remarkEmojiPlugin } from 'nuxt-studio/app/utils'
+
+const logger = consola.withTag('Nuxt Studio')
 
 export async function generateDocumentFromContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
@@ -39,7 +42,7 @@ export async function generateDocumentFromYAMLContent(id: string, content: strin
   // Keep array contents under `body` key
   let parsed = data
   if (Array.isArray(data)) {
-    console.warn(`YAML array is not supported in ${id}, moving the array into the \`body\` key`)
+    logger.warn(`YAML array is not supported in ${id}, moving the array into the \`body\` key`)
     parsed = { body: data }
   }
 
@@ -63,7 +66,7 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
 
   // Keep array contents under `body` key
   if (Array.isArray(parsed)) {
-    console.warn(`JSON array is not supported in ${id}, moving the array into the \`body\` key`)
+    logger.warn(`JSON array is not supported in ${id}, moving the array into the \`body\` key`)
     parsed = {
       body: parsed,
     }
@@ -152,7 +155,7 @@ export async function generateContentFromDocument(document: DatabaseItem): Promi
 }
 
 export async function generateContentFromYAMLDocument(document: DatabaseItem): Promise<string | null> {
-  return await stringifyFrontMatter(removeReservedKeysFromDocument(document), '', {
+  return await stringifyFrontMatter(cleanDataKeys(document), '', {
     prefix: '',
     suffix: '',
     lineWidth: 0,
@@ -160,7 +163,7 @@ export async function generateContentFromYAMLDocument(document: DatabaseItem): P
 }
 
 export async function generateContentFromJSONDocument(document: DatabaseItem): Promise<string | null> {
-  return JSON.stringify(removeReservedKeysFromDocument(document), null, 2)
+  return JSON.stringify(cleanDataKeys(document), null, 2)
 }
 
 export async function generateContentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
@@ -173,7 +176,7 @@ export async function generateContentFromMarkdownDocument(document: DatabaseItem
     Reflect.deleteProperty((node as MDCElement).props!, 'rel')
   })
 
-  const markdown = await stringifyMarkdown(body, removeReservedKeysFromDocument(document), {
+  const markdown = await stringifyMarkdown(body, cleanDataKeys(document), {
     frontMatter: {
       options: {
         lineWidth: 0,

@@ -51,7 +51,7 @@ export function pickReservedKeysFromDocument(document: DatabaseItem): DatabaseIt
   return pick(document, reservedKeys) as DatabaseItem
 }
 
-export function removeReservedKeysFromDocument(document: DatabaseItem): DatabaseItem {
+export function cleanDataKeys(document: DatabaseItem): DatabaseItem {
   const result = omit(document, reservedKeys)
   // Default value of navigation is true, so we can safely remove it
   if (result.navigation === true) {
@@ -71,6 +71,7 @@ export function removeReservedKeysFromDocument(document: DatabaseItem): Database
   if (!document.title) {
     Reflect.deleteProperty(result, 'title')
   }
+
   if (!document.description) {
     Reflect.deleteProperty(result, 'description')
   }
@@ -84,6 +85,10 @@ export function removeReservedKeysFromDocument(document: DatabaseItem): Database
 
   for (const key in (result || {})) {
     if (result[key] === null) {
+      Reflect.deleteProperty(result, key)
+    }
+
+    if (Array.isArray(result[key]) && (result[key] as unknown[]).length === 0) {
       Reflect.deleteProperty(result, key)
     }
   }

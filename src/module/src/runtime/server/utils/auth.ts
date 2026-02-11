@@ -87,6 +87,48 @@ export function validateOAuthState(event: H3Event, receivedState: string) {
   deleteCookie(event, 'studio-oauth-state')
 }
 
+/**
+ * PKCE (Proof Key for Code Exchange) helpers for OAuth flows (RFC 7636).
+ * Generates a code_verifier, stores it in an HTTP-only cookie, and derives
+ * the corresponding code_challenge using the S256 method.
+ */
+export async function generatePKCECodeVerifier(event: H3Event) {
+  const codeVerifier = getRandomBytes(32)
+
+  setCookie(event, 'studio-oauth-pkce', codeVerifier, {
+    path: '/',
+    httpOnly: true,
+    secure: getRequestProtocol(event) === 'https',
+    sameSite: 'lax',
+    maxAge: 60 * 15, // 15 minutes
+  })
+
+  return codeVerifier
+}
+
+export async function generateCodeChallenge(codeVerifier: string) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))
+  return encodeBase64Url(new Uint8Array(digest))
+}
+
+export function consumePKCECodeVerifier(event: H3Event) {
+  const codeVerifier = getCookie(event, 'studio-oauth-pkce')
+
+  if (!codeVerifier) {
+    throw createError({
+      statusCode: 400,
+      message: 'PKCE code verifier cookie not found. Please try logging in again.',
+      data: {
+        hint: 'Code verifier cookie may have expired or been cleared',
+      },
+    })
+  }
+
+  deleteCookie(event, 'studio-oauth-pkce')
+
+  return codeVerifier
+}
+
 function getRandomBytes(size: number = 32) {
   return encodeBase64Url(getRandomValues(new Uint8Array(size)))
 }

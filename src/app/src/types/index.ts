@@ -20,6 +20,7 @@ export * from './config'
 export * from './media'
 export * from './content'
 export * from './form'
+export * from './ai'
 
 export interface MediaUploadConfig {
   enabled: boolean
@@ -33,6 +34,16 @@ export interface MediaUploadConfig {
 export interface StudioHost {
   meta: {
     dev: boolean
+    ai: {
+      enabled: boolean
+      experimental: {
+        collectionContext: boolean
+      }
+      context: {
+        collectionName: string
+        contentFolder: string
+      }
+    }
     getComponents: () => ComponentMeta[]
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
@@ -69,7 +80,7 @@ export interface StudioHost {
       areEqual: (document1: DatabaseItem, document2: DatabaseItem) => boolean
       isMatchingContent: (content: string, document: DatabaseItem) => Promise<boolean>
       pickReservedKeys: (document: DatabaseItem) => DatabaseItem
-      removeReservedKeys: (document: DatabaseItem) => DatabaseItem
+      cleanDataKeys: (document: DatabaseItem) => DatabaseItem
       detectActives: () => Array<{ fsPath: string, title: string }>
     }
     generate: {
@@ -85,6 +96,7 @@ export interface StudioHost {
   }
   collection: {
     getByFsPath: (fsPath: string) => CollectionInfo | undefined
+    list: () => CollectionInfo[]
   }
   user: {
     get: () => StudioUser
