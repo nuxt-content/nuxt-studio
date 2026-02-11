@@ -196,7 +196,7 @@ export default eventHandler(async (event: H3Event) => {
   if (!moderators.includes(user.email)) {
     if (import.meta.dev && moderators.length === 0) {
       logger.warn([
-        '[Nuxt Studio] No moderators defined. Moderators are required for Google authentication.',
+        'No moderators defined. Moderators are required for Google authentication.',
         'Please set the `STUDIO_GOOGLE_MODERATORS` environment variable to a comma-separated list of email addresses of the moderators.',
       ].join('\n'))
     }
