@@ -163,8 +163,8 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0(@parcel/watcher@2.5.6)(@types/node@25.2.1)(@vue/compiler-sfc@3.5.28)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@10.0.0(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.2)(lightningcss@1.31.1)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rollup@4.57.1)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.4(typescript@5.9.3))(yaml@2.8.2)
       nuxt-studio:
-        specifier: workspace:*
-        version: link:..
+        specifier: https://pkg.pr.new/nuxt-content/nuxt-studio@c8ce2df
+        version: https://pkg.pr.new/nuxt-content/nuxt-studio@c8ce2df(db0@0.3.4(better-sqlite3@12.6.2))(idb-keyval@6.2.2)(ioredis@5.9.2)(magicast@0.5.2)(vue@3.5.28(typescript@5.9.3))
 
   playground/docus:
     dependencies:
@@ -6270,6 +6270,10 @@ packages:
 
   nuxt-site-config@3.2.19:
     resolution: {integrity: sha512-OUGfo8aJWbymheyb9S2u78ADX73C9qBf8u6BwEJiM82JBhvJTEduJBMlK8MWeh3x9NF+/YX4AYsY5hjfQE5jGA==}
+
+  nuxt-studio@https://pkg.pr.new/nuxt-content/nuxt-studio@c8ce2df:
+    resolution: {integrity: sha512-LvIiP8lkbKj+9R2oDV+fnNadT21WBRMaGyAuzEzu7g2Ya6Wm4F7ytbMYkdE+hrbAE2xF+vNrhNIInCP5070Y1Q==, tarball: https://pkg.pr.new/nuxt-content/nuxt-studio@c8ce2df}
+    version: 1.3.1
 
   nuxt@4.3.0:
     resolution: {integrity: sha512-99Iw3E3L5/2QtJyV4errZ0axkX/S9IAFK0AHm0pmRHkCu37OFn8mz2P4/CYTt6B/TG3mcKbXAVaeuF2FsAc1cA==}
@@ -15465,6 +15469,48 @@ snapshots:
     transitivePeerDependencies:
       - magicast
       - vite
+      - vue
+
+  nuxt-studio@https://pkg.pr.new/nuxt-content/nuxt-studio@c8ce2df(db0@0.3.4(better-sqlite3@12.6.2))(idb-keyval@6.2.2)(ioredis@5.9.2)(magicast@0.5.2)(vue@3.5.28(typescript@5.9.3)):
+    dependencies:
+      '@ai-sdk/gateway': 3.0.39(zod@4.3.6)
+      '@ai-sdk/vue': 3.0.78(vue@3.5.28(typescript@5.9.3))(zod@4.3.6)
+      '@iconify-json/lucide': 1.2.90
+      '@nuxtjs/mdc': 0.20.1(magicast@0.5.2)
+      '@vueuse/core': 14.2.1(vue@3.5.28(typescript@5.9.3))
+      ai: 6.0.78(zod@4.3.6)
+      defu: 6.1.4
+      destr: 2.0.5
+      js-yaml: 4.1.1
+      minimatch: 10.1.2
+      nuxt-component-meta: 0.17.2(magicast@0.5.2)
+      remark-mdc: 3.10.0
+      shiki: 3.22.0
+      unstorage: 1.17.4(db0@0.3.4(better-sqlite3@12.6.2))(idb-keyval@6.2.2)(ioredis@5.9.2)
+      zod: 4.3.6
+      zod-to-json-schema: 3.25.1(zod@4.3.6)
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - aws4fetch
+      - db0
+      - idb-keyval
+      - ioredis
+      - magicast
+      - supports-color
+      - uploadthing
       - vue
 
   nuxt@4.3.0(@parcel/watcher@2.5.6)(@types/node@25.2.1)(@vue/compiler-sfc@3.5.28)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@10.0.0(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.2)(lightningcss@1.31.1)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rollup@4.57.1)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.4(typescript@5.9.3))(yaml@2.8.2):
