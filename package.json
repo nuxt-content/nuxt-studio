@@ -15,6 +15,7 @@
       "types": "./dist/app/main.d.ts",
       "default": "./dist/app/main.js"
     },
+    "./app/*": "./dist/app/*",
     "./app/utils": {
       "types": "./dist/app/shared.d.ts",
       "default": "./dist/app/shared.js"
@@ -47,12 +48,12 @@
     "clean": "rm -rf dist .nuxt .output node_modules docs/node_modules docs/.output docs/.data docs/.nuxt playground/docus/node_modules playground/docus/.output playground/docus/.data playground/docus/.nuxt playground/minimal/node_modules playground/minimal/.output playground/minimal/.data playground/minimal/.nuxt pnpm-lock.yaml"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^3.0.39",
-    "@ai-sdk/vue": "^3.0.78",
+    "@ai-sdk/gateway": "^3.0.42",
+    "@ai-sdk/vue": "^3.0.82",
     "@iconify-json/lucide": "^1.2.90",
     "@nuxtjs/mdc": "^0.20.1",
     "@vueuse/core": "^14.2.1",
-    "ai": "^6.0.78",
+    "ai": "^6.0.82",
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "js-yaml": "^4.1.1",
@@ -96,7 +97,7 @@
     "vue-router": "^5.0.2",
     "vue-tsc": "^3.2.4"
   },
-  "packageManager": "pnpm@10.29.2",
+  "packageManager": "pnpm@10.29.3",
   "keywords": [
     "nuxt",
     "content",
