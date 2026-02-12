@@ -2321,18 +2321,12 @@ text 1
     }
 
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    console.log('=== STEP 1: MDC from Content ===')
-    console.log(JSON.stringify(document.body, null, 2))
     expect(document.body).toMatchObject(expectedMDCJSON)
 
     const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    console.log('=== STEP 2: TipTap from MDC ===')
-    console.log(JSON.stringify(tiptapJSON, null, 2))
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    console.log('=== STEP 3: MDC from TipTap ===')
-    console.log(JSON.stringify(generatedMdcJSON.body, null, 2))
     expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2341,8 +2335,6 @@ text 1
     })
 
     const outputContent = await generateContentFromDocument(generatedDocument)
-    console.log('=== STEP 4: Final Output ===')
-    console.log(outputContent)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
