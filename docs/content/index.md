@@ -356,8 +356,8 @@ Leverage [Vercel AI Gateway](https://vercel.com/ai-gateway) to automatically gen
   :::u-button
   ---
   color: neutral
-  label: Learn more about the Code Editor
-  to: /content#code-editor
+  label: Learn more about AI integration
+  to: /ai
   trailingIcon: i-lucide-arrow-right
   variant: subtle
   ---
