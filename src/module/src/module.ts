@@ -279,7 +279,7 @@ export default defineNuxtModule<ModuleOptions>({
       provider: 'github',
       owner: '',
       repo: '',
-      branch: 'main',
+      branch: '',
       rootDir: '',
       private: true,
     },
