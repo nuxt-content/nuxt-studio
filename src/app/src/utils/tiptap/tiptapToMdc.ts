@@ -198,8 +198,10 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): MD
   // Unwrap default slot (reverts `wrapChildrenWithinSlot` from `mdcToTiptap`)
   children = unwrapDefaultSlot(children)
 
-  // Unwrap single paragraph child (MDC auto-unwrap feature)
-  children = unwrapParagraph(children)
+  if (tag !== 'blockquote') {
+    // Unwrap single paragraph child (MDC auto-unwrap feature)
+    children = unwrapParagraph(children)
+  }
 
   return {
     type: 'element',
