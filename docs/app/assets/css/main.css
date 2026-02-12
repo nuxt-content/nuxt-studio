@@ -18,6 +18,8 @@
   --color-green-950: #052E16;
 }
 
+@source "../../../content/**/*";
+
 :root {
   --ui-container: var(--container-8xl);
 }

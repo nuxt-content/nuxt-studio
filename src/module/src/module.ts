@@ -277,9 +277,9 @@ export default defineNuxtModule<ModuleOptions>({
     },
     repository: {
       provider: 'github',
-      owner: '',
-      repo: '',
-      branch: 'main',
+      owner: undefined,
+      repo: undefined,
+      branch: undefined,
       rootDir: '',
       private: true,
     },
@@ -332,14 +332,14 @@ export default defineNuxtModule<ModuleOptions>({
       options.dev = false
     }
 
-    // Auto-detect repository from CI environment variables when not explicitly configured
+    // Fill in missing repository options from CI environment variables
     const isProdBuild = nuxt.options.dev === false && nuxt.options._prepare === false
-    if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
-      const detected = detectRepositoryFromCI()
-      if (detected) {
-        options.repository = defu(detected, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
-        logger.info(`Auto-detected repository from CI environment: ${detected.provider}:${detected.owner}/${detected.repo}#${detected.branch}`)
+    if (isProdBuild) {
+      const detectedRepo = detectRepositoryFromCI()
+      if (detectedRepo) {
+        options.repository = defu(detectedRepo, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
       }
+      logger.info(`Using repository: ${options.repository?.provider}:${options.repository?.owner}/${options.repository?.repo}#${options.repository?.branch}`)
     }
 
     if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
@@ -547,10 +547,10 @@ export default defineNuxtModule<ModuleOptions>({
 })
 
 /**
- * Auto-detect repository details from CI environment variables.
+ * Fill in missing repository options from CI environment variables.
  * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
  */
-function detectRepositoryFromCI(): GitHubRepositoryOptions | GitLabRepositoryOptions | undefined {
+function detectRepositoryFromCI(): Partial<GitHubRepositoryOptions | GitLabRepositoryOptions> | undefined {
   // Vercel
   if (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG && ['github', 'gitlab'].includes(process.env.VERCEL_GIT_PROVIDER!)) {
     return {
