@@ -18,8 +18,7 @@ export default defineNuxtConfig({
     repository: {
       provider: 'github',
       owner: 'nuxt-content',
-      repo: 'studio',
-      branch: 'main',
+      repo: 'nuxt-studio',
       rootDir: 'docs',
     },
     ai: {
