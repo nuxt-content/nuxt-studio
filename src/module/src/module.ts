@@ -332,13 +332,29 @@ export default defineNuxtModule<ModuleOptions>({
       options.dev = false
     }
 
-    // Auto-detect repository from CI environment variables when not explicitly configured
+    // Fill in missing repository options from CI environment variables
     const isProdBuild = nuxt.options.dev === false && nuxt.options._prepare === false
-    if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
-      const detected = detectRepositoryFromCI()
-      if (detected) {
-        options.repository = defu(detected, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
-        logger.info(`Auto-detected repository from CI environment: ${detected.provider}:${detected.owner}/${detected.repo}#${detected.branch}`)
+    if (isProdBuild) {
+      const detectedRepo = detectRepositoryFromCI()
+      if (detectedRepo) {
+        const explicitRepoOptions = Object.fromEntries(
+          Object.entries(options.repository || {}).filter(([_, value]) => Boolean(value))
+        )
+
+        // Preserve explicitly defined values, only fill in missing ones
+        options.repository = {
+          ...detectedRepo,
+          ...explicitRepoOptions,
+        } as GitHubRepositoryOptions | GitLabRepositoryOptions
+
+        const filled = []
+        if (!explicitRepoOptions.owner && detectedRepo.owner) filled.push('owner')
+        if (!explicitRepoOptions.repo && detectedRepo.repo) filled.push('repo')
+        if (!explicitRepoOptions.branch && detectedRepo.branch) filled.push('branch')
+        if (!explicitRepoOptions.provider && detectedRepo.provider) filled.push('provider')
+        if (filled.length > 0) {
+          logger.info(`Auto-filled repository from CI: ${filled.join(', ')}`)
+        }
       }
     }
 
@@ -547,10 +563,11 @@ export default defineNuxtModule<ModuleOptions>({
 })
 
 /**
- * Auto-detect repository details from CI environment variables.
+ * Fill in missing repository options from CI environment variables.
  * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
+ * Preserves any explicitly defined values in the config.
  */
-function detectRepositoryFromCI(): GitHubRepositoryOptions | GitLabRepositoryOptions | undefined {
+function detectRepositoryFromCI(): Partial<GitHubRepositoryOptions | GitLabRepositoryOptions> | undefined {
   // Vercel
   if (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG && ['github', 'gitlab'].includes(process.env.VERCEL_GIT_PROVIDER!)) {
     return {
