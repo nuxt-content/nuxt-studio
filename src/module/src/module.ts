@@ -338,7 +338,7 @@ export default defineNuxtModule<ModuleOptions>({
       const detectedRepo = detectRepositoryFromCI()
       if (detectedRepo) {
         const explicitRepoOptions = Object.fromEntries(
-          Object.entries(options.repository || {}).filter(([_, value]) => Boolean(value))
+          Object.entries(options.repository || {}).filter(([_, value]) => Boolean(value)),
         )
 
         // Preserve explicitly defined values, only fill in missing ones
