@@ -338,7 +338,7 @@ export default defineNuxtModule<ModuleOptions>({
       const detectedRepo = detectRepositoryFromCI()
       if (detectedRepo) {
         const explicitRepoOptions = Object.fromEntries(
-          Object.entries(options.repository || {}).filter(([_, value]) => Boolean(value)),
+          Object.entries(options.repository || {}).filter(([_, value]) => value),
         )
 
         // Preserve explicitly defined values, only fill in missing ones
@@ -347,11 +347,8 @@ export default defineNuxtModule<ModuleOptions>({
           ...explicitRepoOptions,
         } as GitHubRepositoryOptions | GitLabRepositoryOptions
 
-        const filled = []
-        if (!explicitRepoOptions.owner && detectedRepo.owner) filled.push('owner')
-        if (!explicitRepoOptions.repo && detectedRepo.repo) filled.push('repo')
-        if (!explicitRepoOptions.branch && detectedRepo.branch) filled.push('branch')
-        if (!explicitRepoOptions.provider && detectedRepo.provider) filled.push('provider')
+        const keysToCheck = ['owner', 'repo', 'branch', 'provider'] as const
+        const filled = keysToCheck.filter(key => !explicitRepoOptions[key] && detectedRepo[key])
         if (filled.length > 0) {
           logger.info(`Auto-filled repository from CI: ${filled.join(', ')}`)
         }
@@ -565,7 +562,6 @@ export default defineNuxtModule<ModuleOptions>({
 /**
  * Fill in missing repository options from CI environment variables.
  * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
- * Preserves any explicitly defined values in the config.
  */
 function detectRepositoryFromCI(): Partial<GitHubRepositoryOptions | GitLabRepositoryOptions> | undefined {
   // Vercel
