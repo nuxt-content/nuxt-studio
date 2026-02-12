@@ -277,9 +277,9 @@ export default defineNuxtModule<ModuleOptions>({
     },
     repository: {
       provider: 'github',
-      owner: '',
-      repo: '',
-      branch: '',
+      owner: undefined,
+      repo: undefined,
+      branch: undefined,
       rootDir: '',
       private: true,
     },
@@ -337,22 +337,9 @@ export default defineNuxtModule<ModuleOptions>({
     if (isProdBuild) {
       const detectedRepo = detectRepositoryFromCI()
       if (detectedRepo) {
-        const explicitRepoOptions = Object.fromEntries(
-          Object.entries(options.repository || {}).filter(([_, value]) => value),
-        )
-
-        // Preserve explicitly defined values, only fill in missing ones
-        options.repository = {
-          ...detectedRepo,
-          ...explicitRepoOptions,
-        } as GitHubRepositoryOptions | GitLabRepositoryOptions
-
-        const keysToCheck = ['owner', 'repo', 'branch', 'provider'] as const
-        const filled = keysToCheck.filter(key => !explicitRepoOptions[key] && detectedRepo[key])
-        if (filled.length > 0) {
-          logger.info(`Auto-filled repository from CI: ${filled.join(', ')}`)
-        }
+        options.repository = defu(detectedRepo, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
       }
+      logger.info(`Using repository: ${options.repository?.provider}:${options.repository?.owner}/${options.repository?.repo}#${options.repository?.branch}`)
     }
 
     if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
