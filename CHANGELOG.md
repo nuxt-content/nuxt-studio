@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.3.2](https://github.com/nuxt-content/studio/compare/v1.3.1...v1.3.2) (2026-02-13)
+
+### Features
+
+* **landing:** improvements ([#318](https://github.com/nuxt-content/studio/issues/318)) ([e5eed79](https://github.com/nuxt-content/studio/commit/e5eed79fe2a779277e8fd16235b7b47f7eb91e88))
+
+### Bug Fixes
+
+* **build:** avoid shiki and mdc loading on server ([855e9e5](https://github.com/nuxt-content/studio/commit/855e9e5d264c48a478673c7ffc2af5f2580c51e7))
+* **data:** do not add empty arrays ([dad2c79](https://github.com/nuxt-content/studio/commit/dad2c794ae8f1bb14ae4c0c2d70770f3c23503d4))
+* **editor:** edge case image insertion ([#331](https://github.com/nuxt-content/studio/issues/331)) ([c5cd61e](https://github.com/nuxt-content/studio/commit/c5cd61e3762eec945917c6d1992fd7667be27c63))
+* **editor:** remove extra style elements ([#329](https://github.com/nuxt-content/studio/issues/329)) ([5963ff8](https://github.com/nuxt-content/studio/commit/5963ff8de63141a4681c8cfc1d6d10578dfd248b))
+* **editor:** remove style components ([#328](https://github.com/nuxt-content/studio/issues/328)) ([452cd2f](https://github.com/nuxt-content/studio/commit/452cd2f143f641ef21e1002850f35b5d85fac481))
+* **lint:** trailing space ([1916e02](https://github.com/nuxt-content/studio/commit/1916e0276bf84019685fc1bebf12efaffc86d0d3))
+* **logs:** remove duplicate title ([3dfd626](https://github.com/nuxt-content/studio/commit/3dfd6261f8783a0ce060b304c7ebbeea02821fa0))
+* **performance:** stop simultaneous convertion ([bbaed55](https://github.com/nuxt-content/studio/commit/bbaed552ae7b54d606b9722156b4fd32e26b71fb))
+* **perf:** shiki lazy loading ([#332](https://github.com/nuxt-content/studio/issues/332)) ([c68b0b1](https://github.com/nuxt-content/studio/commit/c68b0b184a86fcad60b737202d596acd4dc5c533))
+* **tests:** skip hook for pristine files ([621eda5](https://github.com/nuxt-content/studio/commit/621eda559d680266a97d808241763edcf208fc4d))
+* **vite:** monaco import warning ([8e9de2b](https://github.com/nuxt-content/studio/commit/8e9de2befe6957ebccc6b05b5a4581ba2fcc96ea))
+
 ## [1.3.1](https://github.com/nuxt-content/studio/compare/v1.2.1...v1.3.1) (2026-02-09)
 
 ## [1.2.1](https://github.com/nuxt-content/studio/compare/v1.3.0...v1.2.1) (2026-02-09)
