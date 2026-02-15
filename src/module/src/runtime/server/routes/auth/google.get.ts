@@ -88,6 +88,8 @@ export default eventHandler(async (event: H3Event) => {
     authorizationParams: {},
     emailRequired: true,
   }) as OAuthGoogleConfig
+  config.clientId ||= process.env.STUDIO_GOOGLE_CLIENT_ID
+  config.clientSecret ||= process.env.STUDIO_GOOGLE_CLIENT_SECRET
 
   const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 

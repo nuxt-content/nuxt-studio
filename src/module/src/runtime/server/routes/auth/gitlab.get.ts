@@ -101,6 +101,8 @@ export default eventHandler(async (event: H3Event) => {
     authorizationParams: {},
     emailRequired: true,
   }) as OAuthGitLabConfig
+  config.applicationId ||= process.env.STUDIO_GITLAB_APPLICATION_ID
+  config.applicationSecret ||= process.env.STUDIO_GITLAB_APPLICATION_SECRET
 
   const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 

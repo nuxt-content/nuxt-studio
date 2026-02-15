@@ -48,6 +48,9 @@ export default eventHandler(async (event: H3Event) => {
     clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_SSO_REDIRECT_URL,
   }) as SSOServerConfig
+  config.serverUrl ||= process.env.STUDIO_SSO_URL
+  config.clientId ||= process.env.STUDIO_SSO_CLIENT_ID
+  config.clientSecret ||= process.env.STUDIO_SSO_CLIENT_SECRET
 
   const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
 

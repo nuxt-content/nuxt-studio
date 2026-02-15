@@ -79,6 +79,8 @@ export default eventHandler(async (event: H3Event) => {
     authorizationParams: {},
     emailRequired: true,
   }) as OAuthGitHubConfig
+  config.clientId ||= process.env.STUDIO_GITHUB_CLIENT_ID
+  config.clientSecret ||= process.env.STUDIO_GITHUB_CLIENT_SECRET
 
   const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
