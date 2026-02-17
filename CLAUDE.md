@@ -115,7 +115,7 @@ STUDIO_GITHUB_MODERATORS=email1@example.com,email2@example.com  # Optional
 **GitLab OAuth + GitLab Git Provider**:
 ```bash
 STUDIO_GITLAB_APPLICATION_ID=xxx
-STUDIO_GITLAB_CLIENT_SECRET=xxx
+STUDIO_GITLAB_APPLICATION_SECRET=xxx
 STUDIO_GITLAB_MODERATORS=email1@example.com,email2@example.com  # Optional
 ```
 
