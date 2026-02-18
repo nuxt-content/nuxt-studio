@@ -23,10 +23,7 @@ export * from './form'
 export * from './ai'
 
 export interface MediaUploadConfig {
-  enabled: boolean
-  endpoint: string
-  listEndpoint?: string
-  deleteEndpoint?: string
+  external: boolean
   maxFileSize: number
   allowedTypes: string[]
 }

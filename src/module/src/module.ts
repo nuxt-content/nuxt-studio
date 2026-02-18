@@ -30,37 +30,22 @@ interface MetaOptions {
      */
     exclude?: string[]
   }
-  /**
-   * The markdown configuration.
-   */
 }
 
 interface MediaUploadOptions {
   /**
-   * Enable OSS (Object Storage Service) media uploads.
-   * When enabled, images can be uploaded to external storage via a custom endpoint.
+   * Enable external storage for media uploads.
+   * When enabled, media files are uploaded to external storage (e.g., Cloudflare R2, AWS S3)
+   * instead of being committed to the Git repository.
+   *
+   * Requires implementing three REST endpoints:
+   * - POST /api/studio/medias/upload - Upload media
+   * - GET /api/studio/medias - List media
+   * - DELETE /api/studio/medias/{path} - Delete media
+   *
    * @default false
    */
-  enabled?: boolean
-  /**
-   * Custom upload endpoint path.
-   * The endpoint should accept multipart form data with a 'file' field
-   * and return { success: true, data: { url, filename, mimeType, size, alt?, metadata? } }
-   * @default '/__nuxt_studio/upload'
-   */
-  endpoint?: string
-  /**
-   * Custom list endpoint path for retrieving uploaded media from OSS.
-   * The endpoint should return { success: true, data: { files: [{ key, url, size?, lastModified? }] } }
-   * When provided, Studio will fetch media from this endpoint on initialization.
-   */
-  listEndpoint?: string
-  /**
-   * Custom delete endpoint path for removing uploaded media from OSS.
-   * The endpoint should accept POST with { key } and return { success: true }
-   * When provided, Studio will call this endpoint when deleting OSS media.
-   */
-  deleteEndpoint?: string
+  external?: boolean
   /**
    * Maximum file size in bytes.
    * @default 10485760 (10MB)
@@ -357,8 +342,7 @@ export default defineNuxtModule<ModuleOptions>({
       },
     },
     media: {
-      enabled: false,
-      endpoint: '/__nuxt_studio/upload',
+      external: false,
       maxFileSize: 10 * 1024 * 1024, // 10MB
       allowedTypes: ['image/*', 'video/*', 'audio/*'],
     },

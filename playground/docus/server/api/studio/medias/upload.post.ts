@@ -10,8 +10,8 @@
  */
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { readMultipartFormData } from 'h3'
-import { getR2Client, getR2Config } from '../utils/r2-client'
-import { requireStudioAuth } from '../utils/studio-auth'
+import { getR2Client, getR2Config } from '../../../utils/r2-client'
+import { requireStudioAuth } from '../../../utils/studio-auth'
 
 export default defineEventHandler(async (event) => {
   // Verify authentication

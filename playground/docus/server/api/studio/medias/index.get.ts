@@ -10,8 +10,8 @@
  * - R2_PUBLIC_URL: Public URL for the bucket (e.g., https://pub-xxx.r2.dev or custom domain)
  */
 import { ListObjectsV2Command, HeadObjectCommand } from '@aws-sdk/client-s3'
-import { getR2Client, getR2Config } from '../utils/r2-client'
-import { requireStudioAuth } from '../utils/studio-auth'
+import { getR2Client, getR2Config } from '../../../utils/r2-client'
+import { requireStudioAuth } from '../../../utils/studio-auth'
 
 export default defineEventHandler(async (event) => {
   // Verify authentication

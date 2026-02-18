@@ -42,10 +42,10 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   async function upload(parentFsPath: string, file: File, options?: UploadOptions) {
     let ossResult = options?.ossResult
 
-    // If OSS is enabled and no result provided, try to upload to OSS
+    // If external storage is enabled and no result provided, try to upload
     const mediaConfig = host.meta.media
-    if (!ossResult && !options?.skipOSS && mediaConfig?.enabled) {
-      ossResult = await uploadToOSS(file, mediaConfig.endpoint, parentFsPath) || undefined
+    if (!ossResult && !options?.skipOSS && mediaConfig?.external) {
+      ossResult = await uploadToOSS(file, '/api/studio/medias/upload', parentFsPath) || undefined
     }
 
     // Create draft item (with OSS URL or base64 fallback)
@@ -92,14 +92,12 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   }
 
   /**
-   * Delete a file from the configured OSS endpoint
+   * Delete a file from external storage using REST endpoint
    */
-  async function deleteFromOSS(key: string, endpoint: string): Promise<boolean> {
+  async function deleteFromOSS(key: string): Promise<boolean> {
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key }),
+      const response = await fetch(`/api/studio/medias/${encodeURIComponent(key)}`, {
+        method: 'DELETE',
       })
 
       if (!response.ok) {
@@ -135,9 +133,9 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
       const draftItem = list.value.find(d => d.fsPath === fsPath)
       const mediaItem = draftItem?.modified as MediaItem | undefined
 
-      // If OSS file with a delete endpoint configured, delete from R2 first
-      if (mediaItem?.ossKey && mediaConfig?.deleteEndpoint) {
-        const deleted = await deleteFromOSS(mediaItem.ossKey, mediaConfig.deleteEndpoint)
+      // If OSS file with external storage enabled, delete from storage first
+      if (mediaItem?.ossKey && mediaConfig?.external) {
+        const deleted = await deleteFromOSS(mediaItem.ossKey)
 
         if (!deleted) {
           // Skip local removal if R2 delete failed to avoid orphaned files
@@ -271,9 +269,9 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   }
 
   /**
-   * Load OSS files from the configured list endpoint.
-   * This fetches all files from R2/S3 and creates draft entries for them.
-   * Should be called after load() to populate the media tree with OSS files.
+   * Load files from external storage.
+   * This fetches all files from external storage (R2/S3) and creates draft entries for them.
+   * Should be called after load() to populate the media tree with external files.
    * Handles pagination to load all files even when >1000.
    */
   async function loadOSSFiles(): Promise<void> {
@@ -283,7 +281,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     }
 
     const mediaConfig = host.meta.media
-    if (!mediaConfig?.enabled || !mediaConfig?.listEndpoint) {
+    if (!mediaConfig?.external) {
       return
     }
 
@@ -293,7 +291,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
 
       do {
         // Build URL with optional continuation token
-        const url = new URL(mediaConfig.listEndpoint, window.location.origin)
+        const url = new URL('/api/studio/medias', window.location.origin)
         if (continuationToken) {
           url.searchParams.set('continuationToken', continuationToken)
         }

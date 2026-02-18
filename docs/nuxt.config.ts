@@ -13,7 +13,6 @@ export default defineNuxtConfig({
     },
   },
   studio: {
-    dev: false,
     route: '/admin',
     repository: {
       provider: 'github',

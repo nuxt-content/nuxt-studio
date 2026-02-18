@@ -9,8 +9,8 @@
  * - R2_BUCKET_NAME: Name of your R2 bucket
  */
 import { DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getR2Client, getR2Config } from '../utils/r2-client'
-import { requireStudioAuth } from '../utils/studio-auth'
+import { getR2Client, getR2Config } from '../../../utils/r2-client'
+import { requireStudioAuth } from '../../../utils/studio-auth'
 
 export default defineEventHandler(async (event) => {
   // Verify authentication
@@ -30,9 +30,21 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Get the key from request body
-    const body = await readBody(event)
-    const { key } = body
+    // Get the key from the route parameter
+    const pathParam = getRouterParam(event, 'path')
+
+    if (!pathParam) {
+      return {
+        success: false,
+        error: {
+          code: 'DELETE_FAILED',
+          message: 'Missing path parameter',
+        },
+      }
+    }
+
+    // Reconstruct the full key from the path parameter
+    const key = pathParam
 
     // Validate key parameter
     if (!key || typeof key !== 'string') {
@@ -40,7 +52,7 @@ export default defineEventHandler(async (event) => {
         success: false,
         error: {
           code: 'DELETE_FAILED',
-          message: 'Missing key parameter',
+          message: 'Invalid path parameter',
         },
       }
     }
