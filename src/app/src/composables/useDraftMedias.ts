@@ -33,42 +33,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     await create(draftItem.fsPath, draftItem.modified!)
   }
 
-  /**
-   * Remove media files, handling external storage deletion if needed
-   */
-  // async function removeMedia(fsPaths: string[], options?: { rerender?: boolean }) {
-  //   const { rerender = true } = options || {}
-
-  //   for (const fsPath of fsPaths) {
-  //     const draftItem = list.value.find(d => d.fsPath === fsPath)
-  //     const mediaItem = draftItem?.modified as MediaItem | undefined
-
-  //     // If external storage file, delete from storage first
-  //     if (mediaItem?.ossKey && externalMedias.isEnabled) {
-  //       const deleted = await externalMedias.remove(mediaItem.ossKey)
-
-  //       if (!deleted) {
-  //         // Skip local removal if external delete failed to avoid orphaned files
-  //         console.error(`[Studio External Storage] Failed to delete ${mediaItem.ossKey}, skipping local removal`)
-  //         continue
-  //       }
-
-  //       // For external files, handle removal directly to ensure list is updated
-  //       await storage.removeItem(fsPath)
-  //       await host.media.delete(fsPath)
-  //       list.value = list.value.filter(item => item.fsPath !== fsPath)
-  //     }
-  //     else {
-  //       // For local files, use the base remove function
-  //       await remove([fsPath], { rerender: false })
-  //     }
-  //   }
-
-  //   if (rerender) {
-  //     await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.removeMedia' })
-  //   }
-  // }
-
   async function fileToDraftItem(parentFsPath: string, file: File): Promise<DraftItem<MediaItem>> {
     const rawData = await fileToDataUrl(file)
     const slugifiedFileName = slugifyFileName(file.name)
