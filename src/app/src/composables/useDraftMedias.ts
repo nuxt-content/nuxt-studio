@@ -64,18 +64,14 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
         throw new Error(`Database item not found for document fsPath: ${fsPath}`)
       }
 
-      const mediaItem = currentDbItem as MediaItem
-
-      // For local files, use base remove
       await remove([fsPath], { rerender: false })
 
-      // Create new item with updated path
       const newDbItem: MediaItem = {
         ...currentDbItem,
         fsPath: newFsPath,
         id: joinURL(VirtualMediaCollectionName, newFsPath),
         stem: generateStemFromFsPath(newFsPath),
-        path: mediaItem.path || withLeadingSlash(newFsPath),
+        path: withLeadingSlash(newFsPath),
       }
 
       await host.media.upsert(newFsPath, newDbItem)
