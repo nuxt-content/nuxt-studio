@@ -1,10 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError, getRequestURL, deleteCookie, getCookie } from 'h3'
-import { withQuery } from 'ufo'
-import { defu } from 'defu'
-import type { Endpoints } from '@octokit/types'
 import { useRuntimeConfig } from '#imports'
-import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
+import type { Endpoints } from '@octokit/types'
+import type { H3Event } from 'h3'
+import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
+import { generateOAuthState, mergeConfig, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 
 export interface OAuthGitHubConfig {
@@ -69,7 +68,7 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const config = defu(studioConfig?.auth?.github, {
+  const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_GITHUB_REDIRECT_URL,
@@ -78,9 +77,7 @@ export default eventHandler(async (event: H3Event) => {
     apiURL: 'https://api.github.com',
     authorizationParams: {},
     emailRequired: true,
-  }) as OAuthGitHubConfig
-  config.clientId ||= process.env.STUDIO_GITHUB_CLIENT_ID
-  config.clientSecret ||= process.env.STUDIO_GITHUB_CLIENT_SECRET
+  })
 
   const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 

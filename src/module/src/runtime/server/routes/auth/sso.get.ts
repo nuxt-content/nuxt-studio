@@ -1,8 +1,7 @@
-import { eventHandler, createError, getQuery, sendRedirect, getRequestURL, getCookie, deleteCookie, type H3Event } from 'h3'
-import { withQuery } from 'ufo'
-import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import { generateOAuthState, requestAccessToken, validateOAuthState, generatePKCECodeVerifier, generateCodeChallenge, consumePKCECodeVerifier } from '../../utils/auth'
+import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect, type H3Event } from 'h3'
+import { withQuery } from 'ufo'
+import { consumePKCECodeVerifier, generateCodeChallenge, generateOAuthState, generatePKCECodeVerifier, mergeConfig, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 
 export interface SSOUser {
@@ -42,15 +41,12 @@ export default eventHandler(async (event: H3Event) => {
    * SSO provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const config = defu(studioConfig?.auth?.sso, {
+  const config = mergeConfig<SSOServerConfig>(studioConfig?.auth?.sso, {
     serverUrl: process.env.STUDIO_SSO_URL,
     clientId: process.env.STUDIO_SSO_CLIENT_ID,
     clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_SSO_REDIRECT_URL,
-  }) as SSOServerConfig
-  config.serverUrl ||= process.env.STUDIO_SSO_URL
-  config.clientId ||= process.env.STUDIO_SSO_CLIENT_ID
-  config.clientSecret ||= process.env.STUDIO_SSO_CLIENT_SECRET
+  })
 
   const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
 
