@@ -57,7 +57,7 @@ TreeItem[] {
     return dbItems
   }
 
-  let virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
+  const virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
 
   for (const dbItem of virtualDbItems) {
     const itemHasPathField = 'path' in dbItem && dbItem.path

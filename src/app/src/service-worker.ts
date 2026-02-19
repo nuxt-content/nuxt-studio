@@ -92,6 +92,7 @@ function fetchFromIndexedDB(event, url) {
       return fetch(dbItem.original.path);
     }
 
+    // Created file
     const parsed = parseDataUrl(dbItem.modified.raw);
     const bytes = base64ToUint8Array(parsed.base64);
 
