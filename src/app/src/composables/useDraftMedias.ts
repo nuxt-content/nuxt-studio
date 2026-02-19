@@ -8,8 +8,11 @@ import { useDraftBase } from './useDraftBase'
 import { mediaStorage as storage } from '../utils/storage'
 import { getFileExtension, slugifyFileName } from '../utils/file'
 import { useHooks } from './useHooks'
+import { useError } from './useError'
 
 const hooks = useHooks()
+const { showError } = useError()
+
 
 export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvider: ReturnType<typeof useGitProvider>) => {
   const {
@@ -28,9 +31,13 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   } = useDraftBase('media', host, gitProvider, storage)
 
   async function upload(parentFsPath: string, file: File) {
-    const draftItem = await fileToDraftItem(parentFsPath, file)
-    host.media.upsert(draftItem.fsPath, draftItem.modified!)
-    await create(draftItem.fsPath, draftItem.modified!)
+    try {
+      const draftItem = await fileToDraftItem(parentFsPath, file)
+      await host.media.upsert(draftItem.fsPath, draftItem.modified!)
+      await create(draftItem.fsPath, draftItem.modified!)
+    } catch (error) {
+      showError('Error uploading media', (error as Error).message)
+    }
   }
 
   async function fileToDraftItem(parentFsPath: string, file: File): Promise<DraftItem<MediaItem>> {

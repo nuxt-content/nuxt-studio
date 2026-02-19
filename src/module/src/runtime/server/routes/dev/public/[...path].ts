@@ -4,10 +4,12 @@ import type { Storage, StorageMeta } from 'unstorage'
 import { withLeadingSlash } from 'ufo'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
+import { VirtualMediaCollectionName } from 'nuxt-studio/app/utils'
+
 
 export default eventHandler(async (event) => {
   const path = event.path.replace('/__nuxt_studio/dev/public/', '')
-  const key = path.replace(/\//g, ':').replace(/^public-assets:/, '')
+  const key = path.replace(/\//g, ':').replace(new RegExp(`^${VirtualMediaCollectionName}:`), '')
   const storage = useStorage('nuxt_studio_public_assets') as Storage
 
   // GET => getItem / getKeys
@@ -27,7 +29,7 @@ export default eventHandler(async (event) => {
       })
     }
     return {
-      id: `public-assets/${key.replace(/:/g, '/')}`,
+      id: `${VirtualMediaCollectionName}/${key.replace(/:/g, '/')}`,
       extension: key.split('.').pop(),
       stem: key.split('.').join('.'),
       path: '/' + key.replace(/:/g, '/'),

@@ -1,5 +1,6 @@
 import type { Storage } from 'unstorage'
 import { withLeadingSlash } from 'ufo'
+import { VirtualMediaCollectionName } from 'nuxt-studio/app/utils'
 
 export async function getAssetsStorageDevTemplate() {
   return [
@@ -21,7 +22,7 @@ export async function getAssetsStorageTemplate(assetsStorage: Storage) {
     ...keys.map((key) => {
       const path = withLeadingSlash(key.replace(/:/g, '/'))
       const value = {
-        id: `public-assets/${key.replace(/:/g, '/')}`,
+        id: `${VirtualMediaCollectionName}/${key.replace(/:/g, '/')}`,
         extension: key.split('.').pop(),
         stem: key.split('.').join('.'),
         path,

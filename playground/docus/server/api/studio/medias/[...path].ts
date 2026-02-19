@@ -1,13 +1,16 @@
 import { prefixStorage } from 'unstorage'
 import { withLeadingSlash } from 'ufo'
 import { requireStudioAuth } from '../../../utils/studio-auth'
+import { VirtualMediaCollectionName } from 'nuxt-studio/app/utils'
 
 export default defineEventHandler(async (event) => {
   await requireStudioAuth(event)
 
   const { maxFileSize, allowedTypes } = useRuntimeConfig(event).public.studio.media
   const path = event.path.replace('/api/studio/medias/', '')
-  const key = path.replace(/\//g, ':')
+  console.log('path', path)
+  const key = path.replace(/\//g, ':').replace(new RegExp(`^${VirtualMediaCollectionName}:`), '')
+  console.log('key', key)
   const storage = prefixStorage(useStorage('s3'), 'studio/')
 
   // GET => getItem / getKeys
@@ -26,7 +29,8 @@ export default defineEventHandler(async (event) => {
 
     // Reconstruct media item with S3 public URL (mirrors dev public route pattern)
     const publicUrl = process.env.S3_PUBLIC_URL
-    const fsPath = withLeadingSlash(key.replace(/^public-assets:/, '').replace(/:/g, '/'))
+    const fsPath = withLeadingSlash(key.replace(/:/g, '/'))
+    console.log('fsPath', fsPath)
     return {
       id: path,
       fsPath,
@@ -36,35 +40,36 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // PUT => extract binary from base64 raw field, store as file
+  // PUT => setKey => upload media file
   if (event.method === 'PUT') {
     const body = await readBody(event)
-    if (body?.raw) {
-      const raw = body.raw as string
-      const [meta, data] = raw.split(';base64,')
-      const mimeType = meta!.replace('data:', '')
 
-      // Approximate binary size from base64 length
-      const approximateSize = (data!.length * 3) / 4
-      if (approximateSize > maxFileSize) {
-        throw createError({ statusCode: 413, message: `File size exceeds maximum of ${maxFileSize / 1024 / 1024}MB` })
-      }
-
-      if (!allowedTypes.some((t: string) => mimeType.startsWith(t.replace('*', '')))) {
-        throw createError({ statusCode: 415, message: `File type "${mimeType}" is not allowed` })
-      }
-
-      const binaryString = atob(data!)
-      const bytes = new Uint8Array(binaryString.length)
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i)
-      }
-
-      await storage.setItemRaw(key, bytes)
+    if (!body.raw) {
+      throw createError({ statusCode: 400, message: 'Raw data is required' })
     }
-    else {
-      await storage.setItem(key, body)
+
+    const raw = body.raw as string
+    const [meta, data] = raw.split(';base64,')
+    const mimeType = meta!.replace('data:', '')
+
+    // Approximate binary size from base64 length
+    const approximateSize = (data!.length * 3) / 4
+    if (approximateSize > maxFileSize) {
+      throw createError({ statusCode: 413, message: `File size exceeds maximum of ${maxFileSize / 1024 / 1024}MB` })
     }
+
+    if (!allowedTypes.some((t: string) => mimeType.startsWith(t.replace('*', '')))) {
+      throw createError({ statusCode: 415, message: `File type "${mimeType}" is not allowed` })
+    }
+
+    const binaryString = atob(data!)
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+
+    await storage.setItemRaw(key, bytes)
+
     return 'OK'
   }
 

@@ -68,12 +68,13 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     return useContent().queryCollection(collection)
   }
 
-  const runtimeConfig = useRuntimeConfig()
-  const aiConfig = runtimeConfig.public.studio.ai
+  const studioConfig = useRuntimeConfig().public.studio
+  const aiConfig = studioConfig.ai
 
   const host: StudioHost = {
     meta: {
       dev: false,
+      media: studioConfig.media,
       ai: {
         enabled: aiConfig?.enabled ?? false,
         experimental: {
@@ -85,9 +86,8 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
       },
       getComponents: () => meta.components.value,
-      defaultLocale: runtimeConfig.public.studio.i18n?.defaultLocale || 'en',
+      defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
-      media: runtimeConfig.public.studio.media,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
