@@ -1,8 +1,9 @@
 import { useRuntimeConfig } from '#imports'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect, type H3Event } from 'h3'
 import { withQuery } from 'ufo'
-import { consumePKCECodeVerifier, generateCodeChallenge, generateOAuthState, generatePKCECodeVerifier, mergeConfig, requestAccessToken, validateOAuthState } from '../../utils/auth'
+import { consumePKCECodeVerifier, generateCodeChallenge, generateOAuthState, generatePKCECodeVerifier, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
+import { mergeConfig } from '../../utils/object'
 
 export interface SSOUser {
   sub: string

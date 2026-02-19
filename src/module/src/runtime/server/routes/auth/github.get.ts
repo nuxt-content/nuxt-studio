@@ -3,8 +3,9 @@ import type { Endpoints } from '@octokit/types'
 import type { H3Event } from 'h3'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
-import { generateOAuthState, mergeConfig, requestAccessToken, validateOAuthState } from '../../utils/auth'
+import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
+import { mergeConfig } from '../../utils/object'
 
 export interface OAuthGitHubConfig {
   /**

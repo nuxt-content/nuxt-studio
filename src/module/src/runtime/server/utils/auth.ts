@@ -1,4 +1,3 @@
-import { createDefu } from 'defu'
 import { createError, deleteCookie, getCookie, getRequestProtocol, setCookie, type H3Event } from 'h3'
 import { FetchError } from 'ofetch'
 import { getRandomValues } from 'uncrypto'
@@ -130,14 +129,6 @@ export function consumePKCECodeVerifier(event: H3Event) {
   return codeVerifier
 }
 
-export function mergeConfig<T>(
-  config: T | undefined,
-  defaults: Partial<T>,
-): T {
-  return defuWithEmptyStringFallback(defaults, config || {}) as T
-}
-
-
 function getRandomBytes(size: number = 32) {
   return encodeBase64Url(getRandomValues(new Uint8Array(size)))
 }
@@ -148,19 +139,3 @@ function encodeBase64Url(input: Uint8Array): string {
     .replace(/\//g, '_')
     .replace(/=+$/g, '')
 }
-
-/**
- * Custom defu merger that treats empty strings as undefined values.
- */
-const defuWithEmptyStringFallback = createDefu((obj, key, value) => {
-  if (obj[key] === '' && value !== undefined && value !== null && value !== '') {
-    obj[key] = value
-    return true
-  }
-
-  if (obj[key] !== undefined && obj[key] !== null) {
-    return true
-  }
-
-  return false
-})

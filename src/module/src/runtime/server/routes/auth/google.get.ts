@@ -2,8 +2,9 @@ import { useRuntimeConfig } from '#imports'
 import { consola } from 'consola'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect, type H3Event } from 'h3'
 import { withQuery } from 'ufo'
-import { generateOAuthState, mergeConfig, requestAccessToken, validateOAuthState } from '../../utils/auth'
+import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
+import { mergeConfig } from '../../utils/object'
 
 const logger = consola.withTag('Nuxt Studio')
 

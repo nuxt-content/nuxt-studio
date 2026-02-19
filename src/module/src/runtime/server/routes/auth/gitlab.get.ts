@@ -4,8 +4,9 @@ import type { H3Event } from 'h3'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { FetchError } from 'ofetch'
 import { withQuery } from 'ufo'
-import { generateOAuthState, mergeConfig, validateOAuthState } from '../../utils/auth'
+import { generateOAuthState, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
+import { mergeConfig } from '../../utils/object'
 
 export interface OAuthGitLabConfig {
   /**
