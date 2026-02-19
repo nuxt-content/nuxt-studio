@@ -4,7 +4,7 @@ import type { Storage, StorageMeta } from 'unstorage'
 import { withLeadingSlash } from 'ufo'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
-import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../../../utils/constants'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../../utils/constants'
 
 
 export default eventHandler(async (event) => {
