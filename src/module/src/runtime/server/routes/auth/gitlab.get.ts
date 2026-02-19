@@ -1,12 +1,12 @@
-import { FetchError } from 'ofetch'
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError, getRequestURL, deleteCookie, getCookie } from 'h3'
-import { withQuery } from 'ufo'
-import { defu } from 'defu'
-import type { UserSchema } from '@gitbeaker/core'
 import { useRuntimeConfig } from '#imports'
+import type { UserSchema } from '@gitbeaker/core'
+import type { H3Event } from 'h3'
+import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { FetchError } from 'ofetch'
+import { withQuery } from 'ufo'
 import { generateOAuthState, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
+import { mergeConfig } from '../../utils/object'
 
 export interface OAuthGitLabConfig {
   /**
@@ -90,7 +90,7 @@ export default eventHandler(async (event: H3Event) => {
   const studioConfig = useRuntimeConfig(event).studio
   const instanceUrl = studioConfig?.auth?.gitlab?.instanceUrl || 'https://gitlab.com'
 
-  const config = defu(studioConfig?.auth?.gitlab, {
+  const config = mergeConfig<OAuthGitLabConfig>(studioConfig?.auth?.gitlab, {
     applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,
     applicationSecret: process.env.STUDIO_GITLAB_APPLICATION_SECRET,
     redirectURL: process.env.STUDIO_GITLAB_REDIRECT_URL,
@@ -100,7 +100,7 @@ export default eventHandler(async (event: H3Event) => {
     apiURL: `${instanceUrl}/api/v4`,
     authorizationParams: {},
     emailRequired: true,
-  }) as OAuthGitLabConfig
+  })
 
   const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
