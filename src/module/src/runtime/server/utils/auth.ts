@@ -26,7 +26,7 @@ export async function requestAccessToken(url: string, options: RequestAccessToke
   // Encode the body as a URLSearchParams if the content type is 'application/x-www-form-urlencoded'.
   const body = headers['Content-Type'] === 'application/x-www-form-urlencoded'
     ? new URLSearchParams(options.body || options.params || {},
-    ).toString()
+      ).toString()
     : options.body
 
   return $fetch<RequestAccessTokenResponse>(url, {
