@@ -1,6 +1,6 @@
 import type { DatabaseItem, StudioHost, TreeItem, DraftItem, MediaItem } from '../types'
 import { StudioFeature, TreeStatus, DraftStatus } from '../types'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { useDraftDocuments } from './useDraftDocuments'
 import type { useDraftMedias } from './useDraftMedias'
 import { buildTree, findItemFromFsPath, findItemFromRoute, findParentFromFsPath } from '../utils/tree'
@@ -40,6 +40,13 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
   })
 
   const currentItem = ref<TreeItem>(rootItem.value)
+
+  // Keep currentItem in sync with rootItem when at root (handles reload and in-session status changes)
+  watch(rootItem, (newRootItem) => {
+    if (currentItem.value.type === 'root') {
+      currentItem.value = newRootItem
+    }
+  })
 
   const currentTree = computed<TreeItem[]>(() => {
     if (currentItem.value.type === 'root') {
@@ -147,9 +154,6 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       const item = findItemFromFsPath(tree.value, currentItem.value.fsPath)
       if (item) {
         select(item)
-      }
-      else if (currentItem.value.type === 'root') {
-        currentItem.value = rootItem.value
       }
     }
 
