@@ -1,10 +1,10 @@
-import { eventHandler, createError, getQuery, sendRedirect, getRequestURL, getCookie, deleteCookie, type H3Event } from 'h3'
-import { withQuery } from 'ufo'
-import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import { consola } from 'consola'
+import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect, type H3Event } from 'h3'
+import { withQuery } from 'ufo'
 import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
+import { mergeConfig } from '../../utils/object'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -78,7 +78,7 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const config = defu(studioConfig?.auth?.google, {
+  const config = mergeConfig<OAuthGoogleConfig>(studioConfig?.auth?.google, {
     clientId: process.env.STUDIO_GOOGLE_CLIENT_ID,
     clientSecret: process.env.STUDIO_GOOGLE_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_GOOGLE_REDIRECT_URL,
@@ -87,7 +87,7 @@ export default eventHandler(async (event: H3Event) => {
     userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
     authorizationParams: {},
     emailRequired: true,
-  }) as OAuthGoogleConfig
+  })
 
   const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
