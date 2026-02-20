@@ -13,12 +13,13 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-08-26',
   studio: {
+    dev: false,
     route: '/admin',
     repository: {
       provider: 'github',
       owner: 'nuxt-content',
       repo: 'studio',
-      branch: 'main',
+      branch: 'fix/docus-conflicts',
       rootDir: 'playground/docus',
       private: false,
     },
