@@ -148,6 +148,9 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       if (item) {
         select(item)
       }
+      else if (currentItem.value.type === 'root') {
+        currentItem.value = rootItem.value
+      }
     }
 
     // Rerender host app
