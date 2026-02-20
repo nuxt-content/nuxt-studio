@@ -64,6 +64,13 @@ interface MediaUploadOptions {
    * @default process.env.S3_PUBLIC_URL
    */
   publicUrl?: string
+
+  /**
+   * The prefix used for files stored in external S3-compatible storage.
+   * Files are stored as `<prefix>/<path>` in the bucket.
+   * @default 'studio'
+   */
+  prefix?: string
 }
 
 interface RepositoryOptions {
@@ -353,6 +360,7 @@ export default defineNuxtModule<ModuleOptions>({
       publicUrl: process.env.S3_PUBLIC_URL,
       maxFileSize: 10 * 1024 * 1024,
       allowedTypes: ['image/*', 'video/*', 'audio/*'],
+      prefix: 'studio',
     },
   },
   async setup(options, nuxt) {

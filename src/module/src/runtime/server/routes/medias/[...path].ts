@@ -3,13 +3,14 @@ import { joinURL, withLeadingSlash } from 'ufo'
 import { createError, eventHandler, readBody } from 'h3'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useRuntimeConfig, useStorage } from '#imports'
-import { VIRTUAL_MEDIA_COLLECTION_NAME, EXTERNAL_STORAGE_PREFIX } from '../../../utils/constants'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../utils/constants'
 import { requireStudioAuth } from '../../utils/auth'
 
 export default eventHandler(async (event) => {
   await requireStudioAuth(event)
 
-  const storage = prefixStorage(useStorage('s3'), `${EXTERNAL_STORAGE_PREFIX}/`)
+  const { prefix } = useRuntimeConfig(event).public.studio.media
+  const storage = prefixStorage(useStorage('s3'), `${prefix}/`)
 
   const path = event.path.replace('/__nuxt_studio/medias/', '')
   const key = path.replace(/\//g, ':').replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`), '')
@@ -35,7 +36,7 @@ export default eventHandler(async (event) => {
       fsPath,
       extension: fsPath.split('.').pop(),
       stem: fsPath.split('.').slice(0, -1).join('.'),
-      path: joinURL(publicUrl, EXTERNAL_STORAGE_PREFIX, fsPath),
+      path: joinURL(publicUrl, prefix, fsPath),
     }
   }
 
