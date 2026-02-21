@@ -6,10 +6,11 @@ declare module '#content/preview' {
   export const appConfigSchema: Record<string, unknown>
 }
 
-declare module '#build/studio-public-assets' {
+declare module '#build/studio-assets' {
   import type { Storage } from 'unstorage'
 
-  export const publicAssetsStorage: Storage
+  export const publicAssetsStorage: Storage | null
+  export const externalAssetsStorage: Storage | null
 }
 
 declare module 'nitropack' {

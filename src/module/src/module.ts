@@ -1,14 +1,11 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addTemplate, addServerImports, useLogger } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
 import { defu } from 'defu'
-import { resolve } from 'node:path'
-import { readFile } from 'node:fs/promises'
-import fsDriver from 'unstorage/drivers/fs'
-import { createStorage } from 'unstorage'
-import { getAssetsStorageDevTemplate, getAssetsStorageTemplate } from './templates'
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
 import { validateAuthConfig } from './auth'
+import { setExternalMediaStorage, setDefaultMediaStorage } from './medias'
+import { setAIFeature } from './ai'
 
 const logger = useLogger('nuxt-studio')
 
@@ -30,9 +27,50 @@ interface MetaOptions {
      */
     exclude?: string[]
   }
+}
+
+interface MediaUploadOptions {
   /**
-   * The markdown configuration.
+   * Enable external storage for media uploads.
+   * When enabled, media files are uploaded to S3-compatible storage (AWS S3, Cloudflare R2,
+   * MinIO, DigitalOcean Spaces, Backblaze B2, etc.) instead of being committed to Git.
+   *
+   * Required environment variables:
+   * - S3_ACCESS_KEY_ID - Storage access key
+   * - S3_SECRET_ACCESS_KEY - Storage secret key
+   * - S3_ENDPOINT - Storage endpoint URL (e.g. https://<accountid>.r2.cloudflarestorage.com)
+   * - S3_BUCKET - Bucket name
+   * - S3_REGION - Region (optional, defaults to 'auto')
+   * - S3_PUBLIC_URL - Public URL for uploaded files
+   *
+   * @default false
    */
+  external?: boolean
+
+  /**
+   * The maximum file size for media uploads.
+   * @default 10 * 1024 * 1024 (10MB)
+   */
+  maxFileSize?: number
+
+  /**
+   * The allowed types for media uploads.
+   * @default ['image/*', 'video/*', 'audio/*']
+   */
+  allowedTypes?: string[]
+
+  /**
+   * The public URL for the media files.
+   * @default process.env.S3_PUBLIC_URL
+   */
+  publicUrl?: string
+
+  /**
+   * The prefix used for files stored in external S3-compatible storage.
+   * Files are stored as `<prefix>/<path>` in the bucket.
+   * @default 'studio'
+   */
+  prefix?: string
 }
 
 interface RepositoryOptions {
@@ -251,6 +289,11 @@ export interface ModuleOptions {
    * Meta options.
    */
   meta?: MetaOptions
+  /**
+   * Media upload configuration for OSS (Object Storage Service) integration.
+   * Allows uploading media files to external storage providers like S3, Cloudinary, etc.
+   */
+  media?: MediaUploadOptions
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -312,6 +355,13 @@ export default defineNuxtModule<ModuleOptions>({
         exclude: [],
       },
     },
+    media: {
+      external: false,
+      publicUrl: process.env.S3_PUBLIC_URL,
+      maxFileSize: 10 * 1024 * 1024,
+      allowedTypes: ['image/*', 'video/*', 'audio/*'],
+      prefix: 'studio',
+    },
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -356,32 +406,26 @@ export default defineNuxtModule<ModuleOptions>({
       options.ai.apiKey = process.env.AI_GATEWAY_API_KEY
     }
 
-    // Default AI context
     const isAIEnabled = Boolean(options.ai?.apiKey)
     if (isAIEnabled) {
-      let packageJsonContext: { title?: string, description?: string } = {}
-      if (!options.ai!.context?.title || !options.ai!.context?.description) {
-        // Read package.json for default title and description
-        try {
-          const pkgPath = resolve(nuxt.options.rootDir, 'package.json')
-          const pkgContent = await readFile(pkgPath, 'utf-8')
-          const pkg = JSON.parse(pkgContent)
-          packageJsonContext = {
-            title: pkg.name,
-            description: pkg.description,
-          }
-        }
-        catch { /* ignore errors reading package.json */ }
-      }
-
-      options.ai!.context!.title = options.ai!.context?.title || packageJsonContext.title
-      options.ai!.context!.description = options.ai!.context?.description || packageJsonContext.description
+      await setAIFeature(options, nuxt, runtime)
     }
 
     // Enable checkoutOutdatedBuildInterval to detect new deployments
     nuxt.options.experimental = nuxt.options.experimental || {}
     nuxt.options.experimental.checkOutdatedBuildInterval = 1000 * 30
 
+    // Determine effective external media flag: only true when explicitly enabled AND S3 env vars are present
+    const hasS3Config = Boolean(
+      process.env.S3_ACCESS_KEY_ID
+      && process.env.S3_SECRET_ACCESS_KEY
+      && process.env.S3_ENDPOINT
+      && process.env.S3_BUCKET
+      && process.env.S3_PUBLIC_URL,
+    )
+    const isExternalMediaEnabled = Boolean(options.media?.external && hasS3Config)
+
+    // Public runtime config
     nuxt.options.runtimeConfig.public.studio = {
       route: options.route!,
       dev: Boolean(options.dev),
@@ -402,8 +446,11 @@ export default defineNuxtModule<ModuleOptions>({
       repository: options.repository,
       // @ts-expect-error Autogenerated type does not match with options
       i18n: options.i18n,
+      // @ts-expect-error Autogenerated type does not match with options
+      media: { ...options.media, external: isExternalMediaEnabled },
     }
 
+    // Studio runtime config
     nuxt.options.runtimeConfig.studio = {
       ai: {
         apiKey: options.ai?.apiKey,
@@ -441,6 +488,7 @@ export default defineNuxtModule<ModuleOptions>({
       markdown: nuxt.options.content?.build?.markdown || {},
     }
 
+    // Vite config
     nuxt.options.vite = defu(nuxt.options.vite, {
       vue: {
         template: {
@@ -467,21 +515,16 @@ export default defineNuxtModule<ModuleOptions>({
       ? runtime('./plugins/studio.client.dev')
       : runtime('./plugins/studio.client'))
 
-    const assetsStorage = createStorage({
-      driver: fsDriver({
-        base: resolve(nuxt.options.rootDir, 'public'),
-      }),
-    })
-
-    addTemplate({
-      filename: 'studio-public-assets.mjs',
-      getContents: () => options.dev
-        ? getAssetsStorageDevTemplate(assetsStorage, nuxt)
-        : getAssetsStorageTemplate(assetsStorage, nuxt),
-    })
+    let publicAssetsStorage
+    if (isExternalMediaEnabled) {
+      setExternalMediaStorage(nuxt, runtime)
+    }
+    else {
+      publicAssetsStorage = setDefaultMediaStorage(nuxt, options)
+    }
 
     if (options.dev) {
-      setupDevMode(nuxt, runtime, assetsStorage)
+      setupDevMode(nuxt, runtime, publicAssetsStorage)
     }
 
     /* Server routes */
@@ -526,23 +569,6 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/sw.js',
       handler: runtime('./server/routes/sw'),
     })
-
-    if (isAIEnabled) {
-      addServerHandler({
-        method: 'post',
-        route: '/__nuxt_studio/ai/generate',
-        handler: runtime('./server/routes/ai/generate.post'),
-      })
-
-      // Only register analyze handler if experimental collectionContext is enabled
-      if (options.ai?.experimental?.collectionContext) {
-        addServerHandler({
-          method: 'post',
-          route: '/__nuxt_studio/ai/analyze',
-          handler: runtime('./server/routes/ai/analyze.post'),
-        })
-      }
-    }
   },
 })
 

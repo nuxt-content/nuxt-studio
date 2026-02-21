@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.42",
+    "aws4fetch": "^1.0.20",
     "@ai-sdk/vue": "^3.0.82",
     "@iconify-json/lucide": "^1.2.90",
     "@nuxtjs/mdc": "^0.20.1",

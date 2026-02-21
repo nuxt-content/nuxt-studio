@@ -759,7 +759,8 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value).toHaveLength(0)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(2)
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.upload')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
   })
@@ -809,8 +810,8 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value[0]).toHaveProperty('status', DraftStatus.Created)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(2)
-    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.upload')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.rename')
   })
 
@@ -1186,7 +1187,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value).toHaveLength(0)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(5)
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.createFolder')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.upload')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
@@ -1223,7 +1226,9 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(context.activeTree.value.root.value).toHaveLength(0)
 
     // Hooks
-    expect(consoleInfoSpy).toHaveBeenCalledTimes(3)
+    expect(consoleInfoSpy).toHaveBeenCalledTimes(5)
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.createFolder')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftMedias.upload')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')

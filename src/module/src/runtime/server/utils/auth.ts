@@ -1,6 +1,27 @@
-import { createError, deleteCookie, getCookie, getRequestProtocol, setCookie, type H3Event } from 'h3'
-import { FetchError } from 'ofetch'
 import { getRandomValues } from 'uncrypto'
+import { getCookie, deleteCookie, setCookie, useSession, type H3Event, getRequestProtocol, createError } from 'h3'
+import { FetchError } from 'ofetch'
+import { useRuntimeConfig } from '#imports'
+
+export async function requireStudioAuth(event: H3Event): Promise<void> {
+  if (import.meta.dev) {
+    return
+  }
+
+  const config = useRuntimeConfig(event)
+  const session = await useSession(event, {
+    name: 'studio-session',
+    password: config.studio?.auth?.sessionSecret,
+    cookie: {
+      secure: getRequestProtocol(event) === 'https',
+      path: '/',
+    },
+  })
+
+  if (!session?.data?.user) {
+    throw createError({ statusCode: 404, message: 'Not found' })
+  }
+}
 
 export interface RequestAccessTokenResponse {
   access_token?: string

@@ -10,7 +10,7 @@ import type { RouteLocationNormalized, Router } from 'vue-router'
 // @ts-expect-error queryCollection is not defined in .nuxt/imports.d.ts
 import { clearError, getAppManifest, queryCollection, queryCollectionItemSurroundings, queryCollectionNavigation, queryCollectionSearchSections, useRuntimeConfig } from '#imports'
 import { collections } from '#content/preview'
-import { publicAssetsStorage } from '#build/studio-public-assets'
+import { publicAssetsStorage, externalAssetsStorage } from '#build/studio-assets'
 import { useHostMeta } from './composables/useMeta'
 import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media'
 import { getCollectionSourceById } from './utils/source'
@@ -68,12 +68,14 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     return useContent().queryCollection(collection)
   }
 
-  const runtimeConfig = useRuntimeConfig()
-  const aiConfig = runtimeConfig.public.studio.ai
+  const studioConfig = useRuntimeConfig().public.studio
+  const aiConfig = studioConfig.ai
+  const mediaConfig = studioConfig.media
 
   const host: StudioHost = {
     meta: {
       dev: false,
+      media: mediaConfig,
       ai: {
         enabled: aiConfig?.enabled ?? false,
         experimental: {
@@ -85,7 +87,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
       },
       getComponents: () => meta.components.value,
-      defaultLocale: runtimeConfig.public.studio.i18n?.defaultLocale || 'en',
+      defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
     },
     on: {
@@ -281,21 +283,32 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         contentFromDocument: async (document: DatabaseItem) => generateContentFromDocument(document),
       },
     },
-    media: {
-      get: async (fsPath: string): Promise<MediaItem> => {
-        return await publicAssetsStorage.getItem(generateMediaIdFromFsPath(fsPath)) as MediaItem
-      },
-      list: async (): Promise<MediaItem[]> => {
-        return await Promise.all(await publicAssetsStorage.getKeys().then(keys => keys.map(key => publicAssetsStorage.getItem(key)))) as MediaItem[]
-      },
-      upsert: async (fsPath: string, media: MediaItem) => {
-        const id = generateMediaIdFromFsPath(fsPath)
-        await publicAssetsStorage.setItem(generateMediaIdFromFsPath(fsPath), { ...media, id })
-      },
-      delete: async (fsPath: string) => {
-        await publicAssetsStorage.removeItem(generateMediaIdFromFsPath(fsPath))
-      },
-    },
+    media: (() => {
+      // Helper to select appropriate storage based on config
+      const getStorage = () => (host.meta.media?.external ? externalAssetsStorage : publicAssetsStorage)!
+
+      return {
+        get: async (fsPath: string): Promise<MediaItem> => {
+          return await getStorage().getItem(generateMediaIdFromFsPath(fsPath)) as MediaItem
+        },
+        list: async (): Promise<MediaItem[]> => {
+          const storage = getStorage()
+          return await Promise.all(
+            await storage.getKeys().then((keys: string[]) =>
+              keys.map((key: string) => storage.getItem(key)),
+            ),
+          ) as MediaItem[]
+        },
+        upsert: async (fsPath: string, media: MediaItem) => {
+          const id = generateMediaIdFromFsPath(fsPath)
+          await getStorage().setItem(id, { ...media, id })
+        },
+        delete: async (fsPath: string) => {
+          const id = generateMediaIdFromFsPath(fsPath)
+          await getStorage().removeItem(id)
+        },
+      }
+    })(),
 
     app: {
       getManifestId: async () => {

@@ -9,7 +9,7 @@ import { DraftStatus, TreeStatus } from '../../../src/types'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { DatabaseItem } from '../../../src/types/database'
 import { joinURL, withLeadingSlash } from 'ufo'
-import { VirtualMediaCollectionName } from '../../../src/utils/media'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../src/utils/media'
 
 describe('buildTree of documents with one level of depth', () => {
   // Result based on dbItemsList mock
@@ -711,8 +711,8 @@ describe('buildTree of medias', () => {
     const mediaFolderName = 'media-folder'
     const gitKeepFsPath = joinURL(mediaFolderName, '.gitkeep')
     const mediaFsPath = joinURL(mediaFolderName, 'image.jpg')
-    const mediaId = joinURL(VirtualMediaCollectionName, mediaFsPath)
-    const gitKeepId = joinURL(VirtualMediaCollectionName, gitKeepFsPath)
+    const mediaId = joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, mediaFsPath)
+    const gitKeepId = joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, gitKeepFsPath)
 
     const gitkeepDbItem: MediaItem = {
       id: gitKeepId,

@@ -1,18 +1,18 @@
 import type { Storage } from 'unstorage'
-import type { Nuxt } from '@nuxt/schema'
 import { withLeadingSlash } from 'ufo'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from './utils/constants'
 
-export async function getAssetsStorageDevTemplate(_assetsStorage: Storage, _nuxt: Nuxt) {
+export async function getAssetsDefaultStorageDevTemplate() {
   return [
     'import { createStorage } from \'unstorage\'',
     'import httpDriver from \'unstorage/drivers/http\'',
     '',
-    `const storage = createStorage({ driver: httpDriver({ base: '/__nuxt_studio/dev/public' }) })`,
-    'export const publicAssetsStorage = storage',
+    `export const publicAssetsStorage = createStorage({ driver: httpDriver({ base: '/__nuxt_studio/dev/public' }) })`,
+    'export const externalAssetsStorage = null',
   ].join('\n')
 }
 
-export async function getAssetsStorageTemplate(assetsStorage: Storage, _nuxt: Nuxt) {
+export async function getAssetsDefaultStorageTemplate(assetsStorage: Storage) {
   const keys = await assetsStorage.getKeys()
 
   return [
@@ -22,7 +22,7 @@ export async function getAssetsStorageTemplate(assetsStorage: Storage, _nuxt: Nu
     ...keys.map((key) => {
       const path = withLeadingSlash(key.replace(/:/g, '/'))
       const value = {
-        id: `public-assets/${key.replace(/:/g, '/')}`,
+        id: `${VIRTUAL_MEDIA_COLLECTION_NAME}/${key.replace(/:/g, '/')}`,
         extension: key.split('.').pop(),
         stem: key.split('.').join('.'),
         path,
@@ -32,5 +32,20 @@ export async function getAssetsStorageTemplate(assetsStorage: Storage, _nuxt: Nu
     }),
     '',
     'export const publicAssetsStorage = storage',
+    'export const externalAssetsStorage = null',
+  ].join('\n')
+}
+
+export async function getAssetsExternalStorageTemplate() {
+  return [
+    'import { createStorage } from \'unstorage\'',
+    'import httpDriver from \'unstorage/drivers/http\'',
+    '',
+    'export const externalAssetsStorage = createStorage({',
+    '  driver: httpDriver({',
+    '    base: \'/__nuxt_studio/medias\'',
+    '  })',
+    '})',
+    'export const publicAssetsStorage = null',
   ].join('\n')
 }

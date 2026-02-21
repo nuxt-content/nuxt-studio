@@ -5,8 +5,10 @@ import { computed } from 'vue'
 import { titleCase } from 'scule'
 import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
 import { useI18n } from 'vue-i18n'
+import { useStudio } from '../../../composables/useStudio'
 
 const { t } = useI18n()
+const { host } = useStudio()
 
 const props = defineProps({
   item: {
@@ -27,6 +29,11 @@ const displayInfo = computed(() => {
     const itemcount = props.item.children?.filter(child => !child.hide).length || 0
     return t('studio.items.itemCount', itemcount)
   }
+
+  if (host.meta.media?.external) {
+    return props.item.routePath!.replace(host.meta.media.publicUrl!, '')
+  }
+
   return props.item.routePath || props.item.fsPath
 })
 </script>
