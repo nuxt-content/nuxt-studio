@@ -104,11 +104,13 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
     },
   })
 
-  // Remove nofollow from links
-  visit(document.body, (node: unknown) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: unknown) => {
-    // TODO: handle rel custom properties
-    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-  })
+  // Remove nofollow from links (skip when preserving attributes for comparison purposes)
+  if (!options.preserveLinkAttributes) {
+    visit(document.body, (node: unknown) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: unknown) => {
+      // TODO: handle rel custom properties
+      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
+    })
+  }
 
   let body = document.body as never as MarkdownRoot
   if (options.compress && document.body.type === 'root') {

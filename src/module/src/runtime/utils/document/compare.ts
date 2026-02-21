@@ -9,7 +9,7 @@ import { generateDocumentFromContent } from './generate'
 import { removeLastStylesFromTree } from './tree'
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
-  const generatedDocument = await generateDocumentFromContent(document.id, content) as DatabaseItem
+  const generatedDocument = await generateDocumentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
     const { body: generatedBody, ...generatedDocumentData } = generatedDocument
@@ -17,6 +17,7 @@ export async function isDocumentMatchingContent(content: string, document: Datab
 
     const cleanedGeneratedBody = removeLastStylesFromTree(generatedBody as MarkdownRoot)
     const cleanedDocumentBody = removeLastStylesFromTree(documentBody as MarkdownRoot)
+
     // Remove new lines because they are not significant for the comparison
     const generatedBodyStringified = stringify(cleanedGeneratedBody).replace(/\n/g, '')
     const documentBodyStringified = stringify(cleanedDocumentBody).replace(/\n/g, '')
