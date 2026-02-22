@@ -68,7 +68,7 @@
   "devDependencies": {
     "@gitbeaker/core": "^43.8.0",
     "@iconify-json/simple-icons": "^1.2.70",
-    "@nuxt/content": "^3.11.2",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@eb9f8b6",
     "@nuxt/eslint-config": "^1.15.1",
     "@nuxt/kit": "^4.3.1",
     "@nuxt/module-builder": "^1.0.2",

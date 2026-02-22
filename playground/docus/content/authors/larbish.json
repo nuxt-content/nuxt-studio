@@ -8,6 +8,7 @@
   "role": "contributor",
   "order": 3,
   "birthDate": "1993-09-03",
+  "lastCommitAt": "2026-01-02 10:00:00",
   "icon": "i-lucide-palette",
   "isOpenSourceLover": true,
   "modules": [
