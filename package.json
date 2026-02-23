@@ -97,6 +97,9 @@
     "vue-router": "^5.0.2",
     "vue-tsc": "^3.2.4"
   },
+  "resolutions": {
+    "minimark": "^0.2.0"
+  },
   "packageManager": "pnpm@10.29.3",
   "keywords": [
     "nuxt",
