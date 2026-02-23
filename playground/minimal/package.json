@@ -7,7 +7,6 @@
   "dependencies": {
     "better-sqlite3": "^12.5.0",
     "nuxt": "latest",
-    "@nuxt/content": "latest",
     "nuxt-studio": "workspace:*"
   }
 }

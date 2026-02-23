@@ -68,7 +68,7 @@
   "devDependencies": {
     "@gitbeaker/core": "^43.8.0",
     "@iconify-json/simple-icons": "^1.2.70",
-    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@eb9f8b6",
+    "@nuxt/content": "^3.11.2",
     "@nuxt/eslint-config": "^1.15.1",
     "@nuxt/kit": "^4.3.1",
     "@nuxt/module-builder": "^1.0.2",
@@ -98,7 +98,8 @@
     "vue-tsc": "^3.2.4"
   },
   "resolutions": {
-    "minimark": "^0.2.0"
+    "minimark": "^0.2.0",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@eb9f8b6"
   },
   "packageManager": "pnpm@10.29.3",
   "keywords": [
