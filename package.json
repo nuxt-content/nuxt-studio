@@ -1,6 +1,6 @@
 {
   "name": "nuxt-studio",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Nuxt Studio for Nuxt Content",
   "private": false,
   "repository": {
@@ -96,6 +96,9 @@
     "vue": "^3.5.28",
     "vue-router": "^5.0.2",
     "vue-tsc": "^3.2.4"
+  },
+  "resolutions": {
+    "minimark": "^0.2.0"
   },
   "packageManager": "pnpm@10.29.3",
   "keywords": [

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.3](https://github.com/nuxt-content/studio/compare/v1.3.2...v1.3.3) (2026-02-23)
+
+### Bug Fixes
+
+* **config:** resolve oauth env vars at runtime ([#342](https://github.com/nuxt-content/studio/issues/342)) ([69e936b](https://github.com/nuxt-content/studio/commit/69e936b18a23b8f0f9494107ae11e0ccb358788e))
+* **document:** conflict compare with external url ([#346](https://github.com/nuxt-content/studio/issues/346)) ([dc1c2db](https://github.com/nuxt-content/studio/commit/dc1c2db92104d78d00b48d5b4618fe3464ad8713))
+* **tree:** reselect root item to update status ([8fc2b3e](https://github.com/nuxt-content/studio/commit/8fc2b3e320c62fb9d336f2859c01a6bdf2b8bcb5))
+* **tree:** root item sync ([69f9c6b](https://github.com/nuxt-content/studio/commit/69f9c6b71e7e65f9408bc8cd1045e13634dea048))
+
 ## [1.3.2](https://github.com/nuxt-content/studio/compare/v1.3.1...v1.3.2) (2026-02-13)
 
 ### Features
