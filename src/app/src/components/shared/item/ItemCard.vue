@@ -31,7 +31,7 @@ const displayInfo = computed(() => {
   }
 
   if (host.meta.media?.external) {
-    return props.item.routePath!.replace(host.meta.media.publicUrl!, '')
+    return host.meta.media.publicUrl ? props.item.routePath!.replace(host.meta.media.publicUrl!, '') : props.item.routePath
   }
 
   return props.item.routePath || props.item.fsPath

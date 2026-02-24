@@ -6,6 +6,9 @@
     "build": "nuxt build --extends docus"
   },
   "dependencies": {
+    "@nuxthub/core": "0.10.6",
+    "@vercel/blob": "^2.3.0",
+    "aws4fetch": "^1.0.20",
     "better-sqlite3": "^12.6.2",
     "docus": "^5.5.0",
     "nuxt": "^4.3.0",

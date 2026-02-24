@@ -1,55 +1,67 @@
-import { prefixStorage } from 'unstorage'
 import { joinURL, withLeadingSlash } from 'ufo'
 import { createError, eventHandler, readBody } from 'h3'
-// @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
-import { useRuntimeConfig, useStorage } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../utils/constants'
 import { requireStudioAuth } from '../../utils/auth'
+import { blob } from 'hub:blob'
 
 export default eventHandler(async (event) => {
   await requireStudioAuth(event)
 
-  const { prefix } = useRuntimeConfig(event).public.studio.media
-  const storage = prefixStorage(useStorage('s3'), `${prefix}/`)
+  const { prefix, publicUrl, maxFileSize, allowedTypes } = useRuntimeConfig(event).public.studio.media
 
   const path = event.path.replace('/__nuxt_studio/medias/', '')
+  // Unstorage HTTP driver uses ':' as key separator — convert URL slashes to colons
+  // and strip the virtual collection prefix to get the raw storage key
   const key = path.replace(/\//g, ':').replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`), '')
 
   // GET => getItem / getKeys
   if (event.method === 'GET') {
+    // Trailing ':' signals a getKeys (list) request from the unstorage HTTP driver
     const isBaseKey = key.endsWith('/') || key.endsWith(':')
 
     if (isBaseKey) {
-      const keys = await storage.getKeys(key)
-      return keys.map((k: string) => k.replace(/:/g, '/'))
+      // Normalise: ':' becomes '/'
+      const subPath = key.replace(/:/g, '/')
+      // Build the effective prefix for blob.list — handle empty prefix as "list all"
+      const effectivePrefix = prefix
+        ? (subPath ? `${prefix}/${subPath}` : prefix)
+        : subPath
+      const { blobs } = await blob.list(effectivePrefix ? { prefix: `${effectivePrefix}/` } : {})
+      return blobs.map((b: { pathname: string }) => {
+        return prefix ? b.pathname.slice(`${prefix}/`.length) : b.pathname
+      })
     }
 
-    const exists = await storage.hasItem(key)
-    if (!exists) {
+    const blobPath = key.replace(/:/g, '/')
+    const pathname = prefix ? `${prefix}/${blobPath}` : blobPath
+    const meta = await blob.head(pathname)
+    if (!meta) {
       throw createError({ statusCode: 404, message: 'Item not found' })
     }
 
-    const publicUrl = process.env.S3_PUBLIC_URL!
-    const fsPath = withLeadingSlash(key.replace(/:/g, '/'))
+    const fsPath = withLeadingSlash(blobPath)
+    const resolvedPath = meta.url ?? joinURL(publicUrl, prefix, fsPath)
+
     return {
       id: path,
       fsPath,
       extension: fsPath.split('.').pop(),
       stem: fsPath.split('.').slice(0, -1).join('.'),
-      path: joinURL(publicUrl, prefix, fsPath),
+      path: resolvedPath,
     }
   }
 
   // PUT => upload media file
   if (event.method === 'PUT') {
     const body = await readBody(event)
+    const blobPath = key.replace(/:/g, '/')
+    const pathname = prefix ? `${prefix}/${blobPath}` : blobPath
 
     if (!body.raw) {
-      await storage.setItem(key, body)
+      await blob.put(pathname, JSON.stringify(body), { contentType: 'application/json' })
     }
     else {
-      const { maxFileSize, allowedTypes } = useRuntimeConfig(event).public.studio.media
-
       const raw = body.raw as string
       const [meta, data] = raw.split(';base64,')
       const mimeType = meta!.replace('data:', '')
@@ -69,15 +81,17 @@ export default eventHandler(async (event) => {
         bytes[i] = binaryString.charCodeAt(i)!
       }
 
-      await storage.setItemRaw(key, bytes)
+      await blob.put(pathname, bytes, { contentType: mimeType })
     }
 
     return 'OK'
   }
 
-  // DELETE => removeItem
+  // DELETE => del
   if (event.method === 'DELETE') {
-    await storage.removeItem(key)
+    const blobPath = key.replace(/:/g, '/')
+    const pathname = prefix ? `${prefix}/${blobPath}` : blobPath
+    await blob.del(pathname)
     return 'OK'
   }
 

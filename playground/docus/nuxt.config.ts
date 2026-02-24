@@ -1,10 +1,6 @@
 export default defineNuxtConfig({
   extends: ['docus'],
-  modules: [
-    '@nuxt/ui',
-    '@nuxt/content',
-    'nuxt-studio',
-  ],
+  modules: ['@nuxt/ui', '@nuxt/content', 'nuxt-studio', '@nuxthub/core'],
   devtools: { enabled: true },
   content: {
     experimental: {
@@ -12,6 +8,9 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2025-08-26',
+  hub: {
+    blob: true,
+  },
   studio: {
     route: '/admin',
     repository: {

@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
 import { defu } from 'defu'
 import { version } from '../../../package.json'
@@ -32,16 +32,8 @@ interface MetaOptions {
 interface MediaUploadOptions {
   /**
    * Enable external storage for media uploads.
-   * When enabled, media files are uploaded to S3-compatible storage (AWS S3, Cloudflare R2,
-   * MinIO, DigitalOcean Spaces, Backblaze B2, etc.) instead of being committed to Git.
-   *
-   * Required environment variables:
-   * - S3_ACCESS_KEY_ID - Storage access key
-   * - S3_SECRET_ACCESS_KEY - Storage secret key
-   * - S3_ENDPOINT - Storage endpoint URL (e.g. https://<accountid>.r2.cloudflarestorage.com)
-   * - S3_BUCKET - Bucket name
-   * - S3_REGION - Region (optional, defaults to 'auto')
-   * - S3_PUBLIC_URL - Public URL for uploaded files
+   * When enabled, media files are uploaded to cloud storage (S3, Vercel Blob, Cloudflare R2, etc.)
+   * instead of being committed to Git. NuxtHub auto-detects the driver from environment variables.
    *
    * @default false
    */
@@ -60,13 +52,14 @@ interface MediaUploadOptions {
   allowedTypes?: string[]
 
   /**
-   * The public URL for the media files.
+   * The public CDN URL for the media files.
+   * Falls back to the blob URL returned by the storage provider if not set.
    * @default process.env.S3_PUBLIC_URL
    */
   publicUrl?: string
 
   /**
-   * The prefix used for files stored in external S3-compatible storage.
+   * The prefix used for files stored in external storage.
    * Files are stored as `<prefix>/<path>` in the bucket.
    * @default 'studio'
    */
@@ -415,15 +408,15 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.experimental = nuxt.options.experimental || {}
     nuxt.options.experimental.checkOutdatedBuildInterval = 1000 * 30
 
-    // Determine effective external media flag: only true when explicitly enabled AND S3 env vars are present
-    const hasS3Config = Boolean(
-      process.env.S3_ACCESS_KEY_ID
-      && process.env.S3_SECRET_ACCESS_KEY
-      && process.env.S3_ENDPOINT
-      && process.env.S3_BUCKET
-      && process.env.S3_PUBLIC_URL,
-    )
-    const isExternalMediaEnabled = Boolean(options.media?.external && hasS3Config)
+    let isExternalMediaEnabled = options.media?.external
+    if (isExternalMediaEnabled) {
+      const isNuxtHubInstalled = hasNuxtModule('@nuxthub/core')
+      // @ts-expect-error must be installed by user before enabling external media storage
+      if (!isNuxtHubInstalled || !nuxt.options.hub?.blob) {
+        logger.warn('You must install and enable @nuxthub/core blob storage to use external media storage. Falling back to default assets storage.')
+        isExternalMediaEnabled = false
+      }
+    }
 
     // Public runtime config
     nuxt.options.runtimeConfig.public.studio = {
@@ -517,7 +510,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     let publicAssetsStorage
     if (isExternalMediaEnabled) {
-      setExternalMediaStorage(nuxt, runtime)
+      await setExternalMediaStorage(nuxt, runtime)
     }
     else {
       publicAssetsStorage = setDefaultMediaStorage(nuxt, options)
