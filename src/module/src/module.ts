@@ -64,6 +64,11 @@ interface RepositoryOptions {
 
 interface GitHubRepositoryOptions extends RepositoryOptions {
   provider: 'github'
+  /**
+   * GitHub instance URL (for GitHub Enterprise Server).
+   * @default 'https://github.com'
+   */
+  instanceUrl?: string
 }
 
 interface GitLabRepositoryOptions extends RepositoryOptions {
@@ -158,6 +163,11 @@ export interface ModuleOptions {
        * @default process.env.STUDIO_GITHUB_CLIENT_SECRET
        */
       clientSecret?: string
+      /**
+       * GitHub instance URL (for GitHub Enterprise Server).
+       * @default 'https://github.com'
+       */
+      instanceUrl?: string
     }
     /**
      * The GitLab OAuth credentials.

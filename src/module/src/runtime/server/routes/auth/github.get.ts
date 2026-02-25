@@ -32,20 +32,26 @@ export interface OAuthGitHubConfig {
   emailRequired?: boolean
 
   /**
+   * GitHub instance URL (for GitHub Enterprise Server).
+   * @default 'https://github.com'
+   */
+  instanceUrl?: string
+
+  /**
    * GitHub OAuth Authorization URL
-   * @default 'https://github.com/login/oauth/authorize'
+   * @default '{instanceUrl}/login/oauth/authorize'
    */
   authorizationURL?: string
 
   /**
    * GitHub OAuth Token URL
-   * @default 'https://github.com/login/oauth/access_token'
+   * @default '{instanceUrl}/login/oauth/access_token'
    */
   tokenURL?: string
 
   /**
    * GitHub API URL
-   * @default 'https://api.github.com'
+   * @default 'https://api.github.com' (or '{instanceUrl}/api/v3' for GitHub Enterprise Server)
    */
   apiURL?: string
 
@@ -69,13 +75,16 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
+  const instanceUrl = studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com'
+  const isEnterprise = instanceUrl !== 'https://github.com'
   const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_GITHUB_REDIRECT_URL,
-    authorizationURL: 'https://github.com/login/oauth/authorize',
-    tokenURL: 'https://github.com/login/oauth/access_token',
-    apiURL: 'https://api.github.com',
+    instanceUrl,
+    authorizationURL: `${instanceUrl}/login/oauth/authorize`,
+    tokenURL: `${instanceUrl}/login/oauth/access_token`,
+    apiURL: isEnterprise ? `${instanceUrl}/api/v3` : 'https://api.github.com',
     authorizationParams: {},
     emailRequired: true,
   })
