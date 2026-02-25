@@ -1233,6 +1233,137 @@ My button
 })
 
 describe('code block', () => {
+  test('code block preserves space indentation when loaded from Shiki-highlighted MDC', async () => {
+    // Reproduce bug: when a file is opened, its MDC body has Shiki-highlighted spans.
+    // span.line elements have no '\n' text nodes between them, so getNodeContent()
+    // concatenates all lines without newlines, losing indentation visibility.
+    const mdcInput: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'pre',
+          props: {
+            language: 'ts',
+            // props.code holds the original raw code as stored by the MDC parser
+            code: "function hello() {\n  console.log('world')\n}",
+            className: 'shiki shiki-themes github-light github-dark',
+          },
+          children: [
+            {
+              type: 'element',
+              tag: 'code',
+              props: { __ignoreMap: '' },
+              children: [
+                // Shiki wraps each line in a span.line — no '\n' text nodes between them
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #d73a49' }, children: [{ type: 'text', value: 'function hello() {' }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    // The 2-space indentation is tokenised as its own span
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '  ' }] },
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: "console.log('world')" }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '}' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+
+    // The codeBlock node must contain the full original code, with newlines and indentation
+    expect(tiptapJSON.content?.[1]).toMatchObject({
+      type: 'codeBlock',
+      attrs: { language: 'ts' },
+      content: [{ type: 'text', text: "function hello() {\n  console.log('world')\n}" }],
+    })
+  })
+
+  test('code block preserves tab indentation when loaded from Shiki-highlighted MDC', async () => {
+    // Same bug: Shiki expands \t to spaces in its token spans, so reading back from
+    // Shiki spans loses the original tab characters. props.code stores the raw code.
+    const mdcInput: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'pre',
+          props: {
+            language: 'ts',
+            // props.code has the original code with a real tab character
+            code: "function hello() {\n\tconsole.log('world')\n}",
+            className: 'shiki shiki-themes github-light github-dark',
+          },
+          children: [
+            {
+              type: 'element',
+              tag: 'code',
+              props: { __ignoreMap: '' },
+              children: [
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #d73a49' }, children: [{ type: 'text', value: 'function hello() {' }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    // Shiki expands the tab to 4 spaces in its output spans
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '    ' }] },
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: "console.log('world')" }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '}' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+
+    // The codeBlock node must contain the original tab character from props.code,
+    // not the 4 spaces that Shiki used in its token spans
+    expect(tiptapJSON.content?.[1]).toMatchObject({
+      type: 'codeBlock',
+      attrs: { language: 'ts' },
+      content: [{ type: 'text', text: "function hello() {\n\tconsole.log('world')\n}" }],
+    })
+  })
+
   test('simple code block highlighting', async () => {
     const mdcInput: MDCRoot = {
       type: 'root',

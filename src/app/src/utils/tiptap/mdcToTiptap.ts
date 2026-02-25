@@ -260,23 +260,25 @@ function createTemplateNode(node: MDCElement) {
 }
 
 function createPreNode(node: MDCElement) {
-  // Remove trailing newline from last line
-  // if (node.tag === 'pre') {
-  //   const lastLine = (node.children as Array<MDCElement>)?.[0]?.children?.at(-1)
-  //   const lastSpan = (lastLine as Array<MDCElement>)?.at(-1)
-  //   if (lastSpan) {
-  //     lastSpan.children[0].value = lastSpan.children[0].value.replace(/\n$/, '')
-  //   }
-  // }
+  const language = node.props?.language || 'text'
+  const filename = node.props?.filename
+  const rawCode = node.props?.code as string | undefined
 
+  // When props.code is available use it directly so that indentation and tab characters are preserved exactly as in the source.
+  if (rawCode !== undefined) {
+    return {
+      type: 'codeBlock',
+      attrs: { language, filename },
+      content: rawCode ? [{ type: 'text', text: rawCode }] : [],
+    } as JSONContent
+  }
+
+  // Fallback for MDC trees that don't carry props.code
   const tiptapNode = createTipTapNode(node, 'codeBlock', {
-    attrs: {
-      language: (node as MDCElement).props?.language || 'text',
-      filename: (node as MDCElement).props?.filename,
-    },
+    attrs: { language, filename },
   })
 
-  // Remove empty text, Empty text nodes are not allowed
+  // Remove empty text nodes (not allowed in TipTap codeBlock)
   if ((tiptapNode.content as Array<JSONContent>).length === 1 && ((tiptapNode.content as Array<JSONContent>)[0]).text === '') {
     tiptapNode.content = []
   }
