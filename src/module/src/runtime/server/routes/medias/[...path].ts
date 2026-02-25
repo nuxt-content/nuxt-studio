@@ -21,8 +21,8 @@ export default eventHandler(async (event) => {
     const isBaseKey = key.endsWith('/') || key.endsWith(':')
 
     if (isBaseKey) {
-      // Normalise: ':' becomes '/'
-      const subPath = key.replace(/:/g, '/')
+      // Strip the trailing delimiter that signals a list request, then normalise ':' to '/'
+      const subPath = key.slice(0, -1).replace(/:/g, '/')
       // Build the effective prefix for blob.list — handle empty prefix as "list all"
       const effectivePrefix = prefix
         ? (subPath ? `${prefix}/${subPath}` : prefix)
