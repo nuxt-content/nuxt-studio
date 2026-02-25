@@ -1246,7 +1246,7 @@ describe('code block', () => {
           props: {
             language: 'ts',
             // props.code holds the original raw code as stored by the MDC parser
-            code: "function hello() {\n  console.log('world')\n}",
+            code: 'function hello() {\n  console.log(\'world\')\n}',
             className: 'shiki shiki-themes github-light github-dark',
           },
           children: [
@@ -1271,7 +1271,7 @@ describe('code block', () => {
                   children: [
                     // The 2-space indentation is tokenised as its own span
                     { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '  ' }] },
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: "console.log('world')" }] },
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: 'console.log(\'world\')' }] },
                   ],
                 },
                 {
@@ -1295,7 +1295,7 @@ describe('code block', () => {
     expect(tiptapJSON.content?.[1]).toMatchObject({
       type: 'codeBlock',
       attrs: { language: 'ts' },
-      content: [{ type: 'text', text: "function hello() {\n  console.log('world')\n}" }],
+      content: [{ type: 'text', text: 'function hello() {\n  console.log(\'world\')\n}' }],
     })
   })
 
@@ -1311,7 +1311,7 @@ describe('code block', () => {
           props: {
             language: 'ts',
             // props.code has the original code with a real tab character
-            code: "function hello() {\n\tconsole.log('world')\n}",
+            code: 'function hello() {\n\tconsole.log(\'world\')\n}',
             className: 'shiki shiki-themes github-light github-dark',
           },
           children: [
@@ -1335,7 +1335,7 @@ describe('code block', () => {
                   children: [
                     // Shiki expands the tab to 4 spaces in its output spans
                     { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '    ' }] },
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: "console.log('world')" }] },
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: 'console.log(\'world\')' }] },
                   ],
                 },
                 {
@@ -1360,7 +1360,7 @@ describe('code block', () => {
     expect(tiptapJSON.content?.[1]).toMatchObject({
       type: 'codeBlock',
       attrs: { language: 'ts' },
-      content: [{ type: 'text', text: "function hello() {\n\tconsole.log('world')\n}" }],
+      content: [{ type: 'text', text: 'function hello() {\n\tconsole.log(\'world\')\n}' }],
     })
   })
 
