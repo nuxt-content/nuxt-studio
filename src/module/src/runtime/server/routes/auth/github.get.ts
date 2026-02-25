@@ -2,7 +2,7 @@ import { useRuntimeConfig } from '#imports'
 import type { Endpoints } from '@octokit/types'
 import type { H3Event } from 'h3'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery } from 'ufo'
+import { withQuery, withoutTrailingSlash } from 'ufo'
 import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 import { mergeConfig } from '../../utils/object'
@@ -32,7 +32,9 @@ export interface OAuthGitHubConfig {
   emailRequired?: boolean
 
   /**
-   * GitHub instance URL (for GitHub Enterprise Server).
+   * GitHub instance base web URL (for GitHub Enterprise Server).
+   * Must be the web origin without a trailing slash and without `/api/v3`,
+   * for example: `https://github.com` or `https://ghe.example.com`.
    * @default 'https://github.com'
    */
   instanceUrl?: string
@@ -75,8 +77,8 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const instanceUrl = studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com'
-  const isEnterprise = instanceUrl !== 'https://github.com'
+  const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com')
+  const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
   const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,

@@ -65,7 +65,9 @@ interface RepositoryOptions {
 interface GitHubRepositoryOptions extends RepositoryOptions {
   provider: 'github'
   /**
-   * GitHub instance URL (for GitHub Enterprise Server).
+   * GitHub instance base web URL (for GitHub Enterprise Server).
+   * Must be the web origin without a trailing slash and without `/api/v3`,
+   * for example: `https://github.com` or `https://ghe.example.com`.
    * @default 'https://github.com'
    */
   instanceUrl?: string
@@ -164,7 +166,9 @@ export interface ModuleOptions {
        */
       clientSecret?: string
       /**
-       * GitHub instance URL (for GitHub Enterprise Server).
+       * GitHub instance base web URL (for GitHub Enterprise Server).
+       * Must be the web origin without a trailing slash and without `/api/v3`,
+       * for example: `https://github.com` or `https://ghe.example.com`.
        * @default 'https://github.com'
        */
       instanceUrl?: string

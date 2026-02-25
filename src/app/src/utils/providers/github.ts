@@ -1,5 +1,5 @@
 import { ofetch } from 'ofetch'
-import { joinURL } from 'ufo'
+import { joinURL, withoutTrailingSlash } from 'ufo'
 import { consola } from 'consola'
 import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions } from '../../types'
 import { StudioFeature } from '../../types'
@@ -18,8 +18,8 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail } = options
   const gitFiles: Record<string, GitFile> = {}
 
-  const instanceUrl = options.instanceUrl || 'https://github.com'
-  const isEnterprise = instanceUrl !== 'https://github.com'
+  const instanceUrl = withoutTrailingSlash(options.instanceUrl || 'https://github.com')
+  const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
   const apiBaseUrl = isEnterprise ? `${instanceUrl}/api/v3` : 'https://api.github.com'
 
   // Support both token formats: "token {token}" for fine grained PATs, "Bearer {token}" for OAuth PATs
