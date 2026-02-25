@@ -3,11 +3,10 @@ import type { UserSchema } from '@gitbeaker/core'
 import type { H3Event } from 'h3'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { FetchError } from 'ofetch'
-import { withQuery } from 'ufo'
+import { withQuery, withoutTrailingSlash } from 'ufo'
 import { generateOAuthState, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 import { mergeConfig } from '../../utils/object'
-import { withoutTrailingSlash } from 'ufo'
 
 export interface OAuthGitLabConfig {
   /**
