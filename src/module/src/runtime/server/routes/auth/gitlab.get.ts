@@ -7,6 +7,7 @@ import { withQuery } from 'ufo'
 import { generateOAuthState, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 import { mergeConfig } from '../../utils/object'
+import { withoutTrailingSlash } from 'ufo'
 
 export interface OAuthGitLabConfig {
   /**
@@ -88,7 +89,7 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const instanceUrl = studioConfig?.auth?.gitlab?.instanceUrl || 'https://gitlab.com'
+  const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.gitlab?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://gitlab.com')
 
   const config = mergeConfig<OAuthGitLabConfig>(studioConfig?.auth?.gitlab, {
     applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,

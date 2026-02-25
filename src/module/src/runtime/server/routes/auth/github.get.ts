@@ -2,7 +2,7 @@ import { useRuntimeConfig } from '#imports'
 import type { Endpoints } from '@octokit/types'
 import type { H3Event } from 'h3'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery } from 'ufo'
+import { withQuery, withoutTrailingSlash } from 'ufo'
 import { generateOAuthState, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 import { mergeConfig } from '../../utils/object'
@@ -32,20 +32,28 @@ export interface OAuthGitHubConfig {
   emailRequired?: boolean
 
   /**
+   * GitHub instance base web URL (for GitHub Enterprise Server).
+   * Must be the web origin without a trailing slash and without `/api/v3`,
+   * for example: `https://github.com` or `https://ghe.example.com`.
+   * @default 'https://github.com'
+   */
+  instanceUrl?: string
+
+  /**
    * GitHub OAuth Authorization URL
-   * @default 'https://github.com/login/oauth/authorize'
+   * @default '{instanceUrl}/login/oauth/authorize'
    */
   authorizationURL?: string
 
   /**
    * GitHub OAuth Token URL
-   * @default 'https://github.com/login/oauth/access_token'
+   * @default '{instanceUrl}/login/oauth/access_token'
    */
   tokenURL?: string
 
   /**
    * GitHub API URL
-   * @default 'https://api.github.com'
+   * @default 'https://api.github.com' (or '{instanceUrl}/api/v3' for GitHub Enterprise Server)
    */
   apiURL?: string
 
@@ -69,13 +77,16 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
+  const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com')
+  const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
   const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
     clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
     clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
     redirectURL: process.env.STUDIO_GITHUB_REDIRECT_URL,
-    authorizationURL: 'https://github.com/login/oauth/authorize',
-    tokenURL: 'https://github.com/login/oauth/access_token',
-    apiURL: 'https://api.github.com',
+    instanceUrl,
+    authorizationURL: `${instanceUrl}/login/oauth/authorize`,
+    tokenURL: `${instanceUrl}/login/oauth/access_token`,
+    apiURL: isEnterprise ? `${instanceUrl}/api/v3` : 'https://api.github.com',
     authorizationParams: {},
     emailRequired: true,
   })
