@@ -64,10 +64,21 @@ interface RepositoryOptions {
 
 interface GitHubRepositoryOptions extends RepositoryOptions {
   provider: 'github'
+  /**
+   * GitHub instance base web URL (for GitHub Enterprise Server).
+   * Must be the web origin without a trailing slash and without `/api/v3`,
+   * for example: `https://github.com` or `https://ghe.example.com`.
+   * @default 'https://github.com'
+   */
+  instanceUrl?: string
 }
 
 interface GitLabRepositoryOptions extends RepositoryOptions {
   provider: 'gitlab'
+  /**
+   * The GitLab instance URL (for self-hosted instances).
+   * @default 'https://gitlab.com'
+   */
   instanceUrl?: string
 }
 
@@ -158,6 +169,13 @@ export interface ModuleOptions {
        * @default process.env.STUDIO_GITHUB_CLIENT_SECRET
        */
       clientSecret?: string
+      /**
+       * GitHub instance base web URL (for GitHub Enterprise Server).
+       * Must be the web origin without a trailing slash and without `/api/v3`,
+       * for example: `https://github.com` or `https://ghe.example.com`.
+       * @default 'https://github.com'
+       */
+      instanceUrl?: string
     }
     /**
      * The GitLab OAuth credentials.
@@ -282,16 +300,18 @@ export default defineNuxtModule<ModuleOptions>({
       branch: undefined,
       rootDir: '',
       private: true,
+      instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://github.com',
     },
     auth: {
       github: {
         clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
         clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
+        instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || 'https://github.com',
       },
       gitlab: {
         applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,
         applicationSecret: process.env.STUDIO_GITLAB_APPLICATION_SECRET,
-        instanceUrl: process.env.STUDIO_GITLAB_INSTANCE_URL || process.env.CI_SERVER_URL || 'https://gitlab.com',
+        instanceUrl: process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://gitlab.com',
       },
       google: {
         clientId: process.env.STUDIO_GOOGLE_CLIENT_ID,
