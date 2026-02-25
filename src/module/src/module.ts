@@ -75,6 +75,10 @@ interface GitHubRepositoryOptions extends RepositoryOptions {
 
 interface GitLabRepositoryOptions extends RepositoryOptions {
   provider: 'gitlab'
+  /**
+   * The GitLab instance URL (for self-hosted instances).
+   * @default 'https://gitlab.com'
+   */
   instanceUrl?: string
 }
 
@@ -296,16 +300,18 @@ export default defineNuxtModule<ModuleOptions>({
       branch: undefined,
       rootDir: '',
       private: true,
+      instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://github.com',
     },
     auth: {
       github: {
         clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
         clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
+        instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || 'https://github.com',
       },
       gitlab: {
         applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,
         applicationSecret: process.env.STUDIO_GITLAB_APPLICATION_SECRET,
-        instanceUrl: process.env.STUDIO_GITLAB_INSTANCE_URL || process.env.CI_SERVER_URL || 'https://gitlab.com',
+        instanceUrl: process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://gitlab.com',
       },
       google: {
         clientId: process.env.STUDIO_GOOGLE_CLIENT_ID,
