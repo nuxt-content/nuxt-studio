@@ -3,7 +3,7 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree } from './utils/document'
+import { applyCollectionSchema, isDocumentMatchingContent, documentFromContent, contentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree, comarkTreeFromLegacyDocument, markdownRootFromComarkTree, isComarkTree } from './utils/document'
 import { getHostStyles, getSidebarWidth, adjustFixedElements } from './utils/sidebar'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -17,6 +17,14 @@ import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
 const serviceWorkerVersion = 'v0.0.3'
+
+function toComarkBody(document: DatabaseItem): DatabaseItem {
+  if (document.extension !== 'md' || !document.body) return document
+  if (isComarkTree(document.body)) return document
+  const comarkTree = comarkTreeFromLegacyDocument(document)
+  if (!comarkTree) return document
+  return { ...document, body: comarkTree as unknown }
+}
 
 function getLocalColorMode(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
@@ -187,7 +195,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
             return undefined
           }
 
-          return sanitizeDocumentTree({ ...item, fsPath }, collectionInfo)
+          return toComarkBody(sanitizeDocumentTree({ ...item, fsPath }, collectionInfo))
         },
         list: async (): Promise<DatabaseItem[]> => {
           const collections = Object.values(useContentCollections()).filter(collection => collection.name !== 'info')
@@ -198,7 +206,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
               const source = getCollectionSourceById(document.id, collection.source)
               const fsPath = generateFsPathFromId(document.id, source!)
 
-              return sanitizeDocumentTree({ ...document, fsPath }, collection)
+              return toComarkBody(sanitizeDocumentTree({ ...document, fsPath }, collection))
             })
           }))
 
@@ -217,12 +225,12 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo!)
           const generateOptions = { collectionType: collectionInfo.type, compress: true }
-          const document = await generateDocumentFromContent(id, content, generateOptions)
+          const document = await documentFromContent(id, content, generateOptions)
           const normalizedDocument = applyCollectionSchema(id, collectionInfo, document!)
 
           await host.document.db.upsert(fsPath, normalizedDocument)
 
-          return sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo)
+          return toComarkBody(sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo))
         },
         upsert: async (fsPath: string, document: CollectionItemBase) => {
           const collectionInfo = getCollectionByFilePath(fsPath, useContentCollections())
@@ -232,7 +240,13 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo)
 
-          const normalizedDocument = applyCollectionSchema(id, collectionInfo, document)
+          // Convert ComarkTree body back to MarkdownRoot before storing in DB
+          const body = (document as DatabaseItem).body
+          const documentToStore = isComarkTree(body)
+            ? { ...document, body: markdownRootFromComarkTree(body) as unknown }
+            : document
+
+          const normalizedDocument = applyCollectionSchema(id, collectionInfo, documentToStore)
 
           await useContentDatabaseAdapter(collectionInfo.name).exec(generateRecordDeletion(collectionInfo, id))
           await useContentDatabaseAdapter(collectionInfo.name).exec(generateRecordInsert(collectionInfo, normalizedDocument))
@@ -278,9 +292,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           const collection = getCollectionById(id, useContentCollections())
 
           const generateOptions = { collectionType: collection.type, compress: true }
-          return await generateDocumentFromContent(id, content, generateOptions)
+          return await documentFromContent(id, content, generateOptions)
         },
-        contentFromDocument: async (document: DatabaseItem) => generateContentFromDocument(document),
+        contentFromDocument: async (document: DatabaseItem) => contentFromDocument(document),
       },
     },
     media: (() => {

@@ -4,7 +4,7 @@ export const dbItemsList: DatabaseItem[] = [
   {
     id: 'landing/index.md',
     title: '',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: '',
     extension: 'md',
     meta: {},
@@ -21,7 +21,7 @@ export const dbItemsList: DatabaseItem[] = [
   {
     id: 'docs/1.getting-started/2.introduction.md',
     title: 'Introduction',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: 'Welcome to Docus theme documentation.',
     extension: 'md',
     layout: null,
@@ -42,7 +42,7 @@ export const dbItemsList: DatabaseItem[] = [
   {
     id: 'docs/1.getting-started/3.installation.md',
     title: 'Installation',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: 'Learn how to install Docus.',
     extension: 'md',
     layout: null,
@@ -64,7 +64,7 @@ export const nestedDbItemsList: DatabaseItem[] = [
   {
     id: 'docs/1.essentials/2.configuration.md',
     title: 'Configuration',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: 'Learn how to configure Docus.',
     extension: 'md',
     layout: null,
@@ -83,7 +83,7 @@ export const nestedDbItemsList: DatabaseItem[] = [
   {
     id: 'docs/1.essentials/1.nested/2.advanced.md',
     title: 'Advanced',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: 'Learn how to configure Docus.',
     extension: 'md',
     layout: null,
@@ -121,7 +121,7 @@ export const languagePrefixedDbItemsList: DatabaseItem[] = [
   {
     id: 'docs_en/en/1.getting-started/2.introduction.md',
     title: 'Introduction',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: 'Welcome to Docus theme documentation.',
     extension: 'md',
     links: null,
@@ -141,7 +141,7 @@ export const languagePrefixedDbItemsList: DatabaseItem[] = [
   {
     id: 'docs_en/en/1.getting-started/3.installation.md',
     title: 'Installation',
-    body: { type: 'minimark', value: [] },
+    body: { nodes: [], frontmatter: {}, meta: {} },
     description: 'Get started with Docus.',
     extension: 'md',
     links: null,

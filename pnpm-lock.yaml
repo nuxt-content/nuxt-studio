@@ -20,15 +20,15 @@ importers:
       '@iconify-json/lucide':
         specifier: ^1.2.94
         version: 1.2.94
-      '@nuxtjs/mdc':
-        specifier: ^0.20.1
-        version: 0.20.1(magicast@0.5.2)
       '@vueuse/core':
         specifier: ^14.2.1
         version: 14.2.1(vue@3.5.29(typescript@5.9.3))
       ai:
         specifier: ^6.0.101
         version: 6.0.101(zod@4.3.6)
+      comark:
+        specifier: https://pkg.pr.new/comarkdown/comark@bc4f4cf
+        version: https://pkg.pr.new/comarkdown/comark@bc4f4cf(shiki@3.23.0)(vue@3.5.29(typescript@5.9.3))
       defu:
         specifier: ^6.1.4
         version: 6.1.4
@@ -44,9 +44,6 @@ importers:
       nuxt-component-meta:
         specifier: ^0.17.2
         version: 0.17.2(magicast@0.5.2)
-      remark-mdc:
-        specifier: ^3.10.0
-        version: 3.10.0
       shiki:
         specifier: ^3.23.0
         version: 3.23.0
@@ -4176,6 +4173,21 @@ packages:
 
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
+
+  comark@https://pkg.pr.new/comarkdown/comark@bc4f4cf:
+    resolution: {integrity: sha512-ZlDYq1Ao0i/v5qiSB5iyqvL3HmtJyj7clTbst+u4DjPcJPZ3iUtZPUsbDy+auJ9QmxitF+S8Karufj4ulGtHhQ==, tarball: https://pkg.pr.new/comarkdown/comark@bc4f4cf}
+    version: 1.0.0
+    peerDependencies:
+      react: ^19.2.4
+      shiki: ^3.22.0
+      vue: ^3.5.27
+    peerDependenciesMeta:
+      react:
+        optional: true
+      shiki:
+        optional: true
+      vue:
+        optional: true
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
@@ -12706,6 +12718,11 @@ snapshots:
   colord@2.9.3: {}
 
   colortranslator@5.0.0: {}
+
+  comark@https://pkg.pr.new/comarkdown/comark@bc4f4cf(shiki@3.23.0)(vue@3.5.29(typescript@5.9.3)):
+    optionalDependencies:
+      shiki: 3.23.0
+      vue: 3.5.29(typescript@5.9.3)
 
   comma-separated-tokens@2.0.3: {}
 
