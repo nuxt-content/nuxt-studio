@@ -292,7 +292,7 @@ async function onSubmit() {
                     class="w-12"
                   >
                     <UInput
-                      v-model="state.prefix"
+                      v-model="(state.prefix as string | undefined)"
                       type="text"
                       pattern="[0-9]*"
                       variant="soft"

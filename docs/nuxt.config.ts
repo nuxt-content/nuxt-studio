@@ -1,7 +1,11 @@
 export default defineNuxtConfig({
   extends: ['docus'],
-  modules: ['../src/module/src/module', '@nuxtjs/plausible'],
+  modules: ['../src/module/src/module', '@nuxtjs/plausible', '@nuxthub/core'],
   css: ['~/assets/css/main.css'],
+
+  hub: {
+    blob: true,
+  },
 
   llms: {
     domain: 'https://nuxt.studio',
@@ -12,8 +16,8 @@ export default defineNuxtConfig({
       description: 'Edit your Nuxt Content website in production.',
     },
   },
+
   studio: {
-    dev: false,
     route: '/admin',
     repository: {
       provider: 'github',
@@ -28,6 +32,10 @@ export default defineNuxtConfig({
         style: 'Technical documentation',
         tone: 'Formal and professional',
       },
+    },
+    media: {
+      external: true,
+      prefix: '',
     },
   },
 })

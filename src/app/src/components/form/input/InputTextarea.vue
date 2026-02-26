@@ -14,7 +14,7 @@ const model = defineModel<string | number>({ default: '' })
 
 <template>
   <UTextarea
-    v-model="model"
+    v-model="(model as string)"
     :placeholder="$t('studio.form.text.placeholder')"
     :rows="4"
     autoresize

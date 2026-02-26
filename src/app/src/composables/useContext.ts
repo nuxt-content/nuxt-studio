@@ -14,9 +14,7 @@ import type {
   StudioActionInProgress,
   CreateFolderParams,
   DatabaseItem,
-  MediaItem,
 } from '../types'
-import { VirtualMediaCollectionName, generateStemFromFsPath } from '../utils/media'
 import { oneStepActions, STUDIO_ITEM_ACTION_DEFINITIONS, twoStepActions, STUDIO_BRANCH_ACTION_DEFINITIONS } from '../utils/context'
 import type { useTree } from './useTree'
 import type { useGitProvider } from './useGitProvider'
@@ -127,21 +125,13 @@ export const useContext = createSharedComposable((
     },
     [StudioItemActionId.CreateMediaFolder]: async (params: CreateFolderParams) => {
       const { fsPath } = params
-      const gitkeepFsPath = joinURL(fsPath, '.gitkeep')
-      const gitKeepId = joinURL(VirtualMediaCollectionName, gitkeepFsPath)
-      const gitKeepMedia: MediaItem = {
-        id: gitKeepId,
-        fsPath: gitkeepFsPath,
-        stem: generateStemFromFsPath(gitkeepFsPath),
-        extension: '',
-      }
-
-      await host.media.upsert(gitkeepFsPath, gitKeepMedia)
-      await (activeTree.value.draft as ReturnType<typeof useDraftMedias>).create(gitkeepFsPath, gitKeepMedia)
+      const gitkeepFsPath = await (activeTree.value.draft as ReturnType<typeof useDraftMedias>).createFolder(fsPath)
 
       unsetActionInProgress()
 
-      await activeTree.value.selectParentByFsPath(gitkeepFsPath)
+      if (gitkeepFsPath) {
+        await activeTree.value.selectParentByFsPath(gitkeepFsPath)
+      }
     },
     [StudioItemActionId.CreateDocument]: async (params: CreateFileParams) => {
       const { fsPath, content } = params

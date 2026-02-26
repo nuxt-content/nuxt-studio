@@ -1,8 +1,9 @@
 import { streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
-import { eventHandler, createError, useSession, getRequestProtocol, readBody } from 'h3'
+import { eventHandler, createError, readBody } from 'h3'
 import { consola } from 'consola'
 import { useRuntimeConfig } from '#imports'
+import { requireStudioAuth } from '../../utils/auth'
 import { queryCollection } from '@nuxt/content/server'
 import type { Collections, CollectionInfo } from '@nuxt/content'
 import type { DatabasePageItem } from 'nuxt-studio/app'
@@ -25,6 +26,8 @@ const logger = consola.withTag('Nuxt Studio')
  * that helps the AI understand the project's writing style and conventions.
  */
 export default eventHandler(async (event) => {
+  await requireStudioAuth(event)
+
   const config = useRuntimeConfig(event)
 
   // Read collection info from request body
@@ -43,25 +46,6 @@ export default eventHandler(async (event) => {
       statusCode: 400,
       statusMessage: 'Invalid collection: name and type are required',
     })
-  }
-
-  // Authentication check - skip in dev mode
-  if (!config.public.studio.dev) {
-    const session = await useSession(event, {
-      name: 'studio-session',
-      password: config.studio?.auth?.sessionSecret,
-      cookie: {
-        secure: getRequestProtocol(event) === 'https',
-        path: '/',
-      },
-    })
-
-    if (!session.data || Object.keys(session.data).length === 0) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized. Please log in to use AI features.',
-      })
-    }
   }
 
   const aiConfig = config.studio?.ai

@@ -4,10 +4,12 @@ import type { Nuxt } from '@nuxt/schema'
 import type { ViteDevServer } from 'vite'
 import type { Storage } from 'unstorage'
 
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from './utils/constants'
+
 export function setupDevMode(
   nuxt: Nuxt,
   runtime: (...args: string[]) => string,
-  assetsStorage: Storage,
+  publicAssetsStorage?: Storage,
 ) {
   // Setup Nitro storage for content and public assets
   nuxt.options.nitro.storage = {
@@ -15,10 +17,6 @@ export function setupDevMode(
     nuxt_studio_content: {
       driver: 'fs',
       base: resolve(nuxt.options.rootDir, 'content'),
-    },
-    nuxt_studio_public_assets: {
-      driver: 'fs',
-      base: resolve(nuxt.options.rootDir, 'public'),
     },
   }
 
@@ -28,26 +26,34 @@ export function setupDevMode(
     handler: runtime('./server/routes/dev/content/[...path]'),
   })
 
-  // Add dev server handlers for public assets
-  addServerHandler({
-    route: '/__nuxt_studio/dev/public/**',
-    handler: runtime('./server/routes/dev/public/[...path]'),
-  })
+  // Setup Nitro storage and hmr for public assets in local
+  if (publicAssetsStorage) {
+    nuxt.options.nitro.storage.nuxt_studio_public_assets = {
+      driver: 'fs',
+      base: resolve(nuxt.options.rootDir, 'public'),
+    }
 
-  // Register Vite plugin to watch public assets
-  addVitePlugin({
-    name: 'nuxt-studio',
-    configureServer: (server: ViteDevServer) => {
-      assetsStorage.watch((type, file) => {
-        server.ws.send({
-          type: 'custom',
-          event: 'nuxt-studio:media:update',
-          data: { type, id: `public-assets/${file}` },
+    // Add dev server handlers for public assets
+    addServerHandler({
+      route: '/__nuxt_studio/dev/public/**',
+      handler: runtime('./server/routes/dev/public/[...path]'),
+    })
+
+    // Handle HMR for public assets
+    addVitePlugin({
+      name: 'nuxt-studio',
+      configureServer: (server: ViteDevServer) => {
+        publicAssetsStorage.watch((type, file) => {
+          server.ws.send({
+            type: 'custom',
+            event: 'nuxt-studio:media:update',
+            data: { type, id: `${VIRTUAL_MEDIA_COLLECTION_NAME}/${file}` },
+          })
         })
-      })
-    },
-    closeWatcher: () => {
-      assetsStorage.unwatch()
-    },
-  })
+      },
+      closeWatcher: () => {
+        publicAssetsStorage.unwatch()
+      },
+    })
+  }
 }

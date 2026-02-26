@@ -32,6 +32,8 @@
     },
     "notifications": {
       "error": {
+        "dismiss": "Dismiss",
+        "title": "An error occurred",
         "unknown": "An unknown error occurred"
       }
     },

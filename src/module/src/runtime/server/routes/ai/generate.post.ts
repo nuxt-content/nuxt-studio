@@ -1,6 +1,6 @@
 import { streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
-import { eventHandler, readBody, createError, useSession, getRequestProtocol } from 'h3'
+import { eventHandler, readBody, createError } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import {
   buildAIContext,
@@ -8,28 +8,12 @@ import {
   getSystem,
 } from '../../utils/ai/generate'
 import type { AIGenerateOptions } from 'nuxt-studio/app'
+import { requireStudioAuth } from '../../utils/auth'
 
 export default eventHandler(async (event) => {
+  await requireStudioAuth(event)
+
   const config = useRuntimeConfig(event)
-
-  // Authentication check - skip in dev mode
-  if (!config.public.studio.dev) {
-    const session = await useSession(event, {
-      name: 'studio-session',
-      password: config.studio?.auth?.sessionSecret,
-      cookie: {
-        secure: getRequestProtocol(event) === 'https',
-        path: '/',
-      },
-    })
-
-    if (!session.data || Object.keys(session.data).length === 0) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized. Please log in to use AI features.',
-      })
-    }
-  }
 
   const aiConfig = config.studio?.ai
   const apiKey = aiConfig?.apiKey

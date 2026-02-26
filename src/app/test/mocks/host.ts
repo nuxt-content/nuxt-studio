@@ -1,5 +1,5 @@
 import type { StudioHost, DatabaseItem } from '../../src/types'
-import { VirtualMediaCollectionName } from '../../src/utils/media'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../src/utils/media'
 import { vi } from 'vitest'
 import { createMockDocument } from './document'
 import { createMockMedia } from './media'
@@ -10,7 +10,7 @@ import { isDocumentMatchingContent, areDocumentsEqual, generateDocumentFromConte
 // Helper to convert fsPath to id (simulates module's internal mapping)
 export const fsPathToId = (fsPath: string, type: 'document' | 'media') => {
   if (type === 'media') {
-    return joinURL(VirtualMediaCollectionName, fsPath)
+    return joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, fsPath)
   }
   // For documents, prefix with a collection name
   return joinURL('docs', fsPath)

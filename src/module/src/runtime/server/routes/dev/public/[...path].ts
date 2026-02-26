@@ -4,10 +4,12 @@ import type { Storage, StorageMeta } from 'unstorage'
 import { withLeadingSlash } from 'ufo'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../../utils/constants'
+
 
 export default eventHandler(async (event) => {
   const path = event.path.replace('/__nuxt_studio/dev/public/', '')
-  const key = path.replace(/\//g, ':').replace(/^public-assets:/, '')
+  const key = path.replace(/\//g, ':').replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`), '')
   const storage = useStorage('nuxt_studio_public_assets') as Storage
 
   // GET => getItem / getKeys
@@ -27,7 +29,7 @@ export default eventHandler(async (event) => {
       })
     }
     return {
-      id: `public-assets/${key.replace(/:/g, '/')}`,
+      id: `${VIRTUAL_MEDIA_COLLECTION_NAME}/${key.replace(/:/g, '/')}`,
       extension: key.split('.').pop(),
       stem: key.split('.').join('.'),
       path: '/' + key.replace(/:/g, '/'),
@@ -48,7 +50,6 @@ export default eventHandler(async (event) => {
     else {
       const value = await readRawBody(event, 'utf8')
       const json = JSON.parse(value || '{}')
-
       const data = json.raw.split(';base64,')[1]
       await storage.setItemRaw(key, Buffer.from(data, 'base64'))
     }
