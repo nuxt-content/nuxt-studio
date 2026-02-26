@@ -101,7 +101,7 @@ function handleMediaCancel() {
   <!-- Text input with optional media picker -->
   <template v-else>
     <UInput
-      v-model="model"
+      v-model="(model as string)"
       :placeholder="$t('studio.form.text.placeholder')"
       size="xs"
       class="w-full"

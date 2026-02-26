@@ -1,6 +1,6 @@
 import { joinURL, withLeadingSlash } from 'ufo'
 import type { DraftItem, StudioHost, MediaItem, RawFile } from '../types'
-import { VirtualMediaCollectionName, generateStemFromFsPath } from '../utils/media'
+import { VIRTUAL_MEDIA_COLLECTION_NAME, generateStemFromFsPath } from '../utils/media'
 import { DraftStatus } from '../types/draft'
 import type { useGitProvider } from './useGitProvider'
 import { createSharedComposable } from './createSharedComposable'
@@ -8,8 +8,10 @@ import { useDraftBase } from './useDraftBase'
 import { mediaStorage as storage } from '../utils/storage'
 import { getFileExtension, slugifyFileName } from '../utils/file'
 import { useHooks } from './useHooks'
+import { useError } from './useError'
 
 const hooks = useHooks()
+const { showError } = useError()
 
 export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvider: ReturnType<typeof useGitProvider>) => {
   const {
@@ -27,10 +29,47 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     getStatus,
   } = useDraftBase('media', host, gitProvider, storage)
 
+  const isExternalMedia = host.meta.media?.external
+
+  async function createFolder(parentFsPath: string): Promise<string | undefined> {
+    try {
+      const gitkeepFsPath = joinURL(parentFsPath, '.gitkeep')
+      const gitKeepMedia: MediaItem = {
+        id: joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, gitkeepFsPath),
+        fsPath: gitkeepFsPath,
+        stem: generateStemFromFsPath(gitkeepFsPath),
+        extension: '',
+      }
+
+      await host.media.upsert(gitkeepFsPath, gitKeepMedia)
+
+      if (!isExternalMedia) {
+        await create(gitkeepFsPath, gitKeepMedia)
+      }
+
+      await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.createFolder' })
+
+      return gitkeepFsPath
+    }
+    catch (error) {
+      showError('Error creating folder', (error as Error).message)
+    }
+  }
+
   async function upload(parentFsPath: string, file: File) {
-    const draftItem = await fileToDraftItem(parentFsPath, file)
-    host.media.upsert(draftItem.fsPath, draftItem.modified!)
-    await create(draftItem.fsPath, draftItem.modified!)
+    try {
+      const draftItem = await fileToDraftItem(parentFsPath, file)
+      await host.media.upsert(draftItem.fsPath, draftItem.modified!)
+
+      if (!isExternalMedia) {
+        await create(draftItem.fsPath, draftItem.modified!)
+      }
+
+      await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.upload' })
+    }
+    catch (error) {
+      showError('Error uploading media', (error as Error).message)
+    }
   }
 
   async function fileToDraftItem(parentFsPath: string, file: File): Promise<DraftItem<MediaItem>> {
@@ -43,7 +82,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
       remoteFile: undefined,
       status: DraftStatus.Created,
       modified: {
-        id: joinURL(VirtualMediaCollectionName, fsPath),
+        id: joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, fsPath),
         fsPath,
         extension: getFileExtension(fsPath),
         stem: generateStemFromFsPath(fsPath),
@@ -54,6 +93,12 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   }
 
   async function rename(items: { fsPath: string, newFsPath: string }[]) {
+    // TODO: Implement rename with external storage
+    if (isExternalMedia) {
+      showError('Error renaming media', 'External storage renaming must be implemented')
+      return
+    }
+
     for (const item of items) {
       const { fsPath, newFsPath } = item
 
@@ -69,7 +114,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
       const newDbItem: MediaItem = {
         ...currentDbItem,
         fsPath: newFsPath,
-        id: joinURL(VirtualMediaCollectionName, newFsPath),
+        id: joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, newFsPath),
         stem: generateStemFromFsPath(newFsPath),
         path: withLeadingSlash(newFsPath),
       }
@@ -126,6 +171,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     remove,
     revert,
     revertAll,
+    createFolder,
     rename,
     load,
     selectByFsPath,
