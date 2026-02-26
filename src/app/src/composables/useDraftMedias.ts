@@ -85,6 +85,12 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   }
 
   async function rename(items: { fsPath: string, newFsPath: string }[]) {
+    // TODO: Implement rename with external storage
+    if (host.meta.media?.external) {
+      showError('Error renaming media', 'External storage renaming must be implemented')
+      return
+    }
+
     for (const item of items) {
       const { fsPath, newFsPath } = item
 
