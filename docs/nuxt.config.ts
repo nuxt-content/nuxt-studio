@@ -3,6 +3,10 @@ export default defineNuxtConfig({
   modules: ['../src/module/src/module', '@nuxtjs/plausible', '@nuxthub/core'],
   css: ['~/assets/css/main.css'],
 
+  hub: {
+    blob: true,
+  },
+
   llms: {
     domain: 'https://nuxt.studio',
     title: 'Nuxt Studio',
@@ -11,10 +15,6 @@ export default defineNuxtConfig({
       title: 'Nuxt Studio',
       description: 'Edit your Nuxt Content website in production.',
     },
-  },
-
-  hub: {
-    blob: true,
   },
 
   studio: {
