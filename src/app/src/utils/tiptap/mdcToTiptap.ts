@@ -148,10 +148,16 @@ export function createMark(node: MDCNode, mark: string, accumulatedMarks: { type
   }
 
   if (node.type === 'element' && node.tag === 'code') {
+    // Only preserve `language` prop — strip Shiki-added props (className, style, etc.)
+    const codeAttrs: Record<string, unknown> = {}
+    if (attrs.language) {
+      codeAttrs.language = attrs.language
+    }
+    const codeMarks = [...accumulatedMarks, { type: mark, attrs: codeAttrs }]
     return [{
       type: 'text',
       text: getNodeContent(node),
-      marks: marks.slice().reverse(),
+      marks: codeMarks.slice().reverse(),
     }]
   }
 
