@@ -471,38 +471,37 @@ async function applyShikiSyntaxHighlighting(mdc: MDCRoot, theme: SyntaxHighlight
   if (!rehypeShiki) {
     throw new Error('rehypeShiki not initialized')
   }
+
   const shikit = rehypeShiki({ theme: theme as unknown as Record<string, string>, highlighter: shikiHighlighter })
   // MDCRoot has been transformed to hast Root structure by the visit above (tag→tagName, props→properties)
   await shikit(mdc as unknown as Root)
 
-  // Convert back tagName to tag and properties to props to be compatible with MDC
   visit(
     mdc,
     (n: unknown) => (n as Element).tagName !== undefined,
-    (n: unknown) => { Object.assign(n as MDCNode, { tag: (n as Element).tagName, props: (n as Element).properties, tagName: undefined, properties: undefined }) },
-  )
+    (n: unknown, _index: unknown, parent: unknown) => {
+      const node = n as MDCElement & Element
+      const tag = node.tagName as string
+      Object.assign(node, { tag, props: node.properties, tagName: undefined, properties: undefined })
 
-  // Remove empty newline text nodes and style elements from code blocks
-  visit(
-    mdc,
-    (n: unknown) => (n as MDCElement).tag === 'pre',
-    (n: unknown) => {
-      const preNode = n as MDCElement
-      const codeNode = preNode.children[0] as MDCElement
-      codeNode.children = codeNode.children.filter((child: MDCNode) => {
-        // Remove style elements added by Shiki
-        if (child.type === 'element' && (child as MDCElement).tag === 'style') {
-          return false
+      // Remove Shiki-added style elements and empty text nodes from code block children.
+      if (tag === 'pre') {
+        const codeChild = node.children[0] as MDCElement
+        if (codeChild) {
+          codeChild.children = (codeChild.children || []).filter((child: MDCNode) => {
+            const childTag = (child as unknown as Element).tagName || (child as MDCElement).tag
+            if (child.type === 'element' && childTag === 'style') return false
+            if (child.type === 'text' && !child.value.trim()) return false
+            return true
+          })
         }
+      }
 
-        // Remove empty text nodes
-        if (child.type === 'text' && !child.value.trim()) {
-          return false
-        }
-
-        // Keep everything else
-        return true
-      })
+      // Strip Shiki-added props from inline code (code not inside pre).
+      if (tag === 'code' && (parent as MDCElement)?.tag !== 'pre') {
+        const language = (node.props as Record<string, unknown>)?.language as string | undefined
+        node.props = language ? { language } : {}
+      }
     },
   )
 }
