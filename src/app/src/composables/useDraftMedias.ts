@@ -29,6 +29,8 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     getStatus,
   } = useDraftBase('media', host, gitProvider, storage)
 
+  const isExternalMedia = host.meta.media?.external
+
   async function createFolder(parentFsPath: string): Promise<string | undefined> {
     try {
       const gitkeepFsPath = joinURL(parentFsPath, '.gitkeep')
@@ -40,7 +42,10 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
       }
 
       await host.media.upsert(gitkeepFsPath, gitKeepMedia)
-      await create(gitkeepFsPath, gitKeepMedia)
+
+      if (!isExternalMedia) {
+        await create(gitkeepFsPath, gitKeepMedia)
+      }
 
       await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.createFolder' })
 
@@ -55,7 +60,10 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     try {
       const draftItem = await fileToDraftItem(parentFsPath, file)
       await host.media.upsert(draftItem.fsPath, draftItem.modified!)
-      await create(draftItem.fsPath, draftItem.modified!)
+
+      if (!isExternalMedia) {
+        await create(draftItem.fsPath, draftItem.modified!)
+      }
 
       await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.upload' })
     }
@@ -86,7 +94,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
 
   async function rename(items: { fsPath: string, newFsPath: string }[]) {
     // TODO: Implement rename with external storage
-    if (host.meta.media?.external) {
+    if (isExternalMedia) {
       showError('Error renaming media', 'External storage renaming must be implemented')
       return
     }
