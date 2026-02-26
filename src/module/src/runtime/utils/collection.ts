@@ -111,19 +111,17 @@ function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: 
 
     fields.push(key)
 
-    if (type === 'json') {
+    if (valueToInsert === null || valueToInsert === 'NULL' || valueToInsert === '') {
+      values.push('NULL')
+    }
+    else if (type === 'json') {
       values.push(`'${JSON.stringify(valueToInsert).replace(/'/g, '\'\'')}'`)
     }
     else if (type === 'string' || ['string', 'enum'].includes(value!.type!)) {
-      if (['data', 'datetime'].includes(value!.format!)) {
-        values.push(valueToInsert !== 'NULL' ? `'${new Date(valueToInsert as string).toISOString()}'` : defaultValue as string)
-      }
-      else {
-        values.push(`'${String(valueToInsert).replace(/\n/g, '\\n').replace(/'/g, '\'\'')}'`)
-      }
+      values.push(`'${String(valueToInsert).replace(/\n/g, '\\n').replace(/'/g, '\'\'')}'`)
     }
     else if (type === 'boolean') {
-      values.push(valueToInsert !== 'NULL' ? !!valueToInsert : valueToInsert)
+      values.push(!!valueToInsert)
     }
     else {
       values.push(valueToInsert as string | number | boolean)
