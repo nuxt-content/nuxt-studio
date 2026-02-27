@@ -1,5 +1,5 @@
 import { ofetch } from 'ofetch'
-import { joinURL } from 'ufo'
+import { joinURL, withoutTrailingSlash } from 'ufo'
 import { consola } from 'consola'
 import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions } from '../../types'
 import { StudioFeature } from '../../types'
@@ -18,12 +18,16 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail } = options
   const gitFiles: Record<string, GitFile> = {}
 
+  const instanceUrl = withoutTrailingSlash(options.instanceUrl || 'https://github.com')
+  const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
+  const apiBaseUrl = isEnterprise ? `${instanceUrl}/api/v3` : 'https://api.github.com'
+
   // Support both token formats: "token {token}" for fine grained PATs, "Bearer {token}" for OAuth PATs
   const isPAT = token.startsWith('github_pat_')
   const authHeader = isPAT ? `token ${token}` : `Bearer ${token}`
 
   const $repositoryApi = ofetch.create({
-    baseURL: `https://api.github.com/repos/${owner}/${repo}`,
+    baseURL: `${apiBaseUrl}/repos/${owner}/${repo}`,
     headers: {
       Authorization: authHeader,
       Accept: 'application/vnd.github.v3+json',
@@ -31,7 +35,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   })
 
   const $userApi = ofetch.create({
-    baseURL: 'https://api.github.com',
+    baseURL: apiBaseUrl,
     headers: {
       Authorization: authHeader,
       Accept: 'application/vnd.github.v3+json',
@@ -236,26 +240,26 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     return {
       success: true,
       commitSha: newCommit.sha,
-      url: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}`,
+      url: `${instanceUrl}/${owner}/${repo}/commit/${newCommit.sha}`,
     }
   }
 
   function getRepositoryUrl() {
-    return `https://github.com/${owner}/${repo}`
+    return `${instanceUrl}/${owner}/${repo}`
   }
 
   function getBranchUrl() {
-    return `https://github.com/${owner}/${repo}/tree/${branch}`
+    return `${instanceUrl}/${owner}/${repo}/tree/${branch}`
   }
 
   function getCommitUrl(sha: string) {
-    return `https://github.com/${owner}/${repo}/commit/${sha}`
+    return `${instanceUrl}/${owner}/${repo}/commit/${sha}`
   }
 
   function getFileUrl(feature: StudioFeature, fsPath: string) {
     const featureDir = feature === StudioFeature.Content ? 'content' : 'public'
     const fullPath = joinURL(rootDir, featureDir, fsPath)
-    return `https://github.com/${owner}/${repo}/blob/${branch}/${fullPath}`
+    return `${instanceUrl}/${owner}/${repo}/blob/${branch}/${fullPath}`
   }
 
   function getRepositoryInfo() {

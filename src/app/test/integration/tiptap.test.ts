@@ -4,9 +4,10 @@ import { generateContentFromDocument, generateDocumentFromContent } from '../../
 import type { JSONContent } from '@tiptap/core'
 import { mdcToTiptap } from '../../src/utils/tiptap/mdcToTiptap'
 import type { DatabasePageItem } from '../../src/types'
-import type { MDCRoot } from '@nuxtjs/mdc'
+import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
 import type { MarkdownRoot } from '@nuxt/content'
 import { createMockDocument } from '../mocks/document'
+import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
 
 describe('paragraph', () => {
   test('simple paragraph', async () => {
@@ -1233,6 +1234,137 @@ My button
 })
 
 describe('code block', () => {
+  test('code block preserves space indentation when loaded from Shiki-highlighted MDC', async () => {
+    // Reproduce bug: when a file is opened, its MDC body has Shiki-highlighted spans.
+    // span.line elements have no '\n' text nodes between them, so getNodeContent()
+    // concatenates all lines without newlines, losing indentation visibility.
+    const mdcInput: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'pre',
+          props: {
+            language: 'ts',
+            // props.code holds the original raw code as stored by the MDC parser
+            code: 'function hello() {\n  console.log(\'world\')\n}',
+            className: 'shiki shiki-themes github-light github-dark',
+          },
+          children: [
+            {
+              type: 'element',
+              tag: 'code',
+              props: { __ignoreMap: '' },
+              children: [
+                // Shiki wraps each line in a span.line — no '\n' text nodes between them
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #d73a49' }, children: [{ type: 'text', value: 'function hello() {' }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    // The 2-space indentation is tokenised as its own span
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '  ' }] },
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: 'console.log(\'world\')' }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '}' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+
+    // The codeBlock node must contain the full original code, with newlines and indentation
+    expect(tiptapJSON.content?.[1]).toMatchObject({
+      type: 'codeBlock',
+      attrs: { language: 'ts' },
+      content: [{ type: 'text', text: 'function hello() {\n  console.log(\'world\')\n}' }],
+    })
+  })
+
+  test('code block preserves tab indentation when loaded from Shiki-highlighted MDC', async () => {
+    // Same bug: Shiki expands \t to spaces in its token spans, so reading back from
+    // Shiki spans loses the original tab characters. props.code stores the raw code.
+    const mdcInput: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'pre',
+          props: {
+            language: 'ts',
+            // props.code has the original code with a real tab character
+            code: 'function hello() {\n\tconsole.log(\'world\')\n}',
+            className: 'shiki shiki-themes github-light github-dark',
+          },
+          children: [
+            {
+              type: 'element',
+              tag: 'code',
+              props: { __ignoreMap: '' },
+              children: [
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #d73a49' }, children: [{ type: 'text', value: 'function hello() {' }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    // Shiki expands the tab to 4 spaces in its output spans
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '    ' }] },
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: 'console.log(\'world\')' }] },
+                  ],
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  props: { class: 'line' },
+                  children: [
+                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '}' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+
+    // The codeBlock node must contain the original tab character from props.code,
+    // not the 4 spaces that Shiki used in its token spans
+    expect(tiptapJSON.content?.[1]).toMatchObject({
+      type: 'codeBlock',
+      attrs: { language: 'ts' },
+      content: [{ type: 'text', text: 'function hello() {\n\tconsole.log(\'world\')\n}' }],
+    })
+  })
+
   test('simple code block highlighting', async () => {
     const mdcInput: MDCRoot = {
       type: 'root',
@@ -1281,6 +1413,133 @@ describe('code block', () => {
     }
 
     // Note we don't check the styles and colors because they are generated by Shiki and we don't want to test Shiki here
+  })
+})
+
+describe('inline code', () => {
+  test('inline code with language attribute - `code`{lang="ts"}', async () => {
+    const inputContent = '`const foo = "bar"`{lang="ts"}'
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'const foo = "bar"',
+              marks: [{ type: 'code', attrs: { language: 'ts' } }],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('inline code language is preserved when Shiki runs with a real theme', async () => {
+    const inputContent = '`const foo = "bar"`{lang="ts"}'
+
+    const doc = await parseMarkdown(inputContent, {
+      highlight: { theme: { default: 'github-light', dark: 'github-dark' } },
+    })
+
+    // Inspect what Shiki does to the inline code element's props
+    const pNode = doc.body.children[0] as MDCElement
+    const codeNode = pNode.children[0] as MDCElement
+
+    // After Shiki, the `language` prop must still be present so mdcToTiptap can preserve it
+    expect(codeNode.props?.language).toBe('ts')
+
+    // Full roundtrip: load the Shiki-processed body into TipTap then back to markdown
+    const tiptapJSON = mdcToTiptap(doc.body as MDCRoot, {})
+    expect(tiptapJSON.content![1].content![0].marks![0]).toEqual({ type: 'code', attrs: { language: 'ts' } })
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('inline code with already-corrupted Shiki classes is cleaned up on roundtrip', async () => {
+    const inputContent = '`docus`{.shiki,shiki-themes,material-theme-lighter,material-theme,material-theme-palenight lang="ts"}'
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+
+    // Despite the corrupted input, TipTap should only carry `language` in the code mark attrs
+    expect(tiptapJSON).toMatchObject({
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'docus',
+            marks: [{ type: 'code', attrs: { language: 'ts' } }],
+          }],
+        },
+      ],
+    })
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    // The output should be clean — no Shiki classes in the markdown
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe('`docus`{lang="ts"}\n')
+  })
+
+  test('inline code with already-corrupted Shiki classes and real Shiki theme', async () => {
+    const inputContent = '`docus`{.shiki,shiki-themes,material-theme-lighter,material-theme,material-theme-palenight lang="ts"}'
+
+    const doc = await parseMarkdown(inputContent, {
+      highlight: { theme: { default: 'github-light', dark: 'github-dark' } },
+    })
+
+    const pNode = doc.body.children[0] as MDCElement
+    const codeNode = pNode.children[0] as MDCElement
+
+    expect(codeNode.props?.language).toBe('ts')
+
+    const tiptapJSON = mdcToTiptap(doc.body as MDCRoot, {})
+    expect(tiptapJSON.content![1].content![0].marks![0]).toEqual({ type: 'code', attrs: { language: 'ts' } })
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe('`docus`{lang="ts"}\n')
   })
 })
 

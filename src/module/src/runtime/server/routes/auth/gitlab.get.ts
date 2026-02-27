@@ -3,7 +3,7 @@ import type { UserSchema } from '@gitbeaker/core'
 import type { H3Event } from 'h3'
 import { createError, deleteCookie, eventHandler, getCookie, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { FetchError } from 'ofetch'
-import { withQuery } from 'ufo'
+import { withQuery, withoutTrailingSlash } from 'ufo'
 import { generateOAuthState, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
 import { mergeConfig } from '../../utils/object'
@@ -88,7 +88,7 @@ export default eventHandler(async (event: H3Event) => {
    * OAuth provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const instanceUrl = studioConfig?.auth?.gitlab?.instanceUrl || 'https://gitlab.com'
+  const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.gitlab?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://gitlab.com')
 
   const config = mergeConfig<OAuthGitLabConfig>(studioConfig?.auth?.gitlab, {
     applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,

@@ -1,7 +1,7 @@
 import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
-import type { MediaItem } from './media'
+import type { MediaItem, MediaConfig } from './media'
 import type { Repository } from './git'
 import type { ComponentMeta } from './component'
 import type { MarkdownParsingOptions, SyntaxHighlightTheme } from './content'
@@ -25,6 +25,7 @@ export * from './ai'
 export interface StudioHost {
   meta: {
     dev: boolean
+    media?: MediaConfig
     ai: {
       enabled: boolean
       experimental: {

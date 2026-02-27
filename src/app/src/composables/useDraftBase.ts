@@ -28,6 +28,8 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   const hooks = useHooks()
   const { devMode } = useStudioState()
 
+  const isExternalMedia = type === 'media' && !!host.meta.media?.external
+
   const hookName = (fsPath: string): 'studio:draft:document:updated' | 'studio:draft:ai:updated' | 'studio:draft:media:updated' => {
     const name = `studio:draft:${type}:updated`
     if (aiEnabled && fsPath.startsWith(`${aiContextFolder}/`)) {
@@ -85,7 +87,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
       await storage.removeItem(fsPath)
       await hostDb.delete(fsPath)
 
-      if (!devMode.value) {
+      if (!devMode.value && !isExternalMedia) {
         let deleteDraftItem: DraftItem<T> | null = null
         if (existingDraftItem) {
           if (existingDraftItem.status === DraftStatus.Deleted) return

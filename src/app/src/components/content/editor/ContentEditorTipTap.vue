@@ -77,27 +77,6 @@ const currentContent = ref<string>()
 
 let isConverting = false
 
-// Trigger on document changes
-watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.status}`, async () => {
-  const frontmatterJson = cleanDataKeys(document.value!)
-  const newTiptapJSON = mdcToTiptap(document.value?.body as unknown as MDCRoot, frontmatterJson)
-
-  if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
-    tiptapJSON.value = newTiptapJSON
-
-    if (debug.value && !currentMDC.value) {
-      const generateContentFromDocument = host.document.generate.contentFromDocument
-      const generatedContent = await generateContentFromDocument(document.value!) || ''
-      currentMDC.value = {
-        body: document.value!.body as unknown as MDCRoot,
-        data: frontmatterJson,
-      }
-      currentContent.value = generatedContent
-      currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
-    }
-  }
-}, { immediate: true })
-
 // TipTap to Markdown
 watch(tiptapJSON, async (json) => {
   // Skip if already converting (prevents UEditor v-model from triggering multiple times)
@@ -139,6 +118,27 @@ watch(tiptapJSON, async (json) => {
 
   isConverting = false
 })
+
+// Trigger on document changes
+watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.status}`, async () => {
+  const frontmatterJson = cleanDataKeys(document.value!)
+  const newTiptapJSON = mdcToTiptap(document.value?.body as unknown as MDCRoot, frontmatterJson)
+
+  if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
+    tiptapJSON.value = newTiptapJSON
+
+    if (debug.value && !currentMDC.value) {
+      const generateContentFromDocument = host.document.generate.contentFromDocument
+      const generatedContent = await generateContentFromDocument(document.value!) || ''
+      currentMDC.value = {
+        body: document.value!.body as unknown as MDCRoot,
+        data: frontmatterJson,
+      }
+      currentContent.value = generatedContent
+      currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
+    }
+  }
+}, { immediate: true })
 </script>
 
 <template>

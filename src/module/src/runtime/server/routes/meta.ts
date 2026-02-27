@@ -1,5 +1,5 @@
-import { eventHandler, useSession, getRequestProtocol } from 'h3'
-import { useRuntimeConfig, createError } from '#imports'
+import { eventHandler } from 'h3'
+import { useRuntimeConfig } from '#imports'
 // @ts-expect-error import does exist
 import components from '#nuxt-component-meta/nitro'
 import type { ComponentMeta as VueComponentMeta } from 'vue-component-meta'
@@ -7,6 +7,7 @@ import type { ComponentMeta as VueComponentMeta } from 'vue-component-meta'
 import { highlight } from '#mdc-imports'
 import type { ComponentMeta } from 'nuxt-studio/app'
 import { filterComponents } from '../utils/meta'
+import { requireStudioAuth } from '../utils/auth'
 
 export interface NuxtComponentMeta {
   pascalName: string
@@ -16,25 +17,9 @@ export interface NuxtComponentMeta {
 }
 
 export default eventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  if (!import.meta.dev) {
-    const session = await useSession(event, {
-      name: 'studio-session',
-      password: config.studio?.auth?.sessionSecret,
-      cookie: {
-        // Use secure cookies over HTTPS, required for locally testing purposes
-        secure: getRequestProtocol(event) === 'https',
-        path: '/',
-      },
-    })
+  await requireStudioAuth(event)
 
-    if (!session?.data?.user) {
-      throw createError({
-        statusCode: 404,
-        message: 'Not found',
-      })
-    }
-  }
+  const config = useRuntimeConfig()
 
   const mappedComponents: ComponentMeta[] = (Object.values(components) as NuxtComponentMeta[])
     .map(({ pascalName, filePath, meta }) => {
