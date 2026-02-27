@@ -30,7 +30,7 @@ const tiptapToComarkMap: TiptapToComarkMap = {
   'text': createTextElement,
   'comment': (node: JSONContent) => [null, {}, node.attrs!.text] as unknown as ComarkComment,
   'listItem': createListItemElement,
-  'slot': (node: JSONContent) => createElement(node, 'template', { props: { [`v-slot:${node.attrs?.name}`]: '' } }),
+  'slot': (node: JSONContent) => createElement(node, 'template', { props: { name: node.attrs?.name } }),
   'paragraph': (node: JSONContent) => createElement(node, 'p'),
   'bulletList': (node: JSONContent) => createElement(node, 'ul'),
   'orderedList': (node: JSONContent) => createElement(node, 'ol', { props: { start: node.attrs?.start } }),
@@ -53,6 +53,42 @@ const tiptapToComarkMap: TiptapToComarkMap = {
 }
 
 let slugs = new Slugger()
+
+// ─── ComarkNode helper ────────────────────────────────────────────────────────
+
+/**
+ * Convert an array of TipTap nodes to ComarkNodes without spreading ComarkElements.
+ *
+ * `flatMap` cannot be used here because a ComarkElement is itself an array
+ * (e.g. `['p', {}, 'text']`), so `flatMap` would spread its contents into the
+ * parent array instead of keeping it as a single child node.
+ *
+ * We distinguish two cases by inspecting the second element of the result:
+ *   - ComarkElement  → `[tag|null, Record, ...children]` — second element is a plain object
+ *   - ComarkNode[]   → multiple nodes (prefix + element + suffix from createTextElement)
+ *                       — second element is an array, string, or missing
+ */
+function comarkNodesFromTiptap(items: JSONContent[]): ComarkNode[] {
+  return items.reduce((acc: ComarkNode[], n) => {
+    const result = tiptapNodeToComark(n)
+    if (Array.isArray(result)) {
+      if (result.length >= 2 && typeof result[1] === 'object' && !Array.isArray(result[1])) {
+        acc.push(result as ComarkElement)
+      }
+      else {
+        for (const node of result) {
+          if (node !== null && node !== undefined) {
+            acc.push(node as ComarkNode)
+          }
+        }
+      }
+    }
+    else if (result !== undefined && result !== null) {
+      acc.push(result as ComarkNode)
+    }
+    return acc
+  }, [])
+}
 
 // ─── Entry point ──────────────────────────────────────────────────────────────
 
@@ -77,7 +113,7 @@ export async function tiptapToComark(node: JSONContent, options?: TiptapToComark
     }
   }
 
-  const nodes = (nodeCopy.content || []).flatMap(tiptapNodeToComark).filter(Boolean) as ComarkNode[]
+  const nodes = comarkNodesFromTiptap(nodeCopy.content || []).filter(Boolean) as ComarkNode[]
 
   const tree: ComarkTree = {
     nodes,
@@ -174,7 +210,7 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
   children = unwrapParagraph(children)
 
   const elementProps = Object.fromEntries(propsArray)
-  const elementChildren = (node.children || children.flatMap(tiptapNodeToComark)) as ComarkNode[]
+  const elementChildren = (node.children || comarkNodesFromTiptap(children)) as ComarkNode[]
 
   return [tag || node.attrs?.tag, elementProps, ...elementChildren] as ComarkElement
 }
@@ -242,10 +278,10 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
       })
 
       const markAttrs = (block.mark.attrs && Object.keys(block.mark.attrs).length > 0) ? (block.mark.attrs as Record<string, unknown>) : {}
-      return [markToTag[block.mark.type], markAttrs, ...block.content.flatMap(tiptapNodeToComark)] as ComarkElement
+      return [markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement
     }
 
-    return block.content.flatMap(tiptapNodeToComark)
+    return comarkNodesFromTiptap(block.content)
   }) as ComarkNode[][]
 
   const flatChildren = (children as Array<ComarkElement | ComarkNode[]>).flat() as ComarkNode[]
@@ -269,7 +305,7 @@ function createHeadingElement(node: JSONContent): ComarkElement {
 
 function createCodeBlockElement(node: JSONContent): ComarkElement {
   const headingEl = createElement(node, 'pre') as ComarkElement
-  const [tag, attrs, ...children] = headingEl
+  const [tag, attrs] = headingEl
 
   const code = node.attrs?.code || getNodeContent(node)
   const language = node.attrs!.language
@@ -317,12 +353,13 @@ function createVideoElement(node: JSONContent): ComarkElement {
   if (props.height) videoProps.height = props.height
   if (props.class) videoProps.class = props.class
 
-  if (props[':controls']) videoProps[':controls'] = 'true'
-  if (props[':autoplay']) videoProps[':autoplay'] = 'true'
-  if (props[':loop']) videoProps[':loop'] = 'true'
-  if (props[':muted']) videoProps[':muted'] = 'true'
+  // comark stores boolean video attrs without colon prefix (e.g., controls: 'true' not :controls: 'true')
+  if (props['controls'] || props[':controls']) videoProps['controls'] = 'true'
+  if (props['autoplay'] || props[':autoplay']) videoProps['autoplay'] = 'true'
+  if (props['loop'] || props[':loop']) videoProps['loop'] = 'true'
+  if (props['muted'] || props[':muted']) videoProps['muted'] = 'true'
 
-  const children = (node.content?.flatMap(tiptapNodeToComark) || []) as ComarkNode[]
+  const children = comarkNodesFromTiptap(node.content || [])
   return ['video', videoProps, ...children] as ComarkElement
 }
 
@@ -336,6 +373,30 @@ function createLinkElement(node: JSONContent): ComarkElement {
   Object.assign(linkProps, otherAttrs)
   const children = (node.children || []) as ComarkNode[]
   return ['a', linkProps, ...children] as ComarkElement
+}
+
+/**
+ * Renders a ComarkNode to an inline markdown string.
+ * Used to pre-render nested marks inside `del` nodes, because the comark library's
+ * `del` handler uses textContent() which strips all nested markup.
+ */
+function renderComarkNodeToInline(node: ComarkNode): string {
+  if (typeof node === 'string') return node
+  if (!Array.isArray(node)) return ''
+  const [tag, attrs, ...children] = node as ComarkElement
+  if (tag === null) return ''
+  const inner = children.map(renderComarkNodeToInline).join('')
+  switch (tag) {
+    case 'strong': return `**${inner}**`
+    case 'em': return `*${inner}*`
+    case 'code': return `\`${inner}\``
+    case 'del': return `~~${inner}~~`
+    case 'a': {
+      const href = (attrs as Record<string, string>).href || ''
+      return `[${inner}](${href})`
+    }
+    default: return inner
+  }
 }
 
 function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
@@ -352,13 +413,28 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
     if (mark.type === 'link') {
       const linkAttrs: Record<string, string> = {}
       if (markAttrs.href) linkAttrs.href = String(markAttrs.href)
-      if (markAttrs.target) linkAttrs.target = String(markAttrs.target)
-      if (markAttrs.rel) linkAttrs.rel = String(markAttrs.rel)
+      const href = String(markAttrs.href || '')
+      const isExternal = href.startsWith('http://') || href.startsWith('https://')
+      // Strip target and rel for external links (added by TipTap automatically, not user-authored)
+      if (markAttrs.target && !isExternal) linkAttrs.target = String(markAttrs.target)
+      // rel is intentionally never included — it's auto-added by TipTap, not user-authored
       if (markAttrs.class) linkAttrs.class = String(markAttrs.class)
       return ['a', linkAttrs, acc] as ComarkElement
     }
     const markTag = markToTag[mark.type as string]
     if (markTag) {
+      // del handler in comark uses textContent() which strips nested markup — pre-render to inline markdown
+      if (markTag === 'del' && Array.isArray(acc)) {
+        return ['del', {}, renderComarkNodeToInline(acc as ComarkElement)] as ComarkElement
+      }
+      // code marks: convert 'language' back to 'lang' (comark's inline code attribute name)
+      if (markTag === 'code') {
+        const codeAttrs: Record<string, unknown> = {}
+        if ((markAttrs as Record<string, unknown>).language) {
+          codeAttrs.lang = (markAttrs as Record<string, unknown>).language
+        }
+        return ['code', codeAttrs, acc] as ComarkElement
+      }
       const elementAttrs = Object.keys(markAttrs).length > 0 ? markAttrs : {}
       return [markTag, elementAttrs, acc] as ComarkElement
     }
@@ -393,10 +469,14 @@ async function applyShikiSyntaxHighlighting(tree: ComarkTree, theme: SyntaxHighl
     return (node as ComarkElement)[0] !== 'style'
   })
 
+  // Only invoke Shiki when there are actual code blocks to process
+  const hasCodeBlocks = tree.nodes.some(node => Array.isArray(node) && (node as ComarkElement)[0] === 'pre')
+  if (!hasCodeBlocks) return
+
   const themes: Record<string, string> = {
     default: theme.default || 'github-light',
     dark: theme.dark || 'github-dark',
-    ...(theme.light ? { light: theme.light } : {}),
+    light: theme.light || theme.default || 'github-light',
   }
 
   const highlighted = await highlightCodeBlocks(tree, { themes })
@@ -411,7 +491,14 @@ function unwrapParagraph(content: JSONContent[]): JSONContent[] {
 }
 
 function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
-  if (content.length === 1 && content[0]?.type === 'slot' && content[0].attrs?.name === 'default') {
+  // Only unwrap synthetic default slots (auto-created by wrapChildrenWithinSlot in comarkToTiptap).
+  // Explicit #default named slots (user-authored) must be preserved.
+  if (
+    content.length === 1
+    && content[0]?.type === 'slot'
+    && content[0].attrs?.name === 'default'
+    && content[0].attrs?.__tiptapSynthetic
+  ) {
     return content[0].content || []
   }
   return content

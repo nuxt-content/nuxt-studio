@@ -14,14 +14,72 @@
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
-import type { MDCRoot } from '@nuxtjs/mdc'
+import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/mdc'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import type { ComarkTree } from 'comark/ast'
+import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comark/ast'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { generateFlatToc } from 'comark/plugins/toc'
-import { comarkToMDC, mdcToComark } from 'nuxt-studio/app/utils'
 import { cleanDataKeys } from './schema'
 import { isComarkTree } from './generate'
+
+function comarkToMDC(tree: ComarkTree): MDCRoot {
+  return {
+    type: 'root',
+    children: tree.nodes.map(comarkNodeToMDCNode),
+  }
+}
+
+function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
+  if (typeof node === 'string') {
+    return { type: 'text', value: node } as MDCText
+  }
+
+  if (Array.isArray(node)) {
+    const [tag, attrs, ...children] = node as ComarkElement | ComarkComment
+
+    if (tag === null) {
+      return { type: 'comment', value: children[0] as string } as MDCComment
+    }
+
+    return {
+      type: 'element',
+      tag: tag as string,
+      props: (attrs as Record<string, unknown>) || {},
+      children: (children as ComarkNode[]).map(comarkNodeToMDCNode),
+    } as MDCElement
+  }
+
+  return { type: 'text', value: '' } as MDCText
+}
+
+function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkTree {
+  return {
+    nodes: (root.children || []).map(mdcNodeToComarkNode),
+    frontmatter: data,
+    meta: {},
+  }
+}
+
+function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
+  if (node.type === 'text') {
+    return (node as MDCText).value
+  }
+
+  if (node.type === 'comment') {
+    return [null, {}, (node as MDCComment).value] as unknown as ComarkComment
+  }
+
+  if (node.type === 'element') {
+    const el = node as MDCElement
+    return [
+      el.tag!,
+      (el.props as Record<string, unknown>) || {},
+      ...(el.children || []).map(mdcNodeToComarkNode),
+    ] as ComarkElement
+  }
+
+  return ''
+}
 
 /**
  * Convert a legacy stored document's body (MarkdownRoot/minimark) to a ComarkTree.

@@ -161,10 +161,12 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
 
   if (tag === 'code') {
     // Only preserve `language` prop — strip Shiki-added props (className, style, etc.)
+    // comark stores inline code language as `lang`, block code as `language`
     const codeAttrs: Record<string, unknown> = {}
     const nodeAttrs = getAttrs(node)
-    if (nodeAttrs.language) {
-      codeAttrs.language = nodeAttrs.language
+    const language = nodeAttrs.language || nodeAttrs.lang
+    if (language) {
+      codeAttrs.language = language
     }
     const codeMarks = [...accumulatedMarks, { type: mark, attrs: codeAttrs }]
     return [{
@@ -269,12 +271,23 @@ function createVideoTipTapNode(node: ComarkElement): JSONContent {
     return acc
   }, {} as Record<string, unknown>)
 
-  return createTipTapNode(node, 'video', { attrs: { props: normalizedProps } })
+  // Return directly — createTipTapNode would merge normalizedProps with raw nodeAttrs,
+  // causing the normalized boolean values to be overridden by the raw string values from comark.
+  return {
+    type: 'video',
+    attrs: { props: normalizedProps },
+  } as JSONContent
 }
 
 function createTemplateNode(node: ComarkElement): JSONContent {
   const nodeAttrs = getAttrs(node)
-  const name = Object.keys(nodeAttrs || {}).find(prop => prop?.startsWith('v-slot:'))?.replace('v-slot:', '') || 'default'
+  // comark uses { name: 'xxx' } format; legacy MDC used { 'v-slot:xxx': '' } format
+  const name = Object.keys(nodeAttrs || {}).find(prop => prop?.startsWith('v-slot:'))?.replace('v-slot:', '')
+    || (nodeAttrs as Record<string, unknown>)?.name as string
+    || 'default'
+
+  // Detect if this is a synthetic default slot (auto-created by wrapChildrenWithinSlot, not explicit in source)
+  const isSynthetic = (nodeAttrs as Record<string, unknown>)?.__tiptapSynthetic !== undefined
 
   // Wrap text children in paragraph (TipTap requires text to be in block nodes)
   let children = getChildren(node)
@@ -282,8 +295,19 @@ function createTemplateNode(node: ComarkElement): JSONContent {
     children = [['p', {}, ...children] as ComarkElement]
   }
 
-  const processedNode: ComarkElement = [getTag(node), nodeAttrs, ...children]
-  return createTipTapNode(processedNode, 'slot', { attrs: { name } })
+  // Strip __tiptapSynthetic from processedNode so it doesn't leak into element props
+  const cleanAttrs = { ...nodeAttrs }
+  delete (cleanAttrs as Record<string, unknown>).__tiptapSynthetic
+
+  const processedNode: ComarkElement = [getTag(node), cleanAttrs, ...children]
+  const slotNode = createTipTapNode(processedNode, 'slot', { attrs: { name } })
+
+  // Propagate synthetic flag to TipTap slot attrs so tiptapToComark can identify it
+  if (isSynthetic) {
+    ;(slotNode.attrs as Record<string, unknown>).__tiptapSynthetic = true
+  }
+
+  return slotNode
 }
 
 function createPreNode(node: ComarkElement): JSONContent {
@@ -403,12 +427,16 @@ function wrapChildrenWithinSlot(children: ComarkNode[]): ComarkNode[] {
   if (noneTemplateChildren.length) {
     let templates = children.filter(isTemplateEl)
 
-    const defaultSlotIndex = templates.findIndex(child =>
-      (getAttrs(child as ComarkElement) as Record<string, unknown>)?.['v-slot:default'] !== undefined,
-    )
+    // Detect default slot by both comark format ({ name: 'default' }) and legacy MDC format ({ 'v-slot:default': '' })
+    const defaultSlotIndex = templates.findIndex((child) => {
+      const attrs = (getAttrs(child as ComarkElement) as Record<string, unknown>)
+      return attrs?.['v-slot:default'] !== undefined || attrs?.name === 'default'
+    })
 
     if (defaultSlotIndex === -1) {
-      const defaultSlot: ComarkElement = ['template', { 'v-slot:default': '' }, ...noneTemplateChildren]
+      // __tiptapSynthetic marks this as auto-created by wrapChildrenWithinSlot (not explicit in source).
+      // This flag lets tiptapToComark unwrap ONLY synthetic default slots, preserving explicit #default slots.
+      const defaultSlot: ComarkElement = ['template', { name: 'default', __tiptapSynthetic: '' }, ...noneTemplateChildren]
       templates = [defaultSlot, ...templates]
     }
     else {

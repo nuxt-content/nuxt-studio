@@ -12,9 +12,9 @@ export async function isDocumentMatchingContent(content: string, document: Datab
     const { body: generatedBody, ...generatedDocumentData } = generatedDocument
     const { body: documentBody, ...documentData } = document
 
-    // Remove new lines because they are not significant for the comparison
-    const generatedBodyStringified = renderMarkdown(generatedBody as ComarkTree).replace(/\n/g, '')
-    const documentBodyStringified = renderMarkdown(documentBody as ComarkTree).replace(/\n/g, '')
+    // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below)
+    const generatedBodyStringified = renderMarkdown({ ...(generatedBody as ComarkTree), frontmatter: {} }).replace(/\n/g, '')
+    const documentBodyStringified = renderMarkdown({ ...(documentBody as ComarkTree), frontmatter: {} }).replace(/\n/g, '')
     if (generatedBodyStringified !== documentBodyStringified) {
       return false
     }

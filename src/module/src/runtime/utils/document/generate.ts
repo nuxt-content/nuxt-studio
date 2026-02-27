@@ -11,6 +11,7 @@ import destr from 'destr'
 import yaml from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
+import { cleanDataKeys } from './schema'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -95,6 +96,7 @@ export async function documentFromMarkdownContent(id: string, content: string, o
     : { default: 'github-light', dark: 'github-dark' }
 
   const tree = await parse(content, {
+    autoClose: false,
     autoUnwrap: true,
     plugins: [
       comarkEmoji(),
@@ -149,6 +151,5 @@ export async function contentFromJSONDocument(document: DatabaseItem): Promise<s
 
 export async function contentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
   const markdown = renderMarkdown(document.body as unknown as ComarkTree)
-  return markdown.replace(/&#x2A;/g, '*')
+  return markdown.replace(/&#x2A;/g, '*') + '\n'
 }
-
