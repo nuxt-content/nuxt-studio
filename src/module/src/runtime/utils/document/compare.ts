@@ -1,26 +1,20 @@
-import type { MarkdownRoot } from '@nuxt/content'
-import type { MDCRoot } from '@nuxtjs/mdc'
-import type { DatabaseItem, DatabasePageItem } from 'nuxt-studio/app'
+import type { ComarkTree } from 'comark/ast'
+import type { DatabaseItem } from 'nuxt-studio/app'
 import { ContentFileExtension } from '../../types/content'
 import { doObjectsMatch } from '../object'
-import { stringify } from 'minimark/stringify'
-import { compressTree } from '@nuxt/content/runtime'
-import { generateDocumentFromContent } from './generate'
-import { removeLastStylesFromTree } from './tree'
+import { renderMarkdown } from 'comark/string'
+import { documentFromContent } from './generate'
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
-  const generatedDocument = await generateDocumentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
+  const generatedDocument = await documentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
     const { body: generatedBody, ...generatedDocumentData } = generatedDocument
     const { body: documentBody, ...documentData } = document
 
-    const cleanedGeneratedBody = removeLastStylesFromTree(generatedBody as MarkdownRoot)
-    const cleanedDocumentBody = removeLastStylesFromTree(documentBody as MarkdownRoot)
-
-    // Remove new lines because they are not significant for the comparison
-    const generatedBodyStringified = stringify(cleanedGeneratedBody).replace(/\n/g, '')
-    const documentBodyStringified = stringify(cleanedDocumentBody).replace(/\n/g, '')
+    // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below)
+    const generatedBodyStringified = renderMarkdown({ ...(generatedBody as ComarkTree), frontmatter: {} }).replace(/\n/g, '')
+    const documentBodyStringified = renderMarkdown({ ...(documentBody as ComarkTree), frontmatter: {} }).replace(/\n/g, '')
     if (generatedBodyStringified !== documentBodyStringified) {
       return false
     }
@@ -37,14 +31,7 @@ export function areDocumentsEqual(document1: Record<string, unknown>, document2:
 
   // Compare body first
   if (document1.extension === ContentFileExtension.Markdown) {
-    const minifiedBody1 = removeLastStylesFromTree(
-      (document1 as DatabasePageItem).body.type === 'minimark' ? document1.body as MarkdownRoot : compressTree(document1.body as unknown as MDCRoot),
-    )
-    const minifiedBody2 = removeLastStylesFromTree(
-      (document2 as DatabasePageItem).body.type === 'minimark' ? document2.body as MarkdownRoot : compressTree(document2.body as unknown as MDCRoot),
-    )
-
-    if (stringify(minifiedBody1) !== stringify(minifiedBody2)) {
+    if (renderMarkdown(body1 as ComarkTree) !== renderMarkdown(body2 as ComarkTree)) {
       return false
     }
   }

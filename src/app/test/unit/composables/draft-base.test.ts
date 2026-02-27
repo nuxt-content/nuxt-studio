@@ -30,10 +30,7 @@ describe('getStatus', () => {
     const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
     const modified = {
       ...original,
-      body: {
-        type: 'minimark',
-        value: ['text', 'Modified'],
-      },
+      body: { nodes: [['p', {}, 'text'], ['p', {}, 'Modified']], frontmatter: {}, meta: {} },
     }
 
     expect(getStatus(modified, original)).toBe(DraftStatus.Updated)

@@ -11,20 +11,14 @@ export const draftItemsList: DraftItem[] = [
       path: '/index.md',
       stem: 'index',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
     modified: {
       id: 'landing/index.md',
       path: '/index.md',
       stem: 'index',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Modified'],
-      },
+      body: { nodes: [['p', {}, 'Modified']], frontmatter: {}, meta: {} },
     },
   },
   {
@@ -35,20 +29,14 @@ export const draftItemsList: DraftItem[] = [
       path: '/root-file.md',
       stem: 'root-file',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
     modified: {
       id: 'docs/root-file.md',
       path: '/root-file.md',
       stem: 'root-file',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
   },
 
@@ -61,20 +49,14 @@ export const draftItemsList: DraftItem[] = [
       path: '/1.getting-started/2.introduction.md',
       stem: '2.introduction',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
     modified: {
       id: 'docs/1.getting-started/2.introduction.md',
       path: '/1.getting-started/2.introduction.md',
       stem: '2.introduction',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Modified'],
-      },
+      body: { nodes: [['p', {}, 'Modified']], frontmatter: {}, meta: {} },
     },
   },
   {
@@ -85,20 +67,14 @@ export const draftItemsList: DraftItem[] = [
       path: '/1.getting-started/3.installation.md',
       stem: '3.installation',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
     modified: {
       id: 'docs/1.getting-started/3.installation.md',
       path: '/1.getting-started/3.installation.md',
       stem: '3.installation',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Modified'],
-      },
+      body: { nodes: [['p', {}, 'Modified']], frontmatter: {}, meta: {} },
     },
   },
   {
@@ -110,10 +86,7 @@ export const draftItemsList: DraftItem[] = [
       path: '/1.getting-started/4.configuration.md',
       stem: '4.configuration',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
   },
 
@@ -126,20 +99,14 @@ export const draftItemsList: DraftItem[] = [
       path: '/1.getting-started/1.advanced/1.studio.md',
       stem: '1.studio',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
     modified: {
       id: 'docs/1.getting-started/1.advanced/1.studio.md',
       path: '/1.getting-started/1.advanced/1.studio.md',
       stem: '1.studio',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Modified'],
-      },
+      body: { nodes: [['p', {}, 'Modified']], frontmatter: {}, meta: {} },
     },
   },
   {
@@ -150,20 +117,14 @@ export const draftItemsList: DraftItem[] = [
       path: '/1.getting-started/1.advanced/2.deployment.md',
       stem: '2.deployment',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
     modified: {
       id: 'docs/1.getting-started/1.advanced/2.deployment.md',
       path: '/1.getting-started/1.advanced/2.deployment.md',
       stem: '2.deployment',
       extension: 'md',
-      body: {
-        type: 'minimark',
-        value: ['Original'],
-      },
+      body: { nodes: [['p', {}, 'Original']], frontmatter: {}, meta: {} },
     },
   },
 ]

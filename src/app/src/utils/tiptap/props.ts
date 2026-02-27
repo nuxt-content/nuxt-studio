@@ -96,9 +96,7 @@ export const cleanSpanProps = (attrs?: Record<string, unknown> | null) => {
   const props: Record<string, string | string[]> = {}
   if (isValidAttr(attrs?.style as string)) props.style = String(attrs!.style).trim()
   if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) {
-    const classValue = String((attrs as Record<string, unknown>).class).trim()
-    // Convert space-separated class string back to array for className
-    props.className = classValue.split(' ')
+    props.class = String((attrs as Record<string, unknown>).class).trim()
   }
   return props
 }

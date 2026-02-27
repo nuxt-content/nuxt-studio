@@ -2,15 +2,13 @@
 import { Emoji } from '@tiptap/extension-emoji'
 import type { PropType } from 'vue'
 import type { JSONContent } from '@tiptap/vue-3'
-import type { MDCRoot, Toc } from '@nuxtjs/mdc'
-import { generateToc } from '@nuxtjs/mdc/dist/runtime/parser/toc'
+import type { ComarkTree } from 'comark/ast'
 import type { DraftItem, DatabasePageItem } from '../../../types'
-import type { MarkdownRoot } from '@nuxt/content'
 import { ref, watch, computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
-import { mdcToTiptap } from '../../../utils/tiptap/mdcToTiptap'
-import { tiptapToMDC } from '../../../utils/tiptap/tiptapToMdc'
+import { comarkToTiptap } from '../../../utils/tiptap/comarkToTiptap'
+import { tiptapToComark } from '../../../utils/tiptap/tiptapToComark'
 import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
 import { Element } from '../../../utils/tiptap/extensions/element'
 import { Image } from '../../../utils/tiptap/extensions/image'
@@ -22,7 +20,6 @@ import { Frontmatter } from '../../../utils/tiptap/extensions/frontmatter'
 import { CodeBlock } from '../../../utils/tiptap/extensions/code-block'
 import { InlineElement } from '../../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
-import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
@@ -67,12 +64,10 @@ const {
 
 const tiptapJSON = ref<JSONContent>()
 
-const cleanDataKeys = host.document.utils.cleanDataKeys
-
 // Debug
 const debug = computed(() => preferences.value.debug)
 const currentTiptap = ref<JSONContent>()
-const currentMDC = ref<{ body: MDCRoot, data: Record<string, unknown> }>()
+const currentComark = ref<ComarkTree>()
 const currentContent = ref<string>()
 
 let isConverting = false
@@ -88,20 +83,15 @@ watch(tiptapJSON, async (json) => {
 
   const cleanedTiptap = removeLastEmptyParagraph(json!)
 
-  const { body, data } = await tiptapToMDC(cleanedTiptap, {
+  // TipTap → ComarkTree (internal representation)
+  const comarkTree = await tiptapToComark(cleanedTiptap, {
     highlightTheme: host.meta.getHighlightTheme(),
   })
 
-  const compressedBody: MarkdownRoot = compressTree(body)
-  const toc: Toc = generateToc(body, { searchDepth: 2, depth: 2 } as Toc)
-
   const updatedDocument: DatabasePageItem = {
     ...document.value!,
-    ...data,
-    body: {
-      ...compressedBody,
-      toc,
-    } as MarkdownRoot,
+    ...comarkTree.frontmatter,
+    body: comarkTree,
   }
 
   document.value = updatedDocument
@@ -109,10 +99,7 @@ watch(tiptapJSON, async (json) => {
   // Debug: Capture current state
   if (debug.value) {
     currentTiptap.value = cleanedTiptap
-    currentMDC.value = {
-      body,
-      data: cleanDataKeys(updatedDocument),
-    }
+    currentComark.value = comarkTree
     currentContent.value = await host.document.generate.contentFromDocument(updatedDocument) as string
   }
 
@@ -121,19 +108,16 @@ watch(tiptapJSON, async (json) => {
 
 // Trigger on document changes
 watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.status}`, async () => {
-  const frontmatterJson = cleanDataKeys(document.value!)
-  const newTiptapJSON = mdcToTiptap(document.value?.body as unknown as MDCRoot, frontmatterJson)
+  const comarkTree = document.value!.body
+  if (!comarkTree) return
+  const newTiptapJSON = comarkToTiptap(comarkTree)
 
   if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
     tiptapJSON.value = newTiptapJSON
 
-    if (debug.value && !currentMDC.value) {
-      const generateContentFromDocument = host.document.generate.contentFromDocument
-      const generatedContent = await generateContentFromDocument(document.value!) || ''
-      currentMDC.value = {
-        body: document.value!.body as unknown as MDCRoot,
-        data: frontmatterJson,
-      }
+    if (debug.value && !currentComark.value) {
+      const generatedContent = await host.document.generate.contentFromDocument(document.value!) || ''
+      currentComark.value = comarkTree
       currentContent.value = generatedContent
       currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
     }
@@ -146,7 +130,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
     <ContentEditorTipTapDebug
       v-if="preferences.debug"
       :current-tiptap="currentTiptap"
-      :current-mdc="currentMDC"
+      :current-comark="currentComark"
       :current-content="currentContent"
     />
 

@@ -1,11 +1,11 @@
 import type { EditorState } from '@tiptap/pm/state'
 import type { JSONContent } from '@tiptap/vue-3'
 import type { AIHintOptions } from '../../types/ai'
-import { tiptapSliceToMDC } from '../tiptap/tiptapToMdc'
-import { mdcToTiptap } from '../tiptap/mdcToTiptap'
-import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
-import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
-import type { MDCElement, MDCNode, MDCRoot } from '@nuxtjs/mdc'
+import { tiptapSliceToComark } from '../tiptap/tiptapToComark'
+import { comarkToTiptap } from '../tiptap/comarkToTiptap'
+import { parse } from 'comark'
+import { renderMarkdown } from 'comark/string'
+import type { ComarkTree, ComarkElement, ComarkNode } from 'comark/ast'
 
 function isWhitespace(char: string): boolean {
   return /\s/.test(char)
@@ -179,29 +179,23 @@ export function generateHintOptions(state: EditorState, cursorPos: number): AIHi
 }
 
 /**
- * Clean MDC AST by removing all props (noise for AI context)
+ * Clean ComarkTree by removing all attrs from elements (noise for AI context)
  * For AI completion, only content and structure matter, not implementation details
  */
-function cleanMDC<T extends MDCRoot | MDCNode>(node: T): T {
-  if (node.type === 'root') {
-    // Recursively clean all children
-    node.children.forEach(child => cleanMDC(child))
-    return node
+function cleanComarkNode(node: ComarkNode): ComarkNode {
+  if (typeof node === 'string') return node // ComarkText
+  if (!Array.isArray(node)) return node
+  const [tag, , ...children] = node as ComarkElement
+  if (tag === null) return node // ComarkComment - keep as-is
+  // Element: strip all attrs, recursively clean children
+  return [tag, {}, ...(children as ComarkNode[]).map(cleanComarkNode)] as ComarkElement
+}
+
+function cleanComark(tree: ComarkTree): ComarkTree {
+  return {
+    ...tree,
+    nodes: tree.nodes.map(cleanComarkNode),
   }
-
-  if (node.type === 'element') {
-    const element = node as MDCElement
-
-    // Remove all props from all elements
-    element.props = {}
-
-    // Recursively clean children
-    if (element.children) {
-      element.children.forEach(child => cleanMDC(child))
-    }
-  }
-
-  return node
 }
 
 /**
@@ -214,14 +208,14 @@ export async function tiptapSliceToMarkdown(
   maxChars?: number,
   trimDirection: 'start' | 'end' = 'end',
 ): Promise<string> {
-  // Convert TipTap slice to MDC AST
-  const { body, data } = await tiptapSliceToMDC(state, from, to)
+  // Convert TipTap slice to ComarkTree
+  const tree = await tiptapSliceToComark(state, from, to)
 
-  // Clean the AST by removing component props (reduces noise for AI)
-  const cleanedBody = cleanMDC(body)
+  // Clean the AST by removing component attrs (reduces noise for AI)
+  const cleanedTree = cleanComark(tree)
 
-  // Stringify MDC AST to markdown
-  const markdown = await stringifyMarkdown(cleanedBody, data)
+  // Stringify ComarkTree to markdown
+  const markdown = renderMarkdown(cleanedTree)
 
   if (!markdown) {
     return ''
@@ -241,14 +235,14 @@ export async function tiptapSliceToMarkdown(
  * Convert markdown string to TipTap nodes (reverse of tiptapSliceToMarkdown)
  */
 export async function markdownSliceToTiptap(markdown: string): Promise<JSONContent[]> {
-  // Parse markdown to MDC AST
-  const { body, data } = await parseMarkdown(markdown)
+  // Parse markdown to ComarkTree
+  const tree = await parse(markdown)
 
-  // Convert MDC AST to TipTap JSON
-  const tiptapDoc = mdcToTiptap(body, data)
+  // Convert ComarkTree directly to TipTap JSON
+  const tiptapDoc = comarkToTiptap(tree)
 
   // Extract content nodes (skip frontmatter)
-  const contentNodes = (tiptapDoc.content || []).filter(node => node.type !== 'frontmatter')
+  const contentNodes = (tiptapDoc.content || []).filter((node: JSONContent) => node.type !== 'frontmatter')
 
   // If the result is a single paragraph, extract its inline content
   // This is common for AI completions that are just text with inline formatting

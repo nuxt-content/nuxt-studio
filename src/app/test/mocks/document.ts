@@ -10,11 +10,8 @@ export const createMockDocument = (id: string, overrides?: Partial<DatabasePageI
     path,
     stem: path,
     extension: 'md',
-    body: {
-      type: 'minimark',
-      value: ['Test content'],
-    },
+    body: { nodes: [['p', {}, 'Test content']], frontmatter: {}, meta: {} },
     meta: {},
     ...overrides,
-  }
+  } as DatabasePageItem
 }
