@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/nuxt-content/studio/compare/v1.3.3...v1.4.0) (2026-02-27)
+
+### Features
+
+* **github:** add instanceUrl support for GitHub Enterprise Server ([#351](https://github.com/nuxt-content/studio/issues/351)) ([6420601](https://github.com/nuxt-content/studio/commit/6420601559e7861ca3db8131905d6aec0af3df96))
+* **media:** external storage support ([#315](https://github.com/nuxt-content/studio/issues/315)) ([7c4caa6](https://github.com/nuxt-content/studio/commit/7c4caa63178e0decfb2211f6c33943bb5a1bd873))
+
+### Bug Fixes
+
+* **collection:** Fix null value casting and remove date formatting ([b8ada85](https://github.com/nuxt-content/studio/commit/b8ada8546cfaa5fce8c468fae4730b09c6d4ee8d))
+* **editor:** code block indentation ([514c3cc](https://github.com/nuxt-content/studio/commit/514c3cc1c6fe24902699b6633629cc40f23740cd))
+* **editor:** inline code attributes ([#353](https://github.com/nuxt-content/studio/issues/353)) ([60aae5a](https://github.com/nuxt-content/studio/commit/60aae5a2f3bbd7ed03a912848b431bac7fb80a1b))
+* **editor:** input datetime format ([#349](https://github.com/nuxt-content/studio/issues/349)) ([4b24607](https://github.com/nuxt-content/studio/commit/4b24607615ed26c53da15f229a04468d18b723b8))
+
 ## [1.3.3](https://github.com/nuxt-content/studio/compare/v1.3.2...v1.3.3) (2026-02-23)
 
 ### Bug Fixes
