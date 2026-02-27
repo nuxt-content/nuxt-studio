@@ -1,5 +1,6 @@
 import type { DefinedCollection } from '@nuxt/content'
-import { defineContentConfig, defineCollection, z } from '@nuxt/content'
+import { defineContentConfig, defineCollection, property } from '@nuxt/content'
+import z from 'zod/v3'
 
 const createDocsSchema = () => z.object({
   layout: z.string().optional(),
@@ -14,17 +15,17 @@ const createDocsSchema = () => z.object({
 const createAuthorsSchema = () => z.object({
   name: z.string(),
   avatar: z.object({
-    src: z.string().editor({ input: 'media' }),
+    src: property(z.string()).editor({ input: 'media' }),
     alt: z.string(),
   }),
   to: z.string(),
   username: z.string(),
-  description: z.string().editor({ input: 'textarea' }),
+  description: property(z.string()).editor({ input: 'textarea' }),
   role: z.enum(['creator', 'maintainer', 'contributor']).default('contributor'),
   order: z.number().default(0),
   birthDate: z.string().date(),
   lastCommitAt: z.string().datetime(),
-  icon: z.string().editor({ input: 'icon', iconLibraries: ['lucide'] }),
+  icon: property(z.string()).editor({ input: 'icon', iconLibraries: ['lucide'] }),
   isOpenSourceLover: z.boolean().default(true),
   modules: z.array(z.string()),
 })

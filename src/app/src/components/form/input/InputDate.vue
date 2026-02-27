@@ -35,7 +35,7 @@ const dateValue = computed<DateValue | undefined>({
       model.value = ''
       return
     }
-    model.value = props.formItem.type === 'date' ? value.toString() : toCalendarDateTime(value).toString()
+    model.value = props.formItem.type === 'date' ? value.toString() : toCalendarDateTime(value).toString().replace('T', ' ')
   },
 })
 </script>
