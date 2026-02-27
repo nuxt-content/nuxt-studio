@@ -2474,3 +2474,291 @@ describe('text styles', () => {
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
+
+describe('edge cases', () => {
+  test('div element with text and blockquote', async () => {
+    const inputContent = `::div
+text 1
+
+> text 2
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'div',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [
+                {
+                  type: 'text',
+                  value: 'text 1',
+                },
+              ],
+            },
+            {
+              type: 'element',
+              tag: 'blockquote',
+              props: {},
+              children: [
+                {
+                  type: 'element',
+                  tag: 'p',
+                  props: {},
+                  children: [
+                    {
+                      type: 'text',
+                      value: 'text 2',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'div',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  'v-slot:default': '',
+                },
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'text 1',
+                    },
+                  ],
+                },
+                {
+                  type: 'blockquote',
+                  content: [
+                    {
+                      type: 'paragraph',
+                      content: [
+                        {
+                          type: 'text',
+                          text: 'text 2',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('image after heading inside component maintains correct order', async () => {
+    const inputContent = `::steps
+### Step 1
+
+![Image](https://example.com/image.jpg)
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'steps',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'h3',
+              props: {},
+              children: [
+                {
+                  type: 'text',
+                  value: 'Step 1',
+                },
+              ],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [
+                {
+                  type: 'element',
+                  tag: 'img',
+                  props: {
+                    src: 'https://example.com/image.jpg',
+                    alt: 'Image',
+                  },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'steps',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  'v-slot:default': '',
+                },
+              },
+              content: [
+                {
+                  type: 'heading',
+                  attrs: {
+                    level: 3,
+                  },
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Step 1',
+                    },
+                  ],
+                },
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'image',
+                      attrs: {
+                        props: {
+                          src: 'https://example.com/image.jpg',
+                          alt: 'Image',
+                        },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+
+    // Custom case also valid when image is not enclosed in a paragraph
+    const expectedMDCJSONBis: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'steps',
+          props: {},
+          children: [
+            {
+              type: 'element',
+              tag: 'h3',
+              props: {},
+              children: [
+                {
+                  type: 'text',
+                  value: 'Step 1',
+                },
+              ],
+            },
+            {
+              type: 'element',
+              tag: 'img',
+              props: {
+                src: 'https://example.com/image.jpg',
+                alt: 'Image',
+              },
+              children: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    const generatedDocumentBis = createMockDocument('docs/test.md', {
+      body: expectedMDCJSONBis as unknown as MarkdownRoot,
+    })
+
+    const outputContentBis = await generateContentFromDocument(generatedDocumentBis)
+
+    expect(outputContentBis).toBe(`${inputContent}\n`)
+  })
+})
