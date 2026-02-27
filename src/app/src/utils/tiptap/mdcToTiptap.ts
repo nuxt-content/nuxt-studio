@@ -39,6 +39,10 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   blockquote: node => createTipTapNode(node as MDCElement, 'blockquote'),
   binding: node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
   hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
+  note: node => createCalloutNode(node as MDCElement, 'note'),
+  tip: node => createCalloutNode(node as MDCElement, 'tip'),
+  warning: node => createCalloutNode(node as MDCElement, 'warning'),
+  caution: node => createCalloutNode(node as MDCElement, 'caution'),
 }
 
 export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
@@ -396,6 +400,16 @@ function wrapChildrenWithinSlot(children: MDCElement[]) {
   }
 
   return children
+}
+
+function createCalloutNode(node: MDCElement, type: string) {
+  const props = { ...(node.props || {}) }
+  const content = (node.children || []).flatMap(child => mdcNodeToTiptap(child, node)).filter(n => n.type !== undefined)
+  return {
+    type: 'u-callout',
+    attrs: { type, props },
+    content: content.length > 0 ? content : [{ type: 'paragraph', content: [] }],
+  }
 }
 
 /**

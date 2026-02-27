@@ -25,6 +25,7 @@ import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
+import { Callout } from '../../../utils/tiptap/extensions/callout'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
@@ -173,6 +174,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         ImagePicker,
         VideoPicker,
         Video,
+        Callout,
         Element,
         InlineElement,
         SpanStyle,
