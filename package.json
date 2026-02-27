@@ -98,7 +98,9 @@
     "vue-tsc": "^3.2.5"
   },
   "resolutions": {
-    "minimark": "^0.2.0"
+    "minimark": "^0.2.0",
+    "@nuxt/content": "https://pkg.pr.new/@nuxt/content@2a19ef6",
+    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@d631853"
   },
   "packageManager": "pnpm@10.30.3",
   "keywords": [
