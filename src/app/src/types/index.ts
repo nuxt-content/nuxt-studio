@@ -37,6 +37,7 @@ export interface StudioHost {
       }
     }
     getComponents: () => ComponentMeta[]
+    getComponentGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
   }

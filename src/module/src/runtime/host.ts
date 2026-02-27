@@ -12,6 +12,7 @@ import { clearError, getAppManifest, queryCollection, queryCollectionItemSurroun
 import { collections } from '#content/preview'
 import { publicAssetsStorage, externalAssetsStorage } from '#build/studio-assets'
 import { useHostMeta } from './composables/useMeta'
+import { assignComponentsToGroups } from './utils/componentGroups'
 import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media'
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
@@ -87,6 +88,15 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
       },
       getComponents: () => meta.components.value,
+      getComponentGroups: (fallbackLabel: string) => {
+        if (meta.componentGroups.value.length === 0) return []
+        return assignComponentsToGroups(
+          meta.components.value,
+          meta.componentGroups.value,
+          meta.ungrouped.value,
+          fallbackLabel,
+        )
+      },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
     },
