@@ -1,0 +1,124 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "Upraviť túto stránku",
+      "retryPublish": "Zopakovať publikovanie",
+      "reloadApp": "Znovu načítať aplikáciu",
+      "reload": "Obnoviť",
+      "signOut": "Odhlásiť sa",
+      "review": "Skontrolovať",
+      "publish": "Publikovať",
+      "back": "Späť",
+      "backToEdition": "Späť na úpravu",
+      "seeChanges": "Zobraziť zmeny"
+    },
+    "headings": {
+      "directories": "Priečinky",
+      "files": "Súbory",
+      "media": "Médiá",
+      "pageSettings": "Nastavenia stránky"
+    },
+    "tooltips": {
+      "toggleStudio": "Prepnúť Studio",
+      "unlinkEditor": "Zrušiť prepojenie editora a náhľadu",
+      "linkEditor": "Prepojiť editor a náhľad",
+      "copiedToClipboard": "Skopírované do schránky",
+      "copyToClipboard": "Kopírovať do schránky",
+      "publishChanges": "Publikovať zmeny",
+      "backToContent": "Späť na obsah",
+      "disableAICompletion": "Zakázať AI dopĺňanie",
+      "enableAICompletion": "Povoliť AI dopĺňanie",
+      "regenerateAIContext": "Znovu vygenerovať AI kontext"
+    },
+    "notifications": {
+      "error": {
+        "dismiss": "Zavrieť",
+        "title": "Vyskytla sa chyba",
+        "unknown": "Vyskytla sa neznáma chyba"
+      }
+    },
+    "publish": {
+      "failedTitle": "Publikovanie zlyhalo",
+      "summary": "na vetve {branch} v repozitári {repo}",
+      "errorTitle": "Chyba počas publikovania cez {providerName}",
+      "failedGeneric": "Nepodarilo sa publikovať zmeny"
+    },
+    "review": {
+      "title": "Skontrolovať zmeny",
+      "created": "Vytvorené",
+      "updated": "Aktualizované",
+      "renamed": "Premenované",
+      "deleted": "Odstránené"
+    },
+    "publishSuccess": {
+      "title": "Zmeny publikované",
+      "summary": "Publikovaná {count} zmena na vetve {branch} v repozitári {repo} | Publikovaných {count} zmien na vetve {branch} v repozitári {repo}",
+      "alertTitleWaiting": "Čaká sa na nasadenie...",
+      "alertTitleComplete": "Nasadenie dokončené",
+      "alertDescWaiting": "Aby boli zmeny viditeľné v Studiu, je potrebné web nasadiť.",
+      "alertDescComplete": "Nová verzia vašej webovej stránky bola nasadená. Obnovte aplikáciu, aby ste videli zmeny v Studiu."
+    },
+    "newVersionBanner": {
+      "title": "Zistená nová verzia webu",
+      "description": "Bola nasadená nová verzia vašej webovej stránky. Obnovte aplikáciu, aby ste videli najnovšie zmeny.",
+      "reloadButton": "Obnoviť"
+    },
+    "footer": {
+      "developer_view": "Vývojárske zobrazenie",
+      "localFilesystem": "Používa sa lokálny súborový systém",
+      "debugMode": "Režim ladenia"
+    },
+    "alert": {
+      "mdcFormatting": "Formátovanie upravené podľa štandardu syntaxe MDC."
+    },
+    "conflict": {
+      "title": "Zistený konflikt",
+      "repository": "Repozitár",
+      "branch": "Vetva",
+      "file": "Súbor",
+      "description": "Obsah na {providerName} sa líši od verzie vašej webovej stránky. Uistite sa, že vaše najnovšie zmeny sú nasadené, a obnovte stránku.",
+      "websiteVersion": "Webová stránka"
+    },
+    "nav": {
+      "content": "Obsah",
+      "media": "Médiá",
+      "ai": "AI"
+    },
+    "placeholders": {
+      "commitMessage": "Správa commitu",
+      "order": "Č.",
+      "fileName": "Názov súboru"
+    },
+    "validation": {
+      "commitRequired": "Správa commitu je povinná",
+      "nameEmpty": "Názov nemôže byť prázdny",
+      "nameEndsWithDot": "Názov nemôže končiť znakom '.'",
+      "nameStartsWithSlash": "Názov nemôže začínať znakom '/'",
+      "nameExists": "Názov už existuje",
+      "prefixDigitsOnly": "Prefix musí obsahovať iba číslice",
+      "prefixNonNegativeInteger": "Prefix musí byť nezáporné celé číslo"
+    },
+    "media": {
+      "altFilePreview": "Náhľad súboru",
+      "altImagePreview": "Náhľad obrázka",
+      "playAudio": "Prehrať zvuk",
+      "audioTagNotSupported": "Váš prehliadač nepodporuje audio prvok.",
+      "playVideo": "Prehrať video",
+      "videoTagNotSupported": "Váš prehliadač nepodporuje video prvok.",
+      "metaWidth": "Šírka",
+      "metaHeight": "Výška",
+      "metaType": "Typ",
+      "metaDuration": "Trvanie",
+      "metaSize": "Veľkosť",
+      "fileName": "Názov súboru",
+      "publicPath": "Verejná cesta",
+      "providerPath": "Cesta na {providerName}",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "Otvoriť akcie",
+      "cancel": "Zrušiť",
+      "submit": "Odoslať"
+    }
+  }
+}
