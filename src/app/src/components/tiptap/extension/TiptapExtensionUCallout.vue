@@ -11,11 +11,24 @@ const CALLOUT_CONFIG = {
   caution: { color: 'error' as const, icon: 'i-lucide-circle-alert', label: 'Caution' },
 } as const
 
+// UAlert soft variant root classes per color (mirrors UAlert theme compoundVariants)
+const ALERT_COLOR_CLASSES = {
+  info: 'bg-info/10 text-info',
+  success: 'bg-success/10 text-success',
+  warning: 'bg-warning/10 text-warning',
+  error: 'bg-error/10 text-error',
+} as const
+
 type CalloutType = keyof typeof CALLOUT_CONFIG
+type AlertColor = keyof typeof ALERT_COLOR_CLASSES
 
 const calloutType = computed(() => (nodeProps.node.attrs.type || 'note') as CalloutType)
 const extraProps = computed(() => nodeProps.node.attrs.props || {})
 const config = computed(() => CALLOUT_CONFIG[calloutType.value] || CALLOUT_CONFIG.note)
+const alertColorClass = computed(() => {
+  const color = (extraProps.value.color || config.value.color) as AlertColor
+  return ALERT_COLOR_CLASSES[color] ?? ALERT_COLOR_CLASSES.info
+})
 
 function setType(type: CalloutType) {
   nodeProps.updateAttributes({ type })
@@ -68,13 +81,18 @@ function onDelete(event: Event) {
         </div>
       </div>
 
-      <!-- The actual UCallout component -->
-      <UCallout
-        :color="extraProps.color || config.color"
-        :icon="extraProps.icon || config.icon"
+      <!-- UAlert soft variant layout (manual to avoid <p> wrapper around NodeViewContent) -->
+      <div
+        class="relative overflow-hidden w-full rounded-lg p-4 flex gap-2.5 items-start"
+        :class="alertColorClass"
       >
-        <NodeViewContent />
-      </UCallout>
+        <UIcon :name="extraProps.icon || config.icon" class="shrink-0 size-5 mt-0.5" />
+        <div class="min-w-0 flex-1 flex flex-col">
+          <div class="text-sm opacity-90 mt-1">
+            <NodeViewContent />
+          </div>
+        </div>
+      </div>
     </div>
   </NodeViewWrapper>
 </template>
