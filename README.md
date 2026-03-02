@@ -16,6 +16,7 @@ https://github.com/user-attachments/assets/39bf4250-e72b-45aa-bf6d-9441a38cb2d5
 - ✨ **TipTap Visual Editor** - Markdown editor with MDC component support (default mode)
 - 📝 **Form-based Editor** - Edit YAML/JSON files and frontmatter with auto-generated forms based on collection schemas
 - 🎨 **Vue Component Props Editor** - Visual interface for editing Vue component props directly in the editor
+- 🧠 **AI-powered content suggestions** - Plug and play DX with the Vercel AI Gateway, let AI help you shape your content. 
 - 🔄 **Real-time Preview** - See your changes instantly on your production website
 - 🔐 **Multi-provider Authentication** - Secure OAuth-based login with GitHub, GitLab, and Google
 - 🔑 **Custom Authentication** - Utilities for implementing your own auth flow (password, SSO, LDAP)
