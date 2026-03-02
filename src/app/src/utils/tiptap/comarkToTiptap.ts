@@ -429,7 +429,7 @@ function wrapChildrenWithinSlot(children: ComarkNode[]): ComarkNode[] {
 
     // Detect default slot by both comark format ({ name: 'default' }) and legacy MDC format ({ 'v-slot:default': '' })
     const defaultSlotIndex = templates.findIndex((child) => {
-      const attrs = (getAttrs(child as ComarkElement) as Record<string, unknown>)
+      const attrs = getAttrs(child as ComarkElement) as Record<string, unknown>
       return attrs?.['v-slot:default'] !== undefined || attrs?.name === 'default'
     })
 

@@ -1,5 +1,4 @@
-import { defineConfig } from 'vitest/config'
-import { defaultExclude } from 'vitest/config'
+import { defineConfig, defaultExclude } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
