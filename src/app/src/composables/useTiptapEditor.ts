@@ -36,6 +36,8 @@ export function useTiptapEditor() {
     }))
   })
 
+  const CALLOUT_TYPES = new Set(['note', 'tip', 'warning', 'caution'])
+
   /**
    * Custom handlers for editor commands
    */
@@ -53,15 +55,23 @@ export function useTiptapEditor() {
       isDisabled: undefined,
     },
     ...Object.fromEntries(
-      componentItems.value.map(item => [
-        item.kind,
-        {
+      componentItems.value.map((item) => {
+        if (CALLOUT_TYPES.has(item.kind)) {
+          const calloutNode = { type: 'u-callout', attrs: { type: item.kind, props: {} }, content: [{ type: 'paragraph', content: [] }] }
+          return [item.kind, {
+            canExecute: (editor: Editor) => editor.can().insertContent(calloutNode),
+            execute: (editor: Editor) => editor.chain().focus().insertContent(calloutNode),
+            isActive: (editor: Editor) => editor.isActive('u-callout', { type: item.kind }),
+            isDisabled: undefined,
+          }]
+        }
+        return [item.kind, {
           canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
           execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
           isActive: (editor: Editor) => editor.isActive(item.kind),
           isDisabled: undefined,
-        },
-      ]),
+        }]
+      }),
     ),
   }) satisfies EditorCustomHandlers)
 

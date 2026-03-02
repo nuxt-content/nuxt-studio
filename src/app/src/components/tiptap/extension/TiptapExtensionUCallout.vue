@@ -11,23 +11,35 @@ const CALLOUT_CONFIG = {
   caution: { color: 'error' as const, icon: 'i-lucide-circle-alert', label: 'Caution' },
 } as const
 
-// UAlert soft variant root classes per color (mirrors UAlert theme compoundVariants)
-const ALERT_COLOR_CLASSES = {
-  info: 'bg-info/10 text-info',
-  success: 'bg-success/10 text-success',
-  warning: 'bg-warning/10 text-warning',
-  error: 'bg-error/10 text-error',
+// Mirrors ProseCallout theme color variants exactly (src/theme/prose/callout.ts)
+const CALLOUT_COLOR_CLASSES = {
+  info: {
+    base: 'border border-info/25 bg-info/10 text-info-600 dark:text-info-300 [&>ul]:marker:text-info/50',
+    icon: 'text-info',
+  },
+  success: {
+    base: 'border border-success/25 bg-success/10 text-success-600 dark:text-success-300 [&>ul]:marker:text-success/50',
+    icon: 'text-success',
+  },
+  warning: {
+    base: 'border border-warning/25 bg-warning/10 text-warning-600 dark:text-warning-300 [&>ul]:marker:text-warning/50',
+    icon: 'text-warning',
+  },
+  error: {
+    base: 'border border-error/25 bg-error/10 text-error-600 dark:text-error-300 [&>ul]:marker:text-error/50',
+    icon: 'text-error',
+  },
 } as const
 
 type CalloutType = keyof typeof CALLOUT_CONFIG
-type AlertColor = keyof typeof ALERT_COLOR_CLASSES
+type CalloutColor = keyof typeof CALLOUT_COLOR_CLASSES
 
 const calloutType = computed(() => (nodeProps.node.attrs.type || 'note') as CalloutType)
 const extraProps = computed(() => nodeProps.node.attrs.props || {})
 const config = computed(() => CALLOUT_CONFIG[calloutType.value] || CALLOUT_CONFIG.note)
-const alertColorClass = computed(() => {
-  const color = (extraProps.value.color || config.value.color) as AlertColor
-  return ALERT_COLOR_CLASSES[color] ?? ALERT_COLOR_CLASSES.info
+const colorClasses = computed(() => {
+  const color = (extraProps.value.color || config.value.color) as CalloutColor
+  return CALLOUT_COLOR_CLASSES[color] ?? CALLOUT_COLOR_CLASSES.info
 })
 
 function setType(type: CalloutType) {
@@ -43,13 +55,12 @@ function onDelete(event: Event) {
 
 <template>
   <NodeViewWrapper as="div">
-    <div class="relative group my-2">
-      <!-- Hover border with dashed outline -->
-      <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0 border-2 border-dashed border-muted rounded-lg pointer-events-none z-10" />
+    <div class="relative group my-5">
+      <!-- Dashed hover outline -->
+      <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0 border-2 border-dashed border-muted rounded-md pointer-events-none z-10" />
 
-      <!-- Top bar with type selector and delete button -->
+      <!-- Floating toolbar: type selector + delete -->
       <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-3 left-2 right-2 flex items-center justify-between z-20">
-        <!-- Type selector -->
         <div class="flex items-center gap-px bg-white border border-muted rounded px-1 py-0.5">
           <button
             v-for="(cfg, type) in CALLOUT_CONFIG"
@@ -58,15 +69,11 @@ function onDelete(event: Event) {
             :class="calloutType === type ? 'bg-muted text-default' : 'text-muted hover:text-default'"
             @click.stop="setType(type as CalloutType)"
           >
-            <UIcon
-              :name="cfg.icon"
-              class="size-3"
-            />
+            <UIcon :name="cfg.icon" class="size-3" />
             {{ cfg.label }}
           </button>
         </div>
 
-        <!-- Delete button -->
         <div class="flex items-center bg-white border border-muted rounded p-1">
           <UTooltip text="Delete">
             <UButton
@@ -81,17 +88,22 @@ function onDelete(event: Event) {
         </div>
       </div>
 
-      <!-- UAlert soft variant layout (manual to avoid <p> wrapper around NodeViewContent) -->
+      <!--
+        ProseCallout layout: matches Nuxt UI ProseCallout.vue exactly.
+        Base classes from src/theme/prose/callout.ts (slots.base).
+        NodeViewContent as="span" + [&_p]:inline mirrors mdc-unwrap="p" so text
+        flows on the same line as the icon, matching the rendered output.
+      -->
       <div
-        class="relative overflow-hidden w-full rounded-lg p-4 flex gap-2.5 items-start"
-        :class="alertColorClass"
+        class="block px-4 py-3 rounded-md text-sm/6 [&_code]:text-xs/5 [&_code]:bg-default [&_pre]:bg-default [&_ul]:my-2.5 [&_ol]:my-2.5 *:last:mb-0! [&_ul]:ps-4.5 [&_ol]:ps-4.5 [&_li]:my-0 [&_p]:inline [&_p]:m-0"
+        :class="colorClasses.base"
       >
-        <UIcon :name="extraProps.icon || config.icon" class="shrink-0 size-5 mt-0.5" />
-        <div class="min-w-0 flex-1 flex flex-col">
-          <div class="text-sm opacity-90 mt-1">
-            <NodeViewContent />
-          </div>
-        </div>
+        <UIcon
+          :name="extraProps.icon || config.icon"
+          class="size-4 shrink-0 align-sub me-1.5 inline-block"
+          :class="colorClasses.icon"
+        />
+        <NodeViewContent as="span" />
       </div>
     </div>
   </NodeViewWrapper>
