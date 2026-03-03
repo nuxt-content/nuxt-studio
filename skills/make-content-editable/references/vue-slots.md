@@ -6,6 +6,93 @@ Patterns specific to building Studio-editable MDC components.
 
 ---
 
+## Slot Naming Conventions
+
+Slot names must reflect the **semantic role** of the HTML element in the rendered UI — not its tag name. The goal is for an editor opening Studio to immediately understand what each editable region is for.
+
+### HTML structure → slot name
+
+Walk the component template top-to-bottom. For each hardcoded text block, ask: *"What does this element represent in the UI?"*
+
+| HTML element | Semantic role | Slot name |
+|---|---|---|
+| Small `<span>` / badge above the heading | Eyebrow / category label | `#headline` |
+| `<h1>` / `<h2>` / `<h3>` — main heading | Primary heading | `#title` |
+| First `<p>` immediately below the heading | Short summary | `#description` |
+| Main content area `<div>` — rich text, nested components | Body content | `#body` |
+| Bottom area — links, cards, supplementary content | Trailing content | `#footer` |
+| CTA `<a>` / `<button>` group | Call-to-action buttons | `#links` (or prop `to`) |
+| Tab pane content | Pane label (lowercase) | `#vue`, `#react`, `#node` |
+
+Use these names consistently — they match Nuxt UI's own slot API, so editors and Studio users will recognise them across components. When the same table is applied to a child item (card, feature tile), scope the names to that item's component: the card heading → `#title`, the card paragraph → `#description`.
+
+### Worked example
+
+Given this hardcoded template:
+
+```vue
+<template>
+  <section>
+    <span class="badge">New</span>          <!-- eyebrow label -->
+    <h2>Build faster</h2>                   <!-- main heading -->
+    <p>Everything you need in one place.</p> <!-- short summary -->
+    <div class="content">                    <!-- rich body -->
+      <slot />                               <!-- already a slot; keep -->
+    </div>
+    <div class="cards">                      <!-- repeated items -->
+      <FeatureCard v-for="..." />
+    </div>
+  </section>
+</template>
+```
+
+The analysis produces:
+
+| Element | Slot name | Notes |
+|---|---|---|
+| `<span class="badge">New</span>` | `#headline` | Eyebrow label above heading |
+| `<h2>Build faster</h2>` | `#title` | Main section heading |
+| `<p>Everything you need…</p>` | `#description` | First paragraph below heading |
+| `<div class="content">` | `#body` | Main content area |
+| `<div class="cards">` | `#footer` | Trailing repeated items |
+
+The resulting Vue component:
+
+```vue
+<template>
+  <section>
+    <span v-if="$slots.headline" class="badge">
+      <slot name="headline" mdc-unwrap="p" />
+    </span>
+    <h2><slot name="title" mdc-unwrap="p" /></h2>
+    <p><slot name="description" mdc-unwrap="p" /></p>
+    <div class="content"><slot name="body" /></div>
+    <div class="cards"><slot name="footer" /></div>
+  </section>
+</template>
+```
+
+And the MDC:
+
+```mdc
+::my-section
+#headline
+New
+
+#title
+Build faster
+
+#description
+Everything you need in one place.
+
+#body
+  :::feature-cards
+  :::
+::
+```
+
+---
+
 ## Defining Named Slots
 
 ```vue

@@ -10,6 +10,7 @@ Read these files before executing the steps. They contain the exact rules and pa
 |---|---|
 | [`references/mdc-syntax.md`](references/mdc-syntax.md) | Steps 4 — colon depth, indentation, slot ordering, parse errors |
 | [`references/nuxt-studio.md`](references/nuxt-studio.md) | Steps 1–4 — why slots = editable regions, v-show rule, props vs slots |
+| [`references/nuxt-components.md`](references/nuxt-components.md) | Steps 1–3 — how Nuxt component auto-discovery, props, default/named slots work |
 | [`references/nuxt-ui-components.md`](references/nuxt-ui-components.md) | Steps 1–3 — UPageHero/UCard slot API, :ui overrides, text-center fix |
 | [`references/vue-slots.md`](references/vue-slots.md) | Step 3 — mdc-unwrap, v-if $slots, slot forwarding, script setup rules |
 | [`references/tailwind-purging.md`](references/tailwind-purging.md) | Step 3 — static lookup maps for color props |
@@ -32,7 +33,7 @@ Glob for all markdown files in the project's content directory (try `content/**/
 
 Read the chosen file in full. Extract **every component** referenced in it — both block components (`::component-name`) and inline components (`:component-name`). Deduplicate the list.
 
-For each component, locate its Vue file (search `docs/app/components/` and `components/`) and read it. Then present the full list to the user using `AskUserQuestion` with `multiSelect: true`, showing for each entry:
+For each component, locate its Vue file (search `components/`, `app/components/`, and any project-specific component directories) and read it. Then present the full list to the user using `AskUserQuestion` with `multiSelect: true`, showing for each entry:
 - The component name
 - A one-line summary of whether it has hardcoded content or is already slot/prop-driven
 
@@ -52,9 +53,7 @@ Then process each confirmed component one by one through Steps 1–5.
 
 ## Step 1 — Read and analyse the component
 
-Use `mcp__nuxt-ui__get-component` (sections: `["theme"]`) and `mcp__nuxt-ui__get-component-metadata` to look up any Nuxt UI components already used inside it.
-
-Read the component file in full. For every element, classify it:
+Read the component file in full. If any Nuxt UI components are already used inside it, call `mcp__nuxt-ui__get-component` (sections: `["theme"]`) and `mcp__nuxt-ui__get-component-metadata` to look up their slot API before continuing. For every element, classify it:
 
 | Element type | Becomes |
 |---|---|
@@ -65,29 +64,47 @@ Read the component file in full. For every element, classify it:
 | Interactive UI logic (tab switching, accordions) | Hardcoded inside the component — not a slot |
 | Code snippets shown in tabs | Named slot per tab (e.g. `#vue`, `#react`) |
 
+**Naming slots from the HTML structure**
+
+For each hardcoded text element, derive the slot name from its **semantic role in the rendered UI**, not from its HTML tag. Read the element, ask "what does this represent to an editor?", and pick the name from this table:
+
+| HTML element | Semantic role | Slot name |
+|---|---|---|
+| Small label / badge / `<span>` above the heading | Eyebrow / category badge | `#headline` |
+| `<h1>` / `<h2>` / `<h3>` — main section heading | Primary heading | `#title` |
+| First `<p>` below the heading | Short summary / subheading | `#description` |
+| Main content `<div>` — rich text, code, nested components | Body content | `#body` |
+| Bottom area — CTAs, link list, secondary cards | Trailing content | `#footer` |
+| `<a>` / `<button>` CTA group | Call-to-action buttons | `#links` (or prop `to`) |
+| Tab pane named after a framework or topic | Pane content | `#vue`, `#react`, `#node` … |
+
+Prefer these names because they match Nuxt UI's own slot API — editors and Studio users will recognise them. When a component contains a repeated item (e.g. a card), apply the same table scoped to that item component: the card heading → `#title`, the card paragraph → `#description`, the card body area → `#body`.
+
 **Identify the visual render order top-to-bottom** — this is the required order of named slots in MDC.
 
 **Check sibling instances carefully.** If a component renders a list of similar items (cards, features), read every instance. Colors, icons, and labels often differ between siblings — each difference becomes a prop.
 
-**Check for a Nuxt UI component match:**
-- Section with badge + title + description + content below → `UPageHero`
+**Optional — check for a Nuxt UI layout match (if the project uses Nuxt UI):**
+
+If the project already depends on Nuxt UI, check whether one of its layout components already implements the visual pattern you're converting. If a match is found you can wrap it and forward slots through, rather than reimplementing the layout in plain HTML. Common matches:
+- Badge + title + description + rich content area → `UPageHero`
 - Feature/card grid inside a section → `UPageSection`
 - Standalone card with icon/title/description → `UPageCard` or `UCard`
 
-If a match is found, wrap the Nuxt UI component and pass slots through. Note which `ui` slots need overriding (see Step 3).
+If no match is found, or if the project doesn't use Nuxt UI, build the component from scratch in plain HTML with Tailwind. See `references/nuxt-ui-components.md` for slot APIs and known quirks.
 
 ---
 
 ## Step 2 — Design the component tree
 
-Map hardcoded sections to new components. Name them generically (reusable across pages):
+Map hardcoded sections to new components. Name them generically (reusable across pages, not tied to a specific page or content):
 
-- One parent "section" component (e.g. `LandingSubHero`) wrapping the matched Nuxt UI component
-- One "collection" wrapper if there are repeated items (e.g. `LandingCards`)
-- One "item" component for each repeated element (e.g. `LandingCard`)
-- One component per interactive sub-section with its own slots (e.g. `LandingCodeExample`)
+- One parent section component (e.g. `HomeHero`, `LandingFeatures`, `LandingSubHero`)
+- One collection wrapper if there are repeated items (e.g. `FeatureList`, `LandingCards`)
+- One item component for each repeated element (e.g. `FeatureCard`, `LandingCard`)
+- One component per interactive sub-section with its own slots (e.g. `CodePlayground`, `LandingCodeExample`)
 
-For the parent component, define named slots that map 1:1 to the Nuxt UI component's slot names where possible (`#headline`, `#title`, `#description`, `#body`, `#footer`).
+Define named slots using the semantic naming convention from Step 1. If wrapping a Nuxt UI component, align slot names 1:1 with its slot API (`#headline`, `#title`, `#description`, `#body`, `#footer`) so they can be forwarded directly without renaming.
 
 ---
 
@@ -120,12 +137,12 @@ const colors = computed(() => colorMap[props.color ?? 'primary'])
 </script>
 ```
 
-### Nuxt UI wrapping
+### Nuxt UI wrapping (only when a match was identified in Step 1)
 
 - Pass every slot to the matching Nuxt UI slot: `<template #slotName><slot name="slotName" /></template>`
 - Use `v-if="$slots.slotName"` for optional decorative slots (e.g. headline badge)
 - Override inherited styles via `:ui` — do not add wrapper divs to reset styles
-- **Critical:** `UPageHero` vertical orientation sets `text-center` on its wrapper, which cascades into `body` and `footer` slots. Always reset with `text-left` if the original component did not center that content:
+- Check the component's default styles and reset anything that differs from the original. For example, `UPageHero` in vertical orientation applies `text-center` to its wrapper, which cascades into the `body` and `footer` slots — always reset with `text-left` in `:ui` if the original didn't center that content:
 
 ```vue
 :ui="{
@@ -203,9 +220,22 @@ Install with npm and start parsing markdown in seconds
 ::                ← 0 spaces
 ```
 
-### Never use `#default` explicitly
+### `#default` for simple components, named slots for complex ones
 
-Use named slots (`#body`, `#footer`, `#content`) instead. The `#default` marker combined with nested components causes MDC parse errors.
+The `#default` marker is valid and works well for components with a single content area. For simple wrappers, all three forms are equivalent:
+
+```mdc
+::simple-card
+Content goes to the default slot.
+::
+
+::simple-card
+#default
+Content goes to the default slot.
+::
+```
+
+Use distinct named slots (`#body`, `#footer`, `#content`) when the component contains nested child components that themselves have `#title` or `#description` slots. In that case, using `#default` at the outer level can cause MDC parse errors because the parser misreads inner `#title` markers as belonging to the outer component.
 
 ### Props in MDC
 

@@ -19,7 +19,7 @@ Default slot content
 
 ## Named Slots
 
-Use `#slotName` to target a named slot. The `#default` identifier targets the default slot but should be avoided when nested components are present (causes parse errors — use distinct names like `#body`, `#footer` instead).
+Use `#slotName` to target a named slot. The `#default` identifier explicitly targets the default slot and works fine for simple components with a single content area. Avoid it when the component contains nested child components that have their own `#title` or `#description` slots — the MDC parser can misread those inner markers as belonging to the outer component, causing parse errors. In that case use distinct names like `#body`, `#footer` instead.
 
 ```mdc
 ::hero
@@ -147,6 +147,6 @@ Content inside fenced code blocks (` ``` `) is always treated as raw text — MD
 
 | Error | Cause | Fix |
 |---|---|---|
-| `Cannot close componentContainerSection` | `#default` used explicitly with nested components that have same-named inner slots | Replace `#default` with a distinct named slot (`#body`, `#content`) |
+| `Cannot close componentContainerSection` | `#default` used on a component whose nested child components share slot names (`#title`, `#description`) | Replace `#default` with a distinct named slot (`#body`, `#content`) |
 | Closing marker mismatch | `:::component` closed with `::` | Match colon count exactly |
 | Inner slots misread as outer | Text slots declared after slots with nested components | Always declare text-only slots before slots containing nested components |
