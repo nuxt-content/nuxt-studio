@@ -24,17 +24,29 @@ Produce a 1:1 visual match of every original rendered component, but with all co
 
 ## Step 0 — Select the markdown file and pick components to convert
 
-Ask the user which markdown file to work on, or use the file currently open in the IDE if one is active.
+### 0a — Pick the file
 
-Read the file in full. Extract **every component** referenced in it — both block components (`::component-name`) and inline components (`:component-name`). Deduplicate the list.
+Glob for all markdown files in the project's content directory (try `content/**/*.md`, `content/**/*.mdoc`, `content/**/*.markdown`). Present the complete list to the user using `AskUserQuestion` (single-select) so they can pick exactly one file to work on.
+
+### 0b — Pick the components
+
+Read the chosen file in full. Extract **every component** referenced in it — both block components (`::component-name`) and inline components (`:component-name`). Deduplicate the list.
 
 For each component, locate its Vue file (search `docs/app/components/` and `components/`) and read it. Then present the full list to the user using `AskUserQuestion` with `multiSelect: true`, showing for each entry:
 - The component name
 - A one-line summary of whether it has hardcoded content or is already slot/prop-driven
 
-Let the user select which components to convert. Only process the selected ones, in the order they appear in the markdown file.
+### 0c — Confirm selection
 
-Then process each selected component one by one through Steps 1–5.
+After the user toggles their component choices, call `AskUserQuestion` again with a **single-select** confirmation question, e.g.:
+
+> "Proceed with the N selected component(s)?"
+> - Yes, convert them
+> - Go back and change selection
+
+This gives the user an explicit way to validate their choices before any conversion begins. If they choose to go back, repeat step 0b.
+
+Then process each confirmed component one by one through Steps 1–5.
 
 ---
 
