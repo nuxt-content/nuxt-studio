@@ -1278,7 +1278,7 @@ Content here
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
     expect(document.body).toMatchObject(expectedMDCJSON)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
@@ -1336,7 +1336,7 @@ A helpful tip
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
     expect(document.body).toMatchObject(expectedMDCJSON)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
@@ -1397,7 +1397,7 @@ Custom icon callout
     const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
     expect(document.body).toMatchObject(expectedMDCJSON)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
@@ -1417,7 +1417,7 @@ Custom icon callout
       const inputContent = `::${type}\nDanger zone\n::`
 
       const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-      const tiptapJSON: JSONContent = mdcToTiptap(document.body as unknown as MDCRoot, {})
+      const tiptapJSON: JSONContent = mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
 
       expect(tiptapJSON.content?.[1]).toMatchObject({
         type: 'u-callout',

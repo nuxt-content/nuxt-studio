@@ -1,3 +1,4 @@
+import type { ComputedRef } from 'vue'
 import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
@@ -37,6 +38,7 @@ export interface StudioHost {
       }
     }
     getComponents: () => ComponentMeta[]
+    hasNuxtUI: ComputedRef<boolean>
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
   }
