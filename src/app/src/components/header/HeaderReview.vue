@@ -9,8 +9,10 @@ import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const { location } = useStudioState()
-const { context } = useStudio()
+const { context, host } = useStudio()
 const { t } = useI18n()
+
+const commitMessagePrefix = computed(() => host.meta.commitMessage?.prefix ?? '')
 
 const isPublishing = ref(false)
 const openTooltip = ref(false)
@@ -123,14 +125,21 @@ defineShortcuts({
       >
         <UInput
           v-model="state.commitMessage"
-          :placeholder="$t('studio.placeholders.commitMessage')"
+          :placeholder="commitMessagePrefix ? $t('studio.placeholders.commitMessageWithPrefix') : $t('studio.placeholders.commitMessage')"
           size="sm"
           :disabled="isPublishing"
           class="w-full"
           autofocus
-          :ui="{ base: 'focus-visible:ring-1' }"
+          :ui="commitMessagePrefix ? { base: 'focus-visible:ring-1', leading: 'pointer-events-none' } : { base: 'focus-visible:ring-1' }"
           @input="openTooltip = false"
-        />
+        >
+          <template
+            v-if="commitMessagePrefix"
+            #leading
+          >
+            <span class="text-sm text-muted">{{ commitMessagePrefix }}</span>
+          </template>
+        </UInput>
       </UFormField>
 
       <UTooltip

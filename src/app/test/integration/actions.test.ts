@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { joinURL } from 'ufo'
-import { DraftStatus, StudioItemActionId, StudioFeature, type StudioHost, type TreeItem, type DatabaseItem } from '../../src/types'
+import { DraftStatus, StudioItemActionId, StudioBranchActionId, StudioFeature, type StudioHost, type TreeItem, type DatabaseItem } from '../../src/types'
 import { normalizeKey, generateUniqueDocumentFsPath, generateUniqueMediaFsPath } from '../utils'
 import { createMockHost, clearMockHost, fsPathToId } from '../mocks/host'
 import { createMockGit } from '../mocks/git'
@@ -1232,5 +1232,72 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
+  })
+})
+
+describe('PublishBranch - Commit Message Prefix', () => {
+  let context: Awaited<ReturnType<typeof cleanAndSetupContext>>
+  let documentFsPath: string
+
+  beforeEach(async () => {
+    currentRouteName = 'content'
+    documentFsPath = generateUniqueDocumentFsPath('document')
+    context = await cleanAndSetupContext(mockHost, mockGit)
+  })
+
+  it('passes user message as-is when no prefix is configured', async () => {
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    const userMessage = 'Add 2 links on landing page'
+    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: userMessage })
+
+    expect(mockGit.api.commitFiles).toHaveBeenCalledTimes(1)
+    const [, commitMessage] = (mockGit.api.commitFiles as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(commitMessage).toBe('Add 2 links on landing page')
+  })
+
+  it('prepends configured prefix to user message', async () => {
+    const hostWithPrefix: StudioHost = {
+      ...mockHost,
+      meta: {
+        ...mockHost.meta,
+        commitMessage: { prefix: 'content:' },
+      },
+    }
+    context = await cleanAndSetupContext(hostWithPrefix, mockGit)
+
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    const userMessage = 'Add 2 links on landing page'
+    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: userMessage })
+
+    expect(mockGit.api.commitFiles).toHaveBeenCalledTimes(1)
+    const [, commitMessage] = (mockGit.api.commitFiles as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(commitMessage).toBe('content: Add 2 links on landing page')
+  })
+
+  it('trims user message before applying prefix', async () => {
+    const hostWithPrefix: StudioHost = {
+      ...mockHost,
+      meta: {
+        ...mockHost.meta,
+        commitMessage: { prefix: 'docs:' },
+      },
+    }
+    context = await cleanAndSetupContext(hostWithPrefix, mockGit)
+
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: '  Update readme  ' })
+
+    expect(mockGit.api.commitFiles).toHaveBeenCalledTimes(1)
+    const [, commitMessage] = (mockGit.api.commitFiles as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(commitMessage).toBe('docs: Update readme')
   })
 })

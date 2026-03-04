@@ -79,6 +79,7 @@
       "media": "Média"
     },
     "placeholders": {
+      "commitMessageWithPrefix": "Décrivez vos modifications",
       "commitMessage": "Message de commit",
       "order": "N°",
       "fileName": "Nom du fichier"
