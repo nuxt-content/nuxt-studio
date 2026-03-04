@@ -44,8 +44,6 @@ const { preferences } = useStudioState()
 
 const hasNuxtUI = host.meta.hasNuxtUI
 
-console.log('hasNuxtUI', hasNuxtUI.value)
-
 const {
   customHandlers,
   suggestionItems,
