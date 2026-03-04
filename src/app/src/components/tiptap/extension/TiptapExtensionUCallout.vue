@@ -225,7 +225,7 @@ function onDelete(event: Event) {
         <UIcon
           v-if="icon"
           :name="icon"
-          :class="['size-4 shrink-0 mt-1 me-1.5 transition-colors', config.iconClass]"
+          :class="['size-4 shrink-0 mt-1.5 me-1.5 transition-colors', config.iconClass]"
           :contenteditable="false"
         />
 
