@@ -13,6 +13,7 @@ import {
   standardNuxtUIComponents,
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
+import { imageHandler, videoHandler, calloutHandler, componentHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
 
 /**
  * Composable for managing TipTap editor UI and configuration
@@ -40,27 +41,12 @@ export function useTiptapEditor() {
    * Custom handlers for editor commands
    */
   const customHandlers = computed(() => ({
-    image: {
-      canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),
-      execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'image-picker' }),
-      isActive: (editor: Editor) => editor.isActive('image-picker'),
-      isDisabled: undefined,
-    },
-    video: {
-      canExecute: (editor: Editor) => editor.can().insertContent({ type: 'video-picker' }),
-      execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'video-picker' }),
-      isActive: (editor: Editor) => editor.isActive('video-picker'),
-      isDisabled: undefined,
-    },
+    image: imageHandler(),
+    video: videoHandler(),
     ...Object.fromEntries(
       componentItems.value.map(item => [
         item.kind,
-        {
-          canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
-          execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
-          isActive: (editor: Editor) => editor.isActive(item.kind),
-          isDisabled: undefined,
-        },
+        CALLOUT_TYPES.has(item.kind) ? calloutHandler(item.kind) : componentHandler(item.kind),
       ]),
     ),
   }) satisfies EditorCustomHandlers)

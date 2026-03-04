@@ -1233,6 +1233,207 @@ My button
   })
 })
 
+describe('callout', () => {
+  test('note callout produces slot-wrapped structure like element', async () => {
+    const inputContent = `::note
+Content here
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'note',
+          props: {},
+          children: [{ type: 'text', value: 'Content here' }],
+        },
+      ],
+    }
+
+    // Desired TipTap structure: same as generic element — slot-wrapped, tag attr
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'u-callout',
+          attrs: { tag: 'note' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Content here' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('tip callout produces slot-wrapped structure', async () => {
+    const inputContent = `::tip
+A helpful tip
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'tip',
+          props: {},
+          children: [{ type: 'text', value: 'A helpful tip' }],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'u-callout',
+          attrs: { tag: 'tip' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'A helpful tip' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('callout with custom props preserves props in slot-wrapped structure', async () => {
+    const inputContent = `::note{icon="i-lucide-star"}
+Custom icon callout
+::`
+
+    const expectedMDCJSON: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'note',
+          props: { icon: 'i-lucide-star' },
+          children: [{ type: 'text', value: 'Custom icon callout' }],
+        },
+      ],
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'u-callout',
+          attrs: {
+            tag: 'note',
+            props: { icon: 'i-lucide-star' },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Custom icon callout' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    expect(document.body).toMatchObject(expectedMDCJSON)
+
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+
+    const outputContent = await generateContentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('warning and caution types are parsed to u-callout node with slot structure', async () => {
+    for (const type of ['warning', 'caution'] as const) {
+      const inputContent = `::${type}\nDanger zone\n::`
+
+      const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+      const tiptapJSON: JSONContent = mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+
+      expect(tiptapJSON.content?.[1]).toMatchObject({
+        type: 'u-callout',
+        attrs: { tag: type },
+        content: [
+          {
+            type: 'slot',
+            attrs: { name: 'default' },
+            content: [{ type: 'paragraph' }],
+          },
+        ],
+      })
+    }
+  })
+})
+
 describe('code block', () => {
   test('code block preserves space indentation when loaded from Shiki-highlighted MDC', async () => {
     // Reproduce bug: when a file is opened, its MDC body has Shiki-highlighted spans.

@@ -87,6 +87,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
       },
       getComponents: () => meta.components.value,
+      hasNuxtUI: meta.hasNuxtUI,
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
     },

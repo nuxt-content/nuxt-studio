@@ -25,6 +25,7 @@ import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
+import { Callout } from '../../../utils/tiptap/extensions/callout'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
@@ -40,6 +41,8 @@ const document = defineModel<DatabasePageItem>()
 
 const { host } = useStudio()
 const { preferences } = useStudioState()
+
+const hasNuxtUI = host.meta.hasNuxtUI
 
 const {
   customHandlers,
@@ -122,7 +125,7 @@ watch(tiptapJSON, async (json) => {
 // Trigger on document changes
 watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.status}`, async () => {
   const frontmatterJson = cleanDataKeys(document.value!)
-  const newTiptapJSON = mdcToTiptap(document.value?.body as unknown as MDCRoot, frontmatterJson)
+  const newTiptapJSON = mdcToTiptap(document.value?.body as unknown as MDCRoot, frontmatterJson, { hasNuxtUI: hasNuxtUI.value })
 
   if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
     tiptapJSON.value = newTiptapJSON
@@ -173,6 +176,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         ImagePicker,
         VideoPicker,
         Video,
+        ...(hasNuxtUI ? [Callout] : []),
         Element,
         InlineElement,
         SpanStyle,

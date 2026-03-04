@@ -52,6 +52,7 @@ const tiptapToMDCMap: TiptapToMDCMap = {
     return { type: 'element', tag: 'binding', props: { defaultValue, value }, children: [] }
   },
   'br': (node: JSONContent) => createElement(node, 'br'),
+  'u-callout': (node: JSONContent) => createCalloutElement(node),
 }
 
 let slugs = new Slugger()
@@ -380,6 +381,12 @@ function createVideoElement(node: JSONContent): MDCElement {
       child.type !== 'root',
     ),
   }
+}
+
+function createCalloutElement(node: JSONContent): MDCElement {
+  // Support both new 'tag' attr and legacy 'type' attr for backward compatibility
+  const tag = node.attrs?.tag || node.attrs?.type || 'note'
+  return createElement(node, tag)
 }
 
 function createLinkElement(node: JSONContent): MDCElement {
