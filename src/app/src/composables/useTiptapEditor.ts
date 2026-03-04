@@ -36,7 +36,7 @@ export function useTiptapEditor() {
     }))
   })
 
-  const CALLOUT_TYPES = new Set(['note', 'tip', 'warning', 'caution'])
+  const CALLOUT_TYPES = new Set(['callout', 'note', 'tip', 'warning', 'caution'])
 
   /**
    * Custom handlers for editor commands
@@ -57,11 +57,11 @@ export function useTiptapEditor() {
     ...Object.fromEntries(
       componentItems.value.map((item) => {
         if (CALLOUT_TYPES.has(item.kind)) {
-          const calloutNode = { type: 'u-callout', attrs: { type: item.kind, props: {} }, content: [{ type: 'paragraph', content: [] }] }
+          const calloutNode = { type: 'u-callout', attrs: { tag: item.kind, props: {} }, content: [{ type: 'slot', attrs: { name: 'default' }, content: [{ type: 'paragraph', content: [] }] }] }
           return [item.kind, {
             canExecute: (editor: Editor) => editor.can().insertContent(calloutNode),
             execute: (editor: Editor) => editor.chain().focus().insertContent(calloutNode),
-            isActive: (editor: Editor) => editor.isActive('u-callout', { type: item.kind }),
+            isActive: (editor: Editor) => editor.isActive('u-callout', { tag: item.kind }),
             isDisabled: undefined,
           }]
         }

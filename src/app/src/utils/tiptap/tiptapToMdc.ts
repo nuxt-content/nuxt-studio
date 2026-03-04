@@ -384,17 +384,9 @@ function createVideoElement(node: JSONContent): MDCElement {
 }
 
 function createCalloutElement(node: JSONContent): MDCElement {
-  const type = node.attrs?.type || 'note'
-  const props = { ...(node.attrs?.props || {}) }
-  const children = (node.content || [])
-    .flatMap(c => tiptapNodeToMDC(c))
-    .filter((c): c is MDCElement | MDCText => c.type !== 'root')
-  return {
-    type: 'element',
-    tag: type,
-    props,
-    children,
-  }
+  // Support both new 'tag' attr and legacy 'type' attr for backward compatibility
+  const tag = node.attrs?.tag || node.attrs?.type || 'note'
+  return createElement(node, tag)
 }
 
 function createLinkElement(node: JSONContent): MDCElement {

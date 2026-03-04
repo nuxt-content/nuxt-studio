@@ -1,49 +1,57 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { NodeViewWrapper, NodeViewContent, nodeViewProps } from '@tiptap/vue-3'
 
 const nodeProps = defineProps(nodeViewProps)
 
-const CALLOUT_CONFIG = {
-  note: { color: 'info' as const, icon: 'i-lucide-info', label: 'Note' },
-  tip: { color: 'success' as const, icon: 'i-lucide-lightbulb', label: 'Tip' },
-  warning: { color: 'warning' as const, icon: 'i-lucide-triangle-alert', label: 'Warning' },
-  caution: { color: 'error' as const, icon: 'i-lucide-circle-alert', label: 'Caution' },
-} as const
+const node = computed(() => nodeProps.node)
+const openPropsPopover = ref(false)
+const isEditable = ref(true) // TODO: Connect to editor state
 
-// Mirrors ProseCallout theme color variants exactly (src/theme/prose/callout.ts)
-const CALLOUT_COLOR_CLASSES = {
-  info: {
-    base: 'border border-info/25 bg-info/10 text-info-600 dark:text-info-300 [&>ul]:marker:text-info/50',
-    icon: 'text-info',
+const CALLOUT_TYPES = ['callout', 'note', 'tip', 'warning', 'caution'] as const
+type CalloutType = typeof CALLOUT_TYPES[number]
+
+const CALLOUT_CONFIG: Record<CalloutType, { icon?: string, label: string, wrapperClass: string, iconClass?: string }> = {
+  callout: {
+    label: 'Callout',
+    wrapperClass: 'border-muted bg-muted text-default',
   },
-  success: {
-    base: 'border border-success/25 bg-success/10 text-success-600 dark:text-success-300 [&>ul]:marker:text-success/50',
-    icon: 'text-success',
+  note: {
+    icon: 'i-lucide-info',
+    label: 'Note',
+    wrapperClass: 'border-info/25 bg-info/10 text-info-600 dark:text-info-300',
+    iconClass: 'text-info',
+  },
+  tip: {
+    icon: 'i-lucide-lightbulb',
+    label: 'Tip',
+    wrapperClass: 'border-success/25 bg-success/10 text-success-600 dark:text-success-300',
+    iconClass: 'text-success',
   },
   warning: {
-    base: 'border border-warning/25 bg-warning/10 text-warning-600 dark:text-warning-300 [&>ul]:marker:text-warning/50',
-    icon: 'text-warning',
+    icon: 'i-lucide-triangle-alert',
+    label: 'Warning',
+    wrapperClass: 'border-warning/25 bg-warning/10 text-warning-600 dark:text-warning-300',
+    iconClass: 'text-warning',
   },
-  error: {
-    base: 'border border-error/25 bg-error/10 text-error-600 dark:text-error-300 [&>ul]:marker:text-error/50',
-    icon: 'text-error',
+  caution: {
+    icon: 'i-lucide-circle-alert',
+    label: 'Caution',
+    wrapperClass: 'border-error/25 bg-error/10 text-error-600 dark:text-error-300',
+    iconClass: 'text-error',
   },
-} as const
+}
 
-type CalloutType = keyof typeof CALLOUT_CONFIG
-type CalloutColor = keyof typeof CALLOUT_COLOR_CLASSES
-
-const calloutType = computed(() => (nodeProps.node.attrs.type || 'note') as CalloutType)
-const extraProps = computed(() => nodeProps.node.attrs.props || {})
-const config = computed(() => CALLOUT_CONFIG[calloutType.value] || CALLOUT_CONFIG.note)
-const colorClasses = computed(() => {
-  const color = (extraProps.value.color || config.value.color) as CalloutColor
-  return CALLOUT_COLOR_CLASSES[color] ?? CALLOUT_COLOR_CLASSES.info
-})
+const tag = computed(() => (nodeProps.node.attrs.tag || 'note') as CalloutType)
+const config = computed(() => CALLOUT_CONFIG[tag.value] || CALLOUT_CONFIG.note)
+const componentProps = computed(() => nodeProps.node.attrs.props || {})
 
 function setType(type: CalloutType) {
-  nodeProps.updateAttributes({ type })
+  nodeProps.updateAttributes({ tag: type })
+}
+
+function updateComponentProps(props: Record<string, unknown>) {
+  nodeProps.updateAttributes({ props })
 }
 
 function onDelete(event: Event) {
@@ -55,55 +63,88 @@ function onDelete(event: Event) {
 
 <template>
   <NodeViewWrapper as="div">
-    <div class="relative group my-5">
-      <!-- Dashed hover outline -->
-      <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0 border-2 border-dashed border-muted rounded-md pointer-events-none z-10" />
+    <div
+      class="group relative block px-4 py-3 rounded-md text-sm/6 my-5 last:mb-0 [&_code]:text-xs/5 [&_code]:bg-default [&_pre]:bg-default [&_ul]:my-1.5 [&_ol]:my-2.5 *:last:mb-0! [&_ul]:ps-4.5 [&_ol]:ps-4.5 [&_li]:my-0 border"
+      :class="config.wrapperClass"
+    >
+      <!-- Hover toolbar -->
+      <div
+        class="absolute -top-3.5 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 bg-default rounded border border-muted shadow-xs px-1 py-0.5"
+        :contenteditable="false"
+      >
+        <UTooltip
+          v-for="type in CALLOUT_TYPES"
+          :key="type"
+          :text="CALLOUT_CONFIG[type].label"
+        >
+          <UButton
+            variant="ghost"
+            size="2xs"
+            :icon="CALLOUT_CONFIG[type].icon || 'i-lucide-message-square'"
+            :class="[tag === type ? 'text-default' : 'text-muted hover:text-default']"
+            :aria-label="CALLOUT_CONFIG[type].label"
+            :disabled="!isEditable"
+            @click.prevent.stop="setType(type)"
+          />
+        </UTooltip>
 
-      <!-- Floating toolbar: type selector + delete -->
-      <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-3 left-2 right-2 flex items-center justify-between z-20">
-        <div class="flex items-center gap-px bg-white border border-muted rounded px-1 py-0.5">
-          <button
-            v-for="(cfg, type) in CALLOUT_CONFIG"
-            :key="type"
-            class="flex items-center gap-1 px-1.5 py-0.5 text-xs font-medium rounded transition-colors"
-            :class="calloutType === type ? 'bg-muted text-default' : 'text-muted hover:text-default'"
-            @click.stop="setType(type as CalloutType)"
+        <UPopover v-model:open="openPropsPopover">
+          <UTooltip
+            :text="$t('studio.tiptap.element.editProps')"
+            :disabled="openPropsPopover"
           >
-            <UIcon :name="cfg.icon" class="size-3" />
-            {{ cfg.label }}
-          </button>
-        </div>
-
-        <div class="flex items-center bg-white border border-muted rounded p-1">
-          <UTooltip text="Delete">
             <UButton
               variant="ghost"
               size="2xs"
               class="text-muted hover:text-default"
-              icon="i-lucide-trash"
-              aria-label="Delete"
-              @click="onDelete"
+              icon="i-lucide-sliders-horizontal"
+              :disabled="!isEditable"
+              :aria-label="$t('studio.tiptap.element.editProps')"
+              @click.stop
             />
           </UTooltip>
-        </div>
+
+          <template #content>
+            <TiptapComponentProps
+              :node="node"
+              :update-props="updateComponentProps"
+            />
+          </template>
+        </UPopover>
+
+        <UBadge
+          v-if="Object.keys(componentProps).length > 0"
+          color="neutral"
+          variant="subtle"
+          size="xs"
+        >
+          {{ Object.keys(componentProps).length }}
+        </UBadge>
+
+        <UTooltip :text="$t('studio.tiptap.element.delete')">
+          <UButton
+            variant="ghost"
+            size="2xs"
+            class="text-muted hover:text-default"
+            icon="i-lucide-trash"
+            :disabled="!isEditable"
+            :aria-label="$t('studio.tiptap.element.delete')"
+            @click="onDelete"
+          />
+        </UTooltip>
       </div>
 
-      <!--
-        ProseCallout layout: matches Nuxt UI ProseCallout.vue exactly.
-        Base classes from src/theme/prose/callout.ts (slots.base).
-        NodeViewContent as="span" + [&_p]:inline mirrors mdc-unwrap="p" so text
-        flows on the same line as the icon, matching the rendered output.
-      -->
-      <div
-        class="block px-4 py-3 rounded-md text-sm/6 [&_code]:text-xs/5 [&_code]:bg-default [&_pre]:bg-default [&_ul]:my-2.5 [&_ol]:my-2.5 *:last:mb-0! [&_ul]:ps-4.5 [&_ol]:ps-4.5 [&_li]:my-0 [&_p]:inline [&_p]:m-0"
-        :class="colorClasses.base"
-      >
+      <div class="flex items-start gap-1.5">
         <UIcon
-          :name="extraProps.icon || config.icon"
-          class="size-4 shrink-0 align-sub me-1.5 inline-block"
-          :class="colorClasses.icon"
+          v-if="config.icon"
+          :name="config.icon"
+          class="size-4 shrink-0 mt-1.5"
+          :class="config.iconClass"
         />
-        <NodeViewContent as="span" />
+        <NodeViewContent
+          as="span"
+          class="flex-1 min-w-0"
+        />
       </div>
     </div>
   </NodeViewWrapper>

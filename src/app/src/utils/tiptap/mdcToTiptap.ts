@@ -39,10 +39,6 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   blockquote: node => createTipTapNode(node as MDCElement, 'blockquote'),
   binding: node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
   hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
-  note: node => createCalloutNode(node as MDCElement, 'note'),
-  tip: node => createCalloutNode(node as MDCElement, 'tip'),
-  warning: node => createCalloutNode(node as MDCElement, 'warning'),
-  caution: node => createCalloutNode(node as MDCElement, 'caution'),
 }
 
 export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
@@ -92,31 +88,7 @@ export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSON
     return createTipTapNode(node as MDCElement, 'inline-element', { attrs: { tag: type } })
   }
 
-  /**
-   * In tiptap side only, inside element, text must be enclosed in a paragraph
-   *
-   * Note: without having the wrapper paragraph, contents of an element can't be
-   * modified, TipTap depend on the paragraph to allow text editing.
-   */
-  if (node.type === 'element' && node.children?.[0]?.type === 'text') {
-    node = {
-      ...node,
-      props: {
-        ...node.props,
-        __tiptapWrap: true,
-      },
-      children: [{
-        type: 'element',
-        tag: 'p',
-        children: node.children,
-        props: {},
-      }],
-    }
-  }
-
-  const children = wrapChildrenWithinSlot(((node as MDCElement).children || []) as MDCElement[])
-
-  return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
+  return createElementNode(node as MDCElement, type)
 }
 
 /**
@@ -370,6 +342,37 @@ function createSpanStyleNode(node: MDCElement) {
   return createTipTapNode(cleanedNode as MDCElement, 'span-style', { attrs: spanAttrs })
 }
 
+function createElementNode(node: MDCElement, type: string) {
+  const CALLOUT_TAGS = new Set(['callout', 'note', 'tip', 'warning', 'caution'])
+
+  /**
+   * In tiptap side only, inside element, text must be enclosed in a paragraph
+   *
+   * Note: without having the wrapper paragraph, contents of an element can't be
+   * modified, TipTap depend on the paragraph to allow text editing.
+   */
+  if (node.children?.[0]?.type === 'text') {
+    node = {
+      ...node,
+      props: {
+        ...node.props,
+        __tiptapWrap: true,
+      },
+      children: [{
+        type: 'element',
+        tag: 'p',
+        children: node.children,
+        props: {},
+      }],
+    }
+  }
+
+  const children = wrapChildrenWithinSlot((node.children || []) as MDCElement[])
+  const tiptapType = CALLOUT_TAGS.has(type) ? 'u-callout' : 'element'
+
+  return createTipTapNode(node, tiptapType, { attrs: { tag: type }, children })
+}
+
 /**
  * This function makes sure that all children of an element are
  * wrapped in a slot.
@@ -400,16 +403,6 @@ function wrapChildrenWithinSlot(children: MDCElement[]) {
   }
 
   return children
-}
-
-function createCalloutNode(node: MDCElement, type: string) {
-  const props = { ...(node.props || {}) }
-  const content = (node.children || []).flatMap(child => mdcNodeToTiptap(child, node)).filter(n => n.type !== undefined)
-  return {
-    type: 'u-callout',
-    attrs: { type, props },
-    content: content.length > 0 ? content : [{ type: 'paragraph', content: [] }],
-  }
 }
 
 /**
