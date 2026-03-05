@@ -14,7 +14,11 @@ const tagToMark: Record<string, string> = {
   a: 'link',
 }
 
-// ─── ComarkNode helpers ───────────────────────────────────────────────────────
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* ComarkNode helpers
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
 function isElement(node: ComarkNode): node is ComarkElement {
   return Array.isArray(node) && node[0] !== null
@@ -36,7 +40,11 @@ function getChildren(node: ComarkElement): ComarkNode[] {
   return node.slice(2) as ComarkNode[]
 }
 
-// ─── Node map ─────────────────────────────────────────────────────────────────
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* Node map
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
 const comarkToTiptapMap: ComarkToTipTapMap = {
   ...Object.fromEntries(Object.entries(tagToMark).map(([key, value]) => [key, node => createMark(node, value)])),
@@ -60,9 +68,15 @@ const comarkToTiptapMap: ComarkToTipTapMap = {
   hr: node => createTipTapNode(node, 'horizontalRule'),
 }
 
-// ─── Entry point ──────────────────────────────────────────────────────────────
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* Entry point
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
-export function comarkToTiptap(tree: ComarkTree): JSONContent {
+export function comarkToTiptap(tree: ComarkTree, options?: { hasNuxtUI?: boolean }): JSONContent {
+  const hasNuxtUI = options?.hasNuxtUI ?? false
+
   // Remove invalid top-level text nodes (same as MDC version filtering type !== 'text')
   const nodes = tree.nodes.filter(node => !isComment(node as ComarkNode) || isElement(node as ComarkNode))
     .filter(node => typeof node !== 'string')
@@ -70,7 +84,7 @@ export function comarkToTiptap(tree: ComarkTree): JSONContent {
   // Remove style elements recursively
   const cleanNodes = removeStyleElements(nodes)
 
-  const content = cleanNodes.flatMap(node => comarkNodeToTiptap(node))
+  const content = cleanNodes.flatMap(node => comarkNodeToTiptap(node, undefined, hasNuxtUI))
 
   return {
     type: 'doc',
@@ -84,10 +98,17 @@ export function comarkToTiptap(tree: ComarkTree): JSONContent {
   }
 }
 
-// ─── Node converter ───────────────────────────────────────────────────────────
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* Node converter
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
-export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string): JSONContent | JSONContent[] {
-  // ComarkText is a plain string
+export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxtUI = false): JSONContent | JSONContent[] {
+  /**
+   * Text node
+   * ComarkText is a plain string
+   */
   if (typeof node === 'string') {
     return createTextNode(node)
   }
@@ -98,41 +119,42 @@ export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string): JSONCo
 
   const [rawTag] = node
 
-  // Comment node: [null, {}, text]
+  /**
+   * Comment node
+   * ComarkComment is [null, {}, text]
+   */
   if (rawTag === null) {
     return { type: 'comment', attrs: { text: (node as ComarkComment)[2] as string } }
   }
 
   const tagStr = rawTag as string
 
-  // Known node types
+  /**
+   * Known node types
+   */
   if (comarkToTiptapMap[tagStr]) {
     return comarkToTiptapMap[tagStr](node as ComarkElement)
   }
 
-  // Custom vue components (Elements)
-  // If parent is a paragraph, element should be inline
+  /**
+   * Inline vue components
+   * If parent is a paragraph, then element should be inline
+   */
   if (parentTag === 'p') {
     return createTipTapNode(node as ComarkElement, 'inline-element', { attrs: { tag: tagStr } })
   }
 
   /**
-   * In TipTap side only, inside element, text must be enclosed in a paragraph.
-   * Without the wrapper paragraph, contents of an element can't be modified.
+   * Block vue components
    */
-  let processedNode = node as ComarkElement
-  const nodeChildren = getChildren(processedNode)
-  if (nodeChildren.length > 0 && typeof nodeChildren[0] === 'string') {
-    const originalAttrs = getAttrs(processedNode)
-    processedNode = [tagStr, { ...originalAttrs, __tiptapWrap: true }, ['p', {}, ...nodeChildren] as ComarkElement] as ComarkElement
-  }
-
-  const slotWrapped = wrapChildrenWithinSlot(getChildren(processedNode))
-
-  return createTipTapNode(processedNode, 'element', { attrs: { tag: tagStr }, children: slotWrapped })
+  return createElementNode(node as ComarkElement, tagStr, hasNuxtUI)
 }
 
-// ─── Mark creation ────────────────────────────────────────────────────────────
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* Mark creation
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
 export function createMark(node: ComarkElement, mark: string, accumulatedMarks: { type: string, attrs?: object }[] = []): JSONContent[] {
   const attrs = { ...getAttrs(node) }
@@ -208,7 +230,11 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
   }).flat() as JSONContent[]
 }
 
-// ─── Node creation helpers ────────────────────────────────────────────────────
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* Node creation helpers
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
 function createTipTapNode(node: ComarkElement, type: string, extra: Record<string, unknown> = {}): JSONContent {
   const { attrs = {}, children, ...rest } = extra
@@ -412,7 +438,32 @@ function createSpanStyleNode(node: ComarkElement): JSONContent {
   return createTipTapNode(cleanedNode, 'span-style', { attrs: spanAttrs })
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false): JSONContent {
+  const CALLOUT_TAGS = new Set(['callout', 'note', 'tip', 'warning', 'caution'])
+  /**
+   * In tiptap side only, inside element, text must be enclosed in a paragraph
+   *
+   * Note: without having the wrapper paragraph, contents of an element can't be
+   * modified, TipTap depend on the paragraph to allow text editing.
+   */
+  let processedNode = node
+  const nodeChildren = getChildren(processedNode)
+  if (nodeChildren.length > 0 && typeof nodeChildren[0] === 'string') {
+    const originalAttrs = getAttrs(processedNode)
+    processedNode = [type, { ...originalAttrs, __tiptapWrap: true }, ['p', {}, ...nodeChildren] as ComarkElement] as ComarkElement
+  }
+
+  const slotWrapped = wrapChildrenWithinSlot(getChildren(processedNode))
+  const tiptapType = hasNuxtUI && CALLOUT_TAGS.has(type) ? 'u-callout' : 'element'
+
+  return createTipTapNode(processedNode, tiptapType, { attrs: { tag: type }, children: slotWrapped })
+}
+
+/*
+* ──────────────────────────────────────────────────────────────────────────────
+* Utilities
+* ──────────────────────────────────────────────────────────────────────────────
+*/
 
 /**
  * Ensure all children of an element are wrapped in a slot.

@@ -50,6 +50,7 @@ const tiptapToComarkMap: TiptapToComarkMap = {
     return ['binding', { defaultValue, value }] as ComarkElement
   },
   'br': (node: JSONContent) => createElement(node, 'br'),
+  'u-callout': (node: JSONContent) => createCalloutElement(node),
 }
 
 let slugs = new Slugger()
@@ -361,6 +362,12 @@ function createVideoElement(node: JSONContent): ComarkElement {
 
   const children = comarkNodesFromTiptap(node.content || [])
   return ['video', videoProps, ...children] as ComarkElement
+}
+
+function createCalloutElement(node: JSONContent): ComarkElement {
+  // Support both new 'tag' attr and legacy 'type' attr for backward compatibility
+  const tag = node.attrs?.tag || node.attrs?.type || 'note'
+  return createElement(node, tag) as ComarkElement
 }
 
 function createLinkElement(node: JSONContent): ComarkElement {

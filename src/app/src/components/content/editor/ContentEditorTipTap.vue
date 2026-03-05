@@ -22,6 +22,7 @@ import { InlineElement } from '../../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
+import { Callout } from '../../../utils/tiptap/extensions/callout'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
@@ -37,6 +38,8 @@ const document = defineModel<DatabasePageItem>()
 
 const { host } = useStudio()
 const { preferences } = useStudioState()
+
+const hasNuxtUI = host.meta.hasNuxtUI
 
 const {
   customHandlers,
@@ -110,7 +113,7 @@ watch(tiptapJSON, async (json) => {
 watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.status}`, async () => {
   const comarkTree = document.value!.body
   if (!comarkTree) return
-  const newTiptapJSON = comarkToTiptap(comarkTree)
+  const newTiptapJSON = comarkToTiptap(comarkTree, { hasNuxtUI: hasNuxtUI.value })
 
   if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
     tiptapJSON.value = newTiptapJSON
@@ -157,6 +160,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         ImagePicker,
         VideoPicker,
         Video,
+        ...(hasNuxtUI ? [Callout] : []),
         Element,
         InlineElement,
         SpanStyle,

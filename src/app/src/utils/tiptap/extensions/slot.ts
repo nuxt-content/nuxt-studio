@@ -1,6 +1,8 @@
 import { Node, mergeAttributes } from '@tiptap/core'
+import type { NodeViewRendererProps } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import TiptapExtensionSlot from '../../../components/tiptap/extension/TiptapExtensionSlot.vue'
+import TiptapExtensionUniqueDefaultSlot from '../../../components/tiptap/extension/TiptapExtensionUniqueDefaultSlot.vue'
 
 export interface ElementOptions {
   HTMLAttributes: Record<string, unknown>
@@ -79,6 +81,15 @@ export const Slot = Node.create<ElementOptions>({
   },
 
   addNodeView() {
-    return VueNodeViewRenderer(TiptapExtensionSlot)
+    return (props: NodeViewRendererProps) => {
+      const pos = props.getPos()
+      if (typeof pos === 'number') {
+        const $pos = props.editor.state.doc.resolve(pos)
+        if ($pos.parent?.type.name === 'u-callout') {
+          return VueNodeViewRenderer(TiptapExtensionUniqueDefaultSlot)(props)
+        }
+      }
+      return VueNodeViewRenderer(TiptapExtensionSlot)(props)
+    }
   },
 })

@@ -1,6 +1,6 @@
 import { createSharedComposable } from '@vueuse/core'
 import type { ComponentMeta } from 'nuxt-studio/app'
-import { shallowRef } from 'vue'
+import { shallowRef, computed } from 'vue'
 import { kebabCase } from 'scule'
 
 interface Meta {
@@ -21,6 +21,7 @@ export const useHostMeta = createSharedComposable(() => {
   const components = shallowRef<ComponentMeta[]>([])
   const highlightTheme = shallowRef<Meta['highlightTheme']>()
   const markdownConfig = shallowRef<Meta['markdownConfig']>()
+  const hasNuxtUI = computed(() => components.value.some(c => c.nuxtUI))
 
   async function fetch() {
     // TODO: look into this approach and consider possible refactors
@@ -115,6 +116,7 @@ export const useHostMeta = createSharedComposable(() => {
   return {
     fetch,
     components,
+    hasNuxtUI,
     highlightTheme,
     markdownConfig,
   }

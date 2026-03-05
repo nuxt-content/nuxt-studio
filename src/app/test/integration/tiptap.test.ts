@@ -980,6 +980,185 @@ My button
   })
 })
 
+describe('callout', () => {
+  test('note callout produces slot-wrapped structure like element', async () => {
+    const inputContent = `::note
+Content here
+::`
+
+    const expectedComarkNodes = [
+      ['note', {}, 'Content here'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'u-callout',
+          attrs: { tag: 'note' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Content here' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('tip callout produces slot-wrapped structure', async () => {
+    const inputContent = `::tip
+A helpful tip
+::`
+
+    const expectedComarkNodes = [
+      ['tip', {}, 'A helpful tip'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'u-callout',
+          attrs: { tag: 'tip' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'A helpful tip' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('callout with custom props preserves props in slot-wrapped structure', async () => {
+    const inputContent = `::note{icon="i-lucide-star"}
+Custom icon callout
+::`
+
+    const expectedComarkNodes = [
+      ['note', { icon: 'i-lucide-star' }, 'Custom icon callout'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'u-callout',
+          attrs: {
+            tag: 'note',
+            props: { icon: 'i-lucide-star' },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Custom icon callout' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('warning and caution types are parsed to u-callout node with slot structure', async () => {
+    for (const type of ['warning', 'caution'] as const) {
+      const inputContent = `::${type}\nDanger zone\n::`
+
+      const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+      const tiptapJSON: JSONContent = comarkToTiptap(document.body, { hasNuxtUI: true })
+
+      expect(tiptapJSON.content?.[1]).toMatchObject({
+        type: 'u-callout',
+        attrs: { tag: type },
+        content: [
+          {
+            type: 'slot',
+            attrs: { name: 'default' },
+            content: [{ type: 'paragraph' }],
+          },
+        ],
+      })
+    }
+  })
+})
+
 describe('code block', () => {
   test('code block preserves space indentation when loaded from Shiki-highlighted MDC', async () => {
     const inputContent = 'function hello() {\n  console.log(\'world\')\n}'
