@@ -357,7 +357,7 @@ export default defineNuxtModule<ModuleOptions>({
       branch: undefined,
       rootDir: '',
       private: true,
-      instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://github.com',
+      instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || process.env.STUDIO_GITLAB_INSTANCE_URL,
     },
     auth: {
       github: {
