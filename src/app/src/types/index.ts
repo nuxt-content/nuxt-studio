@@ -27,12 +27,10 @@ export interface StudioHost {
   meta: {
     dev: boolean
     media?: MediaConfig
-    /**
-     * Commit message prefix for conventional commits (e.g. 'content:', 'docs:').
-     * When set, prepended to user-entered messages on publish.
-     */
-    commitMessage?: {
-      prefix?: string
+    git?: {
+      commit?: {
+        messagePrefix?: string
+      }
     }
     ai: {
       enabled: boolean
