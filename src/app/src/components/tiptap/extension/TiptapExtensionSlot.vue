@@ -29,7 +29,7 @@ const parent = computed(() => {
   return $pos.parent
 })
 
-const componentMeta = computed(() => host.meta.getComponents().find(c => c.name === parent.value?.attrs.tag))
+const componentMeta = computed(() => host.meta.components.get().find(c => c.name === parent.value?.attrs.tag))
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const showSlotSelection = computed(() => slots.value.length > 1)
 const availableSlots = computed(() => slots.value.map(s => s.name))

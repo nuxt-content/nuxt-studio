@@ -221,9 +221,11 @@ export const useContext = createSharedComposable((
   const branchActionHandler: { [K in StudioBranchActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
     [StudioBranchActionId.PublishBranch]: async (params: PublishBranchParams) => {
       const { commitMessage } = params
+      const prefix = host.meta.git?.commit?.messagePrefix
+      const finalMessage = prefix ? `${prefix} ${commitMessage.trim()}`.trim() : commitMessage.trim()
       const documentFiles = await documentTree.draft.listAsRawFiles()
       const mediaFiles = await mediaTree.draft.listAsRawFiles()
-      await gitProvider.api.commitFiles([...documentFiles, ...mediaFiles], commitMessage)
+      await gitProvider.api.commitFiles([...documentFiles, ...mediaFiles], finalMessage)
 
       // @ts-expect-error params is null
       await itemActionHandler[StudioItemActionId.RevertAllItems]()

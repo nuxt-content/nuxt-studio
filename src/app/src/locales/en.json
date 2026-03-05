@@ -86,6 +86,7 @@
     },
     "placeholders": {
       "commitMessage": "Commit message",
+      "commitMessageWithPrefix": "Describe your changes",
       "order": "N°",
       "fileName": "File name"
     },

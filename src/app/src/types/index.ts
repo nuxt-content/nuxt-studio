@@ -1,3 +1,4 @@
+import type { ComputedRef } from 'vue'
 import type { StudioUser } from './user'
 import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
@@ -26,6 +27,11 @@ export interface StudioHost {
   meta: {
     dev: boolean
     media?: MediaConfig
+    git?: {
+      commit?: {
+        messagePrefix?: string
+      }
+    }
     ai: {
       enabled: boolean
       experimental: {
@@ -36,7 +42,11 @@ export interface StudioHost {
         contentFolder: string
       }
     }
-    getComponents: () => ComponentMeta[]
+    components: {
+      get: () => ComponentMeta[]
+      hasNuxtUI: ComputedRef<boolean>
+      getGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
+    }
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
   }
