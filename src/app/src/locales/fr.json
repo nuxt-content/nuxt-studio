@@ -307,15 +307,29 @@
       "image": {
         "title": "Sélectionner une image",
         "description": "Choisissez une image depuis votre bibliothèque de médias",
+        "selectionTitle": "Détails de l'image",
+        "selectionDescription": "Vérifiez et confirmez votre sélection",
         "notAvailable": "Aucune image disponible dans votre bibliothèque de médias",
-        "upload": "Importer"
+        "upload": "Importer",
+        "useExternal": "Utiliser une source externe"
       },
       "video": {
         "title": "Sélectionner une vidéo",
         "description": "Choisissez une vidéo depuis votre bibliothèque de médias",
+        "selectionTitle": "Détails de la vidéo",
+        "selectionDescription": "Vérifiez et confirmez votre sélection",
         "notAvailable": "Aucune vidéo disponible dans votre bibliothèque de médias",
-        "upload": "Importer"
-      }
+        "upload": "Importer",
+        "useExternal": "Utiliser une source externe"
+      },
+      "name": "Nom",
+      "path": "Chemin du fichier",
+      "publicPath": "Chemin public",
+      "extension": "Extension",
+      "fileSize": "Taille du fichier",
+      "resolution": "Résolution",
+      "confirm": "Confirmer",
+      "cancelSelection": "Annuler"
     },
     "form": {
       "array": {
