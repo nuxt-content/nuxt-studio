@@ -29,7 +29,7 @@ export function useTiptapEditor() {
    * Component items for suggestions menu
    */
   const componentItems = computed(() => {
-    return host.meta.getComponents().map(component => ({
+    return host.meta.components.get().map(component => ({
       kind: component.name,
       type: undefined as never,
       label: titleCase(component.name),
@@ -54,16 +54,40 @@ export function useTiptapEditor() {
   /**
    * Suggestion menu items
    */
-  const suggestionItems = computed(() => [
-    ...getStandardSuggestionItems(t),
-    [
+  const suggestionItems = computed(() => {
+    const componentGroups = host.meta.components.getGroups(t('studio.tiptap.editor.components'))
+
+    if (componentGroups.length === 0) {
+      return [
+        ...getStandardSuggestionItems(t),
+        [
+          {
+            type: 'label',
+            label: t('studio.tiptap.editor.components'),
+          },
+          ...componentItems.value,
+        ],
+      ] satisfies EditorSuggestionMenuItem[][]
+    }
+
+    const componentGroupItems = componentGroups.map(group => [
       {
-        type: 'label',
-        label: t('studio.tiptap.editor.components'),
+        type: 'label' as const,
+        label: group.label,
       },
-      ...componentItems.value,
-    ],
-  ] satisfies EditorSuggestionMenuItem[][])
+      ...group.components.map(component => ({
+        kind: component.name,
+        type: undefined as never,
+        label: titleCase(component.name),
+        icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+      })),
+    ])
+
+    return [
+      ...getStandardSuggestionItems(t),
+      ...componentGroupItems,
+    ] satisfies EditorSuggestionMenuItem[][]
+  })
 
   /**
    * Toolbar items for bubble menu

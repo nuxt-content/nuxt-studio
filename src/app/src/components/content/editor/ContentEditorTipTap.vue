@@ -39,7 +39,7 @@ const document = defineModel<DatabasePageItem>()
 const { host } = useStudio()
 const { preferences } = useStudioState()
 
-const hasNuxtUI = host.meta.hasNuxtUI
+const hasNuxtUI = host.meta.components.hasNuxtUI
 
 const {
   customHandlers,
