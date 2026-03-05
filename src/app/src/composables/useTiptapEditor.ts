@@ -13,6 +13,7 @@ import {
   standardNuxtUIComponents,
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
+import { imageHandler, videoHandler, calloutHandler, componentHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
 
 /**
  * Composable for managing TipTap editor UI and configuration
@@ -28,7 +29,7 @@ export function useTiptapEditor() {
    * Component items for suggestions menu
    */
   const componentItems = computed(() => {
-    return host.meta.getComponents().map(component => ({
+    return host.meta.components.get().map(component => ({
       kind: component.name,
       type: undefined as never,
       label: titleCase(component.name),
@@ -40,27 +41,12 @@ export function useTiptapEditor() {
    * Custom handlers for editor commands
    */
   const customHandlers = computed(() => ({
-    image: {
-      canExecute: (editor: Editor) => editor.can().insertContent({ type: 'image-picker' }),
-      execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'image-picker' }),
-      isActive: (editor: Editor) => editor.isActive('image-picker'),
-      isDisabled: undefined,
-    },
-    video: {
-      canExecute: (editor: Editor) => editor.can().insertContent({ type: 'video-picker' }),
-      execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'video-picker' }),
-      isActive: (editor: Editor) => editor.isActive('video-picker'),
-      isDisabled: undefined,
-    },
+    image: imageHandler(),
+    video: videoHandler(),
     ...Object.fromEntries(
       componentItems.value.map(item => [
         item.kind,
-        {
-          canExecute: (editor: Editor) => editor.can().setElement(item.kind, 'default'),
-          execute: (editor: Editor) => editor.chain().focus().setElement(item.kind, 'default'),
-          isActive: (editor: Editor) => editor.isActive(item.kind),
-          isDisabled: undefined,
-        },
+        CALLOUT_TYPES.has(item.kind) ? calloutHandler(item.kind) : componentHandler(item.kind),
       ]),
     ),
   }) satisfies EditorCustomHandlers)
@@ -68,16 +54,40 @@ export function useTiptapEditor() {
   /**
    * Suggestion menu items
    */
-  const suggestionItems = computed(() => [
-    ...getStandardSuggestionItems(t),
-    [
+  const suggestionItems = computed(() => {
+    const componentGroups = host.meta.components.getGroups(t('studio.tiptap.editor.components'))
+
+    if (componentGroups.length === 0) {
+      return [
+        ...getStandardSuggestionItems(t),
+        [
+          {
+            type: 'label',
+            label: t('studio.tiptap.editor.components'),
+          },
+          ...componentItems.value,
+        ],
+      ] satisfies EditorSuggestionMenuItem[][]
+    }
+
+    const componentGroupItems = componentGroups.map(group => [
       {
-        type: 'label',
-        label: t('studio.tiptap.editor.components'),
+        type: 'label' as const,
+        label: group.label,
       },
-      ...componentItems.value,
-    ],
-  ] satisfies EditorSuggestionMenuItem[][])
+      ...group.components.map(component => ({
+        kind: component.name,
+        type: undefined as never,
+        label: titleCase(component.name),
+        icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+      })),
+    ])
+
+    return [
+      ...getStandardSuggestionItems(t),
+      ...componentGroupItems,
+    ] satisfies EditorSuggestionMenuItem[][]
+  })
 
   /**
    * Toolbar items for bubble menu
