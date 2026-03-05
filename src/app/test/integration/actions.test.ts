@@ -1,74 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { joinURL } from 'ufo'
-import { DraftStatus, StudioItemActionId, StudioBranchActionId, StudioFeature, type StudioHost, type TreeItem, type DatabaseItem } from '../../src/types'
+import { DraftStatus, StudioItemActionId, type TreeItem, type DatabaseItem } from '../../src/types'
 import { normalizeKey, generateUniqueDocumentFsPath, generateUniqueMediaFsPath } from '../utils'
-import { createMockHost, clearMockHost, fsPathToId } from '../mocks/host'
-import { createMockGit } from '../mocks/git'
+import { fsPathToId } from '../mocks/host'
 import { createMockFile, createMockMedia, setupMediaMocks } from '../mocks/media'
-import { createMockStorage } from '../mocks/composables'
-import type { useGitProvider } from '../../src/composables/useGitProvider'
 import { findItemFromFsPath } from '../../src/utils/tree'
-
-const mockStorageDraft = createMockStorage()
-const mockHost = createMockHost()
-const mockGit = createMockGit()
-
-let currentRouteName = 'content'
-
-vi.mock('unstorage/drivers/indexedb', () => ({
-  default: () => ({
-    async getItem(key: string) {
-      return mockStorageDraft.get(key) || null
-    },
-    async setItem(key: string, value: string) {
-      mockStorageDraft.set(key, value)
-    },
-    async removeItem(key: string) {
-      mockStorageDraft.delete(key)
-    },
-    async getKeys() {
-      return Array.from(mockStorageDraft.keys())
-    },
-  }),
-}))
-
-vi.mock('vue-router', () => ({
-  useRoute: () => ({
-    get name() {
-      return currentRouteName
-    },
-  }),
-  useRouter: () => ({
-    push: vi.fn(),
-  }),
-}))
-
-const cleanAndSetupContext = async (mockedHost: StudioHost, mockedGit: ReturnType<typeof useGitProvider>) => {
-  // Reset mocks
-  vi.clearAllMocks()
-  mockStorageDraft.clear()
-  clearMockHost()
-
-  // Reset all composables to kill previous instances
-  vi.resetModules()
-
-  // Re-import composables to get fresh instances after resetModules
-  const { useDraftDocuments } = await import('../../src/composables/useDraftDocuments')
-  const { useDraftMedias } = await import('../../src/composables/useDraftMedias')
-  const { useTree } = await import('../../src/composables/useTree')
-  const { useContext } = await import('../../src/composables/useContext')
-
-  // Initialize document tree
-  const draftDocuments = useDraftDocuments(mockedHost, mockedGit)
-  const documentTree = useTree(StudioFeature.Content, mockedHost, draftDocuments)
-
-  // Initialize media tree
-  const draftMedias = useDraftMedias(mockedHost, mockedGit)
-  const mediaTree = useTree(StudioFeature.Media, mockedHost, draftMedias)
-
-  // Initialize context
-  return useContext(mockedHost, mockedGit, documentTree, mediaTree)
-}
+import { mockStorageDraft, mockHost, mockGit, routeState, cleanAndSetupContext } from '../utils/context'
 
 describe('Document - Action Chains Integration Tests', () => {
   let filename: string
@@ -77,7 +14,7 @@ describe('Document - Action Chains Integration Tests', () => {
   let context: Awaited<ReturnType<typeof cleanAndSetupContext>>
 
   beforeEach(async () => {
-    currentRouteName = 'content'
+    routeState.name = 'content'
     filename = 'document'
     documentFsPath = generateUniqueDocumentFsPath(filename)
     documentId = fsPathToId(documentFsPath, 'document')
@@ -706,7 +643,7 @@ describe('Media - Action Chains Integration Tests', () => {
   beforeEach(async () => {
     setupMediaMocks()
 
-    currentRouteName = 'media'
+    routeState.name = 'media'
     mediaFsPath = generateUniqueMediaFsPath('media', 'png')
     mediaId = fsPathToId(mediaFsPath, 'media')
     mediaName = mediaFsPath.split('/').pop()! // Extract filename from fsPath
@@ -1232,72 +1169,5 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.create')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
-  })
-})
-
-describe('PublishBranch - Commit Message Prefix', () => {
-  let context: Awaited<ReturnType<typeof cleanAndSetupContext>>
-  let documentFsPath: string
-
-  beforeEach(async () => {
-    currentRouteName = 'content'
-    documentFsPath = generateUniqueDocumentFsPath('document')
-    context = await cleanAndSetupContext(mockHost, mockGit)
-  })
-
-  it('passes user message as-is when no prefix is configured', async () => {
-    await mockHost.document.db.create(documentFsPath, 'Test content')
-    await context.activeTree.value.draft.load()
-    await context.activeTree.value.selectItemByFsPath(documentFsPath)
-
-    const userMessage = 'Add 2 links on landing page'
-    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: userMessage })
-
-    expect(mockGit.api.commitFiles).toHaveBeenCalledTimes(1)
-    const [, commitMessage] = (mockGit.api.commitFiles as ReturnType<typeof vi.fn>).mock.calls[0]
-    expect(commitMessage).toBe('Add 2 links on landing page')
-  })
-
-  it('prepends configured prefix to user message', async () => {
-    const hostWithPrefix: StudioHost = {
-      ...mockHost,
-      meta: {
-        ...mockHost.meta,
-        commitMessage: { prefix: 'content:' },
-      },
-    }
-    context = await cleanAndSetupContext(hostWithPrefix, mockGit)
-
-    await mockHost.document.db.create(documentFsPath, 'Test content')
-    await context.activeTree.value.draft.load()
-    await context.activeTree.value.selectItemByFsPath(documentFsPath)
-
-    const userMessage = 'Add 2 links on landing page'
-    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: userMessage })
-
-    expect(mockGit.api.commitFiles).toHaveBeenCalledTimes(1)
-    const [, commitMessage] = (mockGit.api.commitFiles as ReturnType<typeof vi.fn>).mock.calls[0]
-    expect(commitMessage).toBe('content: Add 2 links on landing page')
-  })
-
-  it('trims user message before applying prefix', async () => {
-    const hostWithPrefix: StudioHost = {
-      ...mockHost,
-      meta: {
-        ...mockHost.meta,
-        commitMessage: { prefix: 'docs:' },
-      },
-    }
-    context = await cleanAndSetupContext(hostWithPrefix, mockGit)
-
-    await mockHost.document.db.create(documentFsPath, 'Test content')
-    await context.activeTree.value.draft.load()
-    await context.activeTree.value.selectItemByFsPath(documentFsPath)
-
-    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: '  Update readme  ' })
-
-    expect(mockGit.api.commitFiles).toHaveBeenCalledTimes(1)
-    const [, commitMessage] = (mockGit.api.commitFiles as ReturnType<typeof vi.fn>).mock.calls[0]
-    expect(commitMessage).toBe('docs: Update readme')
   })
 })
