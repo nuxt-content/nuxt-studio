@@ -37,9 +37,11 @@ export interface StudioHost {
         contentFolder: string
       }
     }
-    getComponents: () => ComponentMeta[]
-    hasNuxtUI: ComputedRef<boolean>
-    getComponentGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
+    components: {
+      get: () => ComponentMeta[]
+      hasNuxtUI: ComputedRef<boolean>
+      getGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
+    }
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
   }

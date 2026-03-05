@@ -87,16 +87,18 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           contentFolder: aiConfig.context.contentFolder,
         },
       },
-      hasNuxtUI: meta.hasNuxtUI,
-      getComponents: () => meta.components.value,
-      getComponentGroups: (fallbackLabel: string) => {
-        if (meta.componentGroups.value.length === 0) return []
-        return assignComponentsToGroups(
-          meta.components.value,
-          meta.componentGroups.value,
-          meta.ungrouped.value,
-          fallbackLabel,
-        )
+      components: {
+        hasNuxtUI: meta.components.hasNuxtUI,
+        get: () => meta.components.list.value,
+        getGroups: (fallbackLabel: string) => {
+          if (meta.components.groups.value.length === 0) return []
+          return assignComponentsToGroups(
+            meta.components.list.value,
+            meta.components.groups.value,
+            meta.components.ungrouped.value,
+            fallbackLabel,
+          )
+        },
       },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,

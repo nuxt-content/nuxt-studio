@@ -9,17 +9,23 @@ interface ComponentGroupConfig {
 }
 
 interface Meta {
-  components: ComponentMeta[]
+  components: {
+    list: ComponentMeta[]
+    groups?: ComponentGroupConfig[]
+    ungrouped?: 'include' | 'omit'
+  }
   highlightTheme: { default: string, dark?: string, light?: string }
   markdownConfig: {
     contentHeading?: boolean
   }
-  componentGroups?: ComponentGroupConfig[]
-  ungrouped?: 'include' | 'omit'
 }
 
 const defaultMeta: Meta = {
-  components: [],
+  components: {
+    list: [],
+    groups: [],
+    ungrouped: 'include',
+  },
   highlightTheme: { default: 'github-light', dark: 'github-dark' },
   markdownConfig: {},
 }
@@ -40,8 +46,8 @@ export const useHostMeta = createSharedComposable(() => {
 
     highlightTheme.value = data.highlightTheme
     markdownConfig.value = data.markdownConfig
-    componentGroups.value = data.componentGroups ?? []
-    ungrouped.value = data.ungrouped ?? 'include'
+    componentGroups.value = data.components.groups ?? []
+    ungrouped.value = data.components.ungrouped ?? 'include'
 
     // Markdown elements to exclude (in kebab-case)
     const markdownElements = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'p', 'li', 'ul', 'ol', 'blockquote', 'code', 'code-block', 'image', 'video', 'link', 'hr', 'img', 'pre', 'em', 'bold', 'italic', 'strike', 'strong', 'tr', 'thead', 'tbody', 'tfoot', 'th', 'td'])
@@ -49,7 +55,7 @@ export const useHostMeta = createSharedComposable(() => {
     const renamedComponents: ComponentMeta[] = []
 
     // Clean Nuxt UI components name
-    for (const component of (data.components || [])) {
+    for (const component of (data.components.list || [])) {
       let name = component.name
 
       const nuxtUI = component.path.includes('@nuxt/ui')
@@ -126,11 +132,13 @@ export const useHostMeta = createSharedComposable(() => {
 
   return {
     fetch,
-    components,
-    hasNuxtUI,
+    components: {
+      list: components,
+      hasNuxtUI,
+      groups: componentGroups,
+      ungrouped,
+    },
     highlightTheme,
     markdownConfig,
-    componentGroups,
-    ungrouped,
   }
 })

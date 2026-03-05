@@ -45,19 +45,23 @@ export default eventHandler(async (event) => {
   const response: {
     markdownConfig: object
     highlightTheme: object
-    components: ComponentMeta[]
-    componentGroups?: Array<{ label: string, include: string[] }>
-    ungrouped?: 'include' | 'omit'
+    components: {
+      list: ComponentMeta[]
+      groups?: Array<{ label: string, include: string[] }>
+      ungrouped?: 'include' | 'omit'
+    }
   } = {
     markdownConfig: config.studio.markdown || {},
     highlightTheme: highlight?.theme || { default: 'github-light', dark: 'github-dark', light: 'github-light' },
-    components: filteredComponents,
+    components: {
+      list: filteredComponents,
+    },
   }
 
   if (hasGroups) {
-    response.componentGroups = componentGroups.map(g => ({ label: g.label, include: g.include }))
+    response.components.groups = componentGroups.map(g => ({ label: g.label, include: g.include }))
     const ungrouped = config.studio?.meta?.components?.ungrouped
-    response.ungrouped = (ungrouped === 'omit' ? 'omit' : 'include') as 'include' | 'omit'
+    response.components.ungrouped = (ungrouped === 'omit' ? 'omit' : 'include') as 'include' | 'omit'
   }
 
   return response
