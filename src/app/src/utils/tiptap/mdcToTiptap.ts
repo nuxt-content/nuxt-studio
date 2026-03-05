@@ -16,7 +16,6 @@ const tagToMark: Record<string, string> = {
 
 const mdcToTiptapMap: MDCToTipTapMap = {
   ...Object.fromEntries(Object.entries(tagToMark).map(([key, value]) => [key, node => createMark(node as MDCNode, value)])),
-  root: node => ({ type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode)) }),
   text: node => createTextNode(node as MDCText),
   comment: node => createTipTapNode(node as MDCElement, 'comment', { attrs: { text: (node as MDCComment).value } }),
   img: node => createTipTapNode(node as MDCElement, 'image', { attrs: { props: (node as MDCElement).props || {} } }),
@@ -41,14 +40,14 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
 }
 
-export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>) {
+export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>, options?: { hasNuxtUI?: boolean }) {
   // Remove invalid text node which added by table syntax
   body.children = (body.children || []).filter(child => child.type !== 'text')
 
   // This prevents style elements from being loaded into the editor
   removeStyleElementsFromMDC(body)
 
-  const tree = mdcNodeToTiptap(body)
+  const tree = mdcNodeToTiptap(body, undefined, options)
 
   tree.content = [
     {
@@ -61,58 +60,35 @@ export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>)
   return tree
 }
 
-export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode): JSONContent {
+export function mdcNodeToTiptap(node: MDCRoot | MDCNode, parent?: MDCNode, options?: { hasNuxtUI?: boolean }): JSONContent {
   const type = node.type === 'element' ? node.tag! : node.type
 
-  // Remove duplicate boolean props
-  // Object.entries((node as MDCElement).props || {}).forEach(([key, value]) => {
-  //   if (key.startsWith(':') && value === 'true') {
-  //     const propKey = key.replace(/^:/, '')
-  //     Reflect.deleteProperty((node as MDCElement).props!, propKey)
-  //   }
-  // })
+  /**
+   * Root node
+   */
+  if (type === 'root') {
+    return { type: 'doc', content: ((node as MDCElement).children || []).flatMap(child => mdcNodeToTiptap(child, node as MDCNode, options)) }
+  }
 
   /**
-   * Known ndoe types
+   * Known node types
    */
   if (mdcToTiptapMap[type]) {
     return mdcToTiptapMap[type](node)
   }
 
   /**
-   * Custom vue components (Elements)
+   * Inline vue components
+   * If parent is a paragraph, then element should be inline
    */
-
-  // If parent is a paragraph, then element should be inline
   if ((parent as MDCElement)?.tag === 'p') {
     return createTipTapNode(node as MDCElement, 'inline-element', { attrs: { tag: type } })
   }
 
   /**
-   * In tiptap side only, inside element, text must be enclosed in a paragraph
-   *
-   * Note: without having the wrapper paragraph, contents of an element can't be
-   * modified, TipTap depend on the paragraph to allow text editing.
+   * Block vue components
    */
-  if (node.type === 'element' && node.children?.[0]?.type === 'text') {
-    node = {
-      ...node,
-      props: {
-        ...node.props,
-        __tiptapWrap: true,
-      },
-      children: [{
-        type: 'element',
-        tag: 'p',
-        children: node.children,
-        props: {},
-      }],
-    }
-  }
-
-  const children = wrapChildrenWithinSlot(((node as MDCElement).children || []) as MDCElement[])
-
-  return createTipTapNode(node as MDCElement, 'element', { attrs: { tag: type }, children })
+  return createElementNode(node as MDCElement, type, options?.hasNuxtUI ?? false)
 }
 
 /**
@@ -364,6 +340,37 @@ function createSpanStyleNode(node: MDCElement) {
   delete (cleanedNode.props as Record<string, unknown>).className
 
   return createTipTapNode(cleanedNode as MDCElement, 'span-style', { attrs: spanAttrs })
+}
+
+function createElementNode(node: MDCElement, type: string, hasNuxtUI: boolean) {
+  const CALLOUT_TAGS = new Set(['callout', 'note', 'tip', 'warning', 'caution'])
+
+  /**
+   * In tiptap side only, inside element, text must be enclosed in a paragraph
+   *
+   * Note: without having the wrapper paragraph, contents of an element can't be
+   * modified, TipTap depend on the paragraph to allow text editing.
+   */
+  if (node.children?.[0]?.type === 'text') {
+    node = {
+      ...node,
+      props: {
+        ...node.props,
+        __tiptapWrap: true,
+      },
+      children: [{
+        type: 'element',
+        tag: 'p',
+        children: node.children,
+        props: {},
+      }],
+    }
+  }
+
+  const children = wrapChildrenWithinSlot((node.children || []) as MDCElement[])
+  const tiptapType = hasNuxtUI && CALLOUT_TAGS.has(type) ? 'u-callout' : 'element'
+
+  return createTipTapNode(node, tiptapType, { attrs: { tag: type }, children })
 }
 
 /**
