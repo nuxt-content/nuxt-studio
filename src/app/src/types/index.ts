@@ -27,6 +27,11 @@ export interface StudioHost {
   meta: {
     dev: boolean
     media?: MediaConfig
+    git?: {
+      commit?: {
+        messagePrefix?: string
+      }
+    }
     ai: {
       enabled: boolean
       experimental: {

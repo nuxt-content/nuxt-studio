@@ -45,5 +45,10 @@ export default defineNuxtConfig({
         ],
       },
     },
+    git: {
+      commit: {
+        messagePrefix: 'docs:',
+      },
+    },
   },
 })

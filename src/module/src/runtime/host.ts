@@ -77,6 +77,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     meta: {
       dev: false,
       media: mediaConfig,
+      git: studioConfig.git,
       ai: {
         enabled: aiConfig?.enabled ?? false,
         experimental: {
