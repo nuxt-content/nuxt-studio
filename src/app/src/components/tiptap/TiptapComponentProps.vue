@@ -38,7 +38,7 @@ const componentMeta = computed(() => {
   }
 
   // Otherwise look up from components registry
-  return host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value))
+  return host.meta.components.get().find(c => kebabCase(c.name) === kebabCase(componentTag.value))
 })
 
 // Base form tree

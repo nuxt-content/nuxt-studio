@@ -3,8 +3,17 @@ import type { ComponentMeta } from 'nuxt-studio/app'
 import { shallowRef, computed } from 'vue'
 import { kebabCase } from 'scule'
 
+interface ComponentGroupConfig {
+  label: string
+  include: string[]
+}
+
 interface Meta {
-  components: ComponentMeta[]
+  components: {
+    list: ComponentMeta[]
+    groups?: ComponentGroupConfig[]
+    ungrouped?: 'include' | 'omit'
+  }
   highlightTheme: { default: string, dark?: string, light?: string }
   markdownConfig: {
     contentHeading?: boolean
@@ -12,7 +21,11 @@ interface Meta {
 }
 
 const defaultMeta: Meta = {
-  components: [],
+  components: {
+    list: [],
+    groups: [],
+    ungrouped: 'include',
+  },
   highlightTheme: { default: 'github-light', dark: 'github-dark' },
   markdownConfig: {},
 }
@@ -22,6 +35,8 @@ export const useHostMeta = createSharedComposable(() => {
   const highlightTheme = shallowRef<Meta['highlightTheme']>()
   const markdownConfig = shallowRef<Meta['markdownConfig']>()
   const hasNuxtUI = computed(() => components.value.some(c => c.nuxtUI))
+  const componentGroups = shallowRef<ComponentGroupConfig[]>([])
+  const ungrouped = shallowRef<'include' | 'omit'>('include')
 
   async function fetch() {
     // TODO: look into this approach and consider possible refactors
@@ -31,6 +46,8 @@ export const useHostMeta = createSharedComposable(() => {
 
     highlightTheme.value = data.highlightTheme
     markdownConfig.value = data.markdownConfig
+    componentGroups.value = data.components.groups ?? []
+    ungrouped.value = data.components.ungrouped ?? 'include'
 
     // Markdown elements to exclude (in kebab-case)
     const markdownElements = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'p', 'li', 'ul', 'ol', 'blockquote', 'code', 'code-block', 'image', 'video', 'link', 'hr', 'img', 'pre', 'em', 'bold', 'italic', 'strike', 'strong', 'tr', 'thead', 'tbody', 'tfoot', 'th', 'td'])
@@ -38,7 +55,7 @@ export const useHostMeta = createSharedComposable(() => {
     const renamedComponents: ComponentMeta[] = []
 
     // Clean Nuxt UI components name
-    for (const component of (data.components || [])) {
+    for (const component of (data.components.list || [])) {
       let name = component.name
 
       const nuxtUI = component.path.includes('@nuxt/ui')
@@ -115,8 +132,12 @@ export const useHostMeta = createSharedComposable(() => {
 
   return {
     fetch,
-    components,
-    hasNuxtUI,
+    components: {
+      list: components,
+      hasNuxtUI,
+      groups: componentGroups,
+      ungrouped,
+    },
     highlightTheme,
     markdownConfig,
   }

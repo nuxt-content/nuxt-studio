@@ -49,7 +49,7 @@ const { editor, setContent: setEditorContent } = useMonaco(editorRef, {
   readOnly: props.readOnly,
   colorMode: ui.colorMode,
   onSetup: async (monaco) => {
-    setupSuggestion(monaco.monaco, host.meta.getComponents(), mediaTree.root.value, t)
+    setupSuggestion(monaco.monaco, host.meta.components.get(), mediaTree.root.value, t)
   },
   onChange: (newContent) => {
     if (props.readOnly) {

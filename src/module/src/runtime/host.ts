@@ -12,6 +12,7 @@ import { clearError, getAppManifest, queryCollection, queryCollectionItemSurroun
 import { collections } from '#content/preview'
 import { publicAssetsStorage, externalAssetsStorage } from '#build/studio-assets'
 import { useHostMeta } from './composables/useMeta'
+import { assignComponentsToGroups } from './utils/componentGroups'
 import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media'
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
@@ -86,8 +87,19 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           contentFolder: aiConfig.context.contentFolder,
         },
       },
-      getComponents: () => meta.components.value,
-      hasNuxtUI: meta.hasNuxtUI,
+      components: {
+        hasNuxtUI: meta.components.hasNuxtUI,
+        get: () => meta.components.list.value,
+        getGroups: (fallbackLabel: string) => {
+          if (meta.components.groups.value.length === 0) return []
+          return assignComponentsToGroups(
+            meta.components.list.value,
+            meta.components.groups.value,
+            meta.components.ungrouped.value,
+            fallbackLabel,
+          )
+        },
+      },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
     },

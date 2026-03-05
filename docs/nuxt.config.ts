@@ -37,5 +37,13 @@ export default defineNuxtConfig({
       external: true,
       prefix: '',
     },
+    meta: {
+      components: {
+        groups: [
+          { label: 'Custom', include: ['app/components/**'] },
+          { label: 'Nuxt UI', include: ['../node_modules/.pnpm/**'] },
+        ],
+      },
+    },
   },
 })

@@ -26,6 +26,27 @@ interface MetaOptions {
      * Otherwise, it will be treated as a name filter.
      */
     exclude?: string[]
+    /**
+     * Custom groups for the slash command menu.
+     * When defined, components are organized into these groups instead of a single flat list.
+     */
+    groups?: Array<{
+      /**
+       * Label for the group.
+       * @example 'Landing Page Components'
+       */
+      label: string
+      /**
+       * Patterns to include components in the group.
+       * @example ['content*', 'app/components/content/landing/**']
+       */
+      include: string[]
+    }>
+    /**
+     * Whether components not matching any group appear in a fallback "Components" group.
+     * @default 'include'
+     */
+    ungrouped?: 'include' | 'omit'
   }
 }
 
@@ -366,6 +387,8 @@ export default defineNuxtModule<ModuleOptions>({
       components: {
         include: [],
         exclude: [],
+        groups: undefined,
+        ungrouped: 'include',
       },
     },
     media: {

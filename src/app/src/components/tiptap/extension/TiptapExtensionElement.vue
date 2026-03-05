@@ -25,7 +25,7 @@ const componentName = computed(() => titleCase(componentTag.value).replace(/^U /
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const hasSlots = computed(() => nodeProps.node.content.size > 0)
 const componentProps = computed(() => nodeProps.node.attrs.props || {})
-const componentMeta = computed(() => host.meta.getComponents().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
+const componentMeta = computed(() => host.meta.components.get().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
 
 // Nuxt UI Components bindings
 const nuxtUIComponent = computed(() => standardNuxtUIComponents[componentTag.value])
