@@ -326,6 +326,8 @@
       "image": {
         "title": "Select Image",
         "description": "Choose an image from your media library",
+        "selectionTitle": "Image details",
+        "selectionDescription": "Review and confirm your selection",
         "notAvailable": "No images available in your media library",
         "upload": "Upload",
         "useExternal": "Use external source"
@@ -333,10 +335,20 @@
       "video": {
         "title": "Select Video",
         "description": "Choose a video from your media library",
+        "selectionTitle": "Video details",
+        "selectionDescription": "Review and confirm your selection",
         "notAvailable": "No videos available in your media library",
         "upload": "Upload",
         "useExternal": "Use external source"
-      }
+      },
+      "name": "Name",
+      "path": "File path",
+      "publicPath": "Public path",
+      "extension": "Extension",
+      "fileSize": "File size",
+      "resolution": "Resolution",
+      "confirm": "Confirm",
+      "cancelSelection": "Cancel"
     },
     "form": {
       "array": {
