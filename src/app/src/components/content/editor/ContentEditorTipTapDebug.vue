@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
 import type { JSONContent } from '@tiptap/vue-3'
-import type { MDCRoot } from '@nuxtjs/mdc'
+import type { ComarkTree } from 'comark/ast'
 
 const props = defineProps({
   currentTiptap: {
     type: Object as PropType<JSONContent | undefined>,
     default: undefined,
   },
-  currentMdc: {
-    type: Object as PropType<{ body: MDCRoot, data: Record<string, unknown> } | undefined>,
+  currentComark: {
+    type: Object as PropType<ComarkTree | undefined>,
     default: undefined,
   },
   currentContent: {
@@ -19,7 +19,7 @@ const props = defineProps({
 })
 
 const formattedCurrentTiptap = computed(() => props.currentTiptap ? JSON.stringify(props.currentTiptap, null, 2) : 'No data')
-const formattedCurrentMDC = computed(() => props.currentMdc ? JSON.stringify(props.currentMdc, null, 2) : 'No data')
+const formattedCurrentComark = computed(() => props.currentComark ? JSON.stringify(props.currentComark, null, 2) : 'No data')
 </script>
 
 <template>
@@ -60,22 +60,22 @@ const formattedCurrentMDC = computed(() => props.currentMdc ? JSON.stringify(pro
         >{{ formattedCurrentTiptap || 'No data' }}</pre>
       </UCard>
 
-      <!-- Current MDC -->
+      <!-- Current ComarkTree -->
       <UCard>
         <template #header>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-semibold text-highlighted">
-                MDC JSON
+                Comark AST
               </h3>
             </div>
-            <CopyButton :content="formattedCurrentMDC" />
+            <CopyButton :content="formattedCurrentComark" />
           </div>
         </template>
 
         <pre
           class="text-xs text-muted overflow-auto max-h-[250px] p-3 bg-default rounded-md border border-default"
-        >{{ formattedCurrentMDC || 'No data' }}</pre>
+        >{{ formattedCurrentComark || 'No data' }}</pre>
       </UCard>
     </div>
   </div>

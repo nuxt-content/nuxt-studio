@@ -14,10 +14,7 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Hello World'],
-      },
+      body: { nodes: [['p', {}, 'Hello World']], frontmatter: {}, meta: {} },
       meta: {
         __hash__: 'hash123',
       },
@@ -31,10 +28,7 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Hello World'],
-      },
+      body: { nodes: [['p', {}, 'Hello World']], frontmatter: {}, meta: {} },
       meta: {
         __hash__: 'hash456',
       },
@@ -52,10 +46,7 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Hello World'],
-      },
+      body: { nodes: [['p', {}, 'Hello World']], frontmatter: {}, meta: {} },
       meta: {
         title: 'Test Document',
       },
@@ -69,10 +60,7 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Different content'],
-      },
+      body: { nodes: [['p', {}, 'Different content']], frontmatter: {}, meta: {} },
       meta: {
         title: 'Test Document',
       },
@@ -319,22 +307,7 @@ describe('isDocumentMatchingContent', () => {
     const document = {
       id: 'docs/1.getting-started/test.md',
       title: '',
-      body: {
-        type: 'minimark',
-        value: [
-          [
-            'p',
-            {},
-            'Hello',
-          ],
-        ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
-      },
+      body: { nodes: [['p', {}, 'Hello']], frontmatter: {}, meta: {} },
       description: 'Hello',
       extension: 'md',
       layout: null,
@@ -360,29 +333,7 @@ Description`
     const document = {
       id: 'docs/1.getting-started/test.md',
       title: 'Hello',
-      body: {
-        type: 'minimark',
-        value: [
-          [
-            'h1',
-            {
-              id: 'hello',
-            },
-            'Hello',
-          ],
-          [
-            'p',
-            {},
-            'Description',
-          ],
-        ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
-      },
+      body: { nodes: [['h1', { id: 'hello' }, 'Hello'], ['p', {}, 'Description']], frontmatter: {}, meta: {} },
       description: 'Description',
       extension: 'md',
       layout: null,
@@ -416,29 +367,7 @@ Description`
     const document = {
       id: 'docs/1.getting-started/test.md',
       title: 'Hello',
-      body: {
-        type: 'minimark',
-        value: [
-          [
-            'h1',
-            {
-              id: 'hello',
-            },
-            'Hello',
-          ],
-          [
-            'p',
-            {},
-            'Description',
-          ],
-        ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
-      },
+      body: { nodes: [['h1', { id: 'hello' }, 'Hello'], ['p', {}, 'Description']], frontmatter: {}, meta: {} },
       description: 'Description',
       extension: 'md',
       layout: null,

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch, type PropType } from 'vue'
-import { decompressTree } from '@nuxt/content/runtime'
-import type { MarkdownRoot } from '@nuxt/content'
 import { DraftStatus, type DatabasePageItem, type DraftItem, type DatabaseItem } from '../../../types'
 import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
@@ -43,21 +41,7 @@ const document = computed<DatabasePageItem>({
       return props.draftItem.original as DatabasePageItem
     }
 
-    const dbItem = props.draftItem.modified as DatabasePageItem
-
-    let result: DatabasePageItem
-    if (dbItem.body?.type === 'minimark') {
-      result = {
-        ...props.draftItem.modified as DatabasePageItem,
-        // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
-        body: decompressTree(dbItem.body) as MarkdownRoot,
-      }
-    }
-    else {
-      result = dbItem
-    }
-
-    return result
+    return props.draftItem.modified as DatabasePageItem
   },
   set(value) {
     if (props.readOnly) {
