@@ -587,8 +587,8 @@ Hello
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Named default slot is preserved in comark (unlike old MDC which stripped #default)
-    expect(outputContent).toBe(`${inputContent}\n`)
+    // Comark strips #default from named default slots when serializing (treated as implicit)
+    expect(outputContent).toBe('::block-element\nHello\n::\n')
   })
 
   test('block element with unnamed default slot', async () => {
@@ -662,8 +662,7 @@ Hello
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // comark normalizes block form (::el\nHello\n::) to inline form (:el[Hello]) for string children
-    expect(outputContent).toBe(':block-element[Hello]\n')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('block element with named custom slot', async () => {
@@ -821,12 +820,11 @@ Hello
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // comark normalizes inner element with string child to inline form (:second-level-element[Hello])
-    expect(outputContent).toBe(`::first-level-element\n:second-level-element[Hello]\n::\n`)
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('block element with boolean props', async () => {
-    const inputContent = `::u-button{block :square='false'}
+    const inputContent = `::u-button{block :square="false"}
 My button
 ::`
 
@@ -899,12 +897,11 @@ My button
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // comark normalizes block form to inline form for string children
-    expect(outputContent).toBe(':u-button[My button]{block="true" :square="false"}\n')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('block element with number and string props', async () => {
-    const inputContent = `::u-button{:width='200' color="secondary"}
+    const inputContent = `::u-button{:width="200" color="secondary"}
 My button
 ::`
 
@@ -975,8 +972,7 @@ My button
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // comark normalizes block form to inline form for string children
-    expect(outputContent).toBe(':u-button[My button]{:width="200" color="secondary"}\n')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
 
@@ -1525,11 +1521,7 @@ describe('images', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Check that the output contains the image with both width and height attributes
-    // (attribute order may vary)
-    expect(outputContent).toContain('![Alt text](https://example.com/image.jpg)')
-    expect(outputContent).toContain('width="800"')
-    expect(outputContent).toContain('height="600"')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
 
@@ -1580,10 +1572,7 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as MDC component syntax
-    expect(outputContent).toContain(':video')
-    expect(outputContent).toContain('src="https://example.com/video.mp4"')
-    expect(outputContent).toContain('controls')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('video with poster', async () => {
@@ -1633,11 +1622,7 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as MDC component syntax
-    expect(outputContent).toContain(':video')
-    expect(outputContent).toContain('src="https://example.com/video.mp4"')
-    expect(outputContent).toContain('poster="https://example.com/poster.jpg"')
-    expect(outputContent).toContain('controls')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('video with loop and muted', async () => {
@@ -1689,13 +1674,13 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as MDC component syntax
-    expect(outputContent).toContain(':video')
-    expect(outputContent).toContain('src="https://example.com/video.mp4"')
-    expect(outputContent).toContain('poster="https://example.com/poster.jpg"')
-    expect(outputContent).toContain('controls')
-    expect(outputContent).toContain('loop')
-    expect(outputContent).toContain('muted')
+    // Video is serialized as block element with YAML frontmatter when there is more than 3 props
+    expect(outputContent).toContain('::video')
+    expect(outputContent).toContain('src: https://example.com/video.mp4')
+    expect(outputContent).toContain('poster: https://example.com/poster.jpg')
+    expect(outputContent).toContain('controls: true')
+    expect(outputContent).toContain('loop: true')
+    expect(outputContent).toContain('muted: true')
   })
 })
 
@@ -2091,7 +2076,7 @@ describe('text styles', () => {
     // All classes except the last one (.text-transparent) are lost during parsing.
     // This is a known comark limitation compared to the previous MDC parser behavior.
     const expectedComarkNodes = [
-      ['p', {}, 'Welcome to ', ['span', { class: 'text-transparent' }, 'site']],
+      ['p', {}, 'Welcome to ', ['span', { class: 'bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent' }, 'site']],
     ]
 
     const expectedTiptapJSON: JSONContent = {
@@ -2135,7 +2120,195 @@ describe('text styles', () => {
     })
 
     const outputContent = await contentFromDocument(generatedDocument)
-    // Due to the comark limitation above, only the last class is preserved in the output
-    expect(outputContent).toBe('Welcome to [site]{.text-transparent}\n')
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+})
+
+describe('edge cases', () => {
+  test('div element with text and blockquote', async () => {
+    const inputContent = `::div
+text 1
+
+> text 2
+::`
+
+    const expectedComarkNodes = [
+      ['div', {}, ['p', {}, 'text 1'], ['blockquote', {}, ['p', {}, 'text 2']]],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'div',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  name: 'default',
+                },
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'text 1',
+                    },
+                  ],
+                },
+                {
+                  type: 'blockquote',
+                  content: [
+                    {
+                      type: 'paragraph',
+                      content: [
+                        {
+                          type: 'text',
+                          text: 'text 2',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('image after heading inside component maintains correct order', async () => {
+    const inputContent = `::steps
+### Step 1
+
+![Image](https://example.com/image.jpg)
+::`
+
+    const expectedComarkNodes = [
+      ['steps', {}, ['h3', {}, 'Step 1'], ['p', {}, ['img', { src: 'https://example.com/image.jpg', alt: 'Image' }]]],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'steps',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+                props: {
+                  name: 'default',
+                },
+              },
+              content: [
+                {
+                  type: 'heading',
+                  attrs: {
+                    level: 3,
+                  },
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Step 1',
+                    },
+                  ],
+                },
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'image',
+                      attrs: {
+                        props: {
+                          src: 'https://example.com/image.jpg',
+                          alt: 'Image',
+                        },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+
+    // Custom case also valid when image is not enclosed in a paragraph
+    const bisCmarkTree: ComarkTree = {
+      nodes: [
+        ['steps', {}, ['h3', {}, 'Step 1'], ['img', { src: 'https://example.com/image.jpg', alt: 'Image' }]],
+      ] as ComarkNode[],
+      frontmatter: {},
+      meta: {},
+    }
+
+    const generatedDocumentBis = createMockDocument('docs/test.md', {
+      body: bisCmarkTree,
+    })
+
+    const outputContentBis = await contentFromDocument(generatedDocumentBis)
+    expect(outputContentBis).toBe(`${inputContent}\n`)
   })
 })

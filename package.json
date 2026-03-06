@@ -53,7 +53,7 @@
     "@iconify-json/lucide": "^1.2.94",
     "@vueuse/core": "^14.2.1",
     "ai": "^6.0.101",
-    "comark": "https://pkg.pr.new/comarkdown/comark@f358e8b",
+    "comark": "https://pkg.pr.new/comarkdown/comark@44",
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "js-yaml": "^4.1.1",

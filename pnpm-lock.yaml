@@ -29,8 +29,8 @@ importers:
         specifier: ^6.0.101
         version: 6.0.105(zod@4.3.6)
       comark:
-        specifier: https://pkg.pr.new/comarkdown/comark@f358e8b
-        version: https://pkg.pr.new/comarkdown/comark@f358e8b(shiki@3.23.0)(vue@3.5.29(typescript@5.9.3))
+        specifier: https://pkg.pr.new/comarkdown/comark@44
+        version: https://pkg.pr.new/comarkdown/comark@44(shiki@3.23.0)(vue@3.5.29(typescript@5.9.3))
       defu:
         specifier: ^6.1.4
         version: 6.1.4
@@ -4242,8 +4242,8 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@https://pkg.pr.new/comarkdown/comark@f358e8b:
-    resolution: {integrity: sha512-liSUqSEkzTzRQft9uRMA2BG5SsS9alpWnMlB/ZvBqiJaCW9rMs9Xf6p/uHSkAILX29zS0RBlYZs+IV+bfmuELw==, tarball: https://pkg.pr.new/comarkdown/comark@f358e8b}
+  comark@https://pkg.pr.new/comarkdown/comark@44:
+    resolution: {integrity: sha512-qVCHGmcXWMI8ISVnA27S4HVD5VHOiIV8LLmYvJrZrS2QWZQTnbij1ny32CQklMtymvu+a20u/XNpBnOG5I33JQ==, tarball: https://pkg.pr.new/comarkdown/comark@44}
     version: 1.0.0
     peerDependencies:
       react: ^19.2.4
@@ -12834,7 +12834,7 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@https://pkg.pr.new/comarkdown/comark@f358e8b(shiki@3.23.0)(vue@3.5.29(typescript@5.9.3)):
+  comark@https://pkg.pr.new/comarkdown/comark@44(shiki@3.23.0)(vue@3.5.29(typescript@5.9.3)):
     optionalDependencies:
       shiki: 3.23.0
       vue: 3.5.29(typescript@5.9.3)
