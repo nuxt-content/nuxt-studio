@@ -130,7 +130,7 @@ router.beforeEach((to, from) => {
 
       <!-- Floating Files Panel Toggle -->
       <div
-        class="fixed bottom-2 left-2 flex transition-all"
+        class="fixed bottom-2 left-2 flex transition-all z-50"
         :class="[isReady && !ui.isOpen.value ? 'opacity-100 duration-200 delay-300 translate-y-0' : 'duration-0 opacity-0 -translate-x-12 pointer-events-none']"
       >
         <UFieldGroup>

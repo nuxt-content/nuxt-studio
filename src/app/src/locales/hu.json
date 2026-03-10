@@ -1,0 +1,246 @@
+{
+  "studio": {
+    "buttons": {
+      "edit": "Oldal szerkesztése",
+      "retryPublish": "Közzététel újrapróbálása",
+      "reloadApp": "Alkalmazás újratöltése",
+      "reload": "Újratöltés",
+      "signOut": "Kijelentkezés",
+      "review": "Áttekintés",
+      "publish": "Közzététel",
+      "back": "Vissza",
+      "backToEdition": "Vissza a szerkesztéshez",
+      "seeChanges": "Változtatások megtekintése"
+    },
+    "headings": {
+      "directories": "Mappák",
+      "files": "Fájlok",
+      "media": "Média",
+      "pageSettings": "Oldalbeállítások"
+    },
+    "tooltips": {
+      "toggleStudio": "Stúdió megjelenítése vagy elrejtése",
+      "unlinkEditor": "Szerkesztő és előnézet szétválasztása",
+      "linkEditor": "Szerkesztő és előnézet összekapcsolása",
+      "copiedToClipboard": "Vágólapra másolva",
+      "copyToClipboard": "Másolás a vágólapra",
+      "publishChanges": "Változtatások közzététele",
+      "backToContent": "Vissza a tartalomhoz",
+      "disableAICompletion": "AI-kiegészítés kikapcsolása",
+      "enableAICompletion": "AI-kiegészítés bekapcsolása",
+      "regenerateAIContext": "AI-környezet újragenerálása"
+    },
+    "notifications": {
+      "error": {
+        "dismiss": "Bezárás",
+        "title": "Hiba történt",
+        "unknown": "Ismeretlen hiba történt"
+      }
+    },
+    "publish": {
+      "failedTitle": "Közzététel sikertelen",
+      "summary": "a(z) {repo} tároló (repo) {branch} ágán",
+      "errorTitle": "Hiba a(z) {providerName} közzététel során",
+      "failedGeneric": "Nem sikerült közzétenni a változtatásokat"
+    },
+    "review": {
+      "title": "Változtatások áttekintése",
+      "created": "Létrehozva",
+      "updated": "Frissítve",
+      "renamed": "Átnevezve",
+      "deleted": "Törölve"
+    },
+    "publishSuccess": {
+      "title": "Változtatások közzétéve",
+      "summary": "{count} változtatás közzétéve a(z) {repo} tároló (repo) {branch} ágán | {count} változtatás közzétéve a(z) {repo} tároló (repo) {branch} ágán",
+      "alertTitleWaiting": "Várakozás a közzétételre...",
+      "alertTitleComplete": "Közzététel befejezve",
+      "alertDescWaiting": "A weboldalt közzé kell tenni, hogy a változtatások láthatóak legyenek a Stúdióban.",
+      "alertDescComplete": "A weboldal új verziója közzé lett téve. Kérjük, frissítse az alkalmazást, hogy lássa a változtatásokat a Stúdióban."
+    },
+    "newVersionBanner": {
+      "title": "Új weboldalverzió észlelve",
+      "description": "A weboldal új verziója közzé lett téve. Töltse újra az alkalmazást a legújabb változtatások megtekintéséhez.",
+      "reloadButton": "Újratöltés"
+    },
+    "footer": {
+      "developer_view": "Fejlesztői nézet",
+      "localFilesystem": "Helyi fájlrendszer használata",
+      "debugMode": "Hibakeresési mód"
+    },
+    "alert": {
+      "mdcFormatting": "Formázás alkalmazva az MDC szintaxis szabványnak megfelelően."
+    },
+    "conflict": {
+      "title": "Ütközés észlelve",
+      "repository": "Tároló",
+      "branch": "Ág",
+      "file": "Fájl",
+      "description": "A(z) {providerName} tartalma eltér a weboldal verziójától. Győződjön meg róla, hogy a legújabb változtatások közzé lettek téve, majd frissítse az oldalt.",
+      "websiteVersion": "Weboldal"
+    },
+    "nav": {
+      "content": "Tartalom",
+      "media": "Média",
+      "ai": "AI"
+    },
+    "placeholders": {
+      "commitMessage": "Módosítás leírása",
+      "commitMessageWithPrefix": "Írja le a módosításokat",
+      "order": "Sorszám",
+      "fileName": "Fájlnév"
+    },
+    "validation": {
+      "commitRequired": "A módosítás leírása kötelező",
+      "nameEmpty": "A név nem lehet üres",
+      "nameEndsWithDot": "A név nem végződhet ponttal",
+      "nameStartsWithSlash": "A név nem kezdődhet perjellel",
+      "nameExists": "A név már létezik",
+      "prefixDigitsOnly": "Az előtag csak számjegyeket tartalmazhat",
+      "prefixNonNegativeInteger": "Az előtag nem negatív egész szám lehet"
+    },
+    "media": {
+      "altFilePreview": "Fájl előnézete",
+      "altImagePreview": "Kép előnézete",
+      "playAudio": "Hang lejátszása",
+      "audioTagNotSupported": "A böngésző nem támogatja az audio elemet.",
+      "playVideo": "Videó lejátszása",
+      "videoTagNotSupported": "A böngésző nem támogatja a videó elemet.",
+      "metaWidth": "Szélesség",
+      "metaHeight": "Magasság",
+      "metaType": "Típus",
+      "metaDuration": "Időtartam",
+      "metaSize": "Méret",
+      "fileName": "Fájlnév",
+      "publicPath": "Nyilvános útvonal",
+      "providerPath": "{providerName} útvonal",
+      "markdown": "Markdown"
+    },
+    "aria": {
+      "openActions": "Műveletek megnyitása",
+      "cancel": "Mégse",
+      "submit": "Küldés"
+    },
+    "actions": {
+      "confirmAction": "Kattintson újra a művelethez: {action}",
+      "verbs": {
+        "create": "létrehozás",
+        "delete": "törlés",
+        "rename": "átnevezés",
+        "upload": "feltöltés",
+        "duplicate": "másolat készítése"
+      },
+      "labels": {
+        "createDocument": "Új fájl",
+        "createDocumentFolder": "Új mappa",
+        "createMediaFolder": "Új média mappa",
+        "renameItem": "Átnevezés",
+        "deleteItem": "Törlés",
+        "uploadMedia": "Média feltöltése",
+        "duplicateItem": "Másolat készítése",
+        "revertItem": "Változtatások visszavonása",
+        "publishBranch": "Ág közzététele",
+        "openGitProvider": "Megnyitás itt: {providerName}",
+        "switchToTipTap": "Vizuális szerkesztő használata",
+        "switchToCode": "Kódszerkesztő használata"
+      },
+      "tooltips": {
+        "createDocument": "Új fájl létrehozása",
+        "createDocumentFolder": "Új mappa létrehozása",
+        "createMediaFolder": "Új média mappa létrehozása",
+        "renameItem": "Fájl átnevezése",
+        "deleteItem": "Fájl törlése",
+        "uploadMedia": "Média feltöltése",
+        "duplicateItem": "Fájl másolatának létrehozása",
+        "revertItem": "Változtatások visszavonása",
+        "publishBranch": "Ág közzététele"
+      }
+    },
+    "items": {
+      "itemCount": "1 elem | {count} elem"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "Címsor 1",
+        "h2": "Címsor 2",
+        "h3": "Címsor 3"
+      },
+      "styles": {
+        "bold": "Félkövér",
+        "italic": "Dőlt"
+      },
+      "lists": {
+        "bulleted": "Felsorolás",
+        "numbered": "Számozott lista"
+      },
+      "other": {
+        "emojis": "Emojik",
+        "blockquote": "Idézetblokk",
+        "code": "Kód",
+        "inlineCode": "Sorközi kód",
+        "link": "Hivatkozás",
+        "image": "Kép"
+      },
+      "writeSomething": "Írjon valamit",
+      "snippets": {
+        "title": "cím",
+        "item1": "Elem 1",
+        "item2": "Elem 2",
+        "language": "nyelv",
+        "code": "kód",
+        "link": "hivatkozás",
+        "alt": "alt",
+        "src": "forrás",
+        "value": "érték"
+      },
+      "docs": {
+        "path": "Útvonal a projektben:",
+        "props": "Beállítások",
+        "slots": "Tartalmi helyek",
+        "type": "típus",
+        "required": "kötelező",
+        "default": "alapértelmezett"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Írjon szöveget, vagy gépelje be a '/' jelet a parancsokhoz...",
+        "components": "Komponensek"
+      },
+      "toolbar": {
+        "h1": "Címsor 1",
+        "h2": "Címsor 2",
+        "h3": "Címsor 3",
+        "h4": "Címsor 4",
+        "bulletList": "Felsorolás",
+        "orderedList": "Számozott lista",
+        "blockquote": "Idézetblokk",
+        "codeBlock": "Kódblokk",
+        "bold": "Félkövér",
+        "italic": "Dőlt",
+        "strike": "Áthúzott",
+        "code": "Kód",
+        "headings": "Címsorok"
+      },
+      "suggestion": {
+        "style": "Stílus",
+        "paragraph": "Bekezdés",
+        "insert": "Beszúrás",
+        "image": "Kép",
+        "video": "Videó",
+        "horizontalRule": "Vízszintes vonal"
+      },
+      "drag": {
+        "turnInto": "Átalakítás",
+        "resetFormatting": "Formázás visszaállítása",
+        "duplicate": "Másolat készítése",
+        "copyToClipboard": "Másolás a vágólapra",
+        "moveUp": "Mozgatás felfelé",
+        "moveDown": "Mozgatás lefelé",
+        "insertBefore": "Beszúrás elé",
+        "insertAfter": "Beszúrás utána",
+        "delete": "Törlés"
+      }
+    }
+  }
+}
