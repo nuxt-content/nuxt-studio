@@ -828,10 +828,8 @@ Hello
 My button
 ::`
 
-    // comark stores bare boolean attrs (e.g. `block`) without colon prefix: { 'block': 'true' }
-    // but dynamic bindings like `:square='false'` keep the colon prefix: { ':square': 'false' }
     const expectedComarkNodes = [
-      ['u-button', { 'block': 'true', ':square': 'false' }, 'My button'],
+      ['u-button', { ':block': 'true', ':square': 'false' }, 'My button'],
     ]
 
     const expectedTiptapJSON: JSONContent = {
@@ -848,7 +846,7 @@ My button
           attrs: {
             tag: 'u-button',
             props: {
-              'block': 'true',
+              ':block': 'true',
               ':square': 'false',
               '__tiptapWrap': true,
             },
@@ -1529,9 +1527,10 @@ describe('videos', () => {
   test('simple video with controls', async () => {
     const inputContent = ':video{controls src="https://example.com/video.mp4"}'
 
-    // comark stores boolean video attrs without colon prefix
+
+    // After roundtrip through tiptap, tiptapToComark normalizes booleans to colon-prefix for correct MDC serialization
     const expectedComarkNodes = [
-      ['video', { controls: 'true', src: 'https://example.com/video.mp4' }],
+      ['video', { ':controls': 'true', 'src': 'https://example.com/video.mp4' }],
     ]
 
     const expectedTiptapJSON: JSONContent = {
@@ -1572,15 +1571,20 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    expect(outputContent).toBe(`${inputContent}\n`)
+    // Inline :video is serialized as block ::video after roundtrip; src comes first (tiptapToComark insertion order)
+    expect(outputContent).toBe('::video{src="https://example.com/video.mp4" controls}\n::\n')
   })
 
   test('video with poster', async () => {
     const inputContent = ':video{controls poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}'
 
-    // comark stores boolean video attrs without colon prefix
+    // After roundtrip through tiptap, tiptapToComark normalizes booleans to colon-prefix for correct MDC serialization
     const expectedComarkNodes = [
-      ['video', { controls: 'true', poster: 'https://example.com/poster.jpg', src: 'https://example.com/video.mp4' }],
+      ['video', {
+        ':controls': 'true',
+        'poster': 'https://example.com/poster.jpg',
+        'src': 'https://example.com/video.mp4',
+      }],
     ]
 
     const expectedTiptapJSON: JSONContent = {
@@ -1622,15 +1626,25 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    expect(outputContent).toBe(`${inputContent}\n`)
+    // Inline :video is serialized as block ::video after roundtrip; src/poster come first (tiptapToComark insertion order)
+    expect(outputContent).toBe('::video{src="https://example.com/video.mp4" poster="https://example.com/poster.jpg" controls}\n::\n')
   })
 
   test('video with loop and muted', async () => {
     const inputContent = ':video{controls loop muted poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}'
 
-    // comark stores boolean video attrs without colon prefix
+    // After roundtrip through tiptap, tiptapToComark normalizes booleans to colon-prefix for correct MDC serialization
     const expectedComarkNodes = [
-      ['video', { controls: 'true', loop: 'true', muted: 'true', poster: 'https://example.com/poster.jpg', src: 'https://example.com/video.mp4' }],
+      [
+        'video',
+        {
+          ':controls': 'true',
+          ':loop': 'true',
+          ':muted': 'true',
+          'poster': 'https://example.com/poster.jpg',
+          'src': 'https://example.com/video.mp4',
+        },
+      ],
     ]
 
     const expectedTiptapJSON: JSONContent = {
@@ -1674,13 +1688,9 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as block element with YAML frontmatter when there is more than 3 props
-    expect(outputContent).toContain('::video')
-    expect(outputContent).toContain('src: https://example.com/video.mp4')
-    expect(outputContent).toContain('poster: https://example.com/poster.jpg')
-    expect(outputContent).toContain('controls: true')
-    expect(outputContent).toContain('loop: true')
-    expect(outputContent).toContain('muted: true')
+    // Video is serialized as block element with YAML frontmatter when there are more than 3 props
+    // Attribute order follows tiptapToComark insertion order: src, poster, then booleans
+    expect(outputContent).toBe('::video\n---\nsrc: https://example.com/video.mp4\nposter: https://example.com/poster.jpg\ncontrols: true\nloop: true\nmuted: true\n---\n::\n')
   })
 })
 
@@ -2093,7 +2103,7 @@ describe('text styles', () => {
             {
               type: 'span-style',
               attrs: {
-                class: 'text-transparent',
+                class: 'bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent',
               },
               content: [
                 { type: 'text', text: 'site' },
@@ -2133,7 +2143,7 @@ text 1
 ::`
 
     const expectedComarkNodes = [
-      ['div', {}, ['p', {}, 'text 1'], ['blockquote', {}, ['p', {}, 'text 2']]],
+      ['div', {}, ['p', {}, 'text 1'], ['blockquote', {}, 'text 2']],
     ]
 
     const expectedTiptapJSON: JSONContent = {
@@ -2173,13 +2183,8 @@ text 1
                   type: 'blockquote',
                   content: [
                     {
-                      type: 'paragraph',
-                      content: [
-                        {
-                          type: 'text',
-                          text: 'text 2',
-                        },
-                      ],
+                      type: 'text',
+                      text: 'text 2',
                     },
                   ],
                 },

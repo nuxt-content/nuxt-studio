@@ -354,11 +354,11 @@ function createVideoElement(node: JSONContent): ComarkElement {
   if (props.height) videoProps.height = props.height
   if (props.class) videoProps.class = props.class
 
-  // comark stores boolean video attrs without colon prefix (e.g., controls: 'true' not :controls: 'true')
-  if (props['controls'] || props[':controls']) videoProps['controls'] = 'true'
-  if (props['autoplay'] || props[':autoplay']) videoProps['autoplay'] = 'true'
-  if (props['loop'] || props[':loop']) videoProps['loop'] = 'true'
-  if (props['muted'] || props[':muted']) videoProps['muted'] = 'true'
+  // comark uses colon-prefix for boolean attrs (e.g., :controls: 'true') so they serialize as boolean shorthands
+  if (props['controls'] || props[':controls']) videoProps[':controls'] = 'true'
+  if (props['autoplay'] || props[':autoplay']) videoProps[':autoplay'] = 'true'
+  if (props['loop'] || props[':loop']) videoProps[':loop'] = 'true'
+  if (props['muted'] || props[':muted']) videoProps[':muted'] = 'true'
 
   const children = comarkNodesFromTiptap(node.content || [])
   return ['video', videoProps, ...children] as ComarkElement
