@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { refDebounced } from '@vueuse/core'
 import { useStudio } from '../../composables/useStudio'
-import { formatBytes, getFileExtension, isImageFile, isVideoFile } from '../../utils/file'
-import { getMediaFetchUrl } from '../../utils/media'
+import { isImageFile, isVideoFile } from '../../utils/file'
 import type { TreeItem } from '../../types'
 import { StudioFeature } from '../../types'
 import ImagePreview from './media-picker/ImagePreview.vue'
@@ -20,20 +19,15 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
+const searchRef = useTemplateRef<{ $el: HTMLElement }>('searchInput')
 const search = ref('')
 const page = ref(1)
-const selectedMedia = ref<TreeItem | null>(null)
-const isSelectionSlideoverOpen = ref(false)
-const imageDimensions = ref<{ width: number, height: number } | null>(null)
-const fileSize = ref<string | null>(null)
 
-// Nuxt UI `UModal` (Reka `DialogContent`) can move focus to its `DismissableLayer`
-// container when this list re-renders, which blurs the search input.
-// Debouncing reduces those re-renders and avoids triggering that focus shift on each keypress.
 const debouncedSearch = refDebounced(search, 300)
-
-watch(debouncedSearch, () => {
+watch(debouncedSearch, async () => {
   page.value = 1
+  await nextTick()
+  searchRef.value?.$el.querySelector('input')?.focus()
 })
 
 const isValidFileType = (item: TreeItem) => {
@@ -65,19 +59,17 @@ const mediaFiles = computed<TreeItem[]>(() => {
   return medias
 })
 
-const filteredMediaFiles = computed<TreeItem[]>(() => {
+const filteredMediaFiles = computed(() => {
   const query = debouncedSearch.value.trim().toLowerCase()
 
   if (!query) {
     return mediaFiles.value
   }
 
-  const files = mediaFiles.value.filter(file => file.fsPath.toLowerCase().includes(query))
-
-  return files
+  return mediaFiles.value.filter(file => file.fsPath.toLowerCase().includes(query))
 })
 
-const paginatedMediaFiles = computed<TreeItem[]>(() => {
+const paginatedMediaFiles = computed(() => {
   const start = (page.value - 1) * ITEMS_PER_PAGE
   return filteredMediaFiles.value.slice(start, start + ITEMS_PER_PAGE)
 })
@@ -91,63 +83,9 @@ watch(totalPages, (total) => {
   }
 })
 
-watch(() => props.open, (isOpen) => {
-  if (!isOpen) {
-    handleCancelSelection()
-  }
-})
-
-watch(selectedMedia, async (media) => {
-  imageDimensions.value = null
-  fileSize.value = null
-
-  if (!media) return
-
-  const path = media.routePath || media.fsPath
-  const isImage = props.type === 'image'
-  const url = getMediaFetchUrl(path, isImage)
-
-  try {
-    const res = await fetch(url, { method: 'HEAD' })
-    const contentLength = res.headers.get('content-length')
-    if (contentLength) {
-      fileSize.value = formatBytes(Number.parseInt(contentLength, 10))
-    }
-  }
-  catch {
-    // Ignore fetch errors; file size will remain null
-  }
-})
-
-const selectedExtension = computed(() =>
-  selectedMedia.value ? getFileExtension(selectedMedia.value.fsPath).toUpperCase() : null,
-)
-
-const handleImageLoaded = (dimensions: { width: number, height: number }) => {
-  imageDimensions.value = dimensions
-}
-
-const handleMediaClick = (media: TreeItem) => {
-  selectedMedia.value = media
-  isSelectionSlideoverOpen.value = true
-}
-
-const handleConfirmSelection = () => {
-  if (selectedMedia.value) {
-    emit('select', selectedMedia.value)
-  }
-  selectedMedia.value = null
-  isSelectionSlideoverOpen.value = false
-}
-
-const handleCancelSelection = () => {
-  selectedMedia.value = null
-  isSelectionSlideoverOpen.value = false
-}
-
 const handleUpload = async () => {
-  emit('cancel')
   await context.switchFeature(StudioFeature.Media)
+  emit('cancel')
 }
 
 const handleUseExternal = () => {
@@ -168,10 +106,11 @@ const handleUseExternal = () => {
       <div class="flex h-96 flex-col gap-4">
         <div class="flex-1 min-w-0 flex flex-col gap-4">
           <UInput
+            ref="searchInput"
             v-model="search"
-            variant="outline"
-            size="lg"
-            placeholder="Search by full path"
+            size="xs"
+            :placeholder="$t('studio.mediaPicker.searchPlaceholder')"
+            autofocus
             icon="i-lucide-search"
             class="w-full max-w-sm"
           />
@@ -202,11 +141,8 @@ const handleUseExternal = () => {
                 arrow
               >
                 <button
-                  :class="[
-                    'aspect-square rounded-lg cursor-pointer group relative',
-                    selectedMedia?.fsPath === media.fsPath && 'ring-2 ring-primary ring-offset-2 ring-offset-default',
-                  ]"
-                  @click="handleMediaClick(media)"
+                  class="aspect-square rounded-lg cursor-pointer group relative"
+                  @click="emit('select', media)"
                 >
                   <ImagePreview
                     v-if="type === 'image'"
@@ -254,138 +190,4 @@ const handleUseExternal = () => {
       </div>
     </template>
   </UModal>
-
-  <USlideover
-    v-model:open="isSelectionSlideoverOpen"
-    :title="$t(`studio.mediaPicker.${type}.selectionTitle`)"
-    :description="$t(`studio.mediaPicker.${type}.selectionDescription`)"
-    side="right"
-    :ui="{
-      content: 'max-w-md z-[10000]',
-      overlay: 'z-[9999]',
-    }"
-    @update:open="(value: boolean) => !value && handleCancelSelection()"
-  >
-    <template #body>
-      <div
-        v-if="selectedMedia"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-lg overflow-hidden border border-default min-h-48">
-          <ImagePreview
-            v-if="type === 'image'"
-            :media="selectedMedia"
-            full-size
-            @loaded="handleImageLoaded"
-          />
-          <VideoPreview
-            v-else-if="type === 'video'"
-            :media="selectedMedia"
-          />
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-lg border border-default bg-elevated/50 p-3">
-            <div class="flex items-center gap-1.5 text-muted font-medium text-xs mb-1.5">
-              <UIcon
-                name="i-lucide-file-text"
-                class="size-3.5 shrink-0"
-              />
-              {{ $t('studio.mediaPicker.name') }}
-            </div>
-            <p class="text-highlighted truncate text-sm">
-              {{ selectedMedia.name }}
-            </p>
-          </div>
-          <div class="rounded-lg border border-default bg-elevated/50 p-3">
-            <div class="flex items-center gap-1.5 text-muted font-medium text-xs mb-1.5">
-              <UIcon
-                name="i-lucide-file-type"
-                class="size-3.5 shrink-0"
-              />
-              {{ $t('studio.mediaPicker.extension') }}
-            </div>
-            <p class="text-highlighted text-sm">
-              {{ selectedExtension }}
-            </p>
-          </div>
-          <div class="rounded-lg border border-default bg-elevated/50 p-3 col-span-2">
-            <div class="flex items-center gap-1.5 text-muted font-medium text-xs mb-1.5">
-              <UIcon
-                name="i-lucide-folder"
-                class="size-3.5 shrink-0"
-              />
-              {{ $t('studio.mediaPicker.path') }}
-            </div>
-            <p class="text-highlighted truncate font-mono text-xs">
-              {{ selectedMedia.fsPath }}
-            </p>
-          </div>
-          <div
-            v-if="selectedMedia.routePath"
-            class="rounded-lg border border-default bg-elevated/50 p-3 col-span-2"
-          >
-            <div class="flex items-center gap-1.5 text-muted font-medium text-xs mb-1.5">
-              <UIcon
-                name="i-lucide-link"
-                class="size-3.5 shrink-0"
-              />
-              {{ $t('studio.mediaPicker.publicPath') }}
-            </div>
-            <p class="text-highlighted truncate font-mono text-xs">
-              {{ selectedMedia.routePath }}
-            </p>
-          </div>
-          <div
-            v-if="fileSize"
-            class="rounded-lg border border-default bg-elevated/50 p-3"
-          >
-            <div class="flex items-center gap-1.5 text-muted font-medium text-xs mb-1.5">
-              <UIcon
-                name="i-lucide-hard-drive"
-                class="size-3.5 shrink-0"
-              />
-              {{ $t('studio.mediaPicker.fileSize') }}
-            </div>
-            <p class="text-highlighted text-sm">
-              {{ fileSize }}
-            </p>
-          </div>
-          <div
-            v-if="type === 'image' && imageDimensions"
-            class="rounded-lg border border-default bg-elevated/50 p-3"
-          >
-            <div class="flex items-center gap-1.5 text-muted font-medium text-xs mb-1.5">
-              <UIcon
-                name="i-lucide-maximize-2"
-                class="size-3.5 shrink-0"
-              />
-              {{ $t('studio.mediaPicker.resolution') }}
-            </div>
-            <p class="text-highlighted text-sm">
-              {{ imageDimensions.width }} × {{ imageDimensions.height }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <template #footer>
-      <div class="flex gap-2 justify-end">
-        <UButton
-          variant="outline"
-          color="neutral"
-          @click="handleCancelSelection"
-        >
-          {{ $t('studio.mediaPicker.cancelSelection') }}
-        </UButton>
-        <UButton
-          variant="solid"
-          @click="handleConfirmSelection"
-        >
-          {{ $t('studio.mediaPicker.confirm') }}
-        </UButton>
-      </div>
-    </template>
-  </USlideover>
 </template>

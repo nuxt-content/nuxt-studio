@@ -330,6 +330,7 @@
       "fileSize": "Taille du fichier",
       "resolution": "Résolution",
       "confirm": "Confirmer",
+      "searchPlaceholder": "Rechercher par chemin complet",
       "cancelSelection": "Annuler"
     },
     "form": {

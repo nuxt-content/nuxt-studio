@@ -347,6 +347,7 @@
       "extension": "Extension",
       "fileSize": "File size",
       "resolution": "Resolution",
+      "searchPlaceholder": "Search by full path",
       "confirm": "Confirm",
       "cancelSelection": "Cancel"
     },

@@ -30,7 +30,7 @@ function handleImageLoad(event: Event) {
 <template>
   <div
     :class="[
-      'relative overflow-hidden rounded-lg border border-default transition-all',
+      'relative overflow-hidden rounded-lg border border-default bg-elevated transition-all',
       !fullSize && 'hover:border-muted hover:ring-1 hover:ring-muted',
     ]"
   >
