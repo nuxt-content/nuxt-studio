@@ -483,6 +483,12 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    if (!options.media!.publicUrl) {
+      options.media!.publicUrl = isExternalMediaEnabled
+        ? process.env.S3_PUBLIC_URL
+        : resolve(nuxt.options.rootDir, 'public')
+    }
+
     // Public runtime config
     nuxt.options.runtimeConfig.public.studio = {
       route: options.route!,
@@ -511,9 +517,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Studio runtime config
     nuxt.options.runtimeConfig.studio = {
-      ipx: {
-        publicDir: resolve(nuxt.options.rootDir, 'public'),
-      },
       ai: {
         apiKey: options.ai?.apiKey,
         context: options.ai?.context as never,
