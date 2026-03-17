@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.55",
+    "ipx": "^3.1.1",
     "@ai-sdk/vue": "^3.0.101",
     "@iconify-json/lucide": "^1.2.94",
     "@nuxtjs/mdc": "^0.20.1",

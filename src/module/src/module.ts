@@ -1,5 +1,6 @@
 import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
+import { resolve } from 'node:path'
 import { defu } from 'defu'
 import { version } from '../../../package.json'
 import { setupDevMode } from './dev'
@@ -482,6 +483,12 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    if (!options.media!.publicUrl) {
+      options.media!.publicUrl = isExternalMediaEnabled
+        ? process.env.S3_PUBLIC_URL
+        : resolve(nuxt.options.rootDir, 'public')
+    }
+
     // Public runtime config
     nuxt.options.runtimeConfig.public.studio = {
       route: options.route!,
@@ -621,6 +628,11 @@ export default defineNuxtModule<ModuleOptions>({
     addServerHandler({
       route: '/__nuxt_studio/meta',
       handler: runtime('./server/routes/meta'),
+    })
+
+    addServerHandler({
+      route: '/__nuxt_studio/ipx/**',
+      handler: runtime('./server/routes/ipx/[...path]'),
     })
 
     addServerHandler({
