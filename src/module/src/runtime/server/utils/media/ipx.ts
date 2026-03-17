@@ -1,8 +1,9 @@
 import { createError } from 'h3'
 import { createIPX, ipxFSStorage, ipxHttpStorage } from 'ipx'
-import type { IPX } from 'ipx'
+import type { IPX, IPXStorage } from 'ipx'
 import { readFile } from 'node:fs/promises'
 import { extname, resolve } from 'node:path'
+import { hasProtocol, parseURL } from 'ufo'
 import { useRuntimeConfig } from '#imports'
 
 export const IPX_PREFIX = '/__nuxt_studio/ipx'
@@ -11,30 +12,33 @@ export const DAY_IN_SECONDS = 60 * 60 * 24
 const mediaConfig = useRuntimeConfig().public.studio.media
 export const publicDir: string = mediaConfig.publicUrl
 
-function getCdnDomain(): string | null {
-  if (!mediaConfig.external) {
-    return null
-  }
-  try {
-    return new URL(mediaConfig.publicUrl).hostname
-  }
-  catch {
-    return null
-  }
-}
-
 let cachedIpx: IPX | null = null
 
-export function getIpx() {
+export function requireAllowedDomain(id: string): string | undefined {
+  if (!mediaConfig.external) return undefined
+  const configuredDomain = parseURL(mediaConfig.publicUrl).host
+  const requestDomain = parseURL(id).host
+  if (configuredDomain && requestDomain !== configuredDomain) {
+    throw createError({ statusCode: 403, statusMessage: 'IPX_FORBIDDEN_DOMAIN' })
+  }
+  return requestDomain || configuredDomain || undefined
+}
+
+export function getIpx(domain?: string) {
   if (!cachedIpx) {
-    const cdnDomain = getCdnDomain()
-    cachedIpx = createIPX({
-      storage: ipxFSStorage({ dir: publicDir }),
-      ...(cdnDomain && {
-        httpStorage: ipxHttpStorage({ domains: [cdnDomain] }),
-      }),
-      maxAge: DAY_IN_SECONDS,
-    })
+    if (mediaConfig.external) {
+      cachedIpx = createIPX({
+        storage: {} as IPXStorage,
+        httpStorage: ipxHttpStorage({ domains: domain ? [domain] : [] }),
+        maxAge: DAY_IN_SECONDS,
+      })
+    }
+    else {
+      cachedIpx = createIPX({
+        storage: ipxFSStorage({ dir: publicDir }),
+        maxAge: DAY_IN_SECONDS,
+      })
+    }
   }
 
   return cachedIpx
@@ -54,8 +58,23 @@ export function getContentTypeFromPath(path: string) {
   return null
 }
 
-export async function getOriginalImageFromFs(id: string) {
-  if (/^https?:\/\//i.test(id)) {
+export async function getOriginalImage(id: string): Promise<Buffer | null> {
+  return hasProtocol(id) ? getOriginalExternalImage(id) : getOriginalFsImage(id)
+}
+
+export async function getOriginalExternalImage(id: string): Promise<Buffer | null> {
+  try {
+    const response = await fetch(id)
+    if (!response.ok) return null
+    return Buffer.from(await response.arrayBuffer())
+  }
+  catch {
+    return null
+  }
+}
+
+export async function getOriginalFsImage(id: string) {
+  if (hasProtocol(id)) {
     return null
   }
 

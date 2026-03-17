@@ -1,6 +1,6 @@
 import { eventHandler, getRequestURL, setResponseHeader } from 'h3'
 import { requireStudioAuth } from '../../utils/auth'
-import { DAY_IN_SECONDS, IPX_PREFIX, getContentTypeFromPath, getIpx, getOriginalImageFromFs, parseIpxPath } from '../../utils/media/ipx'
+import { DAY_IN_SECONDS, IPX_PREFIX, getContentTypeFromPath, getIpx, getOriginalImage, parseIpxPath, requireAllowedDomain } from '../../utils/media/ipx'
 
 /**
  * Serve optimized thumbnails for Studio media picker using IPX.
@@ -20,7 +20,9 @@ export default eventHandler(async (event) => {
     return
   }
 
-  const ipx = getIpx()
+  const domain = requireAllowedDomain(parsed.id)
+
+  const ipx = getIpx(domain)
   const image = ipx(parsed.id, parsed.modifiers)
   let data: Buffer | string
   let format: string | undefined
@@ -31,7 +33,7 @@ export default eventHandler(async (event) => {
     format = result.format
   }
   catch (error) {
-    const fallbackData = await getOriginalImageFromFs(parsed.id)
+    const fallbackData = await getOriginalImage(parsed.id)
     if (!fallbackData) {
       throw error
     }
