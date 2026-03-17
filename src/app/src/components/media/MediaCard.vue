@@ -4,6 +4,7 @@ import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { isImageFile } from '../../utils/file'
+import { getMediaThumbnailUrl } from '../../utils/media'
 import { useStudio } from '../../composables/useStudio'
 import { StudioItemActionId } from '../../types'
 import MediaCardForm from './MediaCardForm.vue'
@@ -21,7 +22,9 @@ const props = defineProps({
   },
 })
 
-const imageSrc = computed(() => isImageFile(props.item.fsPath) ? props.item.routePath : null)
+const imageSrc = computed(() => {
+  return isImageFile(props.item.fsPath) ? getMediaThumbnailUrl(props.item.routePath!) : null
+})
 </script>
 
 <template>
