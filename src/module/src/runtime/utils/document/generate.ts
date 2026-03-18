@@ -73,14 +73,19 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
   }
 
   // fsPath will be overridden by host
-  return {
+  const document = {
     id,
     extension: ContentFileExtension.JSON,
     stem: generateStemFromId(id),
     meta: {},
     ...parsed,
-    body: parsed.body || parsed,
   } as DatabaseItem
+
+  if (parsed.body) {
+    document.body = parsed.body
+  }
+
+  return document
 }
 
 export async function generateDocumentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
