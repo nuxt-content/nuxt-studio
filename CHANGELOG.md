@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.5.0](https://github.com/nuxt-content/studio/compare/v1.4.0...v1.5.0) (2026-03-18)
+
+### Features
+
+* **editor:** callout tiptap extension ([#362](https://github.com/nuxt-content/studio/issues/362)) ([842adc8](https://github.com/nuxt-content/studio/commit/842adc8ab7a2180ab6dd5f837c087e3f84f0ea88))
+* **i18n:** add Hungarian (hu) locale ([#377](https://github.com/nuxt-content/studio/issues/377)) ([a92e1fd](https://github.com/nuxt-content/studio/commit/a92e1fd1dddc42bbd1a1edb40d50696f8879358f))
+* **i18n:** add slovak (sk) locale ([#359](https://github.com/nuxt-content/studio/issues/359)) ([ca86377](https://github.com/nuxt-content/studio/commit/ca86377ce86d44f82d7140ec05463e56d6c29e35))
+* **media:** improve media picker selection and integrate ipx optimization ([#369](https://github.com/nuxt-content/studio/issues/369)) ([50d0e87](https://github.com/nuxt-content/studio/commit/50d0e872b51ac6db9fd6b9c26c9c3ef3c33d63f7))
+* **review:** add commit message prefix ([#367](https://github.com/nuxt-content/studio/issues/367)) ([a2e9290](https://github.com/nuxt-content/studio/commit/a2e92906a658a154d95f5b289e9f62ae652bb865))
+* **skills:** make content editable skill ([#364](https://github.com/nuxt-content/studio/issues/364)) ([ddd9834](https://github.com/nuxt-content/studio/commit/ddd983476ff06bb5067870540d58d2ee608a45d5))
+* **tiptap:** custom suggestion groups for components ([#358](https://github.com/nuxt-content/studio/issues/358)) ([7b6b852](https://github.com/nuxt-content/studio/commit/7b6b8526df09e24d3f30e41b7e6146b2f457664c))
+
+### Bug Fixes
+
+* **document:** json comparison ([#388](https://github.com/nuxt-content/studio/issues/388)) ([5d63fff](https://github.com/nuxt-content/studio/commit/5d63fff8cce42f3d7c7a0d7f94030425418f2ee0))
+* **host:** use singleton instance ([#386](https://github.com/nuxt-content/studio/issues/386)) ([a15ae1f](https://github.com/nuxt-content/studio/commit/a15ae1f60b60b57b620bbd17792c9c9a4cbc2316))
+* **skills:** make content editable improvment ([d38ad18](https://github.com/nuxt-content/studio/commit/d38ad181602565b3f4b942797540684d93be17a2))
+
 ## [1.4.0](https://github.com/nuxt-content/studio/compare/v1.3.3...v1.4.0) (2026-02-27)
 
 ### Features
