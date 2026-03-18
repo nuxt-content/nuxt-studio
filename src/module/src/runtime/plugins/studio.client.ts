@@ -7,8 +7,9 @@ export default defineNuxtPlugin(() => {
   defineStudioActivationPlugin(async (user) => {
     const config = useRuntimeConfig()
     // Initialize host
-    const host = await import(config.public.studio.dev ? '../host.dev' : '../host').then(m => m.useStudioHost);
-    (window as unknown as { useStudioHost: UseStudioHost }).useStudioHost = () => host(user, config.public.studio.repository as unknown as Repository)
+    const host = await import(config.public.studio.dev ? '../host.dev' : '../host').then(m => m.useStudioHost)
+    const hostInstance = host(user, config.public.studio.repository as Repository);
+    (window as unknown as { useStudioHost: UseStudioHost }).useStudioHost = () => hostInstance
 
     await import('nuxt-studio/app')
     document.body.appendChild(document.createElement('nuxt-studio'))
