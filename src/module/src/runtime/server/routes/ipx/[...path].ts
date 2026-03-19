@@ -33,11 +33,14 @@ export default eventHandler(async (event) => {
     format = result.format
   }
   catch (error) {
+    console.error('[studio:ipx] process error for', parsed.id, error)
     const fallbackData = await getOriginalImage(parsed.id)
     if (!fallbackData) {
+      console.error('[studio:ipx] fallback also failed for', parsed.id)
       throw error
     }
 
+    console.log('[studio:ipx] serving original (unoptimized) for', parsed.id)
     data = fallbackData
   }
 

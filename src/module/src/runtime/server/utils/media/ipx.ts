@@ -12,12 +12,15 @@ export const DAY_IN_SECONDS = 60 * 60 * 24
 const mediaConfig = useRuntimeConfig().public.studio.media
 export const publicDir: string = mediaConfig.publicUrl
 
+console.log('[studio:ipx] mediaConfig', { external: mediaConfig.external, publicUrl: mediaConfig.publicUrl, prefix: mediaConfig.prefix })
+
 let cachedIpx: IPX | null = null
 
 export function requireAllowedDomain(id: string): string | undefined {
-  if (!mediaConfig.external) return undefined
+  if (!mediaConfig.external) return
   const configuredDomain = parseURL(mediaConfig.publicUrl).host
   const requestDomain = parseURL(id).host
+  console.log('[studio:ipx] requireAllowedDomain', { id, requestDomain, configuredDomain })
   if (configuredDomain && requestDomain !== configuredDomain) {
     throw createError({ statusCode: 403, statusMessage: 'IPX_FORBIDDEN_DOMAIN' })
   }
@@ -27,6 +30,7 @@ export function requireAllowedDomain(id: string): string | undefined {
 export function getIpx(domain?: string) {
   if (!cachedIpx) {
     if (mediaConfig.external) {
+      console.log('[studio:ipx] creating IPX with httpStorage, domain:', domain)
       cachedIpx = createIPX({
         storage: {} as IPXStorage,
         httpStorage: ipxHttpStorage({ domains: domain ? [domain] : [] }),
@@ -34,6 +38,7 @@ export function getIpx(domain?: string) {
       })
     }
     else {
+      console.log('[studio:ipx] creating IPX with fsStorage, dir:', publicDir)
       cachedIpx = createIPX({
         storage: ipxFSStorage({ dir: publicDir }),
         maxAge: DAY_IN_SECONDS,
