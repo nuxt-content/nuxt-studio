@@ -41,6 +41,7 @@ export default eventHandler(async (event) => {
     }
 
     const fsPath = withLeadingSlash(blobPath)
+    console.log('meta.url', meta.url, 'publicUrl', publicUrl)
     const resolvedPath = meta.url ?? joinURL(publicUrl, prefix, fsPath)
 
     return {
