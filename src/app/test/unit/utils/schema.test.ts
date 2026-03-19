@@ -323,6 +323,100 @@ describe('generateInitialDataFromSchema', () => {
     })
   })
 
+  test('deep merges overlapping object properties across allOf branches', () => {
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          allOf: [
+            {
+              type: 'object',
+              required: ['config'],
+              properties: {
+                config: {
+                  type: 'object',
+                  required: ['author'],
+                  properties: {
+                    author: {
+                      type: 'object',
+                      required: ['name'],
+                      properties: {
+                        name: {
+                          type: 'string',
+                          default: 'Ada',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: 'object',
+              required: ['config'],
+              properties: {
+                config: {
+                  type: 'object',
+                  required: ['role'],
+                  properties: {
+                    role: {
+                      type: 'string',
+                      default: 'maintainer',
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    }
+
+    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
+      config: {
+        author: {
+          name: 'Ada',
+        },
+        role: 'maintainer',
+      },
+    })
+  })
+
+  test('resolves local refs before generating initial values', () => {
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          type: 'object',
+          required: ['author'],
+          properties: {
+            author: {
+              $ref: '#/definitions/author',
+            },
+          },
+        },
+        author: {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: {
+              type: 'string',
+              default: 'Ada',
+            },
+          },
+        },
+      },
+    }
+
+    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
+      author: {
+        name: 'Ada',
+      },
+    })
+  })
+
   test('returns an empty object when the collection schema is missing', () => {
     expect(generateInitialDataFromSchema('posts', undefined)).toStrictEqual({})
   })
