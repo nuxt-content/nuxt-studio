@@ -111,7 +111,9 @@ export function parseIpxPath(pathname: string) {
     })
   }
 
-  const id = decodeURIComponent(idSegments.join('/'))
+  // Restore protocol double-slash collapsed by proxies
+  // `https://` → `https:/` in URL path segments before reaching the server.
+  const id = decodeURIComponent(idSegments.join('/')).replace(/^(https?:\/)([^/])/, '$1/$2')
   if (!id) {
     throw createError({
       statusCode: 400,
