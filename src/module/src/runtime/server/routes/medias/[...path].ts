@@ -42,7 +42,6 @@ export default eventHandler(async (event) => {
 
     const fsPath = withLeadingSlash(blobPath)
     const resolvedPath = meta.url ?? joinURL(publicUrl, prefix, fsPath)
-    console.log('[studio:medias] meta.url', meta.url, '| publicUrl', publicUrl, '| resolvedPath', resolvedPath)
 
     return {
       id: path,
