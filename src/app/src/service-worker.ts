@@ -99,7 +99,7 @@ function fetchFromIndexedDB(event, url) {
     return new Response(bytes, {
       headers: { 'Content-Type': parsed.mime }
     });
-  })
+  }).catch(() => fetch(event.request))
 }
 
 function parseDataUrl(dataUrl) {
@@ -128,7 +128,7 @@ function openDB() {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = event => {
       const db = event.target.result;
-      db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      db.createObjectStore(STORE_NAME);
     };
     request.onsuccess = event => resolve(event.target.result);
     request.onerror = event => reject(event.target.error);
