@@ -23,6 +23,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { findDescendantsFileItemsFromFsPath } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
+import { generateInitialContentForPath } from '../utils/schema'
 
 export const useContext = createSharedComposable((
   host: StudioHost,
@@ -113,8 +114,24 @@ export const useContext = createSharedComposable((
       const rootDocumentFsPath = joinURL(fsPath, 'index.md')
       const navigationDocumentFsPath = joinURL(fsPath, '.navigation.yml')
 
-      const navigationDocument = await host.document.db.create(navigationDocumentFsPath, `title: ${folderName}`)
-      const rootDocument = await host.document.db.create(rootDocumentFsPath, `# ${upperFirst(folderName)} root file`)
+      const navigationDocument = await host.document.db.create(navigationDocumentFsPath, generateInitialContentForPath(
+        navigationDocumentFsPath,
+        'yml',
+        '',
+        host.collection.getByFsPath,
+        {
+          fallbackData: { title: folderName },
+          title: folderName,
+        },
+      ))
+      const rootTitle = upperFirst(folderName)
+      const rootDocument = await host.document.db.create(rootDocumentFsPath, generateInitialContentForPath(
+        rootDocumentFsPath,
+        'md',
+        `# ${rootTitle} file`,
+        host.collection.getByFsPath,
+        { title: rootTitle },
+      ))
 
       await activeTree.value.draft.create(navigationDocumentFsPath, navigationDocument)
       const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocumentFsPath, rootDocument)

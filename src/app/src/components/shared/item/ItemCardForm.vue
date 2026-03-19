@@ -9,15 +9,16 @@ import type {
   ExtensionConfig,
   CreateFolderParams,
 } from '../../../types'
-import { ContentFileExtension, StudioItemActionId } from '../../../types'
+import { StudioItemActionId } from '../../../types'
 import { joinURL, withLeadingSlash, withoutLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { parseName, getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } from '../../../utils/file'
 import { slugifyString } from '../../../utils/string'
 import { upperFirst } from 'scule'
 import { useI18n } from 'vue-i18n'
+import { generateInitialContentForPath } from '../../../utils/schema'
 
-const { context } = useStudio()
+const { context, host } = useStudio()
 const { t } = useI18n()
 
 const isLoading = ref(false)
@@ -141,18 +142,10 @@ const routePath = computed(() => {
   return withLeadingSlash(joinURL(props.parentItem.routePath!, parseName(routePath).name))
 })
 
-function getInitialContent(extension: string, title: string): string {
-  // TODO: improve initial content based on collection schema
-  switch (extension) {
-    case ContentFileExtension.JSON:
-      return JSON.stringify({}, null, 2)
-    case ContentFileExtension.YAML:
-    case ContentFileExtension.YML:
-      return ''
-    case ContentFileExtension.Markdown:
-    default:
-      return t('studio.content.initialMarkdownContent', { title })
-  }
+function getInitialContent(fsPath: string, extension: string, title: string): string {
+  const markdownBody = t('studio.content.initialMarkdownContent', { title })
+
+  return generateInitialContentForPath(fsPath, extension, markdownBody, host.collection.getByFsPath, { title })
 }
 
 const displayInfo = computed(() => {
@@ -226,7 +219,7 @@ async function onSubmit() {
     case StudioItemActionId.CreateDocument:
       params = {
         fsPath: newFsPath,
-        content: getInitialContent(state.extension!, upperFirst(state.name)),
+        content: getInitialContent(newFsPath, state.extension!, upperFirst(state.name)),
       }
       break
     case StudioItemActionId.RenameItem:
