@@ -135,7 +135,7 @@ describe('Document - Action Chains Integration Tests', () => {
       definitions: {
         authors: {
           type: 'object',
-          required: ['name', 'username', 'birthDate', 'lastCommitAt', 'modules', 'profile'],
+          required: ['name', 'username', 'birthDate', 'lastCommitAt', 'modules', 'profile', 'role'],
           properties: {
             name: {
               type: 'string',
@@ -156,6 +156,10 @@ describe('Document - Action Chains Integration Tests', () => {
               items: {
                 type: 'string',
               },
+            },
+            role: {
+              type: 'string',
+              enum: ['maintainer', 'author'],
             },
             profile: {
               type: 'object',
@@ -192,10 +196,11 @@ describe('Document - Action Chains Integration Tests', () => {
     const storedDraft = JSON.parse(mockStorageDraft.get(normalizeKey(yamlFsPath))!)
     expect(storedDraft.modified.extension).toBe('yml')
     expect(storedDraft.modified.name).toBe('Author')
-    expect(storedDraft.modified.username).toBe('')
-    expect(storedDraft.modified.birthDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-    expect(storedDraft.modified.lastCommitAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+    expect(storedDraft.modified.username).toBeUndefined()
+    expect(storedDraft.modified.birthDate).toBeUndefined()
+    expect(storedDraft.modified.lastCommitAt).toBeUndefined()
     expect(storedDraft.modified.modules).toStrictEqual([])
+    expect(storedDraft.modified.role).toBe('maintainer')
     expect(storedDraft.modified.profile).toStrictEqual({
       avatar: {
         src: '/avatar.png',

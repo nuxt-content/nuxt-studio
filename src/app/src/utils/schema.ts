@@ -2,7 +2,7 @@ import type { CollectionInfo, Draft07, Draft07DefinitionProperty } from '@nuxt/c
 import { ContentFileExtension } from '../types'
 import { jsonToYaml } from './data'
 
-export const INITIAL_CONTENT_RESERVED_KEYS = [
+const reservedKeys = new Set([
   'id',
   'stem',
   'extension',
@@ -12,7 +12,7 @@ export const INITIAL_CONTENT_RESERVED_KEYS = [
   'fsPath',
   'rawbody',
   '__hash__',
-]
+])
 
 type CompositeDefinition = Draft07DefinitionProperty & {
   allOf?: Draft07DefinitionProperty[]
@@ -20,12 +20,9 @@ type CompositeDefinition = Draft07DefinitionProperty & {
   oneOf?: Draft07DefinitionProperty[]
 }
 
-const reservedKeys = new Set(INITIAL_CONTENT_RESERVED_KEYS)
-
 interface InitialDataOptions {
   fallbackData?: Record<string, unknown>
   title?: string
-  now?: Date
 }
 
 function cloneValue<T>(value: T): T {
@@ -71,7 +68,13 @@ function mergeObjectDefinitions(definitions: Draft07DefinitionProperty[]) {
   } as Draft07DefinitionProperty
 }
 
-function pickPreferredDefinition(definition?: Draft07DefinitionProperty): Draft07DefinitionProperty | undefined {
+function pickPreferredVariant(definitions: Draft07DefinitionProperty[]) {
+  return definitions.find(definition => definition.default !== undefined)
+    || definitions.find(isObjectDefinition)
+    || definitions[0]
+}
+
+function resolveDefinition(definition?: Draft07DefinitionProperty): Draft07DefinitionProperty | undefined {
   if (!definition) {
     return undefined
   }
@@ -92,14 +95,7 @@ function pickPreferredDefinition(definition?: Draft07DefinitionProperty): Draft0
   return definition
 }
 
-function pickPreferredVariant(definitions: Draft07DefinitionProperty[]) {
-  return definitions.find(definition => definition.default !== undefined)
-    || definitions.find(isObjectDefinition)
-    || definitions.find(definition => definition.type !== 'boolean')
-    || definitions[0]
-}
-
-function generateObjectFromDefinition(definition: Draft07DefinitionProperty, options: InitialDataOptions = {}) {
+function buildInitialObject(definition: Draft07DefinitionProperty, options: InitialDataOptions = {}) {
   if (!isObjectDefinition(definition)) {
     return {}
   }
@@ -112,7 +108,11 @@ function generateObjectFromDefinition(definition: Draft07DefinitionProperty, opt
       return
     }
 
-    const value = generateValueFromDefinition(property, requiredKeys.has(key), key, options)
+    const value = buildInitialValue(property, {
+      key,
+      required: requiredKeys.has(key),
+      title: options.title,
+    })
     if (value !== undefined) {
       initialData[key] = value
     }
@@ -121,42 +121,11 @@ function generateObjectFromDefinition(definition: Draft07DefinitionProperty, opt
   return initialData
 }
 
-function generateScalarFallbackValue(definition: Draft07DefinitionProperty, key: string, options: InitialDataOptions = {}) {
-  if (definition.enum?.length) {
-    return cloneValue(definition.enum[0])
-  }
-
-  const now = options.now || new Date()
-
-  if (definition.type === 'string') {
-    if (definition.format === 'date') {
-      return now.toISOString().split('T')[0]
-    }
-
-    if (definition.format === 'date-time' || definition.format === 'datetime') {
-      return now.toISOString()
-    }
-
-    if ((key === 'title' || key === 'name') && options.title) {
-      return options.title
-    }
-
-    return ''
-  }
-
-  if (definition.type === 'number' || definition.type === 'integer') {
-    return 0
-  }
-
-  if (definition.type === 'boolean') {
-    return false
-  }
-
-  return undefined
-}
-
-function generateValueFromDefinition(definition?: Draft07DefinitionProperty, isRequired = false, key = '', options: InitialDataOptions = {}): unknown {
-  const resolvedDefinition = pickPreferredDefinition(definition)
+function buildInitialValue(
+  definition?: Draft07DefinitionProperty,
+  context: { key?: string, required?: boolean, title?: string } = {},
+): unknown {
+  const resolvedDefinition = resolveDefinition(definition)
   if (!resolvedDefinition || isHiddenDefinition(resolvedDefinition)) {
     return undefined
   }
@@ -165,9 +134,13 @@ function generateValueFromDefinition(definition?: Draft07DefinitionProperty, isR
     return cloneValue(resolvedDefinition.default)
   }
 
+  if (context.required && resolvedDefinition.enum?.length) {
+    return cloneValue(resolvedDefinition.enum[0])
+  }
+
   if (isObjectDefinition(resolvedDefinition)) {
-    const initialData = generateObjectFromDefinition(resolvedDefinition, options)
-    if (Object.keys(initialData).length > 0 || isRequired) {
+    const initialData = buildInitialObject(resolvedDefinition, { title: context.title })
+    if (Object.keys(initialData).length > 0 || context.required) {
       return initialData
     }
 
@@ -175,11 +148,16 @@ function generateValueFromDefinition(definition?: Draft07DefinitionProperty, isR
   }
 
   if (resolvedDefinition.type === 'array') {
-    return isRequired ? [] : undefined
+    return context.required ? [] : undefined
   }
 
-  if (isRequired) {
-    return generateScalarFallbackValue(resolvedDefinition, key, options)
+  if (
+    context.required
+    && context.title
+    && resolvedDefinition.type === 'string'
+    && ['title', 'name'].includes(context.key || '')
+  ) {
+    return context.title
   }
 
   return undefined
@@ -187,13 +165,31 @@ function generateValueFromDefinition(definition?: Draft07DefinitionProperty, isR
 
 export function generateInitialDataFromSchema(collectionName: string, schema?: Draft07, options: InitialDataOptions = {}) {
   const rootDefinition = schema?.definitions?.[collectionName] as Draft07DefinitionProperty | undefined
-  const resolvedRootDefinition = pickPreferredDefinition(rootDefinition)
+  const resolvedRootDefinition = resolveDefinition(rootDefinition)
 
   if (!resolvedRootDefinition || !isObjectDefinition(resolvedRootDefinition)) {
     return {}
   }
 
-  return generateObjectFromDefinition(resolvedRootDefinition, options)
+  return buildInitialObject(resolvedRootDefinition, options)
+}
+
+function serializeInitialData(extension: string, bodyContent: string, initialData: Record<string, unknown>) {
+  switch (extension) {
+    case ContentFileExtension.JSON:
+      return JSON.stringify(initialData, null, 2)
+    case ContentFileExtension.YAML:
+    case ContentFileExtension.YML:
+      return jsonToYaml(initialData)
+    case ContentFileExtension.Markdown:
+    default: {
+      const frontmatter = jsonToYaml(initialData)
+
+      return frontmatter
+        ? `---\n${frontmatter}---\n\n${bodyContent}`
+        : bodyContent
+    }
+  }
 }
 
 export function generateInitialContentForCollection(
@@ -210,21 +206,7 @@ export function generateInitialContentForCollection(
       }
     : fallbackData
 
-  switch (extension) {
-    case ContentFileExtension.JSON:
-      return JSON.stringify(initialData, null, 2)
-    case ContentFileExtension.YAML:
-    case ContentFileExtension.YML:
-      return jsonToYaml(initialData)
-    case ContentFileExtension.Markdown:
-    default: {
-      const frontmatter = jsonToYaml(initialData)
-
-      return frontmatter
-        ? `---\n${frontmatter}---\n\n${bodyContent}`
-        : bodyContent
-    }
-  }
+  return serializeInitialData(extension, bodyContent, initialData)
 }
 
 export function generateInitialContentForPath(

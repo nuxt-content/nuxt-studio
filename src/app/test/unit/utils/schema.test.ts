@@ -52,7 +52,6 @@ describe('generateInitialDataFromSchema', () => {
 
     expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
       title: 'Untitled',
-      slug: '',
       authors: [],
       seo: {
         image: {
@@ -193,29 +192,67 @@ describe('generateInitialDataFromSchema', () => {
     })
   })
 
-  test('fills required scalar fields with minimal valid placeholders', () => {
-    const now = new Date('2026-03-19T10:00:00.000Z')
+  test('uses enum values and caller title injection when required', () => {
     const schema: Draft07 = {
       $schema: 'http://json-schema.org/draft-07/schema#',
       $ref: '#/definitions/authors',
       definitions: {
         authors: {
           type: 'object',
-          required: ['name', 'username', 'birthDate', 'lastCommitAt', 'featured', 'priority'],
+          required: ['name', 'role', 'theme'],
           properties: {
             name: {
               type: 'string',
             },
+            role: {
+              type: 'string',
+              enum: ['maintainer', 'author'],
+            },
+            theme: {
+              anyOf: [
+                {
+                  type: 'string',
+                  enum: ['system', 'light'],
+                },
+                {
+                  type: 'object',
+                  default: {
+                    mode: 'dark',
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    }
+
+    expect(generateInitialDataFromSchema('authors', schema, {
+      title: 'Ada',
+    })).toStrictEqual({
+      name: 'Ada',
+      role: 'maintainer',
+      theme: {
+        mode: 'dark',
+      },
+    })
+  })
+
+  test('omits required scalar fields without defaults, enums, or title injection', () => {
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/authors',
+      definitions: {
+        authors: {
+          type: 'object',
+          required: ['username', 'birthDate', 'featured', 'priority'],
+          properties: {
             username: {
               type: 'string',
             },
             birthDate: {
               type: 'string',
               format: 'date',
-            },
-            lastCommitAt: {
-              type: 'string',
-              format: 'date-time',
             },
             featured: {
               type: 'boolean',
@@ -228,16 +265,7 @@ describe('generateInitialDataFromSchema', () => {
       },
     }
 
-    expect(generateInitialDataFromSchema('authors', schema, {
-      title: 'Ada',
-      now,
-    })).toStrictEqual({
-      name: 'Ada',
-      username: '',
-      birthDate: '2026-03-19',
-      lastCommitAt: '2026-03-19T10:00:00.000Z',
-      featured: false,
-      priority: 0,
+    expect(generateInitialDataFromSchema('authors', schema)).toStrictEqual({
     })
   })
 
