@@ -6,7 +6,6 @@
     "build": "nuxt build --extends docus"
   },
   "dependencies": {
-    "aws4fetch": "^1.0.20",
     "better-sqlite3": "^12.6.2",
     "docus": "^5.5.0",
     "nuxt": "^4.3.0",

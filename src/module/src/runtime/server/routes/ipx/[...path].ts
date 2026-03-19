@@ -33,10 +33,8 @@ export default eventHandler(async (event) => {
     format = result.format
   }
   catch (error) {
-    console.error('IPX process error for', parsed.id, error)
     const fallbackData = await getOriginalImage(parsed.id)
     if (!fallbackData) {
-      console.error('IPX fallback also failed for', parsed.id)
       throw error
     }
 
