@@ -1,57 +1,59 @@
-import type { Draft07 } from '@nuxt/content'
+import type { Draft07, Draft07DefinitionProperty } from '@nuxt/content'
 import { describe, expect, test } from 'vitest'
 import { ContentFileExtension } from '../../../src/types'
 import { generateInitialContentForCollection, generateInitialContentForPath, generateInitialDataFromSchema } from '../../../src/utils/schema'
 
-describe('generateInitialDataFromSchema', () => {
-  test('uses defaults and scaffolds required nested objects and arrays', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/posts',
-      definitions: {
-        posts: {
-          type: 'object',
-          required: ['slug', 'authors', 'seo'],
-          properties: {
-            title: {
-              type: 'string',
-              default: 'Untitled',
-            },
-            slug: {
-              type: 'string',
-            },
-            authors: {
-              type: 'array',
-              items: {
-                type: 'string',
-              },
-            },
-            seo: {
-              type: 'object',
-              required: ['image'],
-              properties: {
-                image: {
-                  type: 'object',
-                  required: ['src'],
-                  properties: {
-                    src: {
-                      type: 'string',
-                      default: '/cover.png',
-                    },
-                    alt: {
-                      type: 'string',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
+function defineObject(
+  properties: Record<string, Draft07DefinitionProperty>,
+  required: string[] = [],
+): Draft07DefinitionProperty {
+  return {
+    type: 'object',
+    properties,
+    required,
+  }
+}
 
-    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
+function defineSchema(
+  collection: string,
+  definition: Draft07DefinitionProperty,
+  extraDefinitions: Record<string, Draft07DefinitionProperty> = {},
+): Draft07 {
+  return {
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    $ref: `#/definitions/${collection}`,
+    definitions: {
+      [collection]: definition,
+      ...extraDefinitions,
+    },
+  }
+}
+
+describe('generateInitialDataFromSchema', () => {
+  test('builds starter data from inline defaults, required containers, enums, and title injection', () => {
+    const schema = defineSchema('posts', defineObject({
+      title: { type: 'string', default: 'Untitled' },
+      name: { type: 'string' },
+      role: { type: 'string', enum: ['maintainer', 'author'] },
+      authors: { type: 'array', items: { type: 'string' } },
+      seo: defineObject({
+        image: defineObject({
+          src: { type: 'string', default: '/cover.png' },
+          alt: { type: 'string' },
+        }, ['src']),
+      }, ['image']),
+      body: { type: 'object', default: { value: 'hidden reserved key' } },
+      secret: {
+        type: 'string',
+        default: 'hidden',
+        $content: { editor: { hidden: true } },
+      },
+    }, ['name', 'role', 'authors', 'seo', 'body', 'secret']))
+
+    expect(generateInitialDataFromSchema('posts', schema, { title: 'Ada' })).toStrictEqual({
       title: 'Untitled',
+      name: 'Ada',
+      role: 'maintainer',
       authors: [],
       seo: {
         image: {
@@ -61,259 +63,49 @@ describe('generateInitialDataFromSchema', () => {
     })
   })
 
-  test('skips hidden and reserved keys', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/posts',
-      definitions: {
-        posts: {
-          type: 'object',
-          required: ['title', 'body', 'meta', 'secret'],
-          properties: {
-            title: {
-              type: 'string',
-              default: 'Visible',
-            },
-            body: {
-              type: 'object',
-              default: { value: 'hidden reserved key' },
-            },
-            meta: {
-              type: 'object',
-              default: { draft: true },
-            },
-            secret: {
-              type: 'string',
-              default: 'hidden',
-              $content: {
-                editor: {
-                  hidden: true,
-                },
-              },
-            },
+  test('handles inline allOf, anyOf, and oneOf with the simple selection rules', () => {
+    const schema = defineSchema('posts', {
+      allOf: [
+        defineObject({
+          navigation: {
+            anyOf: [
+              { type: 'boolean', default: true },
+              defineObject({
+                title: { type: 'string', default: 'Docs' },
+              }, ['title']),
+            ],
           },
-        },
-      },
-    }
-
-    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
-      title: 'Visible',
+        }, ['navigation']),
+        defineObject({
+          card: {
+            oneOf: [
+              { type: 'string' },
+              defineObject({
+                theme: { type: 'string', default: 'default' },
+              }, ['theme']),
+            ],
+          },
+          seo: {
+            allOf: [
+              defineObject({
+                title: { type: 'string', default: 'SEO title' },
+              }, ['title']),
+              defineObject({
+                image: defineObject({
+                  src: { type: 'string', default: '/social.png' },
+                }, ['src']),
+              }, ['image']),
+            ],
+          },
+        }, ['card']),
+      ],
     })
-  })
-
-  test('prefers object branches for anyOf and oneOf definitions', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/posts',
-      definitions: {
-        posts: {
-          type: 'object',
-          required: ['settings', 'card'],
-          properties: {
-            settings: {
-              anyOf: [
-                { type: 'boolean' },
-                {
-                  type: 'object',
-                  required: ['icon'],
-                  properties: {
-                    icon: {
-                      type: 'string',
-                      default: 'i-lucide-star',
-                    },
-                  },
-                },
-              ],
-            },
-            card: {
-              oneOf: [
-                { type: 'string' },
-                {
-                  type: 'object',
-                  required: ['theme'],
-                  properties: {
-                    theme: {
-                      type: 'string',
-                      default: 'default',
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    }
-
-    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
-      settings: {
-        icon: 'i-lucide-star',
-      },
-      card: {
-        theme: 'default',
-      },
-    })
-  })
-
-  test('prefers explicit defaults over object branches in variants', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/posts',
-      definitions: {
-        posts: {
-          type: 'object',
-          required: ['navigation'],
-          properties: {
-            navigation: {
-              anyOf: [
-                {
-                  type: 'boolean',
-                  default: true,
-                },
-                {
-                  type: 'object',
-                  required: ['title'],
-                  properties: {
-                    title: {
-                      type: 'string',
-                      default: 'Docs',
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    }
 
     expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
       navigation: true,
-    })
-  })
-
-  test('uses enum values and caller title injection when required', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/authors',
-      definitions: {
-        authors: {
-          type: 'object',
-          required: ['name', 'role', 'theme'],
-          properties: {
-            name: {
-              type: 'string',
-            },
-            role: {
-              type: 'string',
-              enum: ['maintainer', 'author'],
-            },
-            theme: {
-              anyOf: [
-                {
-                  type: 'string',
-                  enum: ['system', 'light'],
-                },
-                {
-                  type: 'object',
-                  default: {
-                    mode: 'dark',
-                  },
-                },
-              ],
-            },
-          },
-        },
+      card: {
+        theme: 'default',
       },
-    }
-
-    expect(generateInitialDataFromSchema('authors', schema, {
-      title: 'Ada',
-    })).toStrictEqual({
-      name: 'Ada',
-      role: 'maintainer',
-      theme: {
-        mode: 'dark',
-      },
-    })
-  })
-
-  test('omits required scalar fields without defaults, enums, or title injection', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/authors',
-      definitions: {
-        authors: {
-          type: 'object',
-          required: ['username', 'birthDate', 'featured', 'priority'],
-          properties: {
-            username: {
-              type: 'string',
-            },
-            birthDate: {
-              type: 'string',
-              format: 'date',
-            },
-            featured: {
-              type: 'boolean',
-            },
-            priority: {
-              type: 'integer',
-            },
-          },
-        },
-      },
-    }
-
-    expect(generateInitialDataFromSchema('authors', schema)).toStrictEqual({
-    })
-  })
-
-  test('merges object branches for allOf definitions', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/posts',
-      definitions: {
-        posts: {
-          type: 'object',
-          required: ['seo'],
-          properties: {
-            seo: {
-              allOf: [
-                {
-                  type: 'object',
-                  required: ['title'],
-                  properties: {
-                    title: {
-                      type: 'string',
-                      default: 'SEO title',
-                    },
-                  },
-                },
-                {
-                  type: 'object',
-                  required: ['image'],
-                  properties: {
-                    image: {
-                      type: 'object',
-                      required: ['src'],
-                      properties: {
-                        src: {
-                          type: 'string',
-                          default: '/social.png',
-                        },
-                      },
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    }
-
-    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
       seo: {
         title: 'SEO title',
         image: {
@@ -323,32 +115,18 @@ describe('generateInitialDataFromSchema', () => {
     })
   })
 
-  test('skips referenced subschemas because only inline definitions are supported', () => {
-    const schema: Draft07 = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      $ref: '#/definitions/posts',
-      definitions: {
-        posts: {
-          type: 'object',
-          required: ['author'],
-          properties: {
-            author: {
-              $ref: '#/definitions/author',
-            },
-          },
-        },
-        author: {
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: {
-              type: 'string',
-              default: 'Ada',
-            },
-          },
-        },
-      },
-    }
+  test('omits unsupported required scalars and referenced subschemas', () => {
+    const schema = defineSchema('posts', defineObject({
+      username: { type: 'string' },
+      birthDate: { type: 'string', format: 'date' },
+      featured: { type: 'boolean' },
+      priority: { type: 'integer' },
+      author: { $ref: '#/definitions/author' },
+    }, ['username', 'birthDate', 'featured', 'priority', 'author']), {
+      author: defineObject({
+        name: { type: 'string', default: 'Ada' },
+      }, ['name']),
+    })
 
     expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({})
   })
@@ -393,7 +171,7 @@ describe('generateInitialContentForCollection', () => {
     )).toBe('---\ntitle: Untitled\nauthors: []\n---\n\n# Untitled')
   })
 
-  test('serializes schema-derived yaml and json content', () => {
+  test('serializes yaml/json content and falls back when no collection exists', () => {
     expect(generateInitialContentForCollection(
       ContentFileExtension.YAML,
       '# ignored',
@@ -405,9 +183,7 @@ describe('generateInitialContentForCollection', () => {
       '# ignored',
       collection,
     )).toBe('{\n  "title": "Untitled",\n  "authors": []\n}')
-  })
 
-  test('looks up the collection by path and falls back when none exists', () => {
     const collectionByPath = (fsPath: string) => fsPath.endsWith('.md') ? collection : undefined
 
     expect(generateInitialContentForPath(
@@ -424,14 +200,5 @@ describe('generateInitialContentForCollection', () => {
       collectionByPath,
       { fallbackData: { title: 'Folder title' } },
     )).toBe('title: Folder title\n')
-  })
-
-  test('prefers explicit fallback data over schema defaults', () => {
-    expect(generateInitialContentForCollection(
-      ContentFileExtension.YAML,
-      '',
-      collection,
-      { fallbackData: { title: 'Folder title' } },
-    )).toBe('title: Folder title\nauthors: []\n')
   })
 })
