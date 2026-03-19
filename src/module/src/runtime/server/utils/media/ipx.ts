@@ -111,9 +111,7 @@ export function parseIpxPath(pathname: string) {
     })
   }
 
-  // Restore collapsed protocol double-slash: some proxies (e.g. Vercel) normalize
-  // `https://` → `https:/` in URL paths before the request reaches the server.
-  const id = decodeURIComponent(idSegments.join('/')).replace(/^(https?:\/)([^/])/, '$1/$2')
+  const id = decodeURIComponent(idSegments.join('/'))
   if (!id) {
     throw createError({
       statusCode: 400,
