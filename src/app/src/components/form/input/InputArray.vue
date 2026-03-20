@@ -118,7 +118,7 @@ function moveItem(index: number, offset: number) {
               size="2xs"
               icon="i-lucide-arrow-up"
               class="opacity-0 group-hover/item:opacity-100 transition-opacity"
-              :aria-label="$t('studio.form.moveItemUp')"
+              :aria-label="$t('studio.form.array.moveItemUp')"
               @click.stop="moveItem(item.index, -1)"
             />
             <UButton
@@ -127,7 +127,7 @@ function moveItem(index: number, offset: number) {
               size="2xs"
               icon="i-lucide-arrow-down"
               class="opacity-0 group-hover/item:opacity-100 transition-opacity"
-              :aria-label="$t('studio.form.moveItemDown')"
+              :aria-label="$t('studio.form.array.moveItemDown')"
               @click.stop="moveItem(item.index, 1)"
             />
             <UButton
@@ -136,7 +136,7 @@ function moveItem(index: number, offset: number) {
               size="2xs"
               icon="i-lucide-trash"
               class="opacity-0 group-hover/item:opacity-100 transition-opacity"
-              :aria-label="$t('studio.form.deleteItem')"
+              :aria-label="$t('studio.form.array.deleteItem')"
               @click.stop="deleteItem(item.index)"
             />
           </template>
