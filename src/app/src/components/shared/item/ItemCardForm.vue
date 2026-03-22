@@ -16,7 +16,7 @@ import { parseName, getFileExtension, CONTENT_EXTENSIONS, MEDIA_EXTENSIONS } fro
 import { slugifyString } from '../../../utils/string'
 import { upperFirst } from 'scule'
 import { useI18n } from 'vue-i18n'
-import { generateInitialContentForPath } from '../../../utils/schema'
+import { generateInitialContentForCollection } from '../../../utils/schema'
 
 const { context, host } = useStudio()
 const { t } = useI18n()
@@ -145,7 +145,7 @@ const routePath = computed(() => {
 function getInitialContent(fsPath: string, extension: string, title: string): string {
   const markdownBody = t('studio.content.initialMarkdownContent', { title })
 
-  return generateInitialContentForPath(fsPath, extension, markdownBody, host.collection.getByFsPath, { title })
+  return generateInitialContentForCollection(extension, markdownBody, host.collection.getByFsPath(fsPath), { title })
 }
 
 const displayInfo = computed(() => {

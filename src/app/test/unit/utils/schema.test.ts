@@ -1,7 +1,7 @@
 import type { Draft07, Draft07DefinitionProperty } from '@nuxt/content'
 import { describe, expect, test } from 'vitest'
 import { ContentFileExtension } from '../../../src/types'
-import { generateInitialContentForCollection, generateInitialContentForPath, generateInitialDataFromSchema } from '../../../src/utils/schema'
+import { generateInitialContentForCollection, generateInitialDataFromSchema } from '../../../src/utils/schema'
 
 function defineObject(
   properties: Record<string, Draft07DefinitionProperty>,
@@ -115,6 +115,34 @@ describe('generateInitialDataFromSchema', () => {
     })
   })
 
+  test('deep-merges duplicate object keys contributed by allOf branches', () => {
+    const schema = defineSchema('posts', {
+      allOf: [
+        defineObject({
+          seo: defineObject({
+            title: { type: 'string', default: 'SEO title' },
+          }, ['title']),
+        }, ['seo']),
+        defineObject({
+          seo: defineObject({
+            image: defineObject({
+              src: { type: 'string', default: '/social.png' },
+            }, ['src']),
+          }, ['image']),
+        }, ['seo']),
+      ],
+    })
+
+    expect(generateInitialDataFromSchema('posts', schema)).toStrictEqual({
+      seo: {
+        title: 'SEO title',
+        image: {
+          src: '/social.png',
+        },
+      },
+    })
+  })
+
   test('omits unsupported required scalars and referenced subschemas', () => {
     const schema = defineSchema('posts', defineObject({
       username: { type: 'string' },
@@ -184,20 +212,16 @@ describe('generateInitialContentForCollection', () => {
       collection,
     )).toBe('{\n  "title": "Untitled",\n  "authors": []\n}')
 
-    const collectionByPath = (fsPath: string) => fsPath.endsWith('.md') ? collection : undefined
-
-    expect(generateInitialContentForPath(
-      'docs/hello.md',
+    expect(generateInitialContentForCollection(
       ContentFileExtension.Markdown,
       '# Untitled',
-      collectionByPath,
+      collection,
     )).toBe('---\ntitle: Untitled\nauthors: []\n---\n\n# Untitled')
 
-    expect(generateInitialContentForPath(
-      'docs/hello.yml',
+    expect(generateInitialContentForCollection(
       ContentFileExtension.YAML,
       '',
-      collectionByPath,
+      undefined,
       { fallbackData: { title: 'Folder title' } },
     )).toBe('title: Folder title\n')
   })

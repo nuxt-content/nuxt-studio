@@ -25,20 +25,6 @@ interface InitialDataOptions {
   title?: string
 }
 
-function cloneValue<T>(value: T): T {
-  if (Array.isArray(value)) {
-    return value.map(item => cloneValue(item)) as T
-  }
-
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [key, cloneValue(item)]),
-    ) as T
-  }
-
-  return value
-}
-
 function isObjectDefinition(definition?: Draft07DefinitionProperty): definition is Draft07DefinitionProperty & { properties: Record<string, Draft07DefinitionProperty> } {
   return Boolean(definition && (definition.type === 'object' || definition.properties))
 }
@@ -54,18 +40,41 @@ function mergeObjectDefinitions(definitions: Draft07DefinitionProperty[]) {
     return undefined
   }
 
-  const mergedRequired = new Set<string>()
-  const mergedProperties: Record<string, Draft07DefinitionProperty> = {}
+  return objectDefinitions.reduce((merged, definition) => {
+    return merged ? mergeDefinitions(merged, definition) : definition
+  }) as Draft07DefinitionProperty | undefined
+}
 
-  objectDefinitions.forEach((definition) => {
-    Object.assign(mergedProperties, definition.properties)
-    definition.required?.forEach(key => mergedRequired.add(key))
-  })
+function mergeDefinitions(
+  left: Draft07DefinitionProperty,
+  right: Draft07DefinitionProperty,
+): Draft07DefinitionProperty {
+  if (isObjectDefinition(left) && isObjectDefinition(right)) {
+    return {
+      ...left,
+      ...right,
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from(new Set([
+          ...Object.keys(left.properties),
+          ...Object.keys(right.properties),
+        ])).map((key) => {
+          const leftProperty = left.properties[key]
+          const rightProperty = right.properties[key]
+
+          return [key, leftProperty && rightProperty ? mergeDefinitions(leftProperty, rightProperty) : (rightProperty || leftProperty)!]
+        }),
+      ),
+      required: Array.from(new Set([
+        ...(left.required || []),
+        ...(right.required || []),
+      ])),
+    } as Draft07DefinitionProperty
+  }
 
   return {
-    type: 'object',
-    properties: mergedProperties,
-    required: Array.from(mergedRequired),
+    ...left,
+    ...right,
   } as Draft07DefinitionProperty
 }
 
@@ -80,7 +89,7 @@ function resolveDefinition(definition?: Draft07DefinitionProperty): Draft07Defin
     return undefined
   }
 
-  // Starter generation intentionally supports inline schema shapes only.
+  // $ref resolution skipped — only inline schemas used for starter generation
   const compositeDefinition = definition as CompositeDefinition
   if (compositeDefinition.allOf?.length) {
     return mergeObjectDefinitions(compositeDefinition.allOf) || pickPreferredVariant(compositeDefinition.allOf)
@@ -133,11 +142,11 @@ function buildInitialValue(
   }
 
   if (resolvedDefinition.default !== undefined) {
-    return cloneValue(resolvedDefinition.default)
+    return structuredClone(resolvedDefinition.default)
   }
 
   if (context.required && resolvedDefinition.enum?.length) {
-    return cloneValue(resolvedDefinition.enum[0])
+    return structuredClone(resolvedDefinition.enum[0])
   }
 
   if (isObjectDefinition(resolvedDefinition)) {
@@ -211,17 +220,3 @@ export function generateInitialContentForCollection(
   return serializeInitialData(extension, bodyContent, initialData)
 }
 
-export function generateInitialContentForPath(
-  fsPath: string,
-  extension: string,
-  bodyContent: string,
-  getCollectionByFsPath: (fsPath: string) => Pick<CollectionInfo, 'name' | 'schema'> | undefined,
-  options: InitialDataOptions = {},
-) {
-  return generateInitialContentForCollection(
-    extension,
-    bodyContent,
-    getCollectionByFsPath(fsPath),
-    options,
-  )
-}

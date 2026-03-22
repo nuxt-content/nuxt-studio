@@ -1,4 +1,4 @@
-import type { MarkdownRoot } from '@nuxt/content'
+import type { CollectionInfo, MarkdownRoot } from '@nuxt/content'
 import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import type { Node } from 'unist'
@@ -142,38 +142,38 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
   return result
 }
 
-export async function generateContentFromDocument(document: DatabaseItem): Promise<string | null> {
+export async function generateContentFromDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
   const [id, _hash] = document.id.split('#')
   const extension = getFileExtension(id!)
 
   if (extension === ContentFileExtension.Markdown) {
-    return await generateContentFromMarkdownDocument(document as DatabasePageItem)
+    return await generateContentFromMarkdownDocument(document as DatabasePageItem, collection)
   }
 
   if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
-    return await generateContentFromYAMLDocument(document)
+    return await generateContentFromYAMLDocument(document, collection)
   }
 
   if (extension === ContentFileExtension.JSON) {
-    return await generateContentFromJSONDocument(document)
+    return await generateContentFromJSONDocument(document, collection)
   }
 
   return null
 }
 
-export async function generateContentFromYAMLDocument(document: DatabaseItem): Promise<string | null> {
-  return await stringifyFrontMatter(cleanDataKeys(document), '', {
+export async function generateContentFromYAMLDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  return await stringifyFrontMatter(cleanDataKeys(document, collection), '', {
     prefix: '',
     suffix: '',
     lineWidth: 0,
   })
 }
 
-export async function generateContentFromJSONDocument(document: DatabaseItem): Promise<string | null> {
-  return JSON.stringify(cleanDataKeys(document), null, 2)
+export async function generateContentFromJSONDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  return JSON.stringify(cleanDataKeys(document, collection), null, 2)
 }
 
-export async function generateContentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
+export async function generateContentFromMarkdownDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
   // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
   const body = document.body!.type === 'minimark' ? decompressTree(document.body) : (document.body as MDCRoot)
 
@@ -183,7 +183,7 @@ export async function generateContentFromMarkdownDocument(document: DatabaseItem
     Reflect.deleteProperty((node as MDCElement).props!, 'rel')
   })
 
-  const markdown = await stringifyMarkdown(body, cleanDataKeys(document), {
+  const markdown = await stringifyMarkdown(body, cleanDataKeys(document, collection), {
     frontMatter: {
       options: {
         lineWidth: 0,
