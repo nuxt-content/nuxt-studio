@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
+import { areDocumentsEqual, generateContentFromYAMLDocument, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
 import type { DatabaseItem, DatabasePageItem } from 'nuxt-studio/app'
 import type { CollectionInfo } from '@nuxt/content'
@@ -309,6 +309,25 @@ describe('areDocumentsEqual', () => {
     }
 
     expect(areDocumentsEqual(document1, document2)).toBe(true)
+  })
+})
+
+describe('generateContentFromYAMLDocument', () => {
+  it('preserves explicit empty arrays from schema-generated starters', async () => {
+    const document: DatabaseItem = {
+      id: 'content:authors/test.yml',
+      extension: ContentFileExtension.YAML,
+      stem: 'authors/test',
+      meta: {},
+      name: 'Test',
+      avatar: {},
+      role: 'contributor',
+      order: 0,
+      isOpenSourceLover: true,
+      modules: [],
+    }
+
+    expect(await generateContentFromYAMLDocument(document)).toContain('modules: []')
   })
 })
 
