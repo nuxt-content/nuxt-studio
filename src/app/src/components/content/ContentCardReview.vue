@@ -4,9 +4,9 @@ import type { PropType } from 'vue'
 import { ref, computed, nextTick, watch } from 'vue'
 import { DraftStatus, ContentFileExtension } from '../../types'
 import { getFileExtension } from '../../utils/file'
+import { decodeRemoteContent } from '../../utils/draft'
 import { useMonaco } from '../../composables/useMonaco'
 import { useStudio } from '../../composables/useStudio'
-import { fromBase64ToUTF8 } from '../../utils/string'
 
 const { ui, host } = useStudio()
 
@@ -27,47 +27,30 @@ const modifiedContent = ref('')
 const language = computed(() => {
   const ext = getFileExtension(props.draftItem.fsPath)
   switch (ext) {
-    case ContentFileExtension.Markdown:
-      return 'mdc'
+    case ContentFileExtension.Markdown: return 'mdc'
     case ContentFileExtension.YAML:
-    case ContentFileExtension.YML:
-      return 'yaml'
-    case ContentFileExtension.JSON:
-      return 'javascript'
-    default:
-      return 'text'
+    case ContentFileExtension.YML: return 'yaml'
+    case ContentFileExtension.JSON: return 'javascript'
+    default: return 'text'
   }
 })
 
-const formattingChange = computed(() => props.draftItem.formatting)
-const hasAutomaticFormatting = computed(() => !!formattingChange.value)
+const hasAutomaticFormatting = computed(() => !!props.draftItem.formatting)
 
 watch(isOpen, () => {
-  if (isOpen.value && !isLoadingContent.value) {
-    initializeEditor()
-  }
+  if (isOpen.value && !isLoadingContent.value) initializeEditor()
 })
-
-function toggleDiffView(show: boolean) {
-  showAutomaticFormattingDiff.value = show
-}
 
 async function initializeEditor() {
   isLoadingContent.value = true
   showAutomaticFormattingDiff.value = false
 
-  const generateContentFromDocument = host.document.generate.contentFromDocument
-  const remoteOriginal = formattingChange.value?.originalContent
-    || (props.draftItem.remoteFile?.content
-      ? (props.draftItem.remoteFile.encoding === 'base64'
-          ? fromBase64ToUTF8(props.draftItem.remoteFile.content)
-          : props.draftItem.remoteFile.content)
-      : null)
-  const modified = props.draftItem.modified ? await generateContentFromDocument(props.draftItem.modified as DatabasePageItem) : null
+  const remoteOriginal = props.draftItem.formatting?.originalContent
+    || (props.draftItem.remoteFile?.content ? decodeRemoteContent(props.draftItem.remoteFile) : null)
+  const modified = props.draftItem.modified ? await host.document.generate.contentFromDocument(props.draftItem.modified as DatabasePageItem) : null
   originalContent.value = remoteOriginal || ''
   modifiedContent.value = modified || ''
 
-  // Wait for DOM to update before initializing Monaco
   await nextTick()
 
   if ([DraftStatus.Created, DraftStatus.Deleted].includes(props.draftItem.status)) {
@@ -118,13 +101,13 @@ async function initializeEditor() {
             v-if="hasAutomaticFormatting"
             show-action
             :shown="showAutomaticFormattingDiff"
-            @show-diff="toggleDiffView"
+            @show-diff="(show: boolean) => showAutomaticFormattingDiff = show"
           />
           <ContentEditorDiff
             v-if="showAutomaticFormattingDiff"
             :language="language"
-            :original-content="formattingChange?.originalContent || ''"
-            :formatted-content="formattingChange?.formattedContent || ''"
+            :original-content="draftItem.formatting?.originalContent || ''"
+            :formatted-content="draftItem.formatting?.formattedContent || ''"
             class="flex-1"
           />
           <ContentEditorDiff

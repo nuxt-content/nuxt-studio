@@ -1,8 +1,12 @@
-import type { DatabaseItem, MediaItem, DraftItem, ContentConflict, MarkdownFormattingChange, StudioHost } from '../types'
+import type { DatabaseItem, MediaItem, DraftItem, ContentConflict, GitFile, MarkdownFormattingChange, StudioHost } from '../types'
 import { ContentFileExtension, DraftStatus } from '../types'
 import { fromBase64ToUTF8 } from '../utils/string'
 import { getFileExtension, isMediaFile } from './file'
 import { areContentEqual } from './content'
+
+export function decodeRemoteContent(remoteFile: GitFile): string {
+  return remoteFile.encoding === 'base64' ? fromBase64ToUTF8(remoteFile.content!) : remoteFile.content!
+}
 
 export async function checkConflict(host: StudioHost, draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<ContentConflict | undefined> {
   const generateContentFromDocument = host.document.generate.contentFromDocument
@@ -21,9 +25,7 @@ export async function checkConflict(host: StudioHost, draftItem: DraftItem<Datab
     return
   }
 
-  const remoteContent = draftItem.remoteFile?.encoding === 'base64'
-    ? fromBase64ToUTF8(draftItem.remoteFile.content!)
-    : draftItem.remoteFile!.content!
+  const remoteContent = decodeRemoteContent(draftItem.remoteFile)
 
   if (draftItem.status === DraftStatus.Created && remoteContent) {
     return {
@@ -57,40 +59,17 @@ export async function getMarkdownFormattingChange(host: StudioHost, draftItem: D
   }
 
   const formattedContent = await host.document.generate.contentFromDocument(draftItem.original as DatabaseItem)
-  if (typeof formattedContent !== 'string') {
-    return
-  }
+  if (typeof formattedContent !== 'string') return
 
-  const originalContent = draftItem.remoteFile.encoding === 'base64'
-    ? fromBase64ToUTF8(draftItem.remoteFile.content)
-    : draftItem.remoteFile.content
+  const originalContent = decodeRemoteContent(draftItem.remoteFile)
+  if (areContentEqual(formattedContent, originalContent)) return
 
-  if (areContentEqual(formattedContent, originalContent)) {
-    return
-  }
-
-  return {
-    originalContent,
-    formattedContent,
-  }
+  return { originalContent, formattedContent }
 }
 
 export function getPristineMarkdownRemoteContent(draftItem: DraftItem<DatabaseItem | MediaItem>): string | undefined {
-  if (draftItem.status !== DraftStatus.Pristine) {
-    return
-  }
-
-  if (!draftItem.original || getFileExtension(draftItem.fsPath) !== ContentFileExtension.Markdown) {
-    return
-  }
-
-  if (!draftItem.remoteFile?.content) {
-    return
-  }
-
-  return draftItem.remoteFile.encoding === 'base64'
-    ? fromBase64ToUTF8(draftItem.remoteFile.content)
-    : draftItem.remoteFile.content
+  if (draftItem.status !== DraftStatus.Pristine || !draftItem.original || !draftItem.remoteFile?.content || getFileExtension(draftItem.fsPath) !== ContentFileExtension.Markdown) return
+  return decodeRemoteContent(draftItem.remoteFile)
 }
 
 export function shouldShowMarkdownFormattingBanner(draftItem: DraftItem<DatabaseItem | MediaItem>): boolean {

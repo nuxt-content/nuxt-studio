@@ -30,38 +30,25 @@ function refineDocumentData(doc: Record<string, unknown>) {
     refinedDoc.navigation = true
   }
 
-  // Normalize date values to ISO string format for comparison
   for (const key in refinedDoc) {
     const value = refinedDoc[key]
-    if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) {
-      // Check if it looks like a date string (YYYY-MM-DD or ISO format)
-      if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
-        refinedDoc[key] = new Date(value).toISOString().split('T')[0]
-      }
+    if (typeof value === 'string' && !Number.isNaN(Date.parse(value)) && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+      refinedDoc[key] = new Date(value).toISOString().split('T')[0]
     }
   }
 
-  // Remove null and undefined values recursively
   function removeNullAndUndefined(obj: Record<string, unknown>): Record<string, unknown> {
     const result: Record<string, unknown> = {}
-
     for (const key in obj) {
       const value = obj[key]
-
-      // Skip null and undefined values
-      if (value === null || value === undefined) {
-        continue
-      }
-
-      // Recursively clean nested objects (but not arrays)
-      if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+      if (value === null || value === undefined) continue
+      if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
         result[key] = removeNullAndUndefined(value as Record<string, unknown>)
       }
       else {
         result[key] = value
       }
     }
-
     return result
   }
 

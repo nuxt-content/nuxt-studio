@@ -26,10 +26,6 @@ const { preferences } = useStudioState()
 const showAutomaticFormattingDiff = ref(false)
 const formattingChange = computed(() => shouldShowMarkdownFormattingBanner(props.draftItem) ? props.draftItem.formatting : undefined)
 
-function toggleDiffView(show: boolean) {
-  showAutomaticFormattingDiff.value = show
-}
-
 const document = computed<DatabasePageItem>({
   get() {
     if (!props.draftItem) {
@@ -96,7 +92,7 @@ const language = computed(() => {
         show-action
         :shown="showAutomaticFormattingDiff"
         class="flex-none"
-        @show-diff="toggleDiffView"
+        @show-diff="(show: boolean) => showAutomaticFormattingDiff = show"
       />
       <ContentEditorDiff
         v-if="showAutomaticFormattingDiff"
