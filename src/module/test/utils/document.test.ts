@@ -459,6 +459,63 @@ Description`
     expect(_isDocumentMatchingContent).toBe(true)
   })
 
+  it('should be true when frontmatter fields are stored under meta', async () => {
+    const markdownContent = `---
+authors:
+- Team Nimiq
+description: The election of the Nimiq Community Council is getting closer. Today, we’ll explain how the voting process works
+  and how you can participate.
+image: /assets/images/media/aYT5lN0YXLCxVeMg_council_voting.png
+publishedAt: '2026-02-06'
+slug: communitycouncil-voting-guide
+title: Community Council Elections Voting Guide
+updatedAt: 2026-02-06T15:31:23+0000
+---
+
+Quick heads-up before voting goes live, a few important notes:
+
+- **Stakers:** No need to un-stake.`
+
+    const document = {
+      id: 'docs/blog/131.communitycouncil-voting-guide.md',
+      title: 'Community Council Elections Voting Guide',
+      body: {
+        type: 'minimark',
+        value: [
+          ['p', {}, 'Quick heads-up before voting goes live, a few important notes:'],
+          ['ul', {}, ['li', {}, ['strong', {}, 'Stakers:'], ' No need to un-stake.']],
+        ],
+        toc: {
+          title: '',
+          searchDepth: 2,
+          depth: 2,
+          links: [],
+        },
+      },
+      description: 'The election of the Nimiq Community Council is getting closer. Today, we’ll explain how the voting process works and how you can participate.',
+      extension: 'md',
+      meta: {
+        authors: ['Team Nimiq'],
+        image: '/assets/images/media/aYT5lN0YXLCxVeMg_council_voting.png',
+        publishedAt: '2026-02-06',
+        slug: 'communitycouncil-voting-guide',
+        updatedAt: '2026-02-06T15:31:23+0000',
+      },
+      navigation: true,
+      path: '/blog/communitycouncil-voting-guide',
+      seo: {
+        title: 'Community Council Elections Voting Guide',
+        description: 'The election of the Nimiq Community Council is getting closer. Today, we’ll explain how the voting process works and how you can participate.',
+      },
+      stem: 'blog/131.communitycouncil-voting-guide',
+      __hash__: '82U42rVz-4ZA63y-w_XkQmUzcC-qVUPNpJV49w--g-E',
+      fsPath: 'blog/131.communitycouncil-voting-guide.md',
+    }
+
+    const result = await isDocumentMatchingContent(markdownContent, document as unknown as DatabaseItem)
+    expect(result).toBe(true)
+  })
+
   it('should be true for JSON data collection with non-alphabetical key order', async () => {
     const jsonContent = JSON.stringify({
       seo_title: 'My Page Title',

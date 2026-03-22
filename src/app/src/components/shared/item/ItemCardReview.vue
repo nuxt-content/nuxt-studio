@@ -11,6 +11,11 @@ const props = defineProps({
     type: Object as PropType<DraftItem>,
     required: true,
   },
+  formattingBadgeLabel: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
 })
 
 const isOpen = defineModel<boolean>({ default: false })
@@ -56,6 +61,13 @@ function toggleOpen() {
             <UBadge
               :label="$t(`studio.review.${draftItem.status.toLowerCase()}`)"
               :color="statusColor"
+              variant="soft"
+              size="xs"
+            />
+            <UBadge
+              v-if="formattingBadgeLabel"
+              :label="formattingBadgeLabel"
+              color="info"
               variant="soft"
               size="xs"
             />

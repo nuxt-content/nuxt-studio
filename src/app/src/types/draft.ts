@@ -14,6 +14,11 @@ export interface ContentConflict {
   localContent: string
 }
 
+export interface MarkdownFormattingChange {
+  originalContent: string
+  formattedContent: string
+}
+
 export interface DraftItem<T = DatabaseItem | MediaItem> {
   fsPath: string // file path in content directory
   status: DraftStatus // status
@@ -35,4 +40,8 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    * Content conflict detection
    */
   conflict?: ContentConflict
+  /**
+   * Markdown source differs from Studio's canonical serialization.
+   */
+  formatting?: MarkdownFormattingChange
 }

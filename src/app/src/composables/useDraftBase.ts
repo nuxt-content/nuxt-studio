@@ -3,7 +3,7 @@ import { joinURL } from 'ufo'
 import type { DraftItem, StudioHost, GitFile, DatabaseItem, MediaItem, BaseItem } from '../types'
 import { ContentFileExtension } from '../types'
 import { DraftStatus } from '../types/draft'
-import { checkConflict, findDescendantsFromFsPath } from '../utils/draft'
+import { checkConflict, findDescendantsFromFsPath, getMarkdownFormattingChange } from '../utils/draft'
 import type { useGitProvider } from './useGitProvider'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
@@ -65,6 +65,11 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     const conflict = await checkConflict(host, draftItem)
     if (conflict) {
       draftItem.conflict = conflict
+    }
+
+    const formatting = await getMarkdownFormattingChange(host, draftItem)
+    if (formatting) {
+      draftItem.formatting = formatting
     }
 
     await storage.setItem(fsPath, draftItem)

@@ -6,6 +6,7 @@ import { setupSuggestion } from '../../../utils/monaco'
 import { useStudio } from '../../../composables/useStudio'
 import { useMonaco } from '../../../composables/useMonaco'
 import { useI18n } from 'vue-i18n'
+import { getPristineMarkdownRemoteContent } from '../../../utils/draft'
 
 const props = defineProps({
   draftItem: {
@@ -110,6 +111,14 @@ watch(() => document.value?.id + '-' + props.draftItem.version, async () => {
 }, { immediate: true })
 
 async function setContent(document: DatabasePageItem) {
+  const remoteContent = getPristineMarkdownRemoteContent(props.draftItem)
+  if (remoteContent !== undefined) {
+    content.value = remoteContent
+    setEditorContent(remoteContent, true)
+    currentDocumentId.value = document.id
+    return
+  }
+
   const generateContentFromDocument = host.document.generate.contentFromDocument
   const generatedContent = await generateContentFromDocument(document) || ''
   content.value = generatedContent

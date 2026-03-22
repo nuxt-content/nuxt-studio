@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-defineProps({
+const props = defineProps({
   showAction: {
+    type: Boolean,
+    default: false,
+  },
+  shown: {
     type: Boolean,
     default: false,
   },
@@ -10,11 +12,8 @@ defineProps({
 
 const emit = defineEmits(['showDiff'])
 
-const isDiffShown = ref(false)
-
 function toggleAction() {
-  isDiffShown.value = !isDiffShown.value
-  emit('showDiff', isDiffShown.value)
+  emit('showDiff', !props.shown)
 }
 </script>
 
@@ -37,7 +36,7 @@ function toggleAction() {
         class="bg-white hover:bg-muted dark:bg-accented dark:hover:bg-elevated"
         @click="toggleAction"
       >
-        {{ isDiffShown ? $t('studio.buttons.backToEdition') : $t('studio.buttons.seeChanges') }}
+        {{ shown ? $t('studio.buttons.backToEdition') : $t('studio.buttons.seeChanges') }}
       </UButton>
     </template>
   </UAlert>

@@ -47,6 +47,7 @@
       "title": "Review changes",
       "created": "Created",
       "updated": "Updated",
+      "formatting": "Formatting",
       "renamed": "Renamed",
       "deleted": "Deleted"
     },
