@@ -25,10 +25,15 @@
       "copiedToClipboard": "已複製到剪貼簿",
       "copyToClipboard": "複製到剪貼簿",
       "publishChanges": "發佈變更",
-      "backToContent": "返回內容"
+      "backToContent": "返回內容",
+      "disableAICompletion": "停用 AI 自動完成",
+      "enableAICompletion": "啟用 AI 自動完成",
+      "regenerateAIContext": "重新產生 AI 上下文"
     },
     "notifications": {
       "error": {
+        "dismiss": "關閉",
+        "title": "發生錯誤",
         "unknown": "發生未知的錯誤"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "內容",
-      "media": "媒體"
+      "media": "媒體",
+      "ai": "AI"
     },
     "placeholders": {
-      "commitMessage": "提交訊息",
+      "commitMessage": "提交說明",
+      "commitMessageWithPrefix": "描述你的變更",
       "order": "編號",
       "fileName": "檔案名稱"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "在後方插入",
         "delete": "刪除"
       },
+      "ai": {
+        "fix": "修正文法與拼字",
+        "improve": "改善文字表達與清晰度",
+        "simplify": "精簡並簡化文字",
+        "translate": "翻譯",
+        "translateTo": "翻譯為",
+        "targetLanguage": "目標語言",
+        "targetLanguageDescription": "輸入要翻譯成的語言（例如：英文、西班牙文或法文）",
+        "targetLanguagePlaceholder": "例如：英文",
+        "selectionTooLarge": "選取內容過大（上限 {max} 個字元）",
+        "cancel": "取消"
+      },
       "element": {
         "addSlot": "新增插槽",
         "editProps": "編輯屬性",
@@ -243,7 +262,7 @@
           "label": "屬性",
           "itemsCount": "{count} 個項目",
           "fieldsCount": "{count} 個欄位",
-          "edit": "編輯{type}"
+          "edit": "編輯 {type}"
         }
       },
       "slot": {
@@ -280,42 +299,57 @@
         "defaultValuePlaceholder": "預設值"
       },
       "image": {
-        "source": "圖像源 URL",
+        "source": "圖片來源 URL",
         "altText": "替代文字",
-        "title": "圖像標題",
+        "title": "圖片標題",
         "width": "寬度",
         "height": "高度",
-        "noSource": "無圖像源",
-        "edit": "編輯圖像",
-        "delete": "刪除圖像"
+        "noSource": "無圖片來源",
+        "edit": "編輯圖片",
+        "delete": "刪除圖片"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "影片來源 URL",
+        "poster": "封面圖片 URL",
+        "width": "寬度",
+        "height": "高度",
+        "controls": "顯示控制項",
+        "autoplay": "自動播放",
+        "loop": "循環播放",
+        "muted": "靜音",
+        "noSource": "無影片來源",
+        "edit": "編輯影片",
+        "delete": "刪除影片"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "選擇圖片",
         "description": "從媒體庫中選擇一張圖片",
+        "selectionTitle": "圖片詳細資訊",
+        "selectionDescription": "檢查並確認您的選擇",
         "notAvailable": "媒體庫中沒有可用的圖片",
-        "upload": "上傳"
+        "upload": "上傳",
+        "useExternal": "使用外部來源"
       },
       "video": {
         "title": "選擇影片",
         "description": "從媒體庫中選擇一部影片",
+        "selectionTitle": "影片詳細資訊",
+        "selectionDescription": "檢查並確認您的選擇",
         "notAvailable": "媒體庫中沒有可用的影片",
-        "upload": "上傳"
-      }
+        "upload": "上傳",
+        "useExternal": "使用外部來源"
+      },
+      "name": "名稱",
+      "path": "檔案路徑",
+      "publicPath": "公開路徑",
+      "extension": "副檔名",
+      "fileSize": "檔案大小",
+      "resolution": "解析度",
+      "searchPlaceholder": "依完整路徑搜尋",
+      "confirm": "確認",
+      "cancelSelection": "取消"
     },
     "form": {
       "array": {
@@ -332,18 +366,18 @@
         "propertyCount": "1 個屬性 | {count} 個屬性"
       },
       "media": {
-        "placeholder": "相對路徑或公開URL...",
+        "placeholder": "相對路徑或公開 URL...",
         "searchPlaceholder": "搜尋圖片...",
         "noImagesFound": "找不到圖片",
         "noImagesAvailable": "沒有可用的圖片",
-        "imageCount": "{total}張圖片中的{count}張"
+        "imageCount": "{total} 張圖片中的 {count} 張 | {total} 張圖片中的 {count} 張 "
       },
       "icon": {
         "placeholder": "i-lucide-icon",
         "searchPlaceholder": "搜尋圖示...",
         "noIconsFound": "找不到圖示",
-        "searchHint": "輸入至少2個字元進行搜尋",
-        "libraries": "圖示庫:",
+        "searchHint": "請至少輸入 2 個字元進行搜尋",
+        "libraries": "圖示庫",
         "allLibraries": "全部"
       },
       "text": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "正在分析集合並產生 AI 指南...",
+      "collectionGuide": "{collectionName} 集合指南",
+      "writingStyleGuide": "AI 寫作風格指南",
+      "characterCount": "{count} 個字元",
+      "noStyleGuide": "沒有風格指南",
+      "noStyleGuideDescription": "分析 {collectionName} 集合中的內容，以產生完整的 AI 寫作指南。",
+      "analyzing": "分析中...",
+      "analyzeCollection": "分析集合",
+      "experimentalAlert": "上下文檔案目前仍屬於實驗性功能，僅可在開發模式中用於內容生成。",
+      "learnMore": "了解更多",
+      "collectionContextFiles": "集合上下文檔案",
+      "collectionContextDescription": "管理各集合的 AI 寫作風格指南。每個集合都可以擁有自己的上下文檔案，以協助 AI 為您的內容提供更好的自動完成、格式化與改寫建議。",
+      "noCollectionsFound": "找不到集合",
+      "generated": "已產生",
+      "notGenerated": "尚未產生"
+    },
+    "badges": {
+      "experimental": "實驗性"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} 檔案"
     }
   }
 }
