@@ -25,10 +25,15 @@
       "copiedToClipboard": "클립보드에 복사됨",
       "copyToClipboard": "클립보드에 복사하기",
       "publishChanges": "변경 사항 배포하기",
-      "backToContent": "콘텐츠로 돌아가기"
+      "backToContent": "콘텐츠로 돌아가기",
+      "disableAICompletion": "AI 자동완성 비활성화",
+      "enableAICompletion": "AI 자동완성 활성화",
+      "regenerateAIContext": "AI 컨텍스트 재생성"
     },
     "notifications": {
       "error": {
+        "dismiss": "닫기",
+        "title": "오류가 발생했습니다",
         "unknown": "알 수 없는 오류가 발생했습니다"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "콘텐츠",
-      "media": "미디어"
+      "media": "미디어",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "커밋 메시지",
+      "commitMessageWithPrefix": "변경 사항을 설명하세요",
       "order": "순서",
       "fileName": "파일 이름"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "뒤에 삽입",
         "delete": "삭제"
       },
+      "ai": {
+        "fix": "문법 및 맞춤법 수정",
+        "improve": "작문 및 명확성 개선",
+        "simplify": "텍스트 단순화",
+        "translate": "번역",
+        "translateTo": "번역 대상 언어",
+        "targetLanguage": "대상 언어",
+        "targetLanguageDescription": "번역할 언어를 입력하세요 (예: 영어, 프랑스어, 독일어)",
+        "targetLanguagePlaceholder": "예: 영어",
+        "selectionTooLarge": "선택 범위가 너무 큽니다 (최대 {max}자)",
+        "cancel": "취소"
+      },
       "element": {
         "addSlot": "슬롯 추가",
         "editProps": "속성 편집",
@@ -290,32 +309,47 @@
         "delete": "이미지 삭제"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "비디오 소스 URL",
+        "poster": "포스터 이미지 URL",
+        "width": "너비",
+        "height": "높이",
+        "controls": "컨트롤 표시",
+        "autoplay": "자동 재생",
+        "loop": "반복 재생",
+        "muted": "음소거",
+        "noSource": "비디오 소스 없음",
+        "edit": "비디오 편집",
+        "delete": "비디오 삭제"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "이미지 선택",
         "description": "미디어 라이브러리에서 이미지를 선택하세요",
+        "selectionTitle": "이미지 세부 정보",
+        "selectionDescription": "선택 항목을 확인하고 확정하세요",
         "notAvailable": "미디어 라이브러리에 사용 가능한 이미지가 없습니다",
-        "upload": "업로드"
+        "upload": "업로드",
+        "useExternal": "외부 소스 사용"
       },
       "video": {
         "title": "비디오 선택",
         "description": "미디어 라이브러리에서 비디오를 선택하세요",
+        "selectionTitle": "비디오 세부 정보",
+        "selectionDescription": "선택 항목을 확인하고 확정하세요",
         "notAvailable": "미디어 라이브러리에 사용 가능한 비디오가 없습니다",
-        "upload": "업로드"
-      }
+        "upload": "업로드",
+        "useExternal": "외부 소스 사용"
+      },
+      "name": "이름",
+      "path": "파일 경로",
+      "publicPath": "공개 경로",
+      "extension": "확장자",
+      "fileSize": "파일 크기",
+      "resolution": "해상도",
+      "confirm": "확인",
+      "searchPlaceholder": "전체 경로로 검색",
+      "cancelSelection": "취소"
     },
     "form": {
       "array": {
@@ -336,7 +370,7 @@
         "searchPlaceholder": "이미지 검색...",
         "noImagesFound": "이미지를 찾을 수 없습니다",
         "noImagesAvailable": "사용 가능한 이미지가 없습니다",
-        "imageCount": "{total}개 중 {count}개 이미지"
+        "imageCount": "{total}개 중 {count}개 이미지 | {total}개 중 {count}개 이미지"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "컬렉션 분석 및 AI 가이드 생성 중...",
+      "collectionGuide": "{collectionName} 컬렉션 가이드",
+      "writingStyleGuide": "AI 글쓰기 스타일 가이드",
+      "characterCount": "{count}자",
+      "noStyleGuide": "스타일 가이드 없음",
+      "noStyleGuideDescription": "{collectionName} 컬렉션 콘텐츠를 분석하여 포괄적인 AI 글쓰기 가이드를 생성합니다.",
+      "analyzing": "분석 중...",
+      "analyzeCollection": "컬렉션 분석",
+      "experimentalAlert": "컨텍스트 파일은 현재 실험적이며 개발 모드에서만 사용할 수 있습니다.",
+      "learnMore": "자세히 알아보기",
+      "collectionContextFiles": "컬렉션 컨텍스트 파일",
+      "collectionContextDescription": "각 컬렉션에 대한 AI 글쓰기 스타일 가이드를 관리합니다. 각 컬렉션에 자체 컨텍스트 파일을 설정하면 AI가 더 나은 자동완성, 서식 및 개선 사항을 제공하는 데 도움이 됩니다.",
+      "noCollectionsFound": "컬렉션을 찾을 수 없습니다",
+      "generated": "생성됨",
+      "notGenerated": "생성되지 않음"
+    },
+    "badges": {
+      "experimental": "실험적"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} 파일"
     }
   }
 }

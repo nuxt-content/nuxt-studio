@@ -25,10 +25,15 @@
       "copiedToClipboard": "Kopioitu leikepöydälle",
       "copyToClipboard": "Kopioi leikepöydälle",
       "publishChanges": "Julkaise muutokset",
-      "backToContent": "Takaisin sisältöön"
+      "backToContent": "Takaisin sisältöön",
+      "disableAICompletion": "Poista AI-täydennys käytöstä",
+      "enableAICompletion": "Ota AI-täydennys käyttöön",
+      "regenerateAIContext": "Luo AI-konteksti uudelleen"
     },
     "notifications": {
       "error": {
+        "dismiss": "Sulje",
+        "title": "Tapahtui virhe",
         "unknown": "Tuntematon virhe"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Sisältö",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Vahvistusviesti",
+      "commitMessageWithPrefix": "Kuvaile muutoksesi",
       "order": "N°",
       "fileName": "Tiedostonimi"
     },
@@ -208,7 +215,7 @@
         "bulletList": "Numeroitu lista",
         "orderedList": "Numeroimaton lista",
         "blockquote": "Lainaus",
-        "codeBlock": "Koodilohkp",
+        "codeBlock": "Koodilohko",
         "bold": "Lihavoitu",
         "italic": "Kursivoitu",
         "strike": "Yliviivaus",
@@ -233,6 +240,18 @@
         "insertBefore": "Lisää ennen",
         "insertAfter": "Lisää jälkeen",
         "delete": "Poista"
+      },
+      "ai": {
+        "fix": "Korjaa kielioppi ja oikeinkirjoitus",
+        "improve": "Paranna kirjoittamista ja selkeyttä",
+        "simplify": "Minimoi ja yksinkertaista teksti",
+        "translate": "Käännä",
+        "translateTo": "Käännä kielelle",
+        "targetLanguage": "Kohdekieli",
+        "targetLanguageDescription": "Syötä kieli, jolle haluat kääntää (esim. espanja, ranska, saksa)",
+        "targetLanguagePlaceholder": "esim. espanja",
+        "selectionTooLarge": "Valinta on liian suuri (enintään {max} merkkiä)",
+        "cancel": "Peru"
       },
       "element": {
         "addSlot": "Lisää paikka",
@@ -290,32 +309,47 @@
         "delete": "Poista kuva"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "Videon lähteen URL",
+        "poster": "Julistekuvan URL",
+        "width": "Leveys",
+        "height": "Korkeus",
+        "controls": "Näytä ohjaimet",
+        "autoplay": "Automaattinen toisto",
+        "loop": "Toisto silmukassa",
+        "muted": "Mykistetty",
+        "noSource": "Ei videon lähdettä",
+        "edit": "Muokkaa videota",
+        "delete": "Poista video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Valitse kuva",
         "description": "Valitse kuva mediakirjastosta",
+        "selectionTitle": "Kuvan tiedot",
+        "selectionDescription": "Tarkista ja vahvista valintasi",
         "notAvailable": "Mediakirjastosta ei löydy kuvia",
-        "upload": "Lataa"
+        "upload": "Lataa",
+        "useExternal": "Käytä ulkoista lähdettä"
       },
       "video": {
         "title": "Valitse video",
         "description": "Valitse video mediakirjastosta",
+        "selectionTitle": "Videon tiedot",
+        "selectionDescription": "Tarkista ja vahvista valintasi",
         "notAvailable": "Mediakirjastosta ei löydy videoita",
-        "upload": "Lataa"
-      }
+        "upload": "Lataa",
+        "useExternal": "Käytä ulkoista lähdettä"
+      },
+      "name": "Nimi",
+      "path": "Tiedostopolku",
+      "publicPath": "Julkinen polku",
+      "extension": "Tiedostopääte",
+      "fileSize": "Tiedostokoko",
+      "resolution": "Resoluutio",
+      "searchPlaceholder": "Hae koko polulla",
+      "confirm": "Vahvista",
+      "cancelSelection": "Peru"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analysoidaan kokoelmaa ja luodaan AI-ohjeita...",
+      "collectionGuide": "{collectionName}-kokoelman opas",
+      "writingStyleGuide": "AI-kirjoitustyyliopas",
+      "characterCount": "{count} merkkiä",
+      "noStyleGuide": "Ei tyyliopasta",
+      "noStyleGuideDescription": "Luo kattava AI-kirjoitusopas analysoimalla {collectionName}-kokoelman sisältö.",
+      "analyzing": "Analysoidaan...",
+      "analyzeCollection": "Analysoi kokoelma",
+      "experimentalAlert": "Kontekstitiedostot ovat tällä hetkellä kokeellisia ja käytettävissä vain kehitystilassa.",
+      "learnMore": "Lue lisää",
+      "collectionContextFiles": "Kokoelman kontekstitiedostot",
+      "collectionContextDescription": "Hallinnoi AI-kirjoitustyylioppaita jokaiselle kokoelmalle. Jokaisella kokoelmalla voi olla oma kontekstitiedostonsa, joka auttaa AI:ta tarjoamaan parempia täydennyksiä, muotoilua ja parannuksia sisältöösi.",
+      "noCollectionsFound": "Kokoelmia ei löydy",
+      "generated": "Luotu",
+      "notGenerated": "Ei luotu"
+    },
+    "badges": {
+      "experimental": "Kokeellinen"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} tiedosto"
     }
   }
 }

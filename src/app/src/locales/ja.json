@@ -25,10 +25,15 @@
       "copiedToClipboard": "クリップボードにコピーしました",
       "copyToClipboard": "クリップボードにコピー",
       "publishChanges": "変更を公開",
-      "backToContent": "コンテンツに戻る"
+      "backToContent": "コンテンツに戻る",
+      "disableAICompletion": "AI補完を無効化",
+      "enableAICompletion": "AI補完を有効化",
+      "regenerateAIContext": "AIコンテキストを再生成"
     },
     "notifications": {
       "error": {
+        "dismiss": "閉じる",
+        "title": "エラーが発生しました",
         "unknown": "不明なエラーが発生しました"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "コンテンツ",
-      "media": "メディア"
+      "media": "メディア",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "コミットメッセージ",
+      "commitMessageWithPrefix": "変更内容を説明してください",
       "order": "順序",
       "fileName": "ファイル名"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "後に挿入",
         "delete": "削除"
       },
+      "ai": {
+        "fix": "文法とスペルを修正",
+        "improve": "文章と明確さを改善",
+        "simplify": "テキストを簡潔にする",
+        "translate": "翻訳",
+        "translateTo": "翻訳先",
+        "targetLanguage": "対象言語",
+        "targetLanguageDescription": "翻訳先の言語を入力してください（例：英語、フランス語、ドイツ語）",
+        "targetLanguagePlaceholder": "例：英語",
+        "selectionTooLarge": "選択範囲が大きすぎます（最大 {max} 文字）",
+        "cancel": "キャンセル"
+      },
       "element": {
         "addSlot": "スロットを追加",
         "editProps": "プロパティを編集",
@@ -290,32 +309,47 @@
         "delete": "画像を削除"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "ビデオソースURL",
+        "poster": "ポスター画像URL",
+        "width": "幅",
+        "height": "高さ",
+        "controls": "コントロールを表示",
+        "autoplay": "自動再生",
+        "loop": "ループ",
+        "muted": "ミュート",
+        "noSource": "ビデオソースがありません",
+        "edit": "ビデオを編集",
+        "delete": "ビデオを削除"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "画像を選択",
         "description": "メディアライブラリから画像を選択してください",
+        "selectionTitle": "画像の詳細",
+        "selectionDescription": "選択を確認してください",
         "notAvailable": "メディアライブラリに利用可能な画像がありません",
-        "upload": "アップロード"
+        "upload": "アップロード",
+        "useExternal": "外部ソースを使用"
       },
       "video": {
         "title": "ビデオを選択",
         "description": "メディアライブラリからビデオを選択してください",
+        "selectionTitle": "ビデオの詳細",
+        "selectionDescription": "選択を確認してください",
         "notAvailable": "メディアライブラリに利用可能なビデオがありません",
-        "upload": "アップロード"
-      }
+        "upload": "アップロード",
+        "useExternal": "外部ソースを使用"
+      },
+      "name": "名前",
+      "path": "ファイルパス",
+      "publicPath": "公開パス",
+      "extension": "拡張子",
+      "fileSize": "ファイルサイズ",
+      "resolution": "解像度",
+      "confirm": "確認",
+      "searchPlaceholder": "フルパスで検索",
+      "cancelSelection": "キャンセル"
     },
     "form": {
       "array": {
@@ -336,7 +370,7 @@
         "searchPlaceholder": "画像を検索...",
         "noImagesFound": "画像が見つかりません",
         "noImagesAvailable": "利用可能な画像がありません",
-        "imageCount": "{total}件中{count}件の画像"
+        "imageCount": "{total}件中{count}件の画像 | {total}件中{count}件の画像"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "コレクションを分析してAIガイドを生成中...",
+      "collectionGuide": "{collectionName} コレクションガイド",
+      "writingStyleGuide": "AI ライティングスタイルガイド",
+      "characterCount": "{count} 文字",
+      "noStyleGuide": "スタイルガイドなし",
+      "noStyleGuideDescription": "{collectionName} コレクションのコンテンツを分析して、包括的なAIライティングガイドを生成します。",
+      "analyzing": "分析中...",
+      "analyzeCollection": "コレクションを分析",
+      "experimentalAlert": "コンテキストファイルは現在実験的で、開発モードでのみ利用可能です。",
+      "learnMore": "詳細を見る",
+      "collectionContextFiles": "コレクションコンテキストファイル",
+      "collectionContextDescription": "各コレクションのAIライティングスタイルガイドを管理します。各コレクションに独自のコンテキストファイルを設定することで、AIがより良い補完、フォーマット、改善を提供できます。",
+      "noCollectionsFound": "コレクションが見つかりません",
+      "generated": "生成済み",
+      "notGenerated": "未生成"
+    },
+    "badges": {
+      "experimental": "実験的"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} ファイル"
     }
   }
 }

@@ -25,10 +25,15 @@
       "copiedToClipboard": "تم النسخ إلى الحافظة",
       "copyToClipboard": "نسخ",
       "publishChanges": "نشر التغييرات",
-      "backToContent": "العودة إلي المحرر"
+      "backToContent": "العودة إلي المحرر",
+      "disableAICompletion": "تعطيل الإكمال التلقائي بالذكاء الاصطناعي",
+      "enableAICompletion": "تفعيل الإكمال التلقائي بالذكاء الاصطناعي",
+      "regenerateAIContext": "إعادة توليد سياق الذكاء الاصطناعي"
     },
     "notifications": {
       "error": {
+        "dismiss": "إغلاق",
+        "title": "حدث خطأ",
         "unknown": "حدث خطأ غير معروف"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "المحتوي",
-      "media": "الوسائط"
+      "media": "الوسائط",
+      "ai": "الذكاء الاصطناعي"
     },
     "placeholders": {
       "commitMessage": "رسالة الكوميت",
+      "commitMessageWithPrefix": "صف تغييراتك",
       "order": "#",
       "fileName": "اسم الملف"
     },
@@ -102,6 +109,7 @@
       "metaWidth": "العرض",
       "metaHeight": "الارتفاع",
       "metaType": "النوع",
+      "metaDuration": "المدة",
       "metaSize": "الحجم",
       "fileName": "اسم الملف",
       "publicPath": "المسار العام",
@@ -233,6 +241,18 @@
         "insertAfter": "إدراج بعد",
         "delete": "حذف"
       },
+      "ai": {
+        "fix": "تصحيح القواعد والإملاء",
+        "improve": "تحسين الكتابة والوضوح",
+        "simplify": "تبسيط وتقليص النص",
+        "translate": "ترجمة",
+        "translateTo": "ترجمة إلى",
+        "targetLanguage": "اللغة المستهدفة",
+        "targetLanguageDescription": "أدخل اللغة التي تريد الترجمة إليها (مثال: الإسبانية، الفرنسية، الألمانية)",
+        "targetLanguagePlaceholder": "مثال: الإسبانية",
+        "selectionTooLarge": "التحديد كبير جداً (الحد الأقصى {max} حرف)",
+        "cancel": "إلغاء"
+      },
       "element": {
         "addSlot": "إضافة فتحة",
         "editProps": "تعديل الخصائص",
@@ -289,32 +309,47 @@
         "delete": "حذف الصورة"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "عنوان URL لمصدر الفيديو",
+        "poster": "عنوان URL لصورة الغلاف",
+        "width": "العرض",
+        "height": "الارتفاع",
+        "controls": "إظهار عناصر التحكم",
+        "autoplay": "تشغيل تلقائي",
+        "loop": "تكرار",
+        "muted": "كتم الصوت",
+        "noSource": "لا يوجد مصدر للفيديو",
+        "edit": "تعديل الفيديو",
+        "delete": "حذف الفيديو"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "اختر صورة",
         "description": "اختر صورة من مكتبة الوسائط الخاصة بك",
+        "selectionTitle": "تفاصيل الصورة",
+        "selectionDescription": "راجع وأكد اختيارك",
         "notAvailable": "لا توجد صور متاحة في مكتبة الوسائط الخاصة بك",
-        "upload": "رفع"
+        "upload": "رفع",
+        "useExternal": "استخدام مصدر خارجي"
       },
       "video": {
         "title": "اختر فيديو",
         "description": "اختر فيديو من مكتبة الوسائط الخاصة بك",
+        "selectionTitle": "تفاصيل الفيديو",
+        "selectionDescription": "راجع وأكد اختيارك",
         "notAvailable": "لا توجد فيديوهات متاحة في مكتبة الوسائط الخاصة بك",
-        "upload": "رفع"
-      }
+        "upload": "رفع",
+        "useExternal": "استخدام مصدر خارجي"
+      },
+      "name": "الاسم",
+      "path": "مسار الملف",
+      "publicPath": "المسار العام",
+      "extension": "الامتداد",
+      "fileSize": "حجم الملف",
+      "resolution": "الدقة",
+      "searchPlaceholder": "البحث بالمسار الكامل",
+      "confirm": "تأكيد",
+      "cancelSelection": "إلغاء"
     },
     "form": {
       "array": {
@@ -355,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "جاري تحليل المجموعة وإنشاء إرشادات الذكاء الاصطناعي...",
+      "collectionGuide": "دليل مجموعة {collectionName}",
+      "writingStyleGuide": "دليل أسلوب الكتابة بالذكاء الاصطناعي",
+      "characterCount": "{count} حرف",
+      "noStyleGuide": "لا يوجد دليل أسلوب",
+      "noStyleGuideDescription": "أنشئ دليل كتابة شاملاً بالذكاء الاصطناعي من خلال تحليل المحتوى في مجموعة {collectionName}.",
+      "analyzing": "جاري التحليل...",
+      "analyzeCollection": "تحليل المجموعة",
+      "experimentalAlert": "ملفات السياق تجريبية حالياً ومتاحة للإنشاء في وضع التطوير فقط.",
+      "learnMore": "اعرف المزيد",
+      "collectionContextFiles": "ملفات سياق المجموعة",
+      "collectionContextDescription": "إدارة أدلة أسلوب الكتابة بالذكاء الاصطناعي لكل مجموعة. يمكن لكل مجموعة أن يكون لها ملف سياق خاص بها لمساعدة الذكاء الاصطناعي على تقديم اقتراحات وتنسيق وتحسينات أفضل لمحتواك.",
+      "noCollectionsFound": "لم يتم العثور على مجموعات",
+      "generated": "تم الإنشاء",
+      "notGenerated": "لم يتم الإنشاء"
+    },
+    "badges": {
+      "experimental": "تجريبي"
+    },
+    "content": {
+      "initialMarkdownContent": "# ملف {title}"
     }
   }
 }

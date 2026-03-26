@@ -2,61 +2,66 @@
   "studio": {
     "buttons": {
       "edit": "এই পেজটি সম্পাদনা করুন",
-      "retryPublish": "পুনরায় প্রকাশের চেষ্টা করুন",
-      "reloadApp": "অ্যাপ্লিকেশন পুনরায় লোড করুন",
-      "reload": "পুনরায় লোড করুন",
+      "retryPublish": "পুনরায় প্রকাশের চেষ্টা করুন",
+      "reloadApp": "অ্যাপ্লিকেশন পুনরায় লোড করুন",
+      "reload": "পুনরায় লোড করুন",
       "signOut": "সাইন আউট",
       "review": "রিভিউ",
       "publish": "প্রকাশ করুন",
       "back": "পিছনে",
-      "backToEdition": "সম্পাদনায় ফিরে যান",
-      "seeChanges": "কী পরিবর্তন হয়েছে দেখুন"
+      "backToEdition": "সম্পাদনায় ফিরে যান",
+      "seeChanges": "কী পরিবর্তন হয়েছে দেখুন"
     },
     "headings": {
       "directories": "ডিরেক্টরি",
       "files": "ফাইলসমূহ",
-      "media": "মিডিয়া",
+      "media": "মিডিয়া",
       "pageSettings": "পেজ সেটিংস"
     },
     "tooltips": {
       "toggleStudio": "স্টুডিও টগল করুন",
       "unlinkEditor": "এডিটর এবং প্রিভিউ আলাদা করুন",
       "linkEditor": "এডিটর এবং প্রিভিউ সংযুক্ত করুন",
-      "copiedToClipboard": "ক্লিপবোর্ডে কপি হয়েছে",
+      "copiedToClipboard": "ক্লিপবোর্ডে কপি হয়েছে",
       "copyToClipboard": "ক্লিপবোর্ডে কপি করুন",
       "publishChanges": "পরিবর্তন প্রকাশ করুন",
-      "backToContent": "কনটেন্টে ফিরে যান"
+      "backToContent": "কনটেন্টে ফিরে যান",
+      "disableAICompletion": "AI স্বয়ংসম্পূর্ণ নিষ্ক্রিয় করুন",
+      "enableAICompletion": "AI স্বয়ংসম্পূর্ণ সক্রিয় করুন",
+      "regenerateAIContext": "AI প্রসঙ্গ পুনরায় তৈরি করুন"
     },
     "notifications": {
       "error": {
+        "dismiss": "বাতিল করুন",
+        "title": "একটি ত্রুটি ঘটেছে",
         "unknown": "একটি অজানা ত্রুটি ঘটেছে"
       }
     },
     "publish": {
-      "failedTitle": "প্রকাশ ব্যর্থ হয়েছে",
+      "failedTitle": "প্রকাশ ব্যর্থ হয়েছে",
       "summary": "{repo} রিপোজিটরির {branch} ব্রাঞ্চে",
-      "errorTitle": "{providerName} প্রকাশের সময় ত্রুটি হয়েছে",
-      "failedGeneric": "পরিবর্তন প্রকাশ করা যায়নি"
+      "errorTitle": "{providerName} প্রকাশের সময় ত্রুটি হয়েছে",
+      "failedGeneric": "পরিবর্তন প্রকাশ করা যায়নি"
     },
     "review": {
       "title": "পরিবর্তন রিভিউ করুন",
-      "created": "তৈরি হয়েছে",
-      "updated": "হালনাগাদ হয়েছে",
-      "renamed": "নাম পরিবর্তিত হয়েছে",
-      "deleted": "মুছে ফেলা হয়েছে"
+      "created": "তৈরি হয়েছে",
+      "updated": "হালনাগাদ হয়েছে",
+      "renamed": "নাম পরিবর্তিত হয়েছে",
+      "deleted": "মুছে ফেলা হয়েছে"
     },
     "publishSuccess": {
-      "title": "পরিবর্তন প্রকাশিত হয়েছে",
-      "summary": "{repo} রিপোজিটরির {branch} ব্রাঞ্চে {count}টি পরিবর্তন প্রকাশিত হয়েছে | {repo} রিপোজিটরির {branch} ব্রাঞ্চে {count}টি পরিবর্তন প্রকাশিত হয়েছে",
-      "alertTitleWaiting": "ডিপ্লয়মেন্টের জন্য অপেক্ষা করা হচ্ছে...",
-      "alertTitleComplete": "ডিপ্লয়মেন্ট সম্পন্ন",
-      "alertDescWaiting": "স্টুডিওতে পরিবর্তন দেখতে ওয়েবসাইট ডিপ্লয় হতে হবে।",
-      "alertDescComplete": "আপনার ওয়েবসাইটের নতুন সংস্করণ ডিপ্লয় হয়েছে। স্টুডিওতে পরিবর্তন দেখতে অ্যাপটি রিফ্রেশ করুন।"
+      "title": "পরিবর্তন প্রকাশিত হয়েছে",
+      "summary": "{repo} রিপোজিটরির {branch} ব্রাঞ্চে {count}টি পরিবর্তন প্রকাশিত হয়েছে | {repo} রিপোজিটরির {branch} ব্রাঞ্চে {count}টি পরিবর্তন প্রকাশিত হয়েছে",
+      "alertTitleWaiting": "ডিপ্লয়মেন্টের জন্য অপেক্ষা করা হচ্ছে...",
+      "alertTitleComplete": "ডিপ্লয়মেন্ট সম্পন্ন",
+      "alertDescWaiting": "স্টুডিওতে পরিবর্তন দেখতে ওয়েবসাইট ডিপ্লয় হতে হবে।",
+      "alertDescComplete": "আপনার ওয়েবসাইটের নতুন সংস্করণ ডিপ্লয় হয়েছে। স্টুডিওতে পরিবর্তন দেখতে অ্যাপটি রিফ্রেশ করুন।"
     },
     "newVersionBanner": {
-      "title": "ওয়েবসাইটের নতুন সংস্করণ শনাক্ত হয়েছে",
-      "description": "আপনার ওয়েবসাইটের নতুন সংস্করণ ডিপ্লয় হয়েছে। সর্বশেষ পরিবর্তন দেখতে অ্যাপটি পুনরায় লোড করুন।",
-      "reloadButton": "পুনরায় লোড করুন"
+      "title": "ওয়েবসাইটের নতুন সংস্করণ শনাক্ত হয়েছে",
+      "description": "আপনার ওয়েবসাইটের নতুন সংস্করণ ডিপ্লয় হয়েছে। সর্বশেষ পরিবর্তন দেখতে অ্যাপটি পুনরায় লোড করুন।",
+      "reloadButton": "পুনরায় লোড করুন"
     },
     "footer": {
       "developer_view": "ডেভেলপার ভিউ",
@@ -64,30 +69,32 @@
       "debugMode": "ডিবাগ মোড"
     },
     "alert": {
-      "mdcFormatting": "MDC সিনট্যাক্স স্ট্যান্ডার্ড অনুযায়ী ফরম্যাটিং প্রয়োগ করা হয়েছে।"
+      "mdcFormatting": "MDC সিনট্যাক্স স্ট্যান্ডার্ড অনুযায়ী ফরম্যাটিং প্রয়োগ করা হয়েছে।"
     },
     "conflict": {
-      "title": "কনফ্লিক্ট শনাক্ত হয়েছে",
+      "title": "কনফ্লিক্ট শনাক্ত হয়েছে",
       "repository": "রিপোজিটরি",
       "branch": "ব্রাঞ্চ",
       "file": "ফাইল",
-      "description": "{providerName}-এ থাকা কনটেন্ট আপনার ওয়েবসাইট ভার্সন থেকে আলাদা। নিশ্চিত করুন সর্বশেষ পরিবর্তনগুলো ডিপ্লয় হয়েছে এবং পেজটি রিফ্রেশ করুন।",
-      "websiteVersion": "ওয়েবসাইট"
+      "description": "{providerName}-এ থাকা কনটেন্ট আপনার ওয়েবসাইট ভার্সন থেকে আলাদা। নিশ্চিত করুন সর্বশেষ পরিবর্তনগুলো ডিপ্লয় হয়েছে এবং পেজটি রিফ্রেশ করুন।",
+      "websiteVersion": "ওয়েবসাইট"
     },
     "nav": {
       "content": "কনটেন্ট",
-      "media": "মিডিয়া"
+      "media": "মিডিয়া",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "কমিট মেসেজ",
+      "commitMessageWithPrefix": "আপনার পরিবর্তনগুলো বর্ণনা করুন",
       "order": "নং",
       "fileName": "ফাইলের নাম"
     },
     "validation": {
       "commitRequired": "কমিট মেসেজ আবশ্যক",
       "nameEmpty": "নাম খালি রাখা যাবে না",
-      "nameEndsWithDot": "নাম '.' দিয়ে শেষ হতে পারবে না",
-      "nameStartsWithSlash": "নাম '/' দিয়ে শুরু হতে পারবে না",
+      "nameEndsWithDot": "নাম '.' দিয়ে শেষ হতে পারবে না",
+      "nameStartsWithSlash": "নাম '/' দিয়ে শুরু হতে পারবে না",
       "nameExists": "এই নামটি ইতিমধ্যেই আছে",
       "prefixDigitsOnly": "প্রিফিক্স শুধুমাত্র সংখ্যা (digits) সম্বলিত স্ট্রিং হতে হবে",
       "prefixNonNegativeInteger": "প্রিফিক্স অবশ্যই শূন্য বা ধনাত্মক পূর্ণসংখ্যা হতে হবে"
@@ -126,15 +133,15 @@
       "labels": {
         "createDocument": "নতুন ফাইল",
         "createDocumentFolder": "নতুন ফোল্ডার",
-        "createMediaFolder": "নতুন মিডিয়া ফোল্ডার",
+        "createMediaFolder": "নতুন মিডিয়া ফোল্ডার",
         "renameItem": "নাম পরিবর্তন করুন",
         "deleteItem": "মুছুন",
-        "uploadMedia": "মিডিয়া আপলোড করুন",
+        "uploadMedia": "মিডিয়া আপলোড করুন",
         "duplicateItem": "ডুপ্লিকেট করুন",
-        "revertItem": "পরিবর্তন ফিরিয়ে দিন",
+        "revertItem": "পরিবর্তন ফিরিয়ে দিন",
         "publishBranch": "ব্রাঞ্চ প্রকাশ করুন",
         "openGitProvider": "{providerName}-এ খুলুন",
-        "switchToTipTap": "ভিজ্যুয়াল এডিটর ব্যবহার করুন",
+        "switchToTipTap": "ভিজ্যুয়াল এডিটর ব্যবহার করুন",
         "switchToCode": "কোড এডিটর ব্যবহার করুন"
       },
       "tooltips": {
@@ -143,9 +150,9 @@
         "createMediaFolder": "নতুন ফোল্ডার তৈরি করুন",
         "renameItem": "ফাইলের নাম পরিবর্তন করুন",
         "deleteItem": "ফাইল মুছুন",
-        "uploadMedia": "মিডিয়া আপলোড করুন",
+        "uploadMedia": "মিডিয়া আপলোড করুন",
         "duplicateItem": "ফাইল ডুপ্লিকেট করুন",
-        "revertItem": "পরিবর্তন ফিরিয়ে দিন",
+        "revertItem": "পরিবর্তন ফিরিয়ে দিন",
         "publishBranch": "ব্রাঞ্চ প্রকাশ করুন"
       }
     },
@@ -234,6 +241,18 @@
         "insertAfter": "পরে ইনসার্ট করুন",
         "delete": "মুছুন"
       },
+      "ai": {
+        "fix": "ব্যাকরণ ও বানান সংশোধন করুন",
+        "improve": "লেখা ও স্পষ্টতা উন্নত করুন",
+        "simplify": "টেক্সট সংক্ষিপ্ত ও সহজ করুন",
+        "translate": "অনুবাদ করুন",
+        "translateTo": "এতে অনুবাদ করুন",
+        "targetLanguage": "লক্ষ্য ভাষা",
+        "targetLanguageDescription": "আপনি যে ভাষায় অনুবাদ করতে চান তা লিখুন (যেমন: স্পেনীয়, ফরাসি, জার্মান)",
+        "targetLanguagePlaceholder": "যেমন: স্পেনীয়",
+        "selectionTooLarge": "নির্বাচন অনেক বড় (সর্বোচ্চ {max} অক্ষর)",
+        "cancel": "বাতিল"
+      },
       "element": {
         "addSlot": "স্লট যোগ করুন",
         "editProps": "প্রপস সম্পাদনা করুন",
@@ -257,26 +276,26 @@
         "delete": "মুছুন",
         "editContentLabel": "{name} কনটেন্ট সম্পাদনা করুন",
         "enterContentPlaceholder": "কনটেন্ট লিখুন...",
-        "apply": "প্রয়োগ করুন"
+        "apply": "প্রয়োগ করুন"
       },
       "codeBlock": {
         "filenamePlaceholder": "filename.js"
       },
       "link": {
         "pasteLinkPlaceholder": "একটি লিংক পেস্ট করুন...",
-        "applyLink": "লিংক প্রয়োগ করুন",
+        "applyLink": "লিংক প্রয়োগ করুন",
         "openInNewWindow": "নতুন উইন্ডোতে খুলুন",
-        "removeLink": "লিংক সরিয়ে দিন"
+        "removeLink": "লিংক সরিয়ে দিন"
       },
       "spanStyle": {
         "label": "স্প্যান স্টাইল",
         "stylePlaceholder": "স্টাইল: যেমন color: tomato; font-weight: 600;",
-        "classPlaceholder": "ক্লাসসমূহ: স্পেস দিয়ে আলাদা করুন",
-        "apply": "প্রয়োগ করুন",
-        "remove": "সরিয়ে দিন"
+        "classPlaceholder": "ক্লাসসমূহ: স্পেস দিয়ে আলাদা করুন",
+        "apply": "প্রয়োগ করুন",
+        "remove": "সরিয়ে দিন"
       },
       "binding": {
-        "variablePlaceholder": "ভ্যারিয়েবলের নাম",
+        "variablePlaceholder": "ভ্যারিয়েবলের নাম",
         "defaultValuePlaceholder": "ডিফল্ট মান"
       },
       "image": {
@@ -288,28 +307,56 @@
         "noSource": "কোনো ইমেজ সোর্স নেই",
         "edit": "ইমেজ সম্পাদনা করুন",
         "delete": "ইমেজ মুছুন"
+      },
+      "video": {
+        "source": "ভিডিও সোর্স URL",
+        "poster": "পোস্টার ইমেজ URL",
+        "width": "প্রস্থ",
+        "height": "উচ্চতা",
+        "controls": "নিয়ন্ত্রণ দেখান",
+        "autoplay": "স্বয়ংক্রিয় চালু",
+        "loop": "লুপ",
+        "muted": "নিঃশব্দ",
+        "noSource": "কোনো ভিডিও সোর্স নেই",
+        "edit": "ভিডিও সম্পাদনা করুন",
+        "delete": "ভিডিও মুছুন"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "ইমেজ নির্বাচন করুন",
-        "description": "আপনার মিডিয়া লাইব্রেরি থেকে একটি ইমেজ বেছে নিন",
-        "notAvailable": "আপনার মিডিয়া লাইব্রেরিতে কোনো ইমেজ নেই",
-        "upload": "আপলোড করুন"
+        "description": "আপনার মিডিয়া লাইব্রেরি থেকে একটি ইমেজ বেছে নিন",
+        "selectionTitle": "ইমেজ বিবরণ",
+        "selectionDescription": "আপনার নির্বাচন পর্যালোচনা করুন এবং নিশ্চিত করুন",
+        "notAvailable": "আপনার মিডিয়া লাইব্রেরিতে কোনো ইমেজ নেই",
+        "upload": "আপলোড করুন",
+        "useExternal": "বাহ্যিক উৎস ব্যবহার করুন"
       },
       "video": {
         "title": "ভিডিও নির্বাচন করুন",
-        "description": "আপনার মিডিয়া লাইব্রেরি থেকে একটি ভিডিও বেছে নিন",
-        "notAvailable": "আপনার মিডিয়া লাইব্রেরিতে কোনো ভিডিও নেই",
-        "upload": "আপলোড করুন"
-      }
+        "description": "আপনার মিডিয়া লাইব্রেরি থেকে একটি ভিডিও বেছে নিন",
+        "selectionTitle": "ভিডিও বিবরণ",
+        "selectionDescription": "আপনার নির্বাচন পর্যালোচনা করুন এবং নিশ্চিত করুন",
+        "notAvailable": "আপনার মিডিয়া লাইব্রেরিতে কোনো ভিডিও নেই",
+        "upload": "আপলোড করুন",
+        "useExternal": "বাহ্যিক উৎস ব্যবহার করুন"
+      },
+      "name": "নাম",
+      "path": "ফাইল পাথ",
+      "publicPath": "পাবলিক পাথ",
+      "extension": "এক্সটেনশন",
+      "fileSize": "ফাইলের আকার",
+      "resolution": "রেজোলিউশন",
+      "searchPlaceholder": "সম্পূর্ণ পাথ দিয়ে সার্চ করুন",
+      "confirm": "নিশ্চিত করুন",
+      "cancelSelection": "বাতিল"
     },
     "form": {
       "array": {
         "addItem": "{label} যোগ করুন",
         "deleteItem": "আইটেম মুছুন",
         "editItem": "আইটেম সম্পাদনা করুন",
-        "unsupportedType": "Array টাইপ {type} সাপোর্টেড নয়"
+        "unsupportedType": "Array টাইপ {type} সাপোর্টেড নয়"
       },
       "object": {
         "noProperties": "কোনো প্রপার্টি নির্ধারিত নেই",
@@ -321,14 +368,14 @@
       "media": {
         "placeholder": "রিলেটিভ পাথ বা পাবলিক URL দিন...",
         "searchPlaceholder": "ইমেজ সার্চ করুন...",
-        "noImagesFound": "কোনো ইমেজ পাওয়া যায়নি",
+        "noImagesFound": "কোনো ইমেজ পাওয়া যায়নি",
         "noImagesAvailable": "কোনো ইমেজ নেই",
         "imageCount": "{total}টির মধ্যে {count}টি ইমেজ | {total}টির মধ্যে {count}টি ইমেজ"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
         "searchPlaceholder": "আইকন সার্চ করুন...",
-        "noIconsFound": "কোনো আইকন পাওয়া যায়নি",
+        "noIconsFound": "কোনো আইকন পাওয়া যায়নি",
         "searchHint": "সার্চ করতে কমপক্ষে ২টি অক্ষর লিখুন",
         "libraries": "লাইব্রেরি:",
         "allLibraries": "সব"
@@ -343,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "কালেকশন বিশ্লেষণ করা হচ্ছে এবং AI গাইডলাইন তৈরি করা হচ্ছে...",
+      "collectionGuide": "{collectionName} কালেকশন গাইড",
+      "writingStyleGuide": "AI লেখার স্টাইল গাইড",
+      "characterCount": "{count} অক্ষর",
+      "noStyleGuide": "কোনো স্টাইল গাইড নেই",
+      "noStyleGuideDescription": "{collectionName} কালেকশনের কনটেন্ট বিশ্লেষণ করে একটি ব্যাপক AI লেখার গাইড তৈরি করুন।",
+      "analyzing": "বিশ্লেষণ করা হচ্ছে...",
+      "analyzeCollection": "কালেকশন বিশ্লেষণ করুন",
+      "experimentalAlert": "প্রসঙ্গ ফাইলগুলি বর্তমানে পরীক্ষামূলক এবং শুধুমাত্র ডেভেলপমেন্ট মোডে তৈরির জন্য উপলব্ধ।",
+      "learnMore": "আরো জানুন",
+      "collectionContextFiles": "কালেকশন প্রসঙ্গ ফাইলসমূহ",
+      "collectionContextDescription": "প্রতিটি কালেকশনের জন্য AI লেখার স্টাইল গাইড পরিচালনা করুন। প্রতিটি কালেকশনের নিজস্ব প্রসঙ্গ ফাইল থাকতে পারে যা AI-কে আপনার কনটেন্টে আরও ভালো সম্পূর্ণতা, ফরম্যাটিং এবং উন্নতি প্রদান করতে সহায়তা করে।",
+      "noCollectionsFound": "কোনো কালেকশন পাওয়া যায়নি",
+      "generated": "তৈরি হয়েছে",
+      "notGenerated": "তৈরি হয়নি"
+    },
+    "badges": {
+      "experimental": "পরীক্ষামূলক"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} ফাইল"
     }
   }
 }

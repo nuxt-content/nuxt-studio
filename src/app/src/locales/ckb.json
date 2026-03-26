@@ -25,10 +25,15 @@
       "copiedToClipboard": "لە تەختەکلیل لەبەرگیرایەوە",
       "copyToClipboard": "لەبەرگرتنەوە بۆ تەختەکلیل",
       "publishChanges": "بڵاوکردنەوەی گۆڕانکارییەکان",
-      "backToContent": "گەڕانەوە بۆ ناوەڕۆک"
+      "backToContent": "گەڕانەوە بۆ ناوەڕۆک",
+      "disableAICompletion": "کوژاندنەوەی تەواوکردنی AI",
+      "enableAICompletion": "چالاک کردنی تەواوکردنی AI",
+      "regenerateAIContext": "دووبارە دروستکردنەوەی کانتێکستی AI"
     },
     "notifications": {
       "error": {
+        "dismiss": "داخستن",
+        "title": "هەڵەیەک ڕوویدا",
         "unknown": "هەڵەیەکی نەزانراو ڕوویدا"
       }
     },
@@ -67,7 +72,7 @@
       "mdcFormatting": "فۆرماتکردن جێبەجێ کرا بۆ گونجاندن لەگەڵ ستانداردی سینتاکسی MDC."
     },
     "conflict": {
-      "title": "بەریەککەوتن (Conflict) دۆزرایەوە",
+      "title": "بەریەككەوتن (Conflict) دۆزرایەوە",
       "repository": "کۆگا (Repository)",
       "branch": "لق (Branch)",
       "file": "پەڕگە",
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "ناوەڕۆک",
-      "media": "میدیا"
+      "media": "میدیا",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "پەیامی کۆمیت (Commit message)",
+      "commitMessageWithPrefix": "گۆڕانکارییەکانت وەسف بکە",
       "order": "ژمارە",
       "fileName": "ناوی پەڕگە"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "تێخستن لە پاش",
         "delete": "سڕینەوە"
       },
+      "ai": {
+        "fix": "ڕاستکردنەوەی ڕێزمان و ڕێنووس",
+        "improve": "باشترکردنی نووسین و ڕوونی",
+        "simplify": "کەمکردنەوە و سادەکردنی دەق",
+        "translate": "وەرگێڕان",
+        "translateTo": "وەرگێڕان بۆ",
+        "targetLanguage": "زمانی ئامانج",
+        "targetLanguageDescription": "زمانێک بنووسە کە دەتەوێ وەرگێڕێت بۆی (بۆ نموونە: ئیسپانی، فەرەنسی، ئەڵمانی)",
+        "targetLanguagePlaceholder": "بۆ نموونە: ئیسپانی",
+        "selectionTooLarge": "دیاریکردراو زۆر گەورەیە (زۆرترین {max} پیت)",
+        "cancel": "پاشگەزبوونەوە"
+      },
       "element": {
         "addSlot": "زیادکردنی شوێن (slot)",
         "editProps": "دەستکاریکردنی تایبەتمەندییەکان",
@@ -290,32 +309,47 @@
         "delete": "سڕینەوەی وێنە"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL سەرچاوەی ڤیدیۆ",
+        "poster": "URL وێنەی پۆستەر",
+        "width": "پانی",
+        "height": "بەرزی",
+        "controls": "پیشاندانی کۆنترۆڵەکان",
+        "autoplay": "لێدانی خۆکار",
+        "loop": "دووبارەکردنەوە",
+        "muted": "دەنگ بەستراوە",
+        "noSource": "هیچ سەرچاوەیەکی ڤیدیۆ نییە",
+        "edit": "دەستکاری ڤیدیۆ",
+        "delete": "سڕینەوەی ڤیدیۆ"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "هەڵبژاردنی وێنە",
         "description": "وێنەیەک لە کتێبخانەی میدیاکەت هەڵبژێرە",
+        "selectionTitle": "وردەکارییەکانی وێنە",
+        "selectionDescription": "هەڵبژاردنەکەت پشکنین بکە و دڵنیابەرەوە",
         "notAvailable": "هیچ وێنەیەک لە کتێبخانەی میدیاکەتدا نییە",
-        "upload": "بارکردن"
+        "upload": "بارکردن",
+        "useExternal": "بەکارهێنانی سەرچاوەی دەرەوە"
       },
       "video": {
         "title": "هەڵبژاردنی ڤیدیۆ",
         "description": "ڤیدیۆیەک لە کتێبخانەی میدیاکەت هەڵبژێرە",
+        "selectionTitle": "وردەکارییەکانی ڤیدیۆ",
+        "selectionDescription": "هەڵبژاردنەکەت پشکنین بکە و دڵنیابەرەوە",
         "notAvailable": "هیچ ڤیدیۆیەک لە کتێبخانەی میدیاکەتدا نییە",
-        "upload": "بارکردن"
-      }
+        "upload": "بارکردن",
+        "useExternal": "بەکارهێنانی سەرچاوەی دەرەوە"
+      },
+      "name": "ناو",
+      "path": "ڕێڕەوی پەڕگە",
+      "publicPath": "ڕێڕەوی گشتی",
+      "extension": "پسوانە",
+      "fileSize": "قەبارەی پەڕگە",
+      "resolution": "ئەندازە",
+      "searchPlaceholder": "گەڕان بە ڕێڕەوی تەواو",
+      "confirm": "دڵنیابوون",
+      "cancelSelection": "پاشگەزبوونەوە"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "٠"
       }
+    },
+    "ai": {
+      "analyzingCollection": "کۆکردنەوە شیکاری دەکرێت و ڕێنماییەکانی AI دروست دەکرێن...",
+      "collectionGuide": "ڕێنمای کۆکردنەوەی {collectionName}",
+      "writingStyleGuide": "ڕێنمای شێوازی نووسینی AI",
+      "characterCount": "{count} پیت",
+      "noStyleGuide": "هیچ ڕێنمایەکی شێواز نییە",
+      "noStyleGuideDescription": "ڕێنمایەکی نووسینی AI-یی بەراور دروست بکە بە شیکاریکردنی ناوەڕۆکی کۆکردنەوەی {collectionName}.",
+      "analyzing": "شیکاری دەکرێت...",
+      "analyzeCollection": "شیکاریکردنی کۆکردنەوە",
+      "experimentalAlert": "پەڕگەکانی کانتێکست ئێستا تاقیکارانەن و تەنها بۆ دروستکردن لە دۆخی گەشەپێدان بەردەستن.",
+      "learnMore": "زیاتر فێر بە",
+      "collectionContextFiles": "پەڕگەکانی کانتێکستی کۆکردنەوە",
+      "collectionContextDescription": "ڕێنماییەکانی شێوازی نووسینی AI-یی بۆ هەر کۆکردنەوەیەک بەڕێوە ببە. هەر کۆکردنەوەیەک دەتوانێت پەڕگەی کانتێکستی تایبەتی خۆی هەبێت بۆ یارمەتیدانی AI لە پێدانی تەواوکردنی باشتر، فۆرماتکردن و باشترکردن بۆ ناوەڕۆکەکەت.",
+      "noCollectionsFound": "هیچ کۆکردنەوەیەک نەدۆزرایەوە",
+      "generated": "دروستکرا",
+      "notGenerated": "دروست نەکرا"
+    },
+    "badges": {
+      "experimental": "تاقیکارانە"
+    },
+    "content": {
+      "initialMarkdownContent": "# پەڕگەی {title}"
     }
   }
 }

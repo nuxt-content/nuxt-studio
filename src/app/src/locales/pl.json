@@ -25,10 +25,15 @@
       "copiedToClipboard": "Skopiowano do schowka",
       "copyToClipboard": "Kopiuj do schowka",
       "publishChanges": "Opublikuj zmiany",
-      "backToContent": "Powrót do treści"
+      "backToContent": "Powrót do treści",
+      "disableAICompletion": "Wyłącz uzupełnianie AI",
+      "enableAICompletion": "Włącz uzupełnianie AI",
+      "regenerateAIContext": "Regeneruj kontekst AI"
     },
     "notifications": {
       "error": {
+        "dismiss": "Zamknij",
+        "title": "Wystąpił błąd",
         "unknown": "Wystąpił nieznany błąd"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Treść",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Wiadomość zatwierdzenia",
+      "commitMessageWithPrefix": "Opisz swoje zmiany",
       "order": "Nr",
       "fileName": "Nazwa pliku"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Wstaw po",
         "delete": "Usuń"
       },
+      "ai": {
+        "fix": "Popraw gramatykę i pisownię",
+        "improve": "Popraw pisanie i klarowność",
+        "simplify": "Skróć i uprość tekst",
+        "translate": "Przetłumacz",
+        "translateTo": "Przetłumacz na",
+        "targetLanguage": "Język docelowy",
+        "targetLanguageDescription": "Wpisz język, na który chcesz przetłumaczyć (np. angielski, francuski, niemiecki)",
+        "targetLanguagePlaceholder": "np. angielski",
+        "selectionTooLarge": "Zaznaczenie jest zbyt duże (maks. {max} znaków)",
+        "cancel": "Anuluj"
+      },
       "element": {
         "addSlot": "Dodaj slot",
         "editProps": "Edytuj właściwości",
@@ -290,32 +309,47 @@
         "delete": "Usuń obraz"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL źródła wideo",
+        "poster": "URL obrazu plakatu",
+        "width": "Szerokość",
+        "height": "Wysokość",
+        "controls": "Pokaż elementy sterujące",
+        "autoplay": "Automatyczne odtwarzanie",
+        "loop": "Zapętlenie",
+        "muted": "Wyciszony",
+        "noSource": "Brak źródła wideo",
+        "edit": "Edytuj wideo",
+        "delete": "Usuń wideo"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Wybierz obraz",
         "description": "Wybierz obraz z biblioteki mediów",
+        "selectionTitle": "Szczegóły obrazu",
+        "selectionDescription": "Przejrzyj i potwierdź wybór",
         "notAvailable": "Brak dostępnych obrazów w bibliotece mediów",
-        "upload": "Prześlij"
+        "upload": "Prześlij",
+        "useExternal": "Użyj zewnętrznego źródła"
       },
       "video": {
         "title": "Wybierz wideo",
         "description": "Wybierz wideo z biblioteki mediów",
+        "selectionTitle": "Szczegóły wideo",
+        "selectionDescription": "Przejrzyj i potwierdź wybór",
         "notAvailable": "Brak dostępnych wideo w bibliotece mediów",
-        "upload": "Prześlij"
-      }
+        "upload": "Prześlij",
+        "useExternal": "Użyj zewnętrznego źródła"
+      },
+      "name": "Nazwa",
+      "path": "Ścieżka pliku",
+      "publicPath": "Ścieżka publiczna",
+      "extension": "Rozszerzenie",
+      "fileSize": "Rozmiar pliku",
+      "resolution": "Rozdzielczość",
+      "confirm": "Potwierdź",
+      "searchPlaceholder": "Szukaj po pełnej ścieżce",
+      "cancelSelection": "Anuluj"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analizowanie kolekcji i generowanie przewodników AI...",
+      "collectionGuide": "Przewodnik kolekcji {collectionName}",
+      "writingStyleGuide": "Przewodnik stylu pisania AI",
+      "characterCount": "{count} znaków",
+      "noStyleGuide": "Brak przewodnika stylu",
+      "noStyleGuideDescription": "Wygeneruj kompleksowy przewodnik pisania AI, analizując zawartość kolekcji {collectionName}.",
+      "analyzing": "Analizowanie...",
+      "analyzeCollection": "Analizuj kolekcję",
+      "experimentalAlert": "Pliki kontekstu są obecnie eksperymentalne i dostępne tylko do generowania w trybie deweloperskim.",
+      "learnMore": "Dowiedz się więcej",
+      "collectionContextFiles": "Pliki kontekstu kolekcji",
+      "collectionContextDescription": "Zarządzaj przewodnikami stylu pisania AI dla każdej kolekcji. Każda kolekcja może mieć własny plik kontekstu, aby pomóc AI dostarczać lepsze uzupełnienia, formatowanie i ulepszenia treści.",
+      "noCollectionsFound": "Nie znaleziono kolekcji",
+      "generated": "Wygenerowano",
+      "notGenerated": "Nie wygenerowano"
+    },
+    "badges": {
+      "experimental": "Eksperymentalne"
+    },
+    "content": {
+      "initialMarkdownContent": "# Plik {title}"
     }
   }
 }

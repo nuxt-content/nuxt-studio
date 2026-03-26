@@ -25,10 +25,15 @@
       "copiedToClipboard": "Copiato negli appunti",
       "copyToClipboard": "Copia negli appunti",
       "publishChanges": "Pubblica modifiche",
-      "backToContent": "Torna al contenuto"
+      "backToContent": "Torna al contenuto",
+      "disableAICompletion": "Disabilita completamento AI",
+      "enableAICompletion": "Abilita completamento AI",
+      "regenerateAIContext": "Rigenera contesto AI"
     },
     "notifications": {
       "error": {
+        "dismiss": "Chiudi",
+        "title": "Si è verificato un errore",
         "unknown": "Si è verificato un errore sconosciuto"
       }
     },
@@ -75,11 +80,13 @@
       "websiteVersion": "Sito web"
     },
     "nav": {
-      "content": "Content",
-      "media": "Media"
+      "content": "Contenuto",
+      "media": "Media",
+      "ai": "IA"
     },
     "placeholders": {
       "commitMessage": "Messaggio di commit",
+      "commitMessageWithPrefix": "Descrivi le tue modifiche",
       "order": "N°",
       "fileName": "Nome file"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Inserisci dopo",
         "delete": "Elimina"
       },
+      "ai": {
+        "fix": "Correggi grammatica e ortografia",
+        "improve": "Migliora scrittura e chiarezza",
+        "simplify": "Riduci e semplifica il testo",
+        "translate": "Traduci",
+        "translateTo": "Traduci in",
+        "targetLanguage": "Lingua di destinazione",
+        "targetLanguageDescription": "Inserisci la lingua in cui vuoi tradurre (es. spagnolo, francese, tedesco)",
+        "targetLanguagePlaceholder": "es. spagnolo",
+        "selectionTooLarge": "Selezione troppo grande (max. {max} caratteri)",
+        "cancel": "Annulla"
+      },
       "element": {
         "addSlot": "Aggiungi slot",
         "editProps": "Modifica props",
@@ -260,7 +279,7 @@
         "apply": "Applica"
       },
       "codeBlock": {
-        "filenamePlaceholder": "filename.js"
+        "filenamePlaceholder": "nomefile.js"
       },
       "link": {
         "pasteLinkPlaceholder": "Incolla un link...",
@@ -290,32 +309,47 @@
         "delete": "Elimina immagine"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL origine video",
+        "poster": "URL immagine di copertina",
+        "width": "Larghezza",
+        "height": "Altezza",
+        "controls": "Mostra controlli",
+        "autoplay": "Riproduzione automatica",
+        "loop": "Ripeti",
+        "muted": "Silenziato",
+        "noSource": "Nessuna fonte video",
+        "edit": "Modifica video",
+        "delete": "Elimina video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Seleziona immagine",
         "description": "Scegli un'immagine dalla tua libreria media",
+        "selectionTitle": "Dettagli immagine",
+        "selectionDescription": "Rivedi e conferma la tua selezione",
         "notAvailable": "Nessuna immagine disponibile nella tua libreria media",
-        "upload": "Carica"
+        "upload": "Carica",
+        "useExternal": "Usa fonte esterna"
       },
       "video": {
         "title": "Seleziona video",
         "description": "Scegli un video dalla tua libreria media",
+        "selectionTitle": "Dettagli video",
+        "selectionDescription": "Rivedi e conferma la tua selezione",
         "notAvailable": "Nessun video disponibile nella tua libreria media",
-        "upload": "Carica"
-      }
+        "upload": "Carica",
+        "useExternal": "Usa fonte esterna"
+      },
+      "name": "Nome",
+      "path": "Percorso file",
+      "publicPath": "Percorso pubblico",
+      "extension": "Estensione",
+      "fileSize": "Dimensione file",
+      "resolution": "Risoluzione",
+      "confirm": "Conferma",
+      "searchPlaceholder": "Cerca per percorso completo",
+      "cancelSelection": "Annulla"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analisi della collezione e generazione delle guide AI...",
+      "collectionGuide": "Guida della collezione {collectionName}",
+      "writingStyleGuide": "Guida allo stile di scrittura AI",
+      "characterCount": "{count} caratteri",
+      "noStyleGuide": "Nessuna guida di stile",
+      "noStyleGuideDescription": "Genera una guida di scrittura completa con l'AI analizzando il contenuto della collezione {collectionName}.",
+      "analyzing": "Analisi in corso...",
+      "analyzeCollection": "Analizza collezione",
+      "experimentalAlert": "I file di contesto sono attualmente sperimentali e disponibili solo per la generazione in modalità sviluppo.",
+      "learnMore": "Scopri di più",
+      "collectionContextFiles": "File di contesto della collezione",
+      "collectionContextDescription": "Gestisci le guide allo stile di scrittura AI per ogni collezione. Ogni collezione può avere il proprio file di contesto per aiutare l'AI a fornire migliori completamenti, formattazione e miglioramenti al tuo contenuto.",
+      "noCollectionsFound": "Nessuna collezione trovata",
+      "generated": "Generato",
+      "notGenerated": "Non generato"
+    },
+    "badges": {
+      "experimental": "Sperimentale"
+    },
+    "content": {
+      "initialMarkdownContent": "# File {title}"
     }
   }
 }

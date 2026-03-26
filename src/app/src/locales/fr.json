@@ -25,10 +25,15 @@
       "copiedToClipboard": "Copié dans le presse-papiers",
       "copyToClipboard": "Copier dans le presse-papiers",
       "publishChanges": "Publier les changements",
-      "backToContent": "Retour au contenu"
+      "backToContent": "Retour au contenu",
+      "disableAICompletion": "Désactiver la complétion IA",
+      "enableAICompletion": "Activer la complétion IA",
+      "regenerateAIContext": "Régénérer le contexte IA"
     },
     "notifications": {
       "error": {
+        "dismiss": "Fermer",
+        "title": "Une erreur est survenue",
         "unknown": "Une erreur inconnue est survenue"
       }
     },
@@ -76,7 +81,8 @@
     },
     "nav": {
       "content": "Contenu",
-      "media": "Média"
+      "media": "Média",
+      "ai": "IA"
     },
     "placeholders": {
       "commitMessageWithPrefix": "Décrivez vos modifications",
@@ -235,6 +241,18 @@
         "insertAfter": "Insérer après",
         "delete": "Supprimer"
       },
+      "ai": {
+        "fix": "Corriger la grammaire et l'orthographe",
+        "improve": "Améliorer l'écriture et la clarté",
+        "simplify": "Réduire et simplifier le texte",
+        "translate": "Traduire",
+        "translateTo": "Traduire en",
+        "targetLanguage": "Langue cible",
+        "targetLanguageDescription": "Saisissez la langue vers laquelle vous souhaitez traduire (ex. espagnol, allemand, japonais)",
+        "targetLanguagePlaceholder": "ex. espagnol",
+        "selectionTooLarge": "Sélection trop grande (max. {max} caractères)",
+        "cancel": "Annuler"
+      },
       "element": {
         "addSlot": "Ajouter un slot",
         "editProps": "Modifier les propriétés",
@@ -291,17 +309,17 @@
         "delete": "Supprimer l'image"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL de la source de la vidéo",
+        "poster": "URL de l'image de couverture",
+        "width": "Largeur",
+        "height": "Hauteur",
+        "controls": "Afficher les contrôles",
+        "autoplay": "Lecture automatique",
+        "loop": "Répéter",
+        "muted": "Muet",
+        "noSource": "Aucune source de vidéo",
+        "edit": "Modifier la vidéo",
+        "delete": "Supprimer la vidéo"
       }
     },
     "mediaPicker": {
@@ -372,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analyse de la collection et génération des guides IA...",
+      "collectionGuide": "Guide de la collection {collectionName}",
+      "writingStyleGuide": "Guide de style d'écriture IA",
+      "characterCount": "{count} caractères",
+      "noStyleGuide": "Aucun guide de style",
+      "noStyleGuideDescription": "Générez un guide d'écriture complet avec l'IA en analysant le contenu de la collection {collectionName}.",
+      "analyzing": "Analyse en cours...",
+      "analyzeCollection": "Analyser la collection",
+      "experimentalAlert": "Les fichiers de contexte sont actuellement expérimentaux et disponibles uniquement pour la génération en mode développement.",
+      "learnMore": "En savoir plus",
+      "collectionContextFiles": "Fichiers de contexte de la collection",
+      "collectionContextDescription": "Gérez les guides de style d'écriture IA pour chaque collection. Chaque collection peut avoir son propre fichier de contexte pour aider l'IA à fournir de meilleures complétions, un meilleur formatage et des améliorations à votre contenu.",
+      "noCollectionsFound": "Aucune collection trouvée",
+      "generated": "Généré",
+      "notGenerated": "Non généré"
+    },
+    "badges": {
+      "experimental": "Expérimental"
+    },
+    "content": {
+      "initialMarkdownContent": "# Fichier {title}"
     }
   }
 }

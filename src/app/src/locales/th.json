@@ -25,10 +25,15 @@
       "copiedToClipboard": "คัดลอกแล้ว",
       "copyToClipboard": "คัดลอก",
       "publishChanges": "พับลิชการเปลี่ยนแปลง",
-      "backToContent": "กลับไปที่คอนเทนต์"
+      "backToContent": "กลับไปที่คอนเทนต์",
+      "disableAICompletion": "ปิดการเติมข้อความ AI",
+      "enableAICompletion": "เปิดการเติมข้อความ AI",
+      "regenerateAIContext": "สร้าง AI Context ใหม่"
     },
     "notifications": {
       "error": {
+        "dismiss": "ปิด",
+        "title": "เกิดข้อผิดพลาด",
         "unknown": "เกิดข้อผิดพลาดบางอย่าง"
       }
     },
@@ -69,17 +74,19 @@
     "conflict": {
       "title": "พบคอนฟลิกต์",
       "repository": "รีโป",
-      "branch": "บรাঞ্চ",
+      "branch": "บรานช์",
       "file": "ไฟล์",
       "description": "คอนเทนต์บน {providerName} ไม่ตรงกับเวอร์ชันเว็บไซต์ของคุณ ตรวจสอบว่าดีพลอยล่าสุดแล้ว และรีเฟรชหน้า",
       "websiteVersion": "เว็บไซต์"
     },
     "nav": {
       "content": "คอนเทนต์",
-      "media": "มีเดีย"
+      "media": "มีเดีย",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "ข้อความคอมมิต",
+      "commitMessageWithPrefix": "อธิบายการเปลี่ยนแปลงของคุณ",
       "order": "ลำดับ",
       "fileName": "ชื่อไฟล์"
     },
@@ -132,7 +139,7 @@
         "uploadMedia": "อัปโหลดมีเดีย",
         "duplicateItem": "ทำสำเนา",
         "revertItem": "ย้อนกลับการเปลี่ยนแปลง",
-        "publishBranch": "พับลิชบรাঞ্চ",
+        "publishBranch": "พับลิชบรานช์",
         "openGitProvider": "เปิดใน {providerName}",
         "switchToTipTap": "ใช้ตัวแก้ไขแบบภาพ",
         "switchToCode": "ใช้ตัวแก้ไขโค้ด"
@@ -140,13 +147,13 @@
       "tooltips": {
         "createDocument": "สร้างไฟล์ใหม่",
         "createDocumentFolder": "สร้างโฟลเดอร์ใหม่",
-        "createMediaFolder": "สร้างโฟลเดอร์ใหม่",
+        "createMediaFolder": "สร้างโฟลเดอร์มีเดียใหม่",
         "renameItem": "เปลี่ยนชื่อไฟล์",
         "deleteItem": "ลบไฟล์",
         "uploadMedia": "อัปโหลดมีเดีย",
         "duplicateItem": "ทำสำเนาไฟล์",
         "revertItem": "ย้อนกลับการเปลี่ยนแปลง",
-        "publishBranch": "พับลิชบรাঞ্চ"
+        "publishBranch": "พับลิชบรานช์"
       }
     },
     "items": {
@@ -234,6 +241,18 @@
         "insertAfter": "แทรกถัดไป",
         "delete": "ลบ"
       },
+      "ai": {
+        "fix": "แก้ไขไวยากรณ์และการสะกด",
+        "improve": "ปรับปรุงการเขียนและความชัดเจน",
+        "simplify": "ย่อและลดความซับซ้อนของข้อความ",
+        "translate": "แปล",
+        "translateTo": "แปลเป็น",
+        "targetLanguage": "ภาษาปลายทาง",
+        "targetLanguageDescription": "ป้อนภาษาที่ต้องการแปล (เช่น อังกฤษ ฝรั่งเศส เยอรมัน)",
+        "targetLanguagePlaceholder": "เช่น อังกฤษ",
+        "selectionTooLarge": "เลือกข้อความมากเกินไป (สูงสุด {max} ตัวอักษร)",
+        "cancel": "ยกเลิก"
+      },
       "element": {
         "addSlot": "เพิ่มสล็อต",
         "editProps": "แก้ไข Props",
@@ -260,7 +279,7 @@
         "apply": "ใช้งาน"
       },
       "codeBlock": {
-        "filenamePlaceholder": "filename.js"
+        "filenamePlaceholder": "ชื่อไฟล์.js"
       },
       "link": {
         "pasteLinkPlaceholder": "วางลิงก์...",
@@ -288,21 +307,49 @@
         "noSource": "ไม่มีแหล่งรูป",
         "edit": "แก้ไขรูป",
         "delete": "ลบรูป"
+      },
+      "video": {
+        "source": "URL วิดีโอ",
+        "poster": "URL รูปปก",
+        "width": "กว้าง",
+        "height": "สูง",
+        "controls": "แสดงตัวควบคุม",
+        "autoplay": "เล่นอัตโนมัติ",
+        "loop": "วนซ้ำ",
+        "muted": "ปิดเสียง",
+        "noSource": "ไม่มีแหล่งวิดีโอ",
+        "edit": "แก้ไขวิดีโอ",
+        "delete": "ลบวิดีโอ"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "เลือกรูป",
         "description": "เลือกรูปจากคลังมีเดีย",
+        "selectionTitle": "รายละเอียดรูป",
+        "selectionDescription": "ตรวจสอบและยืนยันการเลือก",
         "notAvailable": "ไม่มีรูปในคลังมีเดีย",
-        "upload": "อัปโหลด"
+        "upload": "อัปโหลด",
+        "useExternal": "ใช้แหล่งภายนอก"
       },
       "video": {
         "title": "เลือกวิดีโอ",
         "description": "เลือกวิดีโอจากคลังมีเดีย",
+        "selectionTitle": "รายละเอียดวิดีโอ",
+        "selectionDescription": "ตรวจสอบและยืนยันการเลือก",
         "notAvailable": "ไม่มีวิดีโอในคลังมีเดีย",
-        "upload": "อัปโหลด"
-      }
+        "upload": "อัปโหลด",
+        "useExternal": "ใช้แหล่งภายนอก"
+      },
+      "name": "ชื่อ",
+      "path": "พาธไฟล์",
+      "publicPath": "พาธสาธารณะ",
+      "extension": "นามสกุล",
+      "fileSize": "ขนาดไฟล์",
+      "resolution": "ความละเอียด",
+      "confirm": "ยืนยัน",
+      "searchPlaceholder": "ค้นหาด้วยพาธเต็ม",
+      "cancelSelection": "ยกเลิก"
     },
     "form": {
       "array": {
@@ -343,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "กำลังวิเคราะห์คอลเลกชันและสร้าง AI Guides...",
+      "collectionGuide": "คู่มือคอลเลกชัน {collectionName}",
+      "writingStyleGuide": "คู่มือสไตล์การเขียน AI",
+      "characterCount": "{count} ตัวอักษร",
+      "noStyleGuide": "ไม่มีคู่มือสไตล์",
+      "noStyleGuideDescription": "สร้างคู่มือการเขียน AI ครบวงจรโดยวิเคราะห์เนื้อหาของคอลเลกชัน {collectionName}",
+      "analyzing": "กำลังวิเคราะห์...",
+      "analyzeCollection": "วิเคราะห์คอลเลกชัน",
+      "experimentalAlert": "ไฟล์ Context เป็นฟีเจอร์ทดลองและใช้งานได้เฉพาะในโหมดพัฒนา",
+      "learnMore": "เรียนรู้เพิ่มเติม",
+      "collectionContextFiles": "ไฟล์ Context ของคอลเลกชัน",
+      "collectionContextDescription": "จัดการคู่มือสไตล์การเขียน AI สำหรับแต่ละคอลเลกชัน แต่ละคอลเลกชันสามารถมีไฟล์ Context ของตัวเองเพื่อช่วย AI ให้เติมข้อความ จัดรูปแบบ และปรับปรุงเนื้อหาได้ดียิ่งขึ้น",
+      "noCollectionsFound": "ไม่พบคอลเลกชัน",
+      "generated": "สร้างแล้ว",
+      "notGenerated": "ยังไม่ได้สร้าง"
+    },
+    "badges": {
+      "experimental": "ทดลอง"
+    },
+    "content": {
+      "initialMarkdownContent": "# ไฟล์ {title}"
     }
   }
 }

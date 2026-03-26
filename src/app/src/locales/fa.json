@@ -9,7 +9,7 @@
       "review": "بررسی",
       "publish": "انتشار",
       "back": "بازگشت",
-      "backToCode": "بازگشت به کد",
+      "backToEdition": "بازگشت به ویرایش",
       "seeChanges": "مشاهده تغییرات"
     },
     "headings": {
@@ -25,10 +25,15 @@
       "copiedToClipboard": "به کلیپ‌بورد کپی شد",
       "copyToClipboard": "کپی به کلیپ‌بورد",
       "publishChanges": "انتشار تغییرات",
-      "backToContent": "بازگشت به محتوا"
+      "backToContent": "بازگشت به محتوا",
+      "disableAICompletion": "غیرفعال کردن تکمیل خودکار هوش مصنوعی",
+      "enableAICompletion": "فعال کردن تکمیل خودکار هوش مصنوعی",
+      "regenerateAIContext": "بازسازی زمینه هوش مصنوعی"
     },
     "notifications": {
       "error": {
+        "dismiss": "بستن",
+        "title": "خطایی رخ داد",
         "unknown": "خطای نامشخصی رخ داد"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "محتوا",
-      "media": "رسانه"
+      "media": "رسانه",
+      "ai": "هوش مصنوعی"
     },
     "placeholders": {
       "commitMessage": "پیام commit",
+      "commitMessageWithPrefix": "تغییرات خود را توصیف کنید",
       "order": "شماره",
       "fileName": "نام فایل"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "درج بعد",
         "delete": "حذف"
       },
+      "ai": {
+        "fix": "تصحیح دستور زبان و املا",
+        "improve": "بهبود نوشتار و وضوح",
+        "simplify": "خلاصه و ساده‌سازی متن",
+        "translate": "ترجمه",
+        "translateTo": "ترجمه به",
+        "targetLanguage": "زبان مقصد",
+        "targetLanguageDescription": "زبانی که می‌خواهید به آن ترجمه کنید را وارد کنید (مثلاً اسپانیایی، فرانسوی، آلمانی)",
+        "targetLanguagePlaceholder": "مثلاً اسپانیایی",
+        "selectionTooLarge": "انتخاب خیلی بزرگ است (حداکثر {max} کاراکتر)",
+        "cancel": "لغو"
+      },
       "element": {
         "addSlot": "افزودن اسلات",
         "editProps": "ویرایش ویژگی‌ها",
@@ -290,32 +309,47 @@
         "delete": "حذف تصویر"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL منبع ویدیو",
+        "poster": "URL تصویر پوستر",
+        "width": "عرض",
+        "height": "ارتفاع",
+        "controls": "نمایش کنترل‌ها",
+        "autoplay": "پخش خودکار",
+        "loop": "تکرار",
+        "muted": "بی‌صدا",
+        "noSource": "منبع ویدیو وجود ندارد",
+        "edit": "ویرایش ویدیو",
+        "delete": "حذف ویدیو"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "انتخاب تصویر",
         "description": "تصویری از کتابخانه رسانه خود انتخاب کنید",
+        "selectionTitle": "جزئیات تصویر",
+        "selectionDescription": "انتخاب خود را بررسی و تأیید کنید",
         "notAvailable": "هیچ تصویری در کتابخانه رسانه شما موجود نیست",
-        "upload": "آپلود"
+        "upload": "آپلود",
+        "useExternal": "استفاده از منبع خارجی"
       },
       "video": {
         "title": "انتخاب ویدیو",
         "description": "ویدیویی از کتابخانه رسانه خود انتخاب کنید",
+        "selectionTitle": "جزئیات ویدیو",
+        "selectionDescription": "انتخاب خود را بررسی و تأیید کنید",
         "notAvailable": "هیچ ویدیویی در کتابخانه رسانه شما موجود نیست",
-        "upload": "آپلود"
-      }
+        "upload": "آپلود",
+        "useExternal": "استفاده از منبع خارجی"
+      },
+      "name": "نام",
+      "path": "مسیر فایل",
+      "publicPath": "مسیر عمومی",
+      "extension": "پسوند",
+      "fileSize": "اندازه فایل",
+      "resolution": "وضوح",
+      "searchPlaceholder": "جستجو بر اساس مسیر کامل",
+      "confirm": "تأیید",
+      "cancelSelection": "لغو"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "۰"
       }
+    },
+    "ai": {
+      "analyzingCollection": "در حال تحلیل مجموعه و تولید راهنماهای هوش مصنوعی...",
+      "collectionGuide": "راهنمای مجموعه {collectionName}",
+      "writingStyleGuide": "راهنمای سبک نوشتار هوش مصنوعی",
+      "characterCount": "{count} کاراکتر",
+      "noStyleGuide": "بدون راهنمای سبک",
+      "noStyleGuideDescription": "با تحلیل محتوای مجموعه {collectionName}، راهنمای جامع نوشتار هوش مصنوعی تولید کنید.",
+      "analyzing": "در حال تحلیل...",
+      "analyzeCollection": "تحلیل مجموعه",
+      "experimentalAlert": "فایل‌های زمینه در حال حاضر آزمایشی هستند و فقط برای تولید در حالت توسعه در دسترس هستند.",
+      "learnMore": "بیشتر بدانید",
+      "collectionContextFiles": "فایل‌های زمینه مجموعه",
+      "collectionContextDescription": "راهنماهای سبک نوشتار هوش مصنوعی را برای هر مجموعه مدیریت کنید. هر مجموعه می‌تواند فایل زمینه خاص خود را داشته باشد تا به هوش مصنوعی کمک کند تکمیل، قالب‌بندی و بهبودهای بهتری برای محتوای شما ارائه دهد.",
+      "noCollectionsFound": "هیچ مجموعه‌ای یافت نشد",
+      "generated": "تولید شده",
+      "notGenerated": "تولید نشده"
+    },
+    "badges": {
+      "experimental": "آزمایشی"
+    },
+    "content": {
+      "initialMarkdownContent": "# فایل {title}"
     }
   }
 }

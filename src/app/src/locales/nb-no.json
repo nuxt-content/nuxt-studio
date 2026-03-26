@@ -25,10 +25,15 @@
       "copiedToClipboard": "Kopiert til utklippstavlen",
       "copyToClipboard": "Kopier til utklippstavlen",
       "publishChanges": "Publiser endringer",
-      "backToContent": "Tilbake til innhold"
+      "backToContent": "Tilbake til innhold",
+      "disableAICompletion": "Deaktiver AI-fullføring",
+      "enableAICompletion": "Aktiver AI-fullføring",
+      "regenerateAIContext": "Regenerer AI-kontekst"
     },
     "notifications": {
       "error": {
+        "dismiss": "Lukk",
+        "title": "Det oppstod en feil",
         "unknown": "En ukjent feil oppstod"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Innhold",
-      "media": "Media"
+      "media": "Media",
+      "ai": "KI"
     },
     "placeholders": {
       "commitMessage": "Commit-melding",
+      "commitMessageWithPrefix": "Beskriv endringene dine",
       "order": "Nr.",
       "fileName": "Filnavn"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Sett inn etter",
         "delete": "Slett"
       },
+      "ai": {
+        "fix": "Rett grammatikk og stavefeil",
+        "improve": "Forbedre skriving og klarhet",
+        "simplify": "Forkort og forenkle teksten",
+        "translate": "Oversett",
+        "translateTo": "Oversett til",
+        "targetLanguage": "Målspråk",
+        "targetLanguageDescription": "Skriv inn språket du vil oversette til (f.eks. engelsk, fransk, tysk)",
+        "targetLanguagePlaceholder": "f.eks. engelsk",
+        "selectionTooLarge": "Valget er for stort (maks. {max} tegn)",
+        "cancel": "Avbryt"
+      },
       "element": {
         "addSlot": "Legg til slot",
         "editProps": "Rediger props",
@@ -290,32 +309,47 @@
         "delete": "Slett bilde"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
+        "source": "Videokilde-URL",
+        "poster": "Plakat-bilde-URL",
+        "width": "Bredde",
+        "height": "Høyde",
+        "controls": "Vis kontroller",
+        "autoplay": "Autoavspilling",
         "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "muted": "Lydløs",
+        "noSource": "Ingen videokilde",
+        "edit": "Rediger video",
+        "delete": "Slett video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Velg bilde",
         "description": "Velg et bilde fra mediebiblioteket ditt",
+        "selectionTitle": "Bildedetaljer",
+        "selectionDescription": "Se gjennom og bekreft valget ditt",
         "notAvailable": "Ingen bilder tilgjengelig i mediebiblioteket",
-        "upload": "Last opp"
+        "upload": "Last opp",
+        "useExternal": "Bruk ekstern kilde"
       },
       "video": {
         "title": "Velg video",
         "description": "Velg en video fra mediebiblioteket ditt",
+        "selectionTitle": "Videodetaljer",
+        "selectionDescription": "Se gjennom og bekreft valget ditt",
         "notAvailable": "Ingen videoer tilgjengelig i mediebiblioteket",
-        "upload": "Last opp"
-      }
+        "upload": "Last opp",
+        "useExternal": "Bruk ekstern kilde"
+      },
+      "name": "Navn",
+      "path": "Filsti",
+      "publicPath": "Offentlig sti",
+      "extension": "Utvidelse",
+      "fileSize": "Filstørrelse",
+      "resolution": "Oppløsning",
+      "confirm": "Bekreft",
+      "searchPlaceholder": "Søk etter fullstendig sti",
+      "cancelSelection": "Avbryt"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analyserer samling og genererer KI-veiledninger...",
+      "collectionGuide": "Veiledning for samlingen {collectionName}",
+      "writingStyleGuide": "KI-skrivestilveiledning",
+      "characterCount": "{count} tegn",
+      "noStyleGuide": "Ingen stilveiledning",
+      "noStyleGuideDescription": "Generer en omfattende KI-skriveveildening ved å analysere innholdet i samlingen {collectionName}.",
+      "analyzing": "Analyserer...",
+      "analyzeCollection": "Analyser samling",
+      "experimentalAlert": "Kontekstfiler er for øyeblikket eksperimentelle og bare tilgjengelige for generering i utviklingsmodus.",
+      "learnMore": "Lær mer",
+      "collectionContextFiles": "Kontekstfiler for samling",
+      "collectionContextDescription": "Administrer KI-skrivestilveiledninger for hver samling. Hver samling kan ha sin egen kontekstfil for å hjelpe KI med å gi bedre fullføringer, formatering og forbedringer av innholdet ditt.",
+      "noCollectionsFound": "Ingen samlinger funnet",
+      "generated": "Generert",
+      "notGenerated": "Ikke generert"
+    },
+    "badges": {
+      "experimental": "Eksperimentell"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title}-fil"
     }
   }
 }

@@ -86,6 +86,7 @@
     },
     "placeholders": {
       "commitMessage": "Správa commitu",
+      "commitMessageWithPrefix": "Opíšte vaše zmeny",
       "order": "Č.",
       "fileName": "Názov súboru"
     },
@@ -119,6 +120,299 @@
       "openActions": "Otvoriť akcie",
       "cancel": "Zrušiť",
       "submit": "Odoslať"
+    },
+    "actions": {
+      "confirmAction": "Kliknite znova pre {action}",
+      "verbs": {
+        "create": "vytvorenie",
+        "delete": "odstránenie",
+        "rename": "premenovanie",
+        "upload": "nahranie",
+        "duplicate": "duplikovanie"
+      },
+      "labels": {
+        "createDocument": "Nový súbor",
+        "createDocumentFolder": "Nový priečinok",
+        "createMediaFolder": "Nový mediálny priečinok",
+        "renameItem": "Premenovať",
+        "deleteItem": "Odstrániť",
+        "uploadMedia": "Nahrať médiá",
+        "duplicateItem": "Duplikovať",
+        "revertItem": "Vrátiť zmeny",
+        "publishBranch": "Publikovať vetvu",
+        "openGitProvider": "Otvoriť na {providerName}",
+        "switchToTipTap": "Použiť vizuálny editor",
+        "switchToCode": "Použiť kódový editor"
+      },
+      "tooltips": {
+        "createDocument": "Vytvoriť nový súbor",
+        "createDocumentFolder": "Vytvoriť nový priečinok",
+        "createMediaFolder": "Vytvoriť nový mediálny priečinok",
+        "renameItem": "Premenovať súbor",
+        "deleteItem": "Odstrániť súbor",
+        "uploadMedia": "Nahrať médiá",
+        "duplicateItem": "Duplikovať súbor",
+        "revertItem": "Vrátiť zmeny",
+        "publishBranch": "Publikovať vetvu"
+      }
+    },
+    "items": {
+      "itemCount": "1 položka | {count} položky | {count} položiek"
+    },
+    "monaco": {
+      "headings": {
+        "h1": "Nadpis 1",
+        "h2": "Nadpis 2",
+        "h3": "Nadpis 3"
+      },
+      "styles": {
+        "bold": "Tučné",
+        "italic": "Kurzíva"
+      },
+      "lists": {
+        "bulleted": "Zoznam s odrážkami",
+        "numbered": "Číslovaný zoznam"
+      },
+      "other": {
+        "emojis": "Emodži",
+        "blockquote": "Citát",
+        "code": "Kód",
+        "inlineCode": "Vložený kód",
+        "link": "Odkaz",
+        "image": "Obrázok"
+      },
+      "writeSomething": "Napíšte niečo",
+      "snippets": {
+        "title": "nadpis",
+        "item1": "Položka 1",
+        "item2": "Položka 2",
+        "language": "jazyk",
+        "code": "kód",
+        "link": "odkaz",
+        "alt": "alt",
+        "src": "src",
+        "value": "hodnota"
+      },
+      "docs": {
+        "path": "Cesta v projekte:",
+        "props": "Vlastnosti",
+        "slots": "Sloty",
+        "type": "typ",
+        "required": "povinné",
+        "default": "predvolené"
+      }
+    },
+    "tiptap": {
+      "editor": {
+        "placeholder": "Píšte, zadajte '/' pre príkazy...",
+        "components": "Komponenty"
+      },
+      "toolbar": {
+        "h1": "Nadpis 1",
+        "h2": "Nadpis 2",
+        "h3": "Nadpis 3",
+        "h4": "Nadpis 4",
+        "bulletList": "Zoznam s odrážkami",
+        "orderedList": "Číslovaný zoznam",
+        "blockquote": "Citát",
+        "codeBlock": "Blok kódu",
+        "bold": "Tučné",
+        "italic": "Kurzíva",
+        "strike": "Prečiarknuté",
+        "code": "Kód",
+        "headings": "Nadpisy"
+      },
+      "suggestion": {
+        "style": "Štýl",
+        "paragraph": "Odsek",
+        "insert": "Vložiť",
+        "image": "Obrázok",
+        "video": "Video",
+        "horizontalRule": "Horizontálna čiara"
+      },
+      "drag": {
+        "turnInto": "Zmeniť na",
+        "resetFormatting": "Obnoviť formátovanie",
+        "duplicate": "Duplikovať",
+        "copyToClipboard": "Kopírovať do schránky",
+        "moveUp": "Presunúť nahor",
+        "moveDown": "Presunúť nadol",
+        "insertBefore": "Vložiť pred",
+        "insertAfter": "Vložiť za",
+        "delete": "Odstrániť"
+      },
+      "ai": {
+        "fix": "Opraviť gramatiku a pravopis",
+        "improve": "Zlepšiť písanie a zrozumiteľnosť",
+        "simplify": "Skrátiť a zjednodušiť text",
+        "translate": "Preložiť",
+        "translateTo": "Preložiť do",
+        "targetLanguage": "Cieľový jazyk",
+        "targetLanguageDescription": "Zadajte jazyk, do ktorého chcete preložiť (napr. angličtina, francúzština, nemčina)",
+        "targetLanguagePlaceholder": "napr. angličtina",
+        "selectionTooLarge": "Výber je príliš veľký (max. {max} znakov)",
+        "cancel": "Zrušiť"
+      },
+      "element": {
+        "addSlot": "Pridať slot",
+        "editProps": "Upraviť vlastnosti",
+        "delete": "Odstrániť",
+        "prop": "vlastnosť",
+        "props": {
+          "label": "vlastnosti",
+          "itemsCount": "{count} položka | {count} položiek",
+          "fieldsCount": "{count} pole | {count} polí",
+          "edit": "Upraviť {type}"
+        }
+      },
+      "slot": {
+        "searchPlaceholder": "Hľadať alebo vytvoriť slot...",
+        "deleteSlot": "Odstrániť slot",
+        "noSlotsAvailable": "Žiadne preddefinované sloty nie sú k dispozícii"
+      },
+      "inlineElement": {
+        "editContent": "Upraviť obsah",
+        "editProps": "Upraviť vlastnosti",
+        "delete": "Odstrániť",
+        "editContentLabel": "Upraviť obsah {name}",
+        "enterContentPlaceholder": "Zadajte obsah...",
+        "apply": "Použiť"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "nazovsuboru.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Vložte odkaz...",
+        "applyLink": "Použiť odkaz",
+        "openInNewWindow": "Otvoriť v novom okne",
+        "removeLink": "Odstrániť odkaz"
+      },
+      "spanStyle": {
+        "label": "Štýl span",
+        "stylePlaceholder": "Štýly: napr. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Triedy: oddelené medzerami",
+        "apply": "Použiť",
+        "remove": "Odstrániť"
+      },
+      "binding": {
+        "variablePlaceholder": "Názov premennej",
+        "defaultValuePlaceholder": "Predvolená hodnota"
+      },
+      "image": {
+        "source": "URL zdroja obrázka",
+        "altText": "Alternatívny text",
+        "title": "Názov obrázka",
+        "width": "Šírka",
+        "height": "Výška",
+        "noSource": "Žiadny zdroj obrázka",
+        "edit": "Upraviť obrázok",
+        "delete": "Odstrániť obrázok"
+      },
+      "video": {
+        "source": "URL zdroja videa",
+        "poster": "URL plagátového obrázka",
+        "width": "Šírka",
+        "height": "Výška",
+        "controls": "Zobraziť ovládacie prvky",
+        "autoplay": "Automatické prehrávanie",
+        "loop": "Opakovať",
+        "muted": "Stlmené",
+        "noSource": "Žiadny zdroj videa",
+        "edit": "Upraviť video",
+        "delete": "Odstrániť video"
+      }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "Vybrať obrázok",
+        "description": "Vyberte obrázok z vašej mediálnej knižnice",
+        "selectionTitle": "Podrobnosti obrázka",
+        "selectionDescription": "Skontrolujte a potvrďte výber",
+        "notAvailable": "V mediálnej knižnici nie sú k dispozícii žiadne obrázky",
+        "upload": "Nahrať",
+        "useExternal": "Použiť externý zdroj"
+      },
+      "video": {
+        "title": "Vybrať video",
+        "description": "Vyberte video z vašej mediálnej knižnice",
+        "selectionTitle": "Podrobnosti videa",
+        "selectionDescription": "Skontrolujte a potvrďte výber",
+        "notAvailable": "V mediálnej knižnici nie sú k dispozícii žiadne videá",
+        "upload": "Nahrať",
+        "useExternal": "Použiť externý zdroj"
+      },
+      "name": "Názov",
+      "path": "Cesta k súboru",
+      "publicPath": "Verejná cesta",
+      "extension": "Prípona",
+      "fileSize": "Veľkosť súboru",
+      "resolution": "Rozlíšenie",
+      "confirm": "Potvrdiť",
+      "searchPlaceholder": "Hľadať podľa celej cesty",
+      "cancelSelection": "Zrušiť"
+    },
+    "form": {
+      "array": {
+        "addItem": "Pridať {label}",
+        "deleteItem": "Odstrániť položku",
+        "editItem": "Upraviť položku",
+        "unsupportedType": "Typ poľa {type} nie je podporovaný"
+      },
+      "object": {
+        "noProperties": "Žiadne definované vlastnosti",
+        "enterPlaceholder": "Zadajte {field}..."
+      },
+      "section": {
+        "propertyCount": "1 vlastnosť | {count} vlastnosti | {count} vlastností"
+      },
+      "media": {
+        "placeholder": "Relatívna cesta alebo verejná URL...",
+        "searchPlaceholder": "Hľadať obrázky...",
+        "noImagesFound": "Nenašli sa žiadne obrázky",
+        "noImagesAvailable": "Žiadne obrázky nie sú k dispozícii",
+        "imageCount": "{count} z {total} obrázka | {count} z {total} obrázkov"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "Hľadať ikony...",
+        "noIconsFound": "Nenašli sa žiadne ikony",
+        "searchHint": "Zadajte aspoň 2 znaky na vyhľadávanie",
+        "libraries": "Knižnice:",
+        "allLibraries": "Všetky"
+      },
+      "text": {
+        "placeholder": "Zadajte text...",
+        "selectPlaceholder": "Vyberte možnosť..."
+      },
+      "date": {
+        "selectDate": "Vybrať dátum"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    },
+    "ai": {
+      "analyzingCollection": "Analýza kolekcie a generovanie AI sprievodcov...",
+      "collectionGuide": "Sprievodca kolekciou {collectionName}",
+      "writingStyleGuide": "AI sprievodca štýlom písania",
+      "characterCount": "{count} znakov",
+      "noStyleGuide": "Žiadny sprievodca štýlom",
+      "noStyleGuideDescription": "Vygenerujte komplexného AI sprievodcu písaním analýzou obsahu kolekcie {collectionName}.",
+      "analyzing": "Analyzuje sa...",
+      "analyzeCollection": "Analyzovať kolekciu",
+      "experimentalAlert": "Kontextové súbory sú momentálne experimentálne a dostupné iba na generovanie v režime vývoja.",
+      "learnMore": "Zistiť viac",
+      "collectionContextFiles": "Kontextové súbory kolekcie",
+      "collectionContextDescription": "Spravujte AI sprievodcov štýlom písania pre každú kolekciu. Každá kolekcia môže mať vlastný kontextový súbor, ktorý pomáha AI poskytovať lepšie doplnenia, formátovanie a vylepšenia pre váš obsah.",
+      "noCollectionsFound": "Nenašli sa žiadne kolekcie",
+      "generated": "Vygenerované",
+      "notGenerated": "Nevygenerované"
+    },
+    "badges": {
+      "experimental": "Experimentálne"
+    },
+    "content": {
+      "initialMarkdownContent": "# Súbor {title}"
     }
   }
 }

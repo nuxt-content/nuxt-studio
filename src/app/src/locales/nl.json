@@ -25,10 +25,15 @@
       "copiedToClipboard": "Gekopieerd naar klembord",
       "copyToClipboard": "Kopieer naar klembord",
       "publishChanges": "Wijzigingen publiceren",
-      "backToContent": "Terug naar inhoud"
+      "backToContent": "Terug naar inhoud",
+      "disableAICompletion": "AI-aanvulling uitschakelen",
+      "enableAICompletion": "AI-aanvulling inschakelen",
+      "regenerateAIContext": "AI-context regenereren"
     },
     "notifications": {
       "error": {
+        "dismiss": "Sluiten",
+        "title": "Er is een fout opgetreden",
         "unknown": "Er is een onbekende fout opgetreden"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Inhoud",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Commitbericht",
+      "commitMessageWithPrefix": "Beschrijf je wijzigingen",
       "order": "Nr",
       "fileName": "Bestandsnaam"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Invoegen na",
         "delete": "Verwijderen"
       },
+      "ai": {
+        "fix": "Grammatica en spelling corrigeren",
+        "improve": "Schrijfstijl en duidelijkheid verbeteren",
+        "simplify": "Tekst verkorten en vereenvoudigen",
+        "translate": "Vertalen",
+        "translateTo": "Vertalen naar",
+        "targetLanguage": "Doeltaal",
+        "targetLanguageDescription": "Voer de taal in waarnaar je wilt vertalen (bijv. Engels, Frans, Duits)",
+        "targetLanguagePlaceholder": "bijv. Engels",
+        "selectionTooLarge": "Selectie te groot (max. {max} tekens)",
+        "cancel": "Annuleren"
+      },
       "element": {
         "addSlot": "Slot toevoegen",
         "editProps": "Props bewerken",
@@ -290,32 +309,47 @@
         "delete": "Afbeelding verwijderen"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "Video bron-URL",
+        "poster": "Posterafbeelding-URL",
+        "width": "Breedte",
+        "height": "Hoogte",
+        "controls": "Bediening tonen",
+        "autoplay": "Automatisch afspelen",
+        "loop": "Herhalen",
+        "muted": "Gedempt",
+        "noSource": "Geen videobron",
+        "edit": "Video bewerken",
+        "delete": "Video verwijderen"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Afbeelding selecteren",
         "description": "Kies een afbeelding uit je mediabibliotheek",
+        "selectionTitle": "Afbeeldingsdetails",
+        "selectionDescription": "Bekijk en bevestig je selectie",
         "notAvailable": "Geen afbeeldingen beschikbaar in je mediabibliotheek",
-        "upload": "Uploaden"
+        "upload": "Uploaden",
+        "useExternal": "Externe bron gebruiken"
       },
       "video": {
         "title": "Video selecteren",
         "description": "Kies een video uit je mediabibliotheek",
+        "selectionTitle": "Videodetails",
+        "selectionDescription": "Bekijk en bevestig je selectie",
         "notAvailable": "Geen video's beschikbaar in je mediabibliotheek",
-        "upload": "Uploaden"
-      }
+        "upload": "Uploaden",
+        "useExternal": "Externe bron gebruiken"
+      },
+      "name": "Naam",
+      "path": "Bestandspad",
+      "publicPath": "Publiek pad",
+      "extension": "Extensie",
+      "fileSize": "Bestandsgrootte",
+      "resolution": "Resolutie",
+      "confirm": "Bevestigen",
+      "searchPlaceholder": "Zoeken op volledig pad",
+      "cancelSelection": "Annuleren"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Verzameling analyseren en AI-gidsen genereren...",
+      "collectionGuide": "Gids voor verzameling {collectionName}",
+      "writingStyleGuide": "AI-schrijfstijlgids",
+      "characterCount": "{count} tekens",
+      "noStyleGuide": "Geen stijlgids",
+      "noStyleGuideDescription": "Genereer een uitgebreide AI-schrijfgids door de inhoud van verzameling {collectionName} te analyseren.",
+      "analyzing": "Analyseren...",
+      "analyzeCollection": "Verzameling analyseren",
+      "experimentalAlert": "Contextbestanden zijn momenteel experimenteel en alleen beschikbaar voor generatie in de ontwikkelmodus.",
+      "learnMore": "Meer informatie",
+      "collectionContextFiles": "Contextbestanden voor verzameling",
+      "collectionContextDescription": "Beheer AI-schrijfstijlgidsen voor elke verzameling. Elke verzameling kan een eigen contextbestand hebben om de AI te helpen betere aanvullingen, opmaak en verbeteringen te bieden.",
+      "noCollectionsFound": "Geen verzamelingen gevonden",
+      "generated": "Gegenereerd",
+      "notGenerated": "Niet gegenereerd"
+    },
+    "badges": {
+      "experimental": "Experimenteel"
+    },
+    "content": {
+      "initialMarkdownContent": "# Bestand {title}"
     }
   }
 }

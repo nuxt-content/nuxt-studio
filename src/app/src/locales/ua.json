@@ -25,10 +25,15 @@
       "copiedToClipboard": "Скопійовано в буфер обміну",
       "copyToClipboard": "Копіювати в буфер обміну",
       "publishChanges": "Опублікувати зміни",
-      "backToContent": "Повернутися до вмісту"
+      "backToContent": "Повернутися до вмісту",
+      "disableAICompletion": "Вимкнути автодоповнення ШІ",
+      "enableAICompletion": "Увімкнути автодоповнення ШІ",
+      "regenerateAIContext": "Оновити контекст ШІ"
     },
     "notifications": {
       "error": {
+        "dismiss": "Закрити",
+        "title": "Сталася помилка",
         "unknown": "Сталася невідома помилка"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Вміст",
-      "media": "Медіа"
+      "media": "Медіа",
+      "ai": "ШІ"
     },
     "placeholders": {
       "commitMessage": "Повідомлення коміту",
+      "commitMessageWithPrefix": "Опишіть ваші зміни",
       "order": "N°",
       "fileName": "Назва файлу"
     },
@@ -102,6 +109,7 @@
       "metaWidth": "Ширина",
       "metaHeight": "Висота",
       "metaType": "Тип",
+      "metaDuration": "Тривалість",
       "metaSize": "Розмір",
       "fileName": "Назва файлу",
       "publicPath": "Публічний шлях",
@@ -139,7 +147,7 @@
       "tooltips": {
         "createDocument": "Створити новий файл",
         "createDocumentFolder": "Створити нову папку",
-        "createMediaFolder": "Створити нову папку",
+        "createMediaFolder": "Створити нову медіа папку",
         "renameItem": "Перейменувати файл",
         "deleteItem": "Видалити файл",
         "uploadMedia": "Завантажити медіа",
@@ -233,6 +241,18 @@
         "insertAfter": "Вставити після",
         "delete": "Видалити"
       },
+      "ai": {
+        "fix": "Виправити граматику та орфографію",
+        "improve": "Покращити написання та ясність",
+        "simplify": "Скоротити та спростити текст",
+        "translate": "Перекласти",
+        "translateTo": "Перекласти на",
+        "targetLanguage": "Цільова мова",
+        "targetLanguageDescription": "Введіть мову, на яку хочете перекласти (напр. англійська, французька, німецька)",
+        "targetLanguagePlaceholder": "напр. англійська",
+        "selectionTooLarge": "Вибрано забагато тексту (макс. {max} символів)",
+        "cancel": "Скасувати"
+      },
       "element": {
         "addSlot": "Додати слот",
         "editProps": "Редагувати властивості",
@@ -259,7 +279,7 @@
         "apply": "Застосувати"
       },
       "codeBlock": {
-        "filenamePlaceholder": "filename.js"
+        "filenamePlaceholder": "назвафайлу.js"
       },
       "link": {
         "pasteLinkPlaceholder": "Вставте посилання...",
@@ -289,32 +309,47 @@
         "delete": "Видалити зображення"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL джерела відео",
+        "poster": "URL зображення-постера",
+        "width": "Ширина",
+        "height": "Висота",
+        "controls": "Показувати елементи керування",
+        "autoplay": "Автовідтворення",
+        "loop": "Повтор",
+        "muted": "Без звуку",
+        "noSource": "Немає джерела відео",
+        "edit": "Редагувати відео",
+        "delete": "Видалити відео"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Вибрати зображення",
         "description": "Виберіть зображення з вашої медіа бібліотеки",
+        "selectionTitle": "Відомості про зображення",
+        "selectionDescription": "Перевірте та підтвердіть вибір",
         "notAvailable": "Немає доступних зображень у вашій медіа бібліотеці",
-        "upload": "Завантажити"
+        "upload": "Завантажити",
+        "useExternal": "Використати зовнішнє джерело"
       },
       "video": {
         "title": "Вибрати відео",
         "description": "Виберіть відео з вашої медіа бібліотеки",
+        "selectionTitle": "Відомості про відео",
+        "selectionDescription": "Перевірте та підтвердіть вибір",
         "notAvailable": "Немає доступних відео у вашій медіа бібліотеці",
-        "upload": "Завантажити"
-      }
+        "upload": "Завантажити",
+        "useExternal": "Використати зовнішнє джерело"
+      },
+      "name": "Назва",
+      "path": "Шлях до файлу",
+      "publicPath": "Публічний шлях",
+      "extension": "Розширення",
+      "fileSize": "Розмір файлу",
+      "resolution": "Роздільна здатність",
+      "confirm": "Підтвердити",
+      "searchPlaceholder": "Пошук за повним шляхом",
+      "cancelSelection": "Скасувати"
     },
     "form": {
       "array": {
@@ -355,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Аналіз колекції та генерація посібників ШІ...",
+      "collectionGuide": "Посібник колекції {collectionName}",
+      "writingStyleGuide": "Посібник зі стилю написання ШІ",
+      "characterCount": "{count} символів",
+      "noStyleGuide": "Немає посібника зі стилю",
+      "noStyleGuideDescription": "Створіть повний посібник із написання за допомогою ШІ, аналізуючи вміст колекції {collectionName}.",
+      "analyzing": "Аналіз...",
+      "analyzeCollection": "Аналізувати колекцію",
+      "experimentalAlert": "Файли контексту наразі є експериментальними та доступні лише для генерації в режимі розробки.",
+      "learnMore": "Дізнатися більше",
+      "collectionContextFiles": "Файли контексту колекції",
+      "collectionContextDescription": "Керуйте посібниками зі стилю написання ШІ для кожної колекції. Кожна колекція може мати власний файл контексту, який допомагає ШІ надавати кращі доповнення, форматування та покращення для вашого вмісту.",
+      "noCollectionsFound": "Колекцій не знайдено",
+      "generated": "Створено",
+      "notGenerated": "Не створено"
+    },
+    "badges": {
+      "experimental": "Експериментально"
+    },
+    "content": {
+      "initialMarkdownContent": "# Файл {title}"
     }
   }
 }

@@ -25,10 +25,15 @@
       "copiedToClipboard": "In die Zwischenablage kopiert",
       "copyToClipboard": "In die Zwischenablage kopieren",
       "publishChanges": "Änderungen veröffentlichen",
-      "backToContent": "Zurück zu den Inhalten"
+      "backToContent": "Zurück zu den Inhalten",
+      "disableAICompletion": "KI-Vervollständigung deaktivieren",
+      "enableAICompletion": "KI-Vervollständigung aktivieren",
+      "regenerateAIContext": "KI-Kontext neu generieren"
     },
     "notifications": {
       "error": {
+        "dismiss": "Schließen",
+        "title": "Ein Fehler ist aufgetreten",
         "unknown": "Ein unbekannter Fehler ist aufgetreten"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Inhalte",
-      "media": "Medien"
+      "media": "Medien",
+      "ai": "KI"
     },
     "placeholders": {
       "commitMessage": "Commit-Nachricht",
+      "commitMessageWithPrefix": "Beschreibe deine Änderungen",
       "order": "N°",
       "fileName": "Dateiname"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Nachher einfügen",
         "delete": "Löschen"
       },
+      "ai": {
+        "fix": "Grammatik & Rechtschreibung korrigieren",
+        "improve": "Schreiben und Klarheit verbessern",
+        "simplify": "Text minimieren und vereinfachen",
+        "translate": "Übersetzen",
+        "translateTo": "Übersetzen nach",
+        "targetLanguage": "Zielsprache",
+        "targetLanguageDescription": "Gib die Sprache ein, in die du übersetzen möchtest (z.B. Spanisch, Französisch, Deutsch)",
+        "targetLanguagePlaceholder": "z.B. Spanisch",
+        "selectionTooLarge": "Auswahl zu groß (max. {max} Zeichen)",
+        "cancel": "Abbrechen"
+      },
       "element": {
         "addSlot": "Slot hinzufügen",
         "editProps": "Eigenschaften bearbeiten",
@@ -290,32 +309,47 @@
         "delete": "Bild löschen"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "Video-Quellen-URL",
+        "poster": "Vorschaubild-URL",
+        "width": "Breite",
+        "height": "Höhe",
+        "controls": "Steuerelemente anzeigen",
+        "autoplay": "Automatisch abspielen",
+        "loop": "Wiederholen",
+        "muted": "Stummgeschaltet",
+        "noSource": "Keine Videoquelle",
+        "edit": "Video bearbeiten",
+        "delete": "Video löschen"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Bild auswählen",
         "description": "Wählen Sie ein Bild aus Ihrer Medienbibliothek",
+        "selectionTitle": "Bilddetails",
+        "selectionDescription": "Überprüfen und bestätigen Sie Ihre Auswahl",
         "notAvailable": "Keine Bilder in Ihrer Medienbibliothek verfügbar",
-        "upload": "Hochladen"
+        "upload": "Hochladen",
+        "useExternal": "Externe Quelle verwenden"
       },
       "video": {
         "title": "Video auswählen",
         "description": "Wählen Sie ein Video aus Ihrer Medienbibliothek",
+        "selectionTitle": "Videodetails",
+        "selectionDescription": "Überprüfen und bestätigen Sie Ihre Auswahl",
         "notAvailable": "Keine Videos in Ihrer Medienbibliothek verfügbar",
-        "upload": "Hochladen"
-      }
+        "upload": "Hochladen",
+        "useExternal": "Externe Quelle verwenden"
+      },
+      "name": "Name",
+      "path": "Dateipfad",
+      "publicPath": "Öffentlicher Pfad",
+      "extension": "Erweiterung",
+      "fileSize": "Dateigröße",
+      "resolution": "Auflösung",
+      "searchPlaceholder": "Nach vollständigem Pfad suchen",
+      "confirm": "Bestätigen",
+      "cancelSelection": "Abbrechen"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Sammlung analysieren und KI-Richtlinien generieren...",
+      "collectionGuide": "Leitfaden für Sammlung {collectionName}",
+      "writingStyleGuide": "KI-Schreibstil-Leitfaden",
+      "characterCount": "{count} Zeichen",
+      "noStyleGuide": "Kein Stil-Leitfaden",
+      "noStyleGuideDescription": "Erstelle einen umfassenden KI-Schreib-Leitfaden durch Analyse der Inhalte in der Sammlung {collectionName}.",
+      "analyzing": "Analysieren...",
+      "analyzeCollection": "Sammlung analysieren",
+      "experimentalAlert": "Kontextdateien sind derzeit experimentell und nur im Entwicklungsmodus zur Generierung verfügbar.",
+      "learnMore": "Mehr erfahren",
+      "collectionContextFiles": "Kontext-Dateien der Sammlung",
+      "collectionContextDescription": "Verwalte KI-Schreibstil-Leitfäden für jede Sammlung. Jede Sammlung kann eine eigene Kontextdatei haben, um der KI zu helfen, bessere Vervollständigungen, Formatierungen und Verbesserungen für deine Inhalte bereitzustellen.",
+      "noCollectionsFound": "Keine Sammlungen gefunden",
+      "generated": "Generiert",
+      "notGenerated": "Nicht generiert"
+    },
+    "badges": {
+      "experimental": "Experimentell"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} Datei"
     }
   }
 }

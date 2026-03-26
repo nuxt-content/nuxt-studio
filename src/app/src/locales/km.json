@@ -25,10 +25,15 @@
       "copiedToClipboard": "បានចម្លងទៅក្លីបបត",
       "copyToClipboard": "ចម្លងទៅក្លីបបត",
       "publishChanges": "ការបង្ហោះការផ្លាស់ប្តូរ",
-      "backToContent": "ត្រលប់ទៅមាតិកា"
+      "backToContent": "ត្រលប់ទៅមាតិកា",
+      "disableAICompletion": "បិទការបំពេញ AI",
+      "enableAICompletion": "បើកការបំពេញ AI",
+      "regenerateAIContext": "បង្កើតបរិបទ AI ឡើងវិញ"
     },
     "notifications": {
       "error": {
+        "dismiss": "បិទ",
+        "title": "បានកើតមានកំហុស",
         "unknown": "បានកើតមានកំហុសមិនស្គាល់"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "មាតិកា",
-      "media": "មេឌៀ"
+      "media": "មេឌៀ",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "សារការប្តេធ្វើបច្ចុប្បន្នភាព",
+      "commitMessageWithPrefix": "ពិពណ៌នាការផ្លាស់ប្តូររបស់អ្នក",
       "order": "លេខលំដាប់",
       "fileName": "ឈ្មោះឯកសារ"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "បញ្ចូលក្រោយ",
         "delete": "លុប"
       },
+      "ai": {
+        "fix": "កែសម្រួលវេយ្យាករណ៍និងអក្ខរាវិរុទ្ធ",
+        "improve": "កែប្រែការសរសេរនិងភាពច្បាស់លាស់",
+        "simplify": "កាត់បន្ថយនិងធ្វើឱ្យអត្ថបទសាមញ្ញ",
+        "translate": "បកប្រែ",
+        "translateTo": "បកប្រែទៅ",
+        "targetLanguage": "ភាសាគោលដៅ",
+        "targetLanguageDescription": "បញ្ចូលភាសាដែលអ្នកចង់បកប្រែ (ឧ. ខ្មែរ, ជប៉ុន, ចិន)",
+        "targetLanguagePlaceholder": "ឧ. ខ្មែរ",
+        "selectionTooLarge": "ការជ្រើសរើសធំពេក (អតិបរមា {max} តួអក្សរ)",
+        "cancel": "បោះបង់"
+      },
       "element": {
         "addSlot": "បន្ថែមរន្ធ",
         "editProps": "កែប្រែលក្ខណៈសម្បត្តិ",
@@ -307,6 +326,8 @@
       "image": {
         "title": "ជ្រើសរើសរូបភាព",
         "description": "ជ្រើសរើសរូបភាពពីបណ្តាញមេឌៀរបស់អ្នក",
+        "selectionTitle": "ព័ត៌មានលម្អិតរូបភាព",
+        "selectionDescription": "ពិនិត្យនិងបញ្ជាក់ការជ្រើសរើសរបស់អ្នក",
         "notAvailable": "គ្មានរូបភាពក្នុងបណ្តាញមេឌៀរបស់អ្នក",
         "upload": "ផ្ទុកឡើង",
         "useExternal": "ប្រើប្រភពខាងក្រៅ"
@@ -314,10 +335,21 @@
       "video": {
         "title": "ជ្រើសរើសវីដេអូ",
         "description": "ជ្រើសរើសវីដេអូពីបណ្តាញមេឌៀរបស់អ្នក",
+        "selectionTitle": "ព័ត៌មានលម្អិតវីដេអូ",
+        "selectionDescription": "ពិនិត្យនិងបញ្ជាក់ការជ្រើសរើសរបស់អ្នក",
         "notAvailable": "គ្មានវីដេអូក្នុងបណ្តាញមេឌៀរបស់អ្នក",
         "upload": "ផ្ទុកឡើង",
         "useExternal": "ប្រើប្រភពខាងក្រៅ"
-      }
+      },
+      "name": "ឈ្មោះ",
+      "path": "ផ្លូវឯកសារ",
+      "publicPath": "ផ្លូវសាធារណៈ",
+      "extension": "ផ្នែកបន្ថែម",
+      "fileSize": "ទំហំឯកសារ",
+      "resolution": "គុណភាព",
+      "confirm": "បញ្ជាក់",
+      "searchPlaceholder": "ស្វែងរកតាមផ្លូវពេញ",
+      "cancelSelection": "បោះបង់"
     },
     "form": {
       "array": {
@@ -358,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "កំពុងវិភាគការប្រមូលផ្តុំនិងបង្កើតការណែនាំ AI...",
+      "collectionGuide": "ការណែនាំការប្រមូលផ្តុំ {collectionName}",
+      "writingStyleGuide": "ការណែនាំរចនាប័ទ្មសរសេរ AI",
+      "characterCount": "{count} តួអក្សរ",
+      "noStyleGuide": "គ្មានការណែនាំរចនាប័ទ្ម",
+      "noStyleGuideDescription": "បង្កើតការណែនាំសរសេរ AI ទូលំទូលាយដោយការវិភាគមាតិការការប្រមូលផ្តុំ {collectionName}។",
+      "analyzing": "កំពុងវិភាគ...",
+      "analyzeCollection": "វិភាគការប្រមូលផ្តុំ",
+      "experimentalAlert": "ឯកសារបរិបទបច្ចុប្បន្នជាការពិសោធន៍ ហើយអាចប្រើបានតែក្នុងរបៀបអភិវឌ្ឍន៍។",
+      "learnMore": "ស្វែងយល់បន្ថែម",
+      "collectionContextFiles": "ឯកសារបរិបទការប្រមូលផ្តុំ",
+      "collectionContextDescription": "គ្រប់គ្រងការណែនាំរចនាប័ទ្មសរសេរ AI សម្រាប់រៀងរាល់ការប្រមូលផ្តុំ។ ការប្រមូលផ្តុំនីមួយៗអាចមានឯកសារបរិបទផ្ទាល់ខ្លួន ដើម្បីជួយ AI ផ្តល់ការបំពេញ ការធ្វើទ្រង់ទ្រាយ និងការកែប្រែប្រសើរជាងមុន។",
+      "noCollectionsFound": "រកមិនឃើញការប្រមូលផ្តុំ",
+      "generated": "បានបង្កើត",
+      "notGenerated": "មិនទាន់បានបង្កើត"
+    },
+    "badges": {
+      "experimental": "ការពិសោធន៍"
+    },
+    "content": {
+      "initialMarkdownContent": "# ឯកសារ {title}"
     }
   }
 }

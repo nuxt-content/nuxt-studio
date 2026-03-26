@@ -25,10 +25,15 @@
       "copiedToClipboard": "Zkopírováno do schránky",
       "copyToClipboard": "Kopírovat do schránky",
       "publishChanges": "Publikovat změny",
-      "backToContent": "Zpět na obsah"
+      "backToContent": "Zpět na obsah",
+      "disableAICompletion": "Vypnout AI doplňování",
+      "enableAICompletion": "Zapnout AI doplňování",
+      "regenerateAIContext": "Znovu vygenerovat AI kontext"
     },
     "notifications": {
       "error": {
+        "dismiss": "Zavřít",
+        "title": "Nastala chyba",
         "unknown": "Došlo k neznámé chybě"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Obsah",
-      "media": "Média"
+      "media": "Média",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Popis commitu",
+      "commitMessageWithPrefix": "Popište své změny",
       "order": "Č.",
       "fileName": "Název souboru"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Vložit za",
         "delete": "Smazat"
       },
+      "ai": {
+        "fix": "Opravit gramatiku a pravopis",
+        "improve": "Zlepšit psaní a srozumitelnost",
+        "simplify": "Minimalizovat a zjednodušit text",
+        "translate": "Přeložit",
+        "translateTo": "Přeložit do",
+        "targetLanguage": "Cílový jazyk",
+        "targetLanguageDescription": "Zadejte jazyk, do kterého chcete přeložit (např. španělštinu, francouzštinu, němčinu)",
+        "targetLanguagePlaceholder": "např. španělština",
+        "selectionTooLarge": "Výběr je příliš velký (max. {max} znaků)",
+        "cancel": "Zrušit"
+      },
       "element": {
         "addSlot": "Přidat slot",
         "editProps": "Upravit vlastnosti (props)",
@@ -290,32 +309,47 @@
         "delete": "Smazat obrázek"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL zdroje videa",
+        "poster": "URL náhledového obrázku",
+        "width": "Šířka",
+        "height": "Výška",
+        "controls": "Zobrazit ovládací prvky",
+        "autoplay": "Automatické přehrávání",
+        "loop": "Smyčka",
+        "muted": "Ztlumeno",
+        "noSource": "Žádný zdroj videa",
+        "edit": "Upravit video",
+        "delete": "Smazat video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Vybrat obrázek",
         "description": "Vyberte obrázek z knihovny médií",
+        "selectionTitle": "Detaily obrázku",
+        "selectionDescription": "Zkontrolujte a potvrďte výběr",
         "notAvailable": "V knihovně médií nejsou dostupné žádné obrázky",
-        "upload": "Nahrát"
+        "upload": "Nahrát",
+        "useExternal": "Použít externí zdroj"
       },
       "video": {
         "title": "Vybrat video",
         "description": "Vyberte video z knihovny médií",
+        "selectionTitle": "Detaily videa",
+        "selectionDescription": "Zkontrolujte a potvrďte výběr",
         "notAvailable": "V knihovně médií nejsou dostupná žádná videa",
-        "upload": "Nahrát"
-      }
+        "upload": "Nahrát",
+        "useExternal": "Použít externí zdroj"
+      },
+      "name": "Název",
+      "path": "Cesta k souboru",
+      "publicPath": "Veřejná cesta",
+      "extension": "Přípona",
+      "fileSize": "Velikost souboru",
+      "resolution": "Rozlišení",
+      "searchPlaceholder": "Hledat podle celé cesty",
+      "confirm": "Potvrdit",
+      "cancelSelection": "Zrušit"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analyzování kolekce a generování AI pokynů...",
+      "collectionGuide": "Průvodce kolekcí {collectionName}",
+      "writingStyleGuide": "Průvodce stylem psaní AI",
+      "characterCount": "{count} znaků",
+      "noStyleGuide": "Žádný průvodce stylem",
+      "noStyleGuideDescription": "Vygenerujte komplexního průvodce psaním AI analýzou obsahu v kolekci {collectionName}.",
+      "analyzing": "Analyzování...",
+      "analyzeCollection": "Analyzovat kolekci",
+      "experimentalAlert": "Kontextové soubory jsou aktuálně experimentální a dostupné pouze pro generování ve vývojovém režimu.",
+      "learnMore": "Zjistit více",
+      "collectionContextFiles": "Kontextové soubory kolekce",
+      "collectionContextDescription": "Spravujte průvodce stylem psaní AI pro každou kolekci. Každá kolekce může mít svůj vlastní kontextový soubor, který pomáhá AI poskytovat lepší doplňování, formátování a vylepšení vašeho obsahu.",
+      "noCollectionsFound": "Nebyly nalezeny žádné kolekce",
+      "generated": "Vygenerováno",
+      "notGenerated": "Nevygenerováno"
+    },
+    "badges": {
+      "experimental": "Experimentální"
+    },
+    "content": {
+      "initialMarkdownContent": "# Soubor {title}"
     }
   }
 }
