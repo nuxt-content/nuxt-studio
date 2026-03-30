@@ -4,6 +4,7 @@ import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { titleCase } from 'scule'
 import { COLOR_UI_STATUS_MAP } from '../../../utils/tree'
+import { isMediaFile } from '../../../utils/file'
 import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../../composables/useStudio'
 
@@ -30,7 +31,7 @@ const displayInfo = computed(() => {
     return t('studio.items.itemCount', itemcount)
   }
 
-  if (host.meta.media?.external) {
+  if (isMediaFile(props.item.fsPath) && host.meta.media?.external) {
     return host.meta.media.publicUrl ? props.item.routePath!.replace(host.meta.media.publicUrl!, '') : props.item.routePath
   }
 
