@@ -25,10 +25,15 @@
       "copiedToClipboard": "Đã sao chép vào khay nhớ tạm",
       "copyToClipboard": "Sao chép vào khay nhớ tạm",
       "publishChanges": "Đăng tải các thay đổi",
-      "backToContent": "Quay lại nội dung"
+      "backToContent": "Quay lại nội dung",
+      "disableAICompletion": "Tắt tự động hoàn thành AI",
+      "enableAICompletion": "Bật tự động hoàn thành AI",
+      "regenerateAIContext": "Tạo lại ngữ cảnh AI"
     },
     "notifications": {
       "error": {
+        "dismiss": "Đóng",
+        "title": "Đã xảy ra lỗi",
         "unknown": "Đã xảy ra lỗi không xác định"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Nội dung",
-      "media": "Phương tiện"
+      "media": "Phương tiện",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Nội dung commit",
+      "commitMessageWithPrefix": "Mô tả các thay đổi của bạn",
       "order": "STT",
       "fileName": "Tên tập tin"
     },
@@ -140,7 +147,7 @@
       "tooltips": {
         "createDocument": "Tạo tập tin mới",
         "createDocumentFolder": "Tạo thư mục mới",
-        "createMediaFolder": "Tạo thư mục mới",
+        "createMediaFolder": "Tạo thư mục phương tiện mới",
         "renameItem": "Đổi tên tập tin",
         "deleteItem": "Xóa tập tin",
         "uploadMedia": "Tải lên phương tiện",
@@ -234,6 +241,18 @@
         "insertAfter": "Chèn phía sau",
         "delete": "Xóa"
       },
+      "ai": {
+        "fix": "Sửa ngữ pháp và chính tả",
+        "improve": "Cải thiện văn phong và sự rõ ràng",
+        "simplify": "Rút gọn và đơn giản hóa văn bản",
+        "translate": "Dịch",
+        "translateTo": "Dịch sang",
+        "targetLanguage": "Ngôn ngữ đích",
+        "targetLanguageDescription": "Nhập ngôn ngữ bạn muốn dịch sang (vd. tiếng Anh, tiếng Pháp, tiếng Đức)",
+        "targetLanguagePlaceholder": "vd. tiếng Anh",
+        "selectionTooLarge": "Vùng chọn quá lớn (tối đa {max} ký tự)",
+        "cancel": "Hủy"
+      },
       "element": {
         "addSlot": "Thêm Slot",
         "editProps": "Sửa Props",
@@ -290,32 +309,47 @@
         "delete": "Xóa hình ảnh"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL nguồn video",
+        "poster": "URL hình ảnh poster",
+        "width": "Chiều rộng",
+        "height": "Chiều cao",
+        "controls": "Hiển thị điều khiển",
+        "autoplay": "Tự động phát",
+        "loop": "Lặp lại",
+        "muted": "Tắt tiếng",
+        "noSource": "Không có nguồn video",
+        "edit": "Chỉnh sửa video",
+        "delete": "Xóa video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Chọn hình ảnh",
         "description": "Chọn hình ảnh từ thư viện phương tiện của bạn",
+        "selectionTitle": "Chi tiết hình ảnh",
+        "selectionDescription": "Xem lại và xác nhận lựa chọn của bạn",
         "notAvailable": "Không có hình ảnh nào trong thư viện",
-        "upload": "Tải lên"
+        "upload": "Tải lên",
+        "useExternal": "Dùng nguồn bên ngoài"
       },
       "video": {
         "title": "Chọn video",
         "description": "Chọn video từ thư viện phương tiện của bạn",
+        "selectionTitle": "Chi tiết video",
+        "selectionDescription": "Xem lại và xác nhận lựa chọn của bạn",
         "notAvailable": "Không có video nào trong thư viện",
-        "upload": "Tải lên"
-      }
+        "upload": "Tải lên",
+        "useExternal": "Dùng nguồn bên ngoài"
+      },
+      "name": "Tên",
+      "path": "Đường dẫn tập tin",
+      "publicPath": "Đường dẫn công khai",
+      "extension": "Phần mở rộng",
+      "fileSize": "Kích thước tập tin",
+      "resolution": "Độ phân giải",
+      "confirm": "Xác nhận",
+      "searchPlaceholder": "Tìm kiếm theo đường dẫn đầy đủ",
+      "cancelSelection": "Hủy"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Đang phân tích bộ sưu tập và tạo hướng dẫn AI...",
+      "collectionGuide": "Hướng dẫn bộ sưu tập {collectionName}",
+      "writingStyleGuide": "Hướng dẫn phong cách viết AI",
+      "characterCount": "{count} ký tự",
+      "noStyleGuide": "Không có hướng dẫn phong cách",
+      "noStyleGuideDescription": "Tạo hướng dẫn viết AI toàn diện bằng cách phân tích nội dung của bộ sưu tập {collectionName}.",
+      "analyzing": "Đang phân tích...",
+      "analyzeCollection": "Phân tích bộ sưu tập",
+      "experimentalAlert": "Các tập tin ngữ cảnh hiện đang thử nghiệm và chỉ có sẵn để tạo trong chế độ phát triển.",
+      "learnMore": "Tìm hiểu thêm",
+      "collectionContextFiles": "Tập tin ngữ cảnh bộ sưu tập",
+      "collectionContextDescription": "Quản lý hướng dẫn phong cách viết AI cho từng bộ sưu tập. Mỗi bộ sưu tập có thể có tập tin ngữ cảnh riêng để giúp AI cung cấp các gợi ý hoàn thành, định dạng và cải tiến tốt hơn cho nội dung của bạn.",
+      "noCollectionsFound": "Không tìm thấy bộ sưu tập nào",
+      "generated": "Đã tạo",
+      "notGenerated": "Chưa tạo"
+    },
+    "badges": {
+      "experimental": "Thử nghiệm"
+    },
+    "content": {
+      "initialMarkdownContent": "# Tập tin {title}"
     }
   }
 }

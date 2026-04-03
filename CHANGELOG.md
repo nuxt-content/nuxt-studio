@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/nuxt-content/studio/compare/v1.5.0...v1.5.1) (2026-03-19)
+
+### Bug Fixes
+
+* **medias:** ipx protocol normalization with S3 providers ([#392](https://github.com/nuxt-content/studio/issues/392)) ([90b0485](https://github.com/nuxt-content/studio/commit/90b048524214d4be56286a721840190652b37bf4))
+* **module:** user options override CI values ([#393](https://github.com/nuxt-content/studio/issues/393)) ([1f44cdf](https://github.com/nuxt-content/studio/commit/1f44cdf97899bac3de07879c6d4dbcafe7692b44))
+* **sw:** remove keyPath ([#391](https://github.com/nuxt-content/studio/issues/391)) ([5d8d4ac](https://github.com/nuxt-content/studio/commit/5d8d4ac8284fd4caaa86ff1d92c55c11c8a1f51c))
+
 ## [1.5.0](https://github.com/nuxt-content/studio/compare/v1.4.0...v1.5.0) (2026-03-18)
 
 ### Features

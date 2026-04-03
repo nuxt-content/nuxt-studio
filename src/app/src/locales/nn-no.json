@@ -25,10 +25,15 @@
       "copiedToClipboard": "Kopiert til utklippstavla",
       "copyToClipboard": "Kopier til utklippstavla",
       "publishChanges": "Publiser endringar",
-      "backToContent": "Tilbake til innhald"
+      "backToContent": "Tilbake til innhald",
+      "disableAICompletion": "Deaktiver KI-fullføring",
+      "enableAICompletion": "Aktiver KI-fullføring",
+      "regenerateAIContext": "Regenerer KI-kontekst"
     },
     "notifications": {
       "error": {
+        "dismiss": "Lukk",
+        "title": "Det oppstod ein feil",
         "unknown": "Ein ukjend feil oppstod"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Innhald",
-      "media": "Media"
+      "media": "Media",
+      "ai": "KI"
     },
     "placeholders": {
       "commitMessage": "Commit-melding",
+      "commitMessageWithPrefix": "Beskriv endringane dine",
       "order": "Nr.",
       "fileName": "Filnamn"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Set inn etter",
         "delete": "Slett"
       },
+      "ai": {
+        "fix": "Rett grammatikk og stavefeil",
+        "improve": "Betre skriving og klarheit",
+        "simplify": "Forkort og forenkle teksten",
+        "translate": "Omset",
+        "translateTo": "Omset til",
+        "targetLanguage": "Målspråk",
+        "targetLanguageDescription": "Skriv inn språket du vil omsetje til (t.d. engelsk, fransk, tysk)",
+        "targetLanguagePlaceholder": "t.d. engelsk",
+        "selectionTooLarge": "Valet er for stort (maks. {max} teikn)",
+        "cancel": "Avbryt"
+      },
       "element": {
         "addSlot": "Legg til slot",
         "editProps": "Rediger props",
@@ -290,32 +309,47 @@
         "delete": "Slett bilete"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
+        "source": "Videokjelde-URL",
+        "poster": "Plakat-bilete-URL",
+        "width": "Breidde",
+        "height": "Høgde",
+        "controls": "Vis kontrollar",
+        "autoplay": "Autoavspeling",
         "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "muted": "Lydlaus",
+        "noSource": "Ingen videokjelde",
+        "edit": "Rediger video",
+        "delete": "Slett video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Vel bilete",
         "description": "Vel eit bilete frå mediebiblioteket ditt",
+        "selectionTitle": "Biletedetaljar",
+        "selectionDescription": "Gå gjennom og stadfest valet ditt",
         "notAvailable": "Ingen bilete tilgjengelege i mediebiblioteket",
-        "upload": "Last opp"
+        "upload": "Last opp",
+        "useExternal": "Bruk ekstern kjelde"
       },
       "video": {
         "title": "Vel video",
         "description": "Vel ein video frå mediebiblioteket ditt",
+        "selectionTitle": "Videodetaljar",
+        "selectionDescription": "Gå gjennom og stadfest valet ditt",
         "notAvailable": "Ingen videoar tilgjengelege i mediebiblioteket",
-        "upload": "Last opp"
-      }
+        "upload": "Last opp",
+        "useExternal": "Bruk ekstern kjelde"
+      },
+      "name": "Namn",
+      "path": "Filsti",
+      "publicPath": "Offentleg sti",
+      "extension": "Utvidning",
+      "fileSize": "Filstorleik",
+      "resolution": "Oppløysing",
+      "confirm": "Stadfest",
+      "searchPlaceholder": "Søk etter fullstendig sti",
+      "cancelSelection": "Avbryt"
     },
     "form": {
       "array": {
@@ -336,7 +370,7 @@
         "searchPlaceholder": "Søk etter bilete...",
         "noImagesFound": "Ingen bilete funne",
         "noImagesAvailable": "Ingen bilete tilgjengelege",
-        "imageCount": "{count} av {total} bilete"
+        "imageCount": "{count} av {total} bilete | {count} av {total} bilete"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analyserer samling og genererer KI-rettleiingar...",
+      "collectionGuide": "Rettleiing for samlinga {collectionName}",
+      "writingStyleGuide": "KI-skrivestilrettleiing",
+      "characterCount": "{count} teikn",
+      "noStyleGuide": "Ingen stilrettleiing",
+      "noStyleGuideDescription": "Generer ei omfattande KI-skriverettleiing ved å analysere innhaldet i samlinga {collectionName}.",
+      "analyzing": "Analyserer...",
+      "analyzeCollection": "Analyser samling",
+      "experimentalAlert": "Kontekstfiler er for tida eksperimentelle og berre tilgjengelege for generering i utviklingsmodus.",
+      "learnMore": "Lær meir",
+      "collectionContextFiles": "Kontekstfiler for samling",
+      "collectionContextDescription": "Handsam KI-skrivestilrettleiingar for kvar samling. Kvar samling kan ha sin eigen kontekstfil for å hjelpe KI med å gi betre fullføringar, formatering og betring av innhaldet ditt.",
+      "noCollectionsFound": "Ingen samlingar funne",
+      "generated": "Generert",
+      "notGenerated": "Ikkje generert"
+    },
+    "badges": {
+      "experimental": "Eksperimentell"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title}-fil"
     }
   }
 }

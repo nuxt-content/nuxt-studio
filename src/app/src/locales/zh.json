@@ -25,10 +25,15 @@
       "copiedToClipboard": "已复制到剪贴板",
       "copyToClipboard": "复制到剪贴板",
       "publishChanges": "发布更改",
-      "backToContent": "返回内容"
+      "backToContent": "返回内容",
+      "disableAICompletion": "禁用 AI 自动补全",
+      "enableAICompletion": "启用 AI 自动补全",
+      "regenerateAIContext": "重新生成 AI 上下文"
     },
     "notifications": {
       "error": {
+        "dismiss": "关闭",
+        "title": "发生错误",
         "unknown": "发生未知错误"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "内容",
-      "media": "媒体"
+      "media": "媒体",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "提交信息",
+      "commitMessageWithPrefix": "描述您的更改",
       "order": "编号",
       "fileName": "文件名"
     },
@@ -140,7 +147,7 @@
       "tooltips": {
         "createDocument": "创建新文件",
         "createDocumentFolder": "创建新文件夹",
-        "createMediaFolder": "创建新文件夹",
+        "createMediaFolder": "创建新媒体文件夹",
         "renameItem": "重命名文件",
         "deleteItem": "删除文件",
         "uploadMedia": "上传媒体",
@@ -234,6 +241,18 @@
         "insertAfter": "在后方插入",
         "delete": "删除"
       },
+      "ai": {
+        "fix": "修正语法和拼写",
+        "improve": "改善写作和清晰度",
+        "simplify": "精简和简化文本",
+        "translate": "翻译",
+        "translateTo": "翻译为",
+        "targetLanguage": "目标语言",
+        "targetLanguageDescription": "输入要翻译成的语言（例如：英语、法语、德语）",
+        "targetLanguagePlaceholder": "例如：英语",
+        "selectionTooLarge": "选择内容过多（最多 {max} 个字符）",
+        "cancel": "取消"
+      },
       "element": {
         "addSlot": "添加插槽",
         "editProps": "编辑属性",
@@ -260,7 +279,7 @@
         "apply": "应用"
       },
       "codeBlock": {
-        "filenamePlaceholder": "filename.js"
+        "filenamePlaceholder": "文件名.js"
       },
       "link": {
         "pasteLinkPlaceholder": "粘贴链接...",
@@ -290,32 +309,47 @@
         "delete": "删除图像"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "视频源 URL",
+        "poster": "封面图像 URL",
+        "width": "宽度",
+        "height": "高度",
+        "controls": "显示控件",
+        "autoplay": "自动播放",
+        "loop": "循环",
+        "muted": "静音",
+        "noSource": "无视频源",
+        "edit": "编辑视频",
+        "delete": "删除视频"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "选择图片",
         "description": "从媒体库中选择一张图片",
+        "selectionTitle": "图片详情",
+        "selectionDescription": "查看并确认您的选择",
         "notAvailable": "媒体库中没有可用图片",
-        "upload": "上传"
+        "upload": "上传",
+        "useExternal": "使用外部资源"
       },
       "video": {
         "title": "选择视频",
         "description": "从媒体库中选择一个视频",
+        "selectionTitle": "视频详情",
+        "selectionDescription": "查看并确认您的选择",
         "notAvailable": "媒体库中没有可用视频",
-        "upload": "上传"
-      }
+        "upload": "上传",
+        "useExternal": "使用外部资源"
+      },
+      "name": "名称",
+      "path": "文件路径",
+      "publicPath": "公共路径",
+      "extension": "扩展名",
+      "fileSize": "文件大小",
+      "resolution": "分辨率",
+      "confirm": "确认",
+      "searchPlaceholder": "按完整路径搜索",
+      "cancelSelection": "取消"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "正在分析集合并生成 AI 指南...",
+      "collectionGuide": "{collectionName} 集合指南",
+      "writingStyleGuide": "AI 写作风格指南",
+      "characterCount": "{count} 个字符",
+      "noStyleGuide": "暂无风格指南",
+      "noStyleGuideDescription": "通过分析 {collectionName} 集合的内容，使用 AI 生成全面的写作指南。",
+      "analyzing": "分析中...",
+      "analyzeCollection": "分析集合",
+      "experimentalAlert": "上下文文件目前处于实验阶段，仅在开发模式下可生成。",
+      "learnMore": "了解更多",
+      "collectionContextFiles": "集合上下文文件",
+      "collectionContextDescription": "管理每个集合的 AI 写作风格指南。每个集合可以有自己的上下文文件，帮助 AI 为您的内容提供更好的补全、格式和改进建议。",
+      "noCollectionsFound": "未找到集合",
+      "generated": "已生成",
+      "notGenerated": "未生成"
+    },
+    "badges": {
+      "experimental": "实验性"
+    },
+    "content": {
+      "initialMarkdownContent": "# 文件 {title}"
     }
   }
 }

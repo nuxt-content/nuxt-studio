@@ -25,10 +25,15 @@
       "copiedToClipboard": "Съдържанието е копирано",
       "copyToClipboard": "Копиране на съдържанието",
       "publishChanges": "Публикуване на промените",
-      "backToContent": "Връщане към съдържанието"
+      "backToContent": "Връщане към съдържанието",
+      "disableAICompletion": "Изключване на AI довършване",
+      "enableAICompletion": "Включване на AI довършване",
+      "regenerateAIContext": "Повторно генериране на AI контекст"
     },
     "notifications": {
       "error": {
+        "dismiss": "Затвори",
+        "title": "Възникна грешка",
         "unknown": "Възникна неизвестна грешка"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Съдържание",
-      "media": "Медия"
+      "media": "Медия",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Съобщение за публикуване",
+      "commitMessageWithPrefix": "Опишете промените си",
       "order": "№",
       "fileName": "Име на файл"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Вмъкване след",
         "delete": "Изтриване"
       },
+      "ai": {
+        "fix": "Коригиране на граматиката и правописа",
+        "improve": "Подобряване на писането и яснотата",
+        "simplify": "Минимизиране и опростяване на текста",
+        "translate": "Превод",
+        "translateTo": "Превод на",
+        "targetLanguage": "Целеви език",
+        "targetLanguageDescription": "Въведете езика, на който искате да преведете (напр. испански, френски, немски)",
+        "targetLanguagePlaceholder": "напр. испански",
+        "selectionTooLarge": "Избраното е твърде голямо (макс. {max} символа)",
+        "cancel": "Отказ"
+      },
       "element": {
         "addSlot": "Добавяне на слот",
         "editProps": "Редактиране на свойствата",
@@ -290,32 +309,47 @@
         "delete": "Изтриване на изображение"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL на видео източник",
+        "poster": "URL на постер изображение",
+        "width": "Ширина",
+        "height": "Височина",
+        "controls": "Показване на контроли",
+        "autoplay": "Автовъзпроизвеждане",
+        "loop": "На цикъл",
+        "muted": "Заглушено",
+        "noSource": "Няма видео източник",
+        "edit": "Редактиране на видео",
+        "delete": "Изтриване на видео"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Избиране на изображение",
         "description": "Изберете изображение от Вашата медийна библиотека",
+        "selectionTitle": "Детайли за изображението",
+        "selectionDescription": "Прегледайте и потвърдете избора си",
         "notAvailable": "Няма налични изображения във Вашата медийна библиотека",
-        "upload": "Качване"
+        "upload": "Качване",
+        "useExternal": "Използване на външен източник"
       },
       "video": {
         "title": "Избиране на видео",
         "description": "Изберете видео от Вашата медийна библиотека",
+        "selectionTitle": "Детайли за видеото",
+        "selectionDescription": "Прегледайте и потвърдете избора си",
         "notAvailable": "Няма налични видеа във Вашата медийна библиотека",
-        "upload": "Качване"
-      }
+        "upload": "Качване",
+        "useExternal": "Използване на външен източник"
+      },
+      "name": "Име",
+      "path": "Път до файл",
+      "publicPath": "Публичен път",
+      "extension": "Разширение",
+      "fileSize": "Размер на файл",
+      "resolution": "Резолюция",
+      "searchPlaceholder": "Търсене по пълен път",
+      "confirm": "Потвърди",
+      "cancelSelection": "Отказ"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Анализиране на колекцията и генериране на AI насоки...",
+      "collectionGuide": "Ръководство за колекция {collectionName}",
+      "writingStyleGuide": "AI ръководство за стил на писане",
+      "characterCount": "{count} символа",
+      "noStyleGuide": "Няма ръководство за стил",
+      "noStyleGuideDescription": "Генерирайте изчерпателно AI ръководство за писане, като анализирате съдържанието в колекцията {collectionName}.",
+      "analyzing": "Анализиране...",
+      "analyzeCollection": "Анализиране на колекцията",
+      "experimentalAlert": "Файловете с контекст са в момента експериментални и са налични само за генериране в режим на разработка.",
+      "learnMore": "Научете повече",
+      "collectionContextFiles": "Файлове с контекст на колекцията",
+      "collectionContextDescription": "Управлявайте AI ръководства за стил на писане за всяка колекция. Всяка колекция може да има свой собствен файл с контекст, за да помогне на AI да предоставя по-добри допълвания, форматиране и подобрения на вашето съдържание.",
+      "noCollectionsFound": "Не са намерени колекции",
+      "generated": "Генерирано",
+      "notGenerated": "Не е генерирано"
+    },
+    "badges": {
+      "experimental": "Експериментално"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} файл"
     }
   }
 }

@@ -25,10 +25,15 @@
       "copiedToClipboard": "Скопировано в буфер обмена",
       "copyToClipboard": "Скопировать в буфер обмена",
       "publishChanges": "Опубликовать изменения",
-      "backToContent": "Вернуться к содержимому"
+      "backToContent": "Вернуться к содержимому",
+      "disableAICompletion": "Отключить автодополнение ИИ",
+      "enableAICompletion": "Включить автодополнение ИИ",
+      "regenerateAIContext": "Обновить контекст ИИ"
     },
     "notifications": {
       "error": {
+        "dismiss": "Закрыть",
+        "title": "Произошла ошибка",
         "unknown": "Произошла неизвестная ошибка"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Содержимое",
-      "media": "Медиа"
+      "media": "Медиа",
+      "ai": "ИИ"
     },
     "placeholders": {
       "commitMessage": "Сообщение коммита",
+      "commitMessageWithPrefix": "Опишите ваши изменения",
       "order": "№",
       "fileName": "Имя файла"
     },
@@ -140,7 +147,7 @@
       "tooltips": {
         "createDocument": "Создать новый файл",
         "createDocumentFolder": "Создать новую папку",
-        "createMediaFolder": "Создать новую папку",
+        "createMediaFolder": "Создать новую папку медиафайлов",
         "renameItem": "Переименовать файл",
         "deleteItem": "Удалить файл",
         "uploadMedia": "Загрузить медиа",
@@ -234,6 +241,18 @@
         "insertAfter": "Вставить после",
         "delete": "Удалить"
       },
+      "ai": {
+        "fix": "Исправить грамматику и орфографию",
+        "improve": "Улучшить текст и ясность",
+        "simplify": "Сократить и упростить текст",
+        "translate": "Перевести",
+        "translateTo": "Перевести на",
+        "targetLanguage": "Целевой язык",
+        "targetLanguageDescription": "Введите язык, на который хотите перевести (например, английский, французский, немецкий)",
+        "targetLanguagePlaceholder": "например, английский",
+        "selectionTooLarge": "Слишком большой выбор (макс. {max} символов)",
+        "cancel": "Отмена"
+      },
       "element": {
         "addSlot": "Добавить слот",
         "editProps": "Редактировать свойства",
@@ -260,7 +279,7 @@
         "apply": "Применить"
       },
       "codeBlock": {
-        "filenamePlaceholder": "filename.js"
+        "filenamePlaceholder": "имяфайла.js"
       },
       "link": {
         "pasteLinkPlaceholder": "Вставьте ссылку...",
@@ -290,32 +309,47 @@
         "delete": "Удалить изображение"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL источника видео",
+        "poster": "URL изображения-постера",
+        "width": "Ширина",
+        "height": "Высота",
+        "controls": "Показывать элементы управления",
+        "autoplay": "Автовоспроизведение",
+        "loop": "Повтор",
+        "muted": "Без звука",
+        "noSource": "Нет источника видео",
+        "edit": "Редактировать видео",
+        "delete": "Удалить видео"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Выберите изображение",
         "description": "Выберите изображение из вашей библиотеки медиа",
+        "selectionTitle": "Сведения об изображении",
+        "selectionDescription": "Проверьте и подтвердите выбор",
         "notAvailable": "В вашей библиотеке медиа нет доступных изображений",
-        "upload": "Загрузить"
+        "upload": "Загрузить",
+        "useExternal": "Использовать внешний источник"
       },
       "video": {
         "title": "Выберите видео",
         "description": "Выберите видео из вашей библиотеки медиа",
+        "selectionTitle": "Сведения о видео",
+        "selectionDescription": "Проверьте и подтвердите выбор",
         "notAvailable": "В вашей библиотеке медиа нет доступных видео",
-        "upload": "Загрузить"
-      }
+        "upload": "Загрузить",
+        "useExternal": "Использовать внешний источник"
+      },
+      "name": "Имя",
+      "path": "Путь к файлу",
+      "publicPath": "Публичный путь",
+      "extension": "Расширение",
+      "fileSize": "Размер файла",
+      "resolution": "Разрешение",
+      "confirm": "Подтвердить",
+      "searchPlaceholder": "Поиск по полному пути",
+      "cancelSelection": "Отмена"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Анализ коллекции и создание руководств ИИ...",
+      "collectionGuide": "Руководство по коллекции {collectionName}",
+      "writingStyleGuide": "Руководство по стилю написания ИИ",
+      "characterCount": "{count} символов",
+      "noStyleGuide": "Нет руководства по стилю",
+      "noStyleGuideDescription": "Создайте полное руководство по написанию с помощью ИИ, анализируя содержимое коллекции {collectionName}.",
+      "analyzing": "Анализ...",
+      "analyzeCollection": "Анализировать коллекцию",
+      "experimentalAlert": "Файлы контекста в настоящее время являются экспериментальными и доступны только для создания в режиме разработки.",
+      "learnMore": "Узнать больше",
+      "collectionContextFiles": "Файлы контекста коллекции",
+      "collectionContextDescription": "Управляйте руководствами по стилю написания ИИ для каждой коллекции. Каждая коллекция может иметь собственный файл контекста, помогающий ИИ обеспечивать лучшие дополнения, форматирование и улучшения для вашего контента.",
+      "noCollectionsFound": "Коллекции не найдены",
+      "generated": "Создано",
+      "notGenerated": "Не создано"
+    },
+    "badges": {
+      "experimental": "Экспериментально"
+    },
+    "content": {
+      "initialMarkdownContent": "# Файл {title}"
     }
   }
 }

@@ -25,10 +25,15 @@
       "copiedToClipboard": "Disalin ke papan klip",
       "copyToClipboard": "Salin ke papan klip",
       "publishChanges": "Terbitkan perubahan",
-      "backToContent": "Kembali ke konten"
+      "backToContent": "Kembali ke konten",
+      "disableAICompletion": "Nonaktifkan pelengkapan AI",
+      "enableAICompletion": "Aktifkan pelengkapan AI",
+      "regenerateAIContext": "Regenerasi konteks AI"
     },
     "notifications": {
       "error": {
+        "dismiss": "Tutup",
+        "title": "Terjadi kesalahan",
         "unknown": "Terjadi kesalahan yang tidak diketahui"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Konten",
-      "media": "Media"
+      "media": "Media",
+      "ai": "AI"
     },
     "placeholders": {
       "commitMessage": "Pesan commit",
+      "commitMessageWithPrefix": "Deskripsikan perubahan Anda",
       "order": "No.",
       "fileName": "Nama berkas"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Sisipkan sesudah",
         "delete": "Hapus"
       },
+      "ai": {
+        "fix": "Perbaiki tata bahasa dan ejaan",
+        "improve": "Tingkatkan penulisan dan kejelasan",
+        "simplify": "Persingkat dan sederhanakan teks",
+        "translate": "Terjemahkan",
+        "translateTo": "Terjemahkan ke",
+        "targetLanguage": "Bahasa target",
+        "targetLanguageDescription": "Masukkan bahasa yang ingin Anda terjemahkan (mis. Inggris, Prancis, Jerman)",
+        "targetLanguagePlaceholder": "mis. Inggris",
+        "selectionTooLarge": "Pilihan terlalu besar (maks. {max} karakter)",
+        "cancel": "Batal"
+      },
       "element": {
         "addSlot": "Tambah slot",
         "editProps": "Sunting props",
@@ -290,32 +309,47 @@
         "delete": "Hapus gambar"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
+        "source": "URL sumber video",
+        "poster": "URL gambar poster",
+        "width": "Lebar",
+        "height": "Tinggi",
+        "controls": "Tampilkan kontrol",
+        "autoplay": "Putar otomatis",
+        "loop": "Ulangi",
+        "muted": "Bisukan",
+        "noSource": "Tidak ada sumber video",
         "edit": "Edit video",
-        "delete": "Delete video"
+        "delete": "Hapus video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Pilih Gambar",
         "description": "Pilih gambar dari pustaka media Anda",
+        "selectionTitle": "Detail gambar",
+        "selectionDescription": "Tinjau dan konfirmasi pilihan Anda",
         "notAvailable": "Tidak ada gambar yang tersedia di pustaka media Anda",
-        "upload": "Unggah"
+        "upload": "Unggah",
+        "useExternal": "Gunakan sumber eksternal"
       },
       "video": {
         "title": "Pilih Video",
         "description": "Pilih video dari pustaka media Anda",
+        "selectionTitle": "Detail video",
+        "selectionDescription": "Tinjau dan konfirmasi pilihan Anda",
         "notAvailable": "Tidak ada video yang tersedia di pustaka media Anda",
-        "upload": "Unggah"
-      }
+        "upload": "Unggah",
+        "useExternal": "Gunakan sumber eksternal"
+      },
+      "name": "Nama",
+      "path": "Path berkas",
+      "publicPath": "Path publik",
+      "extension": "Ekstensi",
+      "fileSize": "Ukuran berkas",
+      "resolution": "Resolusi",
+      "confirm": "Konfirmasi",
+      "searchPlaceholder": "Cari berdasarkan path lengkap",
+      "cancelSelection": "Batal"
     },
     "form": {
       "array": {
@@ -336,7 +370,7 @@
         "searchPlaceholder": "Cari gambar...",
         "noImagesFound": "Gambar tidak ditemukan",
         "noImagesAvailable": "Tidak ada gambar tersedia",
-        "imageCount": "{count} dari {total} gambar"
+        "imageCount": "{count} dari {total} gambar | {count} dari {total} gambar"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Menganalisis koleksi dan membuat panduan AI...",
+      "collectionGuide": "Panduan koleksi {collectionName}",
+      "writingStyleGuide": "Panduan gaya penulisan AI",
+      "characterCount": "{count} karakter",
+      "noStyleGuide": "Tidak ada panduan gaya",
+      "noStyleGuideDescription": "Buat panduan penulisan AI yang komprehensif dengan menganalisis konten koleksi {collectionName}.",
+      "analyzing": "Menganalisis...",
+      "analyzeCollection": "Analisis koleksi",
+      "experimentalAlert": "File konteks saat ini bersifat eksperimental dan hanya tersedia untuk pembuatan dalam mode pengembangan.",
+      "learnMore": "Pelajari lebih lanjut",
+      "collectionContextFiles": "File konteks koleksi",
+      "collectionContextDescription": "Kelola panduan gaya penulisan AI untuk setiap koleksi. Setiap koleksi dapat memiliki file konteksnya sendiri untuk membantu AI memberikan pelengkapan, pemformatan, dan peningkatan yang lebih baik.",
+      "noCollectionsFound": "Tidak ada koleksi yang ditemukan",
+      "generated": "Dihasilkan",
+      "notGenerated": "Belum dihasilkan"
+    },
+    "badges": {
+      "experimental": "Eksperimental"
+    },
+    "content": {
+      "initialMarkdownContent": "# Berkas {title}"
     }
   }
 }
