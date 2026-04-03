@@ -10,6 +10,16 @@ const THUMBNAIL_SIZE = 200
 const IPX_PREFIX = '/__nuxt_studio/ipx'
 
 /**
+ * Normalizes a media path for IPX routes by removing a single leading slash.
+ *
+ * @param path - Media path or URL
+ * @returns Path segment ready to append after the IPX modifiers
+ */
+function normalizeMediaPath(path: string): string {
+  return path.startsWith('/') ? path.slice(1) : path
+}
+
+/**
  * Builds an IPX thumbnail URL for the media picker.
  * Serves resized images (200x200) to avoid browser lag when displaying many large images.
  *
@@ -17,7 +27,7 @@ const IPX_PREFIX = '/__nuxt_studio/ipx'
  * @returns IPX thumbnail URL
  */
 export function getMediaThumbnailUrl(path: string): string {
-  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
+  const normalizedPath = normalizeMediaPath(path)
   const modifiers = `s_${THUMBNAIL_SIZE}x${THUMBNAIL_SIZE},fit_cover`
   return `${IPX_PREFIX}/${modifiers}/${normalizedPath}`
 }
@@ -29,7 +39,7 @@ export function getMediaThumbnailUrl(path: string): string {
  * @returns IPX full-size image URL
  */
 export function getMediaFullUrl(path: string): string {
-  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
+  const normalizedPath = normalizeMediaPath(path)
   return `${IPX_PREFIX}/_/${normalizedPath}`
 }
 

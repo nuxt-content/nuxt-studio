@@ -1,47 +1,61 @@
 import { createError } from 'h3'
-import { createIPX, ipxFSStorage, ipxHttpStorage } from 'ipx'
+import { createIPX, ipxHttpStorage } from 'ipx'
 import type { IPX, IPXStorage } from 'ipx'
-import { readFile } from 'node:fs/promises'
-import { extname, resolve } from 'node:path'
-import { hasProtocol, parseURL } from 'ufo'
+import { extname } from 'node:path'
+import { hasProtocol, parseURL, withLeadingSlash } from 'ufo'
 import { useRuntimeConfig } from '#imports'
 
 export const IPX_PREFIX = '/__nuxt_studio/ipx'
 export const DAY_IN_SECONDS = 60 * 60 * 24
 
 const mediaConfig = useRuntimeConfig().public.studio.media
-export const publicDir: string = mediaConfig.publicUrl
+const cachedIpx = new Map<string, IPX>()
 
-let cachedIpx: IPX | null = null
+function getConfiguredMediaDomain(): string | undefined {
+  return mediaConfig.external ? parseURL(mediaConfig.publicUrl).host : undefined
+}
 
-export function requireAllowedDomain(id: string): string | undefined {
-  if (!mediaConfig.external) return undefined
-  const configuredDomain = parseURL(mediaConfig.publicUrl).host
+export function resolveIpxSource(id: string, requestUrl: URL) {
+  if (!hasProtocol(id)) {
+    const normalizedId = withLeadingSlash(id)
+    return {
+      sourceId: new URL(normalizedId, requestUrl.origin).toString(),
+      domain: requestUrl.host,
+    }
+  }
+
+  const configuredDomain = getConfiguredMediaDomain()
   const requestDomain = parseURL(id).host
   if (configuredDomain && requestDomain !== configuredDomain) {
     throw createError({ statusCode: 403, statusMessage: 'IPX_FORBIDDEN_DOMAIN' })
   }
-  return requestDomain || configuredDomain || undefined
-}
 
-export function getIpx(domain?: string) {
-  if (!cachedIpx) {
-    if (mediaConfig.external) {
-      cachedIpx = createIPX({
-        storage: {} as IPXStorage,
-        httpStorage: ipxHttpStorage({ domains: domain ? [domain] : [] }),
-        maxAge: DAY_IN_SECONDS,
-      })
-    }
-    else {
-      cachedIpx = createIPX({
-        storage: ipxFSStorage({ dir: publicDir }),
-        maxAge: DAY_IN_SECONDS,
-      })
-    }
+  const resolvedDomain = requestDomain || configuredDomain
+  if (!resolvedDomain) {
+    throw createError({ statusCode: 403, statusMessage: 'IPX_FORBIDDEN_DOMAIN' })
   }
 
-  return cachedIpx
+  return {
+    sourceId: id,
+    domain: resolvedDomain,
+  }
+}
+
+export function getIpx(domain: string) {
+  const cachedInstance = cachedIpx.get(domain)
+  if (cachedInstance) {
+    return cachedInstance
+  }
+
+  const ipx = createIPX({
+    storage: {} as IPXStorage,
+    httpStorage: ipxHttpStorage({ domains: [domain] }),
+    maxAge: DAY_IN_SECONDS,
+  })
+
+  cachedIpx.set(domain, ipx)
+
+  return ipx
 }
 
 export function getContentTypeFromPath(path: string) {
@@ -59,7 +73,7 @@ export function getContentTypeFromPath(path: string) {
 }
 
 export async function getOriginalImage(id: string): Promise<Buffer | null> {
-  return hasProtocol(id) ? getOriginalExternalImage(id) : getOriginalFsImage(id)
+  return hasProtocol(id) ? getOriginalExternalImage(id) : null
 }
 
 export async function getOriginalExternalImage(id: string): Promise<Buffer | null> {
@@ -67,29 +81,6 @@ export async function getOriginalExternalImage(id: string): Promise<Buffer | nul
     const response = await fetch(id)
     if (!response.ok) return null
     return Buffer.from(await response.arrayBuffer())
-  }
-  catch {
-    return null
-  }
-}
-
-export async function getOriginalFsImage(id: string) {
-  if (hasProtocol(id)) {
-    return null
-  }
-
-  const normalizedId = id.replace(/^\/+/, '')
-  if (!normalizedId) {
-    return null
-  }
-
-  const absolutePath = resolve(publicDir, normalizedId)
-  if (!absolutePath.startsWith(`${publicDir}/`) && absolutePath !== publicDir) {
-    return null
-  }
-
-  try {
-    return await readFile(absolutePath)
   }
   catch {
     return null

@@ -34,8 +34,9 @@ const MEDIA_EXTENSIONS = [
 
 function extractImagePath(url) {
   const pathname = url.pathname;
-  if (pathname.startsWith('/_ipx/_/')) {
-    return pathname.replace('/_ipx/_', '')
+  if (pathname.startsWith('/_ipx/')) {
+    const segments = pathname.split('/')
+    return segments.length > 3 ? '/' + segments.slice(3).join('/') : null
   }
 
   if (pathname.startsWith('/_vercel/image')) {
