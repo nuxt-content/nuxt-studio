@@ -1,5 +1,6 @@
 import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
 import { version } from '../../../package.json'
@@ -574,7 +575,32 @@ export default defineNuxtModule<ModuleOptions>({
         'nuxt-studio > debug',
         'nuxt-studio > extend',
       ]
+
+      // Prevent vite:define from processing pre-built Studio app bundle
+      config.plugins ||= []
+      config.plugins.push({
+        name: 'nuxt-studio:externalize-app',
+        enforce: 'pre',
+        resolveId(id) {
+          if (id === 'nuxt-studio/app') {
+            return { id: `/_studio-app/${version}/main.js`, external: true }
+          }
+        },
+      })
     })
+
+    // Serve the pre-built Studio app as public assets.
+    const distAppDir = resolver.resolve('../../dist/app')
+    if (existsSync(distAppDir)) {
+      nuxt.hook('nitro:config', (nitroConfig) => {
+        nitroConfig.publicAssets ||= []
+        nitroConfig.publicAssets.push({
+          dir: distAppDir,
+          baseURL: `/_studio-app/${version}`,
+          maxAge: 60 * 60 * 24 * 365,
+        })
+      })
+    }
 
     addPlugin(process.env.STUDIO_DEV_SERVER
       ? runtime('./plugins/studio.client.dev')
