@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
+import { areDocumentsEqual, generateContentFromYAMLDocument, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
 import type { DatabaseItem, DatabasePageItem } from 'nuxt-studio/app'
-import type { CollectionInfo } from '@nuxt/content'
+import type { CollectionInfo, Draft07 } from '@nuxt/content'
 
 describe('areDocumentsEqual', () => {
   it('should return true for two identical markdown documents with diffrent hash', () => {
@@ -309,6 +309,69 @@ describe('areDocumentsEqual', () => {
     }
 
     expect(areDocumentsEqual(document1, document2)).toBe(true)
+  })
+})
+
+describe('generateContentFromYAMLDocument', () => {
+  const authorsCollection = {
+    name: 'authors',
+    schema: {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/authors',
+      definitions: {
+        authors: {
+          type: 'object',
+          properties: {
+            modules: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+            tags: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          },
+          required: ['modules'],
+        },
+      },
+    } satisfies Draft07,
+  } satisfies Pick<CollectionInfo, 'name' | 'schema'>
+
+  it('preserves explicit empty arrays from schema-generated starters', async () => {
+    const document: DatabaseItem = {
+      id: 'content:authors/test.yml',
+      extension: ContentFileExtension.YAML,
+      stem: 'authors/test',
+      meta: {},
+      name: 'Test',
+      avatar: {},
+      role: 'contributor',
+      order: 0,
+      isOpenSourceLover: true,
+      modules: [],
+    }
+
+    expect(await generateContentFromYAMLDocument(document, authorsCollection)).toContain('modules: []')
+  })
+
+  it('still drops empty arrays when the schema does not require them', async () => {
+    const document: DatabaseItem = {
+      id: 'content:authors/test.yml',
+      extension: ContentFileExtension.YAML,
+      stem: 'authors/test',
+      meta: {},
+      modules: [],
+      tags: [],
+    }
+
+    const content = await generateContentFromYAMLDocument(document, authorsCollection)
+
+    expect(content).toContain('modules: []')
+    expect(content).not.toContain('tags: []')
   })
 })
 
