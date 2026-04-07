@@ -36,7 +36,7 @@
     "dev:app": "vite src/app --port 5151",
     "dev:docs": "nuxt dev docs",
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus && nuxi prepare docs",
-    "build:docs": "nuxi build docs",
+    "build:docs": "pnpm prepack && nuxi build docs",
     "build:dev": "nuxi build playground/docus",
     "release": "release-it",
     "lint": "eslint .",
