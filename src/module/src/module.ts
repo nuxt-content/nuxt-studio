@@ -590,9 +590,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // Serve the pre-built Studio app as public assets.
-    const distAppDir = resolver.resolve('../../dist/app')
-    console.log('distAppDir', distAppDir)
-    if (existsSync(distAppDir)) {
+    const distAppDir = [
+      resolver.resolve('../../dist/app'), // compiled version
+      resolver.resolve('../../../dist/app'), // source version
+    ].find(existsSync)
+    if (distAppDir) {
       nuxt.hook('nitro:config', (nitroConfig) => {
         nitroConfig.publicAssets ||= []
         nitroConfig.publicAssets.push({
