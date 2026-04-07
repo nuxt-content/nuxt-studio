@@ -329,6 +329,7 @@
         "selectionTitle": "Image details",
         "selectionDescription": "Review and confirm your selection",
         "notAvailable": "No images available in your media library",
+        "notAvailableInFolder": "No images available in the folder {fsPath}",
         "upload": "Upload",
         "useExternal": "Use external source"
       },
@@ -338,6 +339,7 @@
         "selectionTitle": "Video details",
         "selectionDescription": "Review and confirm your selection",
         "notAvailable": "No videos available in your media library",
+        "notAvailableInFolder": "No videos available in the folder {fsPath}",
         "upload": "Upload",
         "useExternal": "Use external source"
       },
