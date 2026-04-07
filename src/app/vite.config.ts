@@ -6,7 +6,7 @@ import libCss from 'vite-plugin-libcss'
 import dts from 'vite-plugin-dts'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '#mdc-imports': path.resolve(__dirname, './mock/mdc-import.ts'),
@@ -69,6 +69,9 @@ export default defineConfig({
   optimizeDeps: {
     include: ['vue', 'vue-router', '@unhead/vue/client', '@nuxt/content/runtime', '@vueuse/core', '@unpic/vue', 'scule', 'zod', 'ufo', 'unstorage', 'unstorage/drivers/indexedb', 'unstorage/drivers/null', 'hookable', 'ofetch', '@nuxtjs/mdc/runtime', 'remark-mdc', 'unist-util-visit', 'destr', 'minimark/stringify', 'prosemirror-state', 'prosemirror-transform', 'prosemirror-model', 'prosemirror-view'],
   },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(mode),
+  },
   build: {
     cssCodeSplit: false,
     outDir: '../../dist/app',
@@ -84,4 +87,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
