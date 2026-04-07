@@ -1,4 +1,4 @@
-import { eventHandler, getRequestURL, setResponseHeader } from 'h3'
+import { createError, eventHandler, getRequestURL, setResponseHeader } from 'h3'
 import { requireStudioAuth } from '../../utils/auth'
 import { DAY_IN_SECONDS, IPX_PREFIX, getContentTypeFromPath, getIpx, getOriginalImage, parseIpxPath, requireAllowedDomain } from '../../utils/media/ipx'
 
@@ -49,7 +49,7 @@ export default eventHandler(async (event) => {
     // IPX unavailable — serve original image without optimization
     const fallbackData = await getOriginalImage(parsed.id)
     if (!fallbackData) {
-      return
+      throw createError({ message: 'Image not found', statusCode: 404 })
     }
 
     data = fallbackData

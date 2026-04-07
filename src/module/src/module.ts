@@ -1,6 +1,5 @@
 import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
 import { createHash } from 'node:crypto'
-import { createRequire } from 'node:module'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
@@ -663,17 +662,6 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/__nuxt_studio/meta',
       handler: runtime('./server/routes/meta'),
     })
-
-    // Check if ipx (optional dependency) is available at build time.
-    // Note: on platforms like Cloudflare Workers, ipx may resolve here but
-    // fail at runtime because sharp requires native binaries. The ipx route
-    // handler handles that case gracefully by serving original images.
-    try {
-      createRequire(import.meta.url).resolve('ipx')
-    }
-    catch {
-      logger.warn('`ipx` is not installed — media thumbnails will serve original images without optimization. Install `ipx` for optimized thumbnails.')
-    }
 
     addServerHandler({
       route: '/__nuxt_studio/ipx/**',
