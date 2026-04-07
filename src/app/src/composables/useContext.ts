@@ -1,6 +1,7 @@
 import { createSharedComposable } from './createSharedComposable'
 import { computed, ref } from 'vue'
-import { StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
+import {
+  StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
 } from '../types'
 import type {
   PublishBranchParams,
@@ -113,10 +114,15 @@ export const useContext = createSharedComposable((
       const rootDocumentFsPath = joinURL(fsPath, 'index.md')
       const navigationDocumentFsPath = joinURL(fsPath, '.navigation.yml')
 
-      const navigationDocument = await host.document.db.create(navigationDocumentFsPath, `title: ${folderName}`)
-      const rootDocument = await host.document.db.create(rootDocumentFsPath, `# ${upperFirst(folderName)} root file`)
+      try {
+        const navigationDocument = await host.document.db.create(navigationDocumentFsPath, `title: ${folderName}`)
+        await activeTree.value.draft.create(navigationDocumentFsPath, navigationDocument)
+      }
+      catch (e) {
+        console.warn(`[studio] Navigation document at path ${navigationDocumentFsPath} failed to create: ${e}`)
+      }
 
-      await activeTree.value.draft.create(navigationDocumentFsPath, navigationDocument)
+      const rootDocument = await host.document.db.create(rootDocumentFsPath, `# ${upperFirst(folderName)} root file`)
       const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocumentFsPath, rootDocument)
 
       unsetActionInProgress()
