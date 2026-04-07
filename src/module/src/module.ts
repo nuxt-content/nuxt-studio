@@ -574,13 +574,17 @@ export default defineNuxtModule<ModuleOptions>({
         ...(config.optimizeDeps.include || []),
         'nuxt-studio > debug',
         'nuxt-studio > extend',
+        // [DEV] Pre-bundled
+        'nuxt-studio/app',
       ]
 
-      // Prevent vite:define from processing pre-built Studio app bundle
+      // [PROD] Externalize the pre-bundled Studio app
+      // Avoid vite to process bundle
       config.plugins ||= []
       config.plugins.push({
         name: 'nuxt-studio:externalize-app',
         enforce: 'pre',
+        apply: 'build',
         resolveId(id) {
           if (id === 'nuxt-studio/app') {
             return { id: `/_studio-app/${version}/main.js`, external: true }
