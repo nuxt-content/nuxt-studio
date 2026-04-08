@@ -3,19 +3,13 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStudio } from '../../composables/useStudio'
 import { isImageFile, isVideoFile } from '../../utils/file'
-import type { TreeItem as StudioTreeItem } from '../../types'
+import { filterDirectories, findDirectoryItem, findItemFromFsPath } from '../../utils/tree'
+import type { TreeItem } from '../../types'
 import { StudioFeature } from '../../types'
 import ImagePreview from './media-picker/ImagePreview.vue'
 import VideoPreview from './media-picker/VideoPreview.vue'
 
 const ITEMS_PER_PAGE = 12
-
-interface MediaFolderTreeItem {
-  label: string
-  fsPath: string
-  defaultExpanded?: boolean
-  children?: MediaFolderTreeItem[]
-}
 
 const { mediaTree, context } = useStudio()
 const { t } = useI18n()
@@ -23,23 +17,21 @@ const { t } = useI18n()
 const props = defineProps<{ open: boolean, type: 'image' | 'video' }>()
 
 const emit = defineEmits<{
-  select: [image: StudioTreeItem | null]
+  select: [image: TreeItem | null]
   cancel: []
 }>()
 
 const searchRef = useTemplateRef<{ $el: HTMLElement }>('searchInput')
-const search = ref('')
 const page = ref(1)
+const search = ref('')
 const selectedFolderFsPath = ref<string | null>(null)
 
-watch(search, async () => {
+watch([search, selectedFolderFsPath], async ([newSearch], [prevSearch]) => {
   page.value = 1
-  await nextTick()
-  searchRef.value?.$el.querySelector('input')?.focus()
-})
-
-watch(selectedFolderFsPath, () => {
-  page.value = 1
+  if (newSearch !== prevSearch) {
+    await nextTick()
+    searchRef.value?.$el.querySelector('input')?.focus()
+  }
 })
 
 watch(() => props.open, (isOpen) => {
@@ -48,88 +40,20 @@ watch(() => props.open, (isOpen) => {
   }
 })
 
-const isValidFileType = (item: StudioTreeItem) => {
-  if (props.type === 'image') {
-    return isImageFile(item.fsPath)
+const folderTreeItems = computed<TreeItem[]>(() => [filterDirectories(mediaTree.rootItem.value)])
+watch(folderTreeItems, (items) => {
+  if (selectedFolderFsPath.value && !findItemFromFsPath(items, selectedFolderFsPath.value)) {
+    selectedFolderFsPath.value = null
   }
-  if (props.type === 'video') {
-    return isVideoFile(item.fsPath)
-  }
-  return false
-}
+}, { immediate: true })
 
-function buildFolderTreeItem(item: StudioTreeItem, depth: number = 0): MediaFolderTreeItem {
-  const directories = (item.children || []).filter(child => child.type === 'directory')
-
-  return {
-    label: item.name,
-    fsPath: item.fsPath,
-    defaultExpanded: depth < 2,
-    children: directories.length > 0
-      ? directories.map(child => buildFolderTreeItem(child, depth + 1))
-      : undefined,
-  }
-}
-
-function findFolderTreeItem(items: MediaFolderTreeItem[], fsPath: string): MediaFolderTreeItem | undefined {
-  for (const item of items) {
-    if (item.fsPath === fsPath) {
-      return item
-    }
-
-    if (!item.children?.length) {
-      continue
-    }
-
-    const matchingChild = findFolderTreeItem(item.children, fsPath)
-    if (matchingChild) {
-      return matchingChild
-    }
-  }
-}
-
-function findDirectoryItem(item: StudioTreeItem, fsPath: string): StudioTreeItem | undefined {
-  if (item.type !== 'file' && item.fsPath === fsPath) {
-    return item
-  }
-
-  for (const child of item.children || []) {
-    if (child.type === 'file') {
-      continue
-    }
-
-    const matchingChild = findDirectoryItem(child, fsPath)
-    if (matchingChild) {
-      return matchingChild
-    }
-  }
-}
-
-function hasSelectableMedia(items: StudioTreeItem[]): boolean {
-  for (const item of items) {
-    if (item.type === 'file' && !item.fsPath.endsWith('.gitkeep') && isValidFileType(item)) {
-      return true
-    }
-
-    if (item.children?.length && hasSelectableMedia(item.children)) {
-      return true
-    }
-  }
-
-  return false
-}
-
-const folderTreeItems = computed<MediaFolderTreeItem[]>(() => [
-  buildFolderTreeItem(mediaTree.rootItem.value),
-])
-
-const selectedFolderTreeItem = computed<MediaFolderTreeItem | undefined>({
+const selectedFolderTreeItem = computed<TreeItem | undefined>({
   get() {
     if (!selectedFolderFsPath.value) {
       return undefined
     }
 
-    return findFolderTreeItem(folderTreeItems.value, selectedFolderFsPath.value)
+    return findItemFromFsPath(folderTreeItems.value, selectedFolderFsPath.value) ?? undefined
   },
   set(item) {
     if (!item?.fsPath) {
@@ -139,14 +63,6 @@ const selectedFolderTreeItem = computed<MediaFolderTreeItem | undefined>({
     selectedFolderFsPath.value = item.fsPath
   },
 })
-
-watch(folderTreeItems, (items) => {
-  if (selectedFolderFsPath.value && !findFolderTreeItem(items, selectedFolderFsPath.value)) {
-    selectedFolderFsPath.value = null
-  }
-}, { immediate: true })
-
-const isFilteringByFolder = computed(() => selectedFolderFsPath.value !== null)
 
 const selectedFolder = computed(() => {
   if (!selectedFolderFsPath.value) {
@@ -168,14 +84,10 @@ const selectedFolderPath = computed(() => {
   return `${mediaTree.rootItem.value.name}/${selectedFolder.value.fsPath}`
 })
 
-const hasAnyMediaFiles = computed(() => {
-  return hasSelectableMedia(mediaTree.root.value)
-})
+const allMediaFiles = computed<TreeItem[]>(() => {
+  const medias: TreeItem[] = []
 
-const allMediaFiles = computed<StudioTreeItem[]>(() => {
-  const medias: StudioTreeItem[] = []
-
-  const collectMedias = (items: StudioTreeItem[]) => {
+  const collectMedias = (items: TreeItem[]) => {
     for (const item of items) {
       if (item.type === 'file' && !item.fsPath.endsWith('.gitkeep') && isValidFileType(item)) {
         medias.push(item)
@@ -192,12 +104,12 @@ const allMediaFiles = computed<StudioTreeItem[]>(() => {
   return medias
 })
 
-const mediaFiles = computed<StudioTreeItem[]>(() => {
+const mediaFiles = computed<TreeItem[]>(() => {
   if (!selectedFolder.value) {
     return allMediaFiles.value
   }
 
-  return (selectedFolder.value.children || []).filter((item): item is StudioTreeItem => {
+  return (selectedFolder.value.children || []).filter((item): item is TreeItem => {
     return item.type === 'file' && !item.fsPath.endsWith('.gitkeep') && isValidFileType(item)
   })
 })
@@ -217,10 +129,9 @@ const paginatedMediaFiles = computed(() => {
   return filteredMediaFiles.value.slice(start, start + ITEMS_PER_PAGE)
 })
 
-const totalPages = computed(() => Math.ceil(filteredMediaFiles.value.length / ITEMS_PER_PAGE))
 const paginationTotal = computed(() => Math.max(filteredMediaFiles.value.length, 1))
-const getFolderTreeItemKey = (item: MediaFolderTreeItem) => item.fsPath
 
+const totalPages = computed(() => Math.ceil(filteredMediaFiles.value.length / ITEMS_PER_PAGE))
 watch(totalPages, (total) => {
   if (page.value > total && total > 0) {
     page.value = total
@@ -238,6 +149,16 @@ const handleUseExternal = () => {
 
 const handleShowAllMedia = () => {
   selectedFolderFsPath.value = null
+}
+
+function isValidFileType(item: TreeItem) {
+  if (props.type === 'image') {
+    return isImageFile(item.fsPath)
+  }
+  if (props.type === 'video') {
+    return isVideoFile(item.fsPath)
+  }
+  return false
 }
 </script>
 
@@ -264,7 +185,7 @@ const handleShowAllMedia = () => {
         />
 
         <div
-          v-if="!hasAnyMediaFiles"
+          v-if="allMediaFiles.length === 0"
           class="py-4 text-center text-muted"
         >
           <UIcon
@@ -280,7 +201,7 @@ const handleShowAllMedia = () => {
           v-else
           class="grid min-h-0 flex-1 gap-4 lg:grid-cols-[240px_minmax(0,1fr)]"
         >
-          <div class="rounded-lg border border-default bg-muted/20 p-3 max-h-104 overflow-y-auto">
+          <div class="rounded-lg border border-default bg-muted/20 p-3 overflow-y-auto">
             <div class="mb-3 flex items-center justify-between gap-2">
               <span class="text-xs uppercase tracking-wider text-muted">
                 {{ t('studio.headings.directories') }}
@@ -288,7 +209,7 @@ const handleShowAllMedia = () => {
 
               <UButton
                 color="neutral"
-                :variant="isFilteringByFolder ? 'outline' : 'soft'"
+                :variant="selectedFolderFsPath ? 'outline' : 'soft'"
                 icon="i-lucide-layout-grid"
                 size="xs"
                 @click="handleShowAllMedia"
@@ -300,7 +221,8 @@ const handleShowAllMedia = () => {
             <UTree
               v-model="selectedFolderTreeItem"
               :items="folderTreeItems"
-              :get-key="getFolderTreeItemKey"
+              :get-key="(item: TreeItem) => item.fsPath"
+              label-key="name"
               color="neutral"
               size="sm"
               class="min-w-0"
@@ -336,7 +258,7 @@ const handleShowAllMedia = () => {
               />
 
               <p class="mt-3 text-sm text-highlighted">
-                {{ isFilteringByFolder ? t(`studio.mediaPicker.${type}.notAvailableInFolder`, { fsPath: selectedFolderPath }) : t(`studio.mediaPicker.${type}.notAvailable`) }}
+                {{ selectedFolderFsPath ? t(`studio.mediaPicker.${type}.notAvailableInFolder`, { fsPath: selectedFolderPath }) : t(`studio.mediaPicker.${type}.notAvailable`) }}
               </p>
             </div>
 
