@@ -446,7 +446,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (isProdBuild) {
       const detectedRepo = detectRepositoryFromCI()
       if (detectedRepo) {
-        options.repository = defu(options.repository, detectedRepo) as GitHubRepositoryOptions | GitLabRepositoryOptions
+        options.repository = defu(detectedRepo, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
       }
       logger.info(`Using repository: ${options.repository?.provider}:${options.repository?.owner}/${options.repository?.repo}#${options.repository?.branch}`)
     }
