@@ -109,15 +109,13 @@ function updateComponentProps(props: Record<string, unknown>) {
           <UIcon
             v-if="hasSlots"
             :name="collapsed ? 'i-lucide-chevron-right' : 'i-lucide-chevron-down'"
-            size="xs"
-            class="text-muted group-hover:text-default transition-all duration-150"
+            class="size-3.5 text-muted group-hover:text-default transition-all duration-150"
             :class="{ 'text-dimmed': collapsed }"
           />
           <UIcon
             v-else
             :name="displayIcon"
-            size="xs"
-            class="text-muted group-hover:text-default transition-colors duration-150"
+            class="size-3.5 text-muted group-hover:text-default transition-colors duration-150"
             :class="{ 'text-dimmed': collapsed }"
           />
 

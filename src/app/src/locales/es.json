@@ -25,10 +25,15 @@
       "copiedToClipboard": "Copiado al portapapeles",
       "copyToClipboard": "Copiar al portapapeles",
       "publishChanges": "Publicar cambios",
-      "backToContent": "Volver al contenido"
+      "backToContent": "Volver al contenido",
+      "disableAICompletion": "Desactivar autocompletado de IA",
+      "enableAICompletion": "Activar autocompletado de IA",
+      "regenerateAIContext": "Regenerar contexto de IA"
     },
     "notifications": {
       "error": {
+        "dismiss": "Descartar",
+        "title": "Ocurrió un error",
         "unknown": "Ocurrió un error desconocido"
       }
     },
@@ -76,10 +81,12 @@
     },
     "nav": {
       "content": "Contenido",
-      "media": "Multimedia"
+      "media": "Multimedia",
+      "ai": "IA"
     },
     "placeholders": {
       "commitMessage": "Mensaje del commit",
+      "commitMessageWithPrefix": "Describe tus cambios",
       "order": "N°",
       "fileName": "Nombre del archivo"
     },
@@ -234,6 +241,18 @@
         "insertAfter": "Insertar después",
         "delete": "Eliminar"
       },
+      "ai": {
+        "fix": "Corregir gramática y ortografía",
+        "improve": "Mejorar escritura y claridad",
+        "simplify": "Minimizar y simplificar texto",
+        "translate": "Traducir",
+        "translateTo": "Traducir a",
+        "targetLanguage": "Idioma de destino",
+        "targetLanguageDescription": "Ingresa el idioma al que quieres traducir (ej. español, francés, alemán)",
+        "targetLanguagePlaceholder": "ej. español",
+        "selectionTooLarge": "Selección demasiado grande (máx. {max} caracteres)",
+        "cancel": "Cancelar"
+      },
       "element": {
         "addSlot": "Agregar slot",
         "editProps": "Editar props",
@@ -290,32 +309,47 @@
         "delete": "Eliminar imagen"
       },
       "video": {
-        "source": "Video source URL",
-        "poster": "Poster image URL",
-        "width": "Width",
-        "height": "Height",
-        "controls": "Show controls",
-        "autoplay": "Autoplay",
-        "loop": "Loop",
-        "muted": "Muted",
-        "noSource": "No video source",
-        "edit": "Edit video",
-        "delete": "Delete video"
+        "source": "URL de origen del video",
+        "poster": "URL de la imagen de portada",
+        "width": "Ancho",
+        "height": "Alto",
+        "controls": "Mostrar controles",
+        "autoplay": "Reproducción automática",
+        "loop": "Repetir",
+        "muted": "Silenciado",
+        "noSource": "Sin fuente de video",
+        "edit": "Editar video",
+        "delete": "Eliminar video"
       }
     },
     "mediaPicker": {
       "image": {
         "title": "Seleccionar imagen",
         "description": "Elige una imagen de tu biblioteca multimedia",
+        "selectionTitle": "Detalles de la imagen",
+        "selectionDescription": "Revisa y confirma tu selección",
         "notAvailable": "No hay imágenes disponibles en tu biblioteca multimedia",
-        "upload": "Subir"
+        "upload": "Subir",
+        "useExternal": "Usar fuente externa"
       },
       "video": {
         "title": "Seleccionar video",
         "description": "Elige un video de tu biblioteca multimedia",
+        "selectionTitle": "Detalles del video",
+        "selectionDescription": "Revisa y confirma tu selección",
         "notAvailable": "No hay videos disponibles en tu biblioteca multimedia",
-        "upload": "Subir"
-      }
+        "upload": "Subir",
+        "useExternal": "Usar fuente externa"
+      },
+      "name": "Nombre",
+      "path": "Ruta del archivo",
+      "publicPath": "Ruta pública",
+      "extension": "Extensión",
+      "fileSize": "Tamaño del archivo",
+      "resolution": "Resolución",
+      "searchPlaceholder": "Buscar por ruta completa",
+      "confirm": "Confirmar",
+      "cancelSelection": "Cancelar"
     },
     "form": {
       "array": {
@@ -356,6 +390,29 @@
       "number": {
         "placeholder": "0"
       }
+    },
+    "ai": {
+      "analyzingCollection": "Analizando colección y generando guías de IA...",
+      "collectionGuide": "Guía de la colección {collectionName}",
+      "writingStyleGuide": "Guía de estilo de escritura con IA",
+      "characterCount": "{count} caracteres",
+      "noStyleGuide": "Sin guía de estilo",
+      "noStyleGuideDescription": "Genera una guía completa de escritura con IA analizando el contenido de la colección {collectionName}.",
+      "analyzing": "Analizando...",
+      "analyzeCollection": "Analizar colección",
+      "experimentalAlert": "Los archivos de contexto son actualmente experimentales y solo están disponibles para generación en modo de desarrollo.",
+      "learnMore": "Saber más",
+      "collectionContextFiles": "Archivos de contexto de la colección",
+      "collectionContextDescription": "Gestiona guías de estilo de escritura con IA para cada colección. Cada colección puede tener su propio archivo de contexto para ayudar a la IA a proporcionar mejores completados, formato y mejoras a tu contenido.",
+      "noCollectionsFound": "No se encontraron colecciones",
+      "generated": "Generado",
+      "notGenerated": "No generado"
+    },
+    "badges": {
+      "experimental": "Experimental"
+    },
+    "content": {
+      "initialMarkdownContent": "# Archivo {title}"
     }
   }
 }

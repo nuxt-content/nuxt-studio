@@ -240,7 +240,179 @@
         "insertBefore": "Beszúrás elé",
         "insertAfter": "Beszúrás utána",
         "delete": "Törlés"
+      },
+      "ai": {
+        "fix": "Nyelvtan és helyesírás javítása",
+        "improve": "Írás és érthetőség javítása",
+        "simplify": "Szöveg rövidítése és egyszerűsítése",
+        "translate": "Fordítás",
+        "translateTo": "Fordítás ide:",
+        "targetLanguage": "Célnyelv",
+        "targetLanguageDescription": "Adja meg a célnyelvet (pl. angol, német, spanyol)",
+        "targetLanguagePlaceholder": "pl. angol",
+        "selectionTooLarge": "A kijelölés túl nagy (max. {max} karakter)",
+        "cancel": "Mégse"
+      },
+      "element": {
+        "addSlot": "Slot hozzáadása",
+        "editProps": "Tulajdonságok szerkesztése",
+        "delete": "Törlés",
+        "prop": "tulajdonság",
+        "props": {
+          "label": "tulajdonságok",
+          "itemsCount": "{count} elem | {count} elem",
+          "fieldsCount": "{count} mező | {count} mező",
+          "edit": "{type} szerkesztése"
+        }
+      },
+      "slot": {
+        "searchPlaceholder": "Slot keresése vagy létrehozása...",
+        "deleteSlot": "Slot törlése",
+        "noSlotsAvailable": "Nincs előre definiált slot"
+      },
+      "inlineElement": {
+        "editContent": "Tartalom szerkesztése",
+        "editProps": "Tulajdonságok szerkesztése",
+        "delete": "Törlés",
+        "editContentLabel": "{name} tartalmának szerkesztése",
+        "enterContentPlaceholder": "Tartalom megadása...",
+        "apply": "Alkalmazás"
+      },
+      "codeBlock": {
+        "filenamePlaceholder": "fajlnev.js"
+      },
+      "link": {
+        "pasteLinkPlaceholder": "Hivatkozás beillesztése...",
+        "applyLink": "Hivatkozás alkalmazása",
+        "openInNewWindow": "Megnyitás új ablakban",
+        "removeLink": "Hivatkozás eltávolítása"
+      },
+      "spanStyle": {
+        "label": "Span stílus",
+        "stylePlaceholder": "Stílusok: pl. color: tomato; font-weight: 600;",
+        "classPlaceholder": "Osztályok: szóközzel elválasztva",
+        "apply": "Alkalmazás",
+        "remove": "Eltávolítás"
+      },
+      "binding": {
+        "variablePlaceholder": "Változó neve",
+        "defaultValuePlaceholder": "Alapértelmezett érték"
+      },
+      "image": {
+        "source": "Kép forrás URL",
+        "altText": "Alternatív szöveg",
+        "title": "Kép címe",
+        "width": "Szélesség",
+        "height": "Magasság",
+        "noSource": "Nincs képforrás",
+        "edit": "Kép szerkesztése",
+        "delete": "Kép törlése"
+      },
+      "video": {
+        "source": "Videó forrás URL",
+        "poster": "Borítókép URL",
+        "width": "Szélesség",
+        "height": "Magasság",
+        "controls": "Vezérlők megjelenítése",
+        "autoplay": "Automatikus lejátszás",
+        "loop": "Ismétlés",
+        "muted": "Némítva",
+        "noSource": "Nincs videóforrás",
+        "edit": "Videó szerkesztése",
+        "delete": "Videó törlése"
       }
+    },
+    "mediaPicker": {
+      "image": {
+        "title": "Kép kiválasztása",
+        "description": "Válasszon képet a médiakönytárából",
+        "selectionTitle": "Kép részletei",
+        "selectionDescription": "Ellenőrizze és erősítse meg a kiválasztást",
+        "notAvailable": "Nincs elérhető kép a médiakönytárában",
+        "upload": "Feltöltés",
+        "useExternal": "Külső forrás használata"
+      },
+      "video": {
+        "title": "Videó kiválasztása",
+        "description": "Válasszon videót a médiakönytárából",
+        "selectionTitle": "Videó részletei",
+        "selectionDescription": "Ellenőrizze és erősítse meg a kiválasztást",
+        "notAvailable": "Nincs elérhető videó a médiakönytárában",
+        "upload": "Feltöltés",
+        "useExternal": "Külső forrás használata"
+      },
+      "name": "Név",
+      "path": "Fájl útvonala",
+      "publicPath": "Nyilvános útvonal",
+      "extension": "Kiterjesztés",
+      "fileSize": "Fájlméret",
+      "resolution": "Felbontás",
+      "confirm": "Megerősítés",
+      "searchPlaceholder": "Keresés teljes útvonal szerint",
+      "cancelSelection": "Mégse"
+    },
+    "form": {
+      "array": {
+        "addItem": "{label} hozzáadása",
+        "deleteItem": "Elem törlése",
+        "editItem": "Elem szerkesztése",
+        "unsupportedType": "Nem támogatott tömbtípus: {type}"
+      },
+      "object": {
+        "noProperties": "Nincsenek meghatározott tulajdonságok",
+        "enterPlaceholder": "{field} megadása..."
+      },
+      "section": {
+        "propertyCount": "1 tulajdonság | {count} tulajdonság"
+      },
+      "media": {
+        "placeholder": "Relatív útvonal vagy nyilvános URL...",
+        "searchPlaceholder": "Képek keresése...",
+        "noImagesFound": "Nem található kép",
+        "noImagesAvailable": "Nincs elérhető kép",
+        "imageCount": "{count} / {total} kép | {count} / {total} kép"
+      },
+      "icon": {
+        "placeholder": "i-lucide-icon",
+        "searchPlaceholder": "Ikonok keresése...",
+        "noIconsFound": "Nem található ikon",
+        "searchHint": "Legalább 2 karaktert gépeljen a kereséshez",
+        "libraries": "Könyvtárak:",
+        "allLibraries": "Összes"
+      },
+      "text": {
+        "placeholder": "Szöveg megadása...",
+        "selectPlaceholder": "Válasszon egy lehetőséget..."
+      },
+      "date": {
+        "selectDate": "Dátum kiválasztása"
+      },
+      "number": {
+        "placeholder": "0"
+      }
+    },
+    "ai": {
+      "analyzingCollection": "Gyűjtemény elemzése és AI-útmutatók generálása...",
+      "collectionGuide": "{collectionName} gyűjtemény útmutatója",
+      "writingStyleGuide": "AI írási stílus útmutató",
+      "characterCount": "{count} karakter",
+      "noStyleGuide": "Nincs stílus útmutató",
+      "noStyleGuideDescription": "Generáljon átfogó AI írási útmutatót a(z) {collectionName} gyűjtemény tartalmának elemzésével.",
+      "analyzing": "Elemzés folyamatban...",
+      "analyzeCollection": "Gyűjtemény elemzése",
+      "experimentalAlert": "A kontextfájlok jelenleg kísérleti jellegűek, és csak fejlesztési módban érhetők el.",
+      "learnMore": "Tudjon meg többet",
+      "collectionContextFiles": "Gyűjtemény kontextfájljai",
+      "collectionContextDescription": "Kezelje az AI írási stílus útmutatóit minden gyűjteményhez. Minden gyűjteménynek lehet saját kontextfájlja, amely segíti az AI-t jobb kiegészítések, formázás és javítások nyújtásában.",
+      "noCollectionsFound": "Nem található gyűjtemény",
+      "generated": "Generálva",
+      "notGenerated": "Nem generálva"
+    },
+    "badges": {
+      "experimental": "Kísérleti"
+    },
+    "content": {
+      "initialMarkdownContent": "# {title} fájl"
     }
   }
 }
