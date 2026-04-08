@@ -357,6 +357,8 @@
       "array": {
         "addItem": "Add {label}",
         "deleteItem": "Delete item",
+        "moveItemUp": "Move item up",
+        "moveItemDown": "Move item down",
         "editItem": "Edit item",
         "unsupportedType": "Array type {type} not supported"
       },
