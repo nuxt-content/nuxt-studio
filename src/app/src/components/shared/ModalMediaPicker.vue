@@ -78,7 +78,7 @@ const selectedFolderPath = computed(() => {
   }
 
   if (selectedFolder.value.type === 'root') {
-    return selectedFolder.value.name
+    return t('studio.mediaPicker.rootFolder')
   }
 
   return `${mediaTree.rootItem.value.name}/${selectedFolder.value.fsPath}`
@@ -177,7 +177,7 @@ function isValidFileType(item: TreeItem) {
           v-model="search"
           color="neutral"
           variant="outline"
-          size="lg"
+          size="xs"
           :placeholder="t('studio.mediaPicker.searchPlaceholder')"
           autofocus
           icon="i-lucide-search"
@@ -199,25 +199,47 @@ function isValidFileType(item: TreeItem) {
 
         <div
           v-else
-          class="grid min-h-0 flex-1 gap-4 lg:grid-cols-[240px_minmax(0,1fr)]"
+          class="grid min-h-0 flex-1 lg:grid-cols-[200px_minmax(0,1fr)] lg:grid-rows-[auto_1fr]"
         >
-          <div class="rounded-lg border border-default bg-muted/20 p-3 overflow-y-auto">
-            <div class="mb-3 flex items-center justify-between gap-2">
-              <span class="text-xs uppercase tracking-wider text-muted">
-                {{ t('studio.headings.directories') }}
-              </span>
+          <!-- Left header -->
+          <div class="flex items-center justify-between gap-2 border-r border-default pr-4">
+            <span class="text-xs font-medium uppercase tracking-wider">
+              {{ t('studio.headings.directories') }}
+            </span>
 
-              <UButton
-                color="neutral"
-                :variant="selectedFolderFsPath ? 'outline' : 'soft'"
-                icon="i-lucide-layout-grid"
-                size="xs"
-                @click="handleShowAllMedia"
-              >
-                {{ t('studio.form.icon.allLibraries') }}
-              </UButton>
+            <UButton
+              color="neutral"
+              :variant="selectedFolderFsPath ? 'outline' : 'soft'"
+              icon="i-lucide-layout-grid"
+              size="2xs"
+              @click="handleShowAllMedia"
+            >
+              {{ t('studio.form.icon.allLibraries') }}
+            </UButton>
+          </div>
+
+          <!-- Right header -->
+          <div class="flex items-center justify-between gap-3 pl-4">
+            <div class="flex min-w-0 items-center gap-1.5">
+              <p class="shrink-0 text-xs font-medium uppercase tracking-wider">
+                {{ t('studio.headings.media') }}
+              </p>
+              <span class="h-3 w-px shrink-0 bg-default" />
+              <p class="truncate text-xs text-muted">
+                {{ selectedFolderPath }}
+              </p>
             </div>
 
+            <UBadge
+              :label="filteredMediaFiles.length.toString()"
+              color="neutral"
+              variant="soft"
+              size="sm"
+            />
+          </div>
+
+          <!-- Left content: tree -->
+          <div class="overflow-y-auto border-r border-default pt-2 pr-4">
             <UTree
               v-model="selectedFolderTreeItem"
               :items="folderTreeItems"
@@ -229,25 +251,8 @@ function isValidFileType(item: TreeItem) {
             />
           </div>
 
-          <div class="min-w-0 min-h-0 flex flex-col gap-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-xs uppercase tracking-wider text-muted">
-                  {{ t('studio.headings.media') }}
-                </p>
-                <p class="truncate text-sm text-highlighted">
-                  {{ selectedFolderPath }}
-                </p>
-              </div>
-
-              <UBadge
-                :label="filteredMediaFiles.length.toString()"
-                color="neutral"
-                variant="soft"
-                size="sm"
-              />
-            </div>
-
+          <!-- Right content: media -->
+          <div class="min-h-0 min-w-0 flex flex-col gap-4 pt-2 pl-4">
             <div
               v-if="filteredMediaFiles.length === 0"
               class="flex min-h-0 flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-default px-6 text-center text-muted"
@@ -266,7 +271,7 @@ function isValidFileType(item: TreeItem) {
               v-else
               class="flex min-h-0 flex-1 flex-col gap-6"
             >
-              <div class="grid flex-1 content-start grid-cols-3 gap-4 sm:grid-cols-4 xl:grid-cols-5">
+              <div class="grid flex-1 content-start grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-5">
                 <UTooltip
                   v-for="media in paginatedMediaFiles"
                   :key="media.fsPath"
@@ -299,6 +304,7 @@ function isValidFileType(item: TreeItem) {
           :total="paginationTotal"
           :items-per-page="ITEMS_PER_PAGE"
           :sibling-count="1"
+          size="xs"
           show-edges
           class="ml-auto"
         />
@@ -308,20 +314,16 @@ function isValidFileType(item: TreeItem) {
     <template #footer>
       <div class="flex gap-2 ml-auto">
         <UButton
-          color="neutral"
           variant="solid"
           icon="i-lucide-upload"
-          size="lg"
           @click="handleUpload"
         >
           {{ t(`studio.mediaPicker.${type}.upload`) }}
         </UButton>
 
         <UButton
-          color="neutral"
           variant="outline"
           icon="i-lucide-link"
-          size="lg"
           @click="handleUseExternal"
         >
           {{ t(`studio.mediaPicker.${type}.useExternal`) }}

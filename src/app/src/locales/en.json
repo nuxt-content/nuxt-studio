@@ -323,6 +323,7 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Root folder",
       "image": {
         "title": "Select Image",
         "description": "Choose an image from your media library",

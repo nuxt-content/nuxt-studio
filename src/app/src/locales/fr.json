@@ -323,6 +323,7 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Dossier racine",
       "image": {
         "title": "Sélectionner une image",
         "description": "Choisissez une image depuis votre bibliothèque de médias",
