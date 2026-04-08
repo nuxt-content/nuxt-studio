@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Pasta raiz",
       "image": {
         "title": "Selecionar imagem",
         "description": "Escolha uma imagem da sua biblioteca de mídia",
         "selectionTitle": "Detalhes da imagem",
         "selectionDescription": "Revise e confirme sua seleção",
         "notAvailable": "Nenhuma imagem disponível na sua biblioteca de mídia",
+        "notAvailableInFolder": "Nenhuma imagem disponível na pasta {fsPath}",
         "upload": "Enviar",
         "useExternal": "Usar fonte externa"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Detalhes do vídeo",
         "selectionDescription": "Revise e confirme sua seleção",
         "notAvailable": "Nenhum vídeo disponível na sua biblioteca de mídia",
+        "notAvailableInFolder": "Nenhum vídeo disponível na pasta {fsPath}",
         "upload": "Enviar",
         "useExternal": "Usar fonte externa"
       },

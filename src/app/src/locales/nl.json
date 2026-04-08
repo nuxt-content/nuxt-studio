@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Hoofdmap",
       "image": {
         "title": "Afbeelding selecteren",
         "description": "Kies een afbeelding uit je mediabibliotheek",
         "selectionTitle": "Afbeeldingsdetails",
         "selectionDescription": "Bekijk en bevestig je selectie",
         "notAvailable": "Geen afbeeldingen beschikbaar in je mediabibliotheek",
+        "notAvailableInFolder": "Geen afbeeldingen beschikbaar in de map {fsPath}",
         "upload": "Uploaden",
         "useExternal": "Externe bron gebruiken"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Videodetails",
         "selectionDescription": "Bekijk en bevestig je selectie",
         "notAvailable": "Geen video's beschikbaar in je mediabibliotheek",
+        "notAvailableInFolder": "Geen video's beschikbaar in de map {fsPath}",
         "upload": "Uploaden",
         "useExternal": "Externe bron gebruiken"
       },

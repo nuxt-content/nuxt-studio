@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "根目錄",
       "image": {
         "title": "選擇圖片",
         "description": "從媒體庫中選擇一張圖片",
         "selectionTitle": "圖片詳細資訊",
         "selectionDescription": "檢查並確認您的選擇",
         "notAvailable": "媒體庫中沒有可用的圖片",
+        "notAvailableInFolder": "資料夾 {fsPath} 中沒有可用的圖片",
         "upload": "上傳",
         "useExternal": "使用外部來源"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "影片詳細資訊",
         "selectionDescription": "檢查並確認您的選擇",
         "notAvailable": "媒體庫中沒有可用的影片",
+        "notAvailableInFolder": "資料夾 {fsPath} 中沒有可用的影片",
         "upload": "上傳",
         "useExternal": "使用外部來源"
       },

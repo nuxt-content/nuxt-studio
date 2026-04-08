@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Kořenová složka",
       "image": {
         "title": "Vybrat obrázek",
         "description": "Vyberte obrázek z knihovny médií",
         "selectionTitle": "Detaily obrázku",
         "selectionDescription": "Zkontrolujte a potvrďte výběr",
         "notAvailable": "V knihovně médií nejsou dostupné žádné obrázky",
+        "notAvailableInFolder": "Ve složce {fsPath} nejsou k dispozici žádné obrázky",
         "upload": "Nahrát",
         "useExternal": "Použít externí zdroj"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Detaily videa",
         "selectionDescription": "Zkontrolujte a potvrďte výběr",
         "notAvailable": "V knihovně médií nejsou dostupná žádná videa",
+        "notAvailableInFolder": "Ve složce {fsPath} nejsou k dispozici žádná videa",
         "upload": "Nahrát",
         "useExternal": "Použít externí zdroj"
       },
