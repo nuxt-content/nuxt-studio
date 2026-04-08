@@ -39,9 +39,7 @@ function createSameOriginStorage(origin: string): IPXStorage {
     async getMeta(id: string): Promise<IPXStorageMeta | undefined> {
       const url = `${origin}/${id.replace(/^\/+/, '')}`
       const response = await fetch(url, { method: 'HEAD' })
-      if (!response.ok) {
-        throw createError({ statusCode: 404, statusMessage: 'IPX_FILE_NOT_FOUND' })
-      }
+      if (!response.ok) return undefined
       const lastModified = response.headers.get('last-modified')
       return {
         mtime: lastModified ? new Date(lastModified) : undefined,
