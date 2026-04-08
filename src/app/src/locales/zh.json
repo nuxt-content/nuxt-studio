@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "根目录",
       "image": {
         "title": "选择图片",
         "description": "从媒体库中选择一张图片",
         "selectionTitle": "图片详情",
         "selectionDescription": "查看并确认您的选择",
         "notAvailable": "媒体库中没有可用图片",
+        "notAvailableInFolder": "文件夹 {fsPath} 中没有可用的图片",
         "upload": "上传",
         "useExternal": "使用外部资源"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "视频详情",
         "selectionDescription": "查看并确认您的选择",
         "notAvailable": "媒体库中没有可用视频",
+        "notAvailableInFolder": "文件夹 {fsPath} 中没有可用的视频",
         "upload": "上传",
         "useExternal": "使用外部资源"
       },

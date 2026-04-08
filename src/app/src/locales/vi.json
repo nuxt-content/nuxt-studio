@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Thư mục gốc",
       "image": {
         "title": "Chọn hình ảnh",
         "description": "Chọn hình ảnh từ thư viện phương tiện của bạn",
         "selectionTitle": "Chi tiết hình ảnh",
         "selectionDescription": "Xem lại và xác nhận lựa chọn của bạn",
         "notAvailable": "Không có hình ảnh nào trong thư viện",
+        "notAvailableInFolder": "Không có hình ảnh nào trong thư mục {fsPath}",
         "upload": "Tải lên",
         "useExternal": "Dùng nguồn bên ngoài"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Chi tiết video",
         "selectionDescription": "Xem lại và xác nhận lựa chọn của bạn",
         "notAvailable": "Không có video nào trong thư viện",
+        "notAvailableInFolder": "Không có video nào trong thư mục {fsPath}",
         "upload": "Tải lên",
         "useExternal": "Dùng nguồn bên ngoài"
       },

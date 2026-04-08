@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Juurikansio",
       "image": {
         "title": "Valitse kuva",
         "description": "Valitse kuva mediakirjastosta",
         "selectionTitle": "Kuvan tiedot",
         "selectionDescription": "Tarkista ja vahvista valintasi",
         "notAvailable": "Mediakirjastosta ei löydy kuvia",
+        "notAvailableInFolder": "Kansiossa {fsPath} ei ole kuvia",
         "upload": "Lataa",
         "useExternal": "Käytä ulkoista lähdettä"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Videon tiedot",
         "selectionDescription": "Tarkista ja vahvista valintasi",
         "notAvailable": "Mediakirjastosta ei löydy videoita",
+        "notAvailableInFolder": "Kansiossa {fsPath} ei ole videoita",
         "upload": "Lataa",
         "useExternal": "Käytä ulkoista lähdettä"
       },

@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "โฟลเดอร์รูท",
       "image": {
         "title": "เลือกรูป",
         "description": "เลือกรูปจากคลังมีเดีย",
         "selectionTitle": "รายละเอียดรูป",
         "selectionDescription": "ตรวจสอบและยืนยันการเลือก",
         "notAvailable": "ไม่มีรูปในคลังมีเดีย",
+        "notAvailableInFolder": "ไม่มีรูปภาพในโฟลเดอร์ {fsPath}",
         "upload": "อัปโหลด",
         "useExternal": "ใช้แหล่งภายนอก"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "รายละเอียดวิดีโอ",
         "selectionDescription": "ตรวจสอบและยืนยันการเลือก",
         "notAvailable": "ไม่มีวิดีโอในคลังมีเดีย",
+        "notAvailableInFolder": "ไม่มีวิดีโอในโฟลเดอร์ {fsPath}",
         "upload": "อัปโหลด",
         "useExternal": "ใช้แหล่งภายนอก"
       },
