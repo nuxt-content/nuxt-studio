@@ -52,7 +52,7 @@
     },
     "publishSuccess": {
       "title": "Změny publikovány",
-      "summary": "{count} změna publikována na větvi {branch} repozitáře {repo} | publikováno {count} změn na větvi {branch} repozitáře {repo}",
+      "summary": "{count} změna publikována na větvi {branch} repozitáře {repo} | {count} změny publikovány na větvi {branch} repozitáře {repo} | {count} změn publikováno na větvi {branch} repozitáře {repo}",
       "alertTitleWaiting": "Čeká se na nasazení...",
       "alertTitleComplete": "Nasazení dokončeno",
       "alertDescWaiting": "Aby se změny ve Studiu projevily, je potřeba web nasadit.",
@@ -157,7 +157,7 @@
       }
     },
     "items": {
-      "itemCount": "1 položka | {count} položek"
+      "itemCount": "1 položka | {count} položky | {count} položek"
     },
     "monaco": {
       "headings": {
@@ -260,8 +260,8 @@
         "prop": "prop",
         "props": {
           "label": "props",
-          "itemsCount": "{count} položka | {count} položek",
-          "fieldsCount": "{count} pole | {count} polí",
+          "itemsCount": "{count} položka | {count} položky | {count} položek",
+          "fieldsCount": "{count} pole | {count} pole | {count} polí",
           "edit": "Upravit {type}"
         }
       },
@@ -363,14 +363,14 @@
         "enterPlaceholder": "Zadejte {field}..."
       },
       "section": {
-        "propertyCount": "1 vlastnost | {count} vlastností"
+        "propertyCount": "1 vlastnost | {count} vlastnosti | {count} vlastností"
       },
       "media": {
         "placeholder": "Zadejte relativní cestu nebo veřejnou URL...",
         "searchPlaceholder": "Hledat obrázky...",
         "noImagesFound": "Nenalezeny žádné obrázky",
         "noImagesAvailable": "Nejsou dostupné žádné obrázky",
-        "imageCount": "{count} z {total} obrázku | {count} z {total} obrázků"
+        "imageCount": "{count} z {total} obrázku | {count} z {total} obrázků | {count} z {total} obrázků"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
@@ -395,7 +395,7 @@
       "analyzingCollection": "Analyzování kolekce a generování AI pokynů...",
       "collectionGuide": "Průvodce kolekcí {collectionName}",
       "writingStyleGuide": "Průvodce stylem psaní AI",
-      "characterCount": "{count} znaků",
+      "characterCount": "{count} znak | {count} znaky | {count} znaků",
       "noStyleGuide": "Žádný průvodce stylem",
       "noStyleGuideDescription": "Vygenerujte komplexního průvodce psaním AI analýzou obsahu v kolekci {collectionName}.",
       "analyzing": "Analyzování...",
