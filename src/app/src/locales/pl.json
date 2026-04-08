@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Folder główny",
       "image": {
         "title": "Wybierz obraz",
         "description": "Wybierz obraz z biblioteki mediów",
         "selectionTitle": "Szczegóły obrazu",
         "selectionDescription": "Przejrzyj i potwierdź wybór",
         "notAvailable": "Brak dostępnych obrazów w bibliotece mediów",
+        "notAvailableInFolder": "Brak obrazów w folderze {fsPath}",
         "upload": "Prześlij",
         "useExternal": "Użyj zewnętrznego źródła"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Szczegóły wideo",
         "selectionDescription": "Przejrzyj i potwierdź wybór",
         "notAvailable": "Brak dostępnych wideo w bibliotece mediów",
+        "notAvailableInFolder": "Brak filmów w folderze {fsPath}",
         "upload": "Prześlij",
         "useExternal": "Użyj zewnętrznego źródła"
       },

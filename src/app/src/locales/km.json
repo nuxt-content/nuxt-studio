@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "ថតឫស",
       "image": {
         "title": "ជ្រើសរើសរូបភាព",
         "description": "ជ្រើសរើសរូបភាពពីបណ្តាញមេឌៀរបស់អ្នក",
         "selectionTitle": "ព័ត៌មានលម្អិតរូបភាព",
         "selectionDescription": "ពិនិត្យនិងបញ្ជាក់ការជ្រើសរើសរបស់អ្នក",
         "notAvailable": "គ្មានរូបភាពក្នុងបណ្តាញមេឌៀរបស់អ្នក",
+        "notAvailableInFolder": "មិនមានរូបភាពនៅក្នុងថត {fsPath}",
         "upload": "ផ្ទុកឡើង",
         "useExternal": "ប្រើប្រភពខាងក្រៅ"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "ព័ត៌មានលម្អិតវីដេអូ",
         "selectionDescription": "ពិនិត្យនិងបញ្ជាក់ការជ្រើសរើសរបស់អ្នក",
         "notAvailable": "គ្មានវីដេអូក្នុងបណ្តាញមេឌៀរបស់អ្នក",
+        "notAvailableInFolder": "មិនមានវីដេអូនៅក្នុងថត {fsPath}",
         "upload": "ផ្ទុកឡើង",
         "useExternal": "ប្រើប្រភពខាងក្រៅ"
       },

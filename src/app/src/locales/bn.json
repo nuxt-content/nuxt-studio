@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "রুট ফোল্ডার",
       "image": {
         "title": "ইমেজ নির্বাচন করুন",
         "description": "আপনার মিডিয়া লাইব্রেরি থেকে একটি ইমেজ বেছে নিন",
         "selectionTitle": "ইমেজ বিবরণ",
         "selectionDescription": "আপনার নির্বাচন পর্যালোচনা করুন এবং নিশ্চিত করুন",
         "notAvailable": "আপনার মিডিয়া লাইব্রেরিতে কোনো ইমেজ নেই",
+        "notAvailableInFolder": "ফোল্ডার {fsPath}-এ কোনো ছবি পাওয়া যায়নি",
         "upload": "আপলোড করুন",
         "useExternal": "বাহ্যিক উৎস ব্যবহার করুন"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "ভিডিও বিবরণ",
         "selectionDescription": "আপনার নির্বাচন পর্যালোচনা করুন এবং নিশ্চিত করুন",
         "notAvailable": "আপনার মিডিয়া লাইব্রেরিতে কোনো ভিডিও নেই",
+        "notAvailableInFolder": "ফোল্ডার {fsPath}-এ কোনো ভিডিও পাওয়া যায়নি",
         "upload": "আপলোড করুন",
         "useExternal": "বাহ্যিক উৎস ব্যবহার করুন"
       },
