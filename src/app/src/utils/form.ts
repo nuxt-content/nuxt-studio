@@ -13,6 +13,32 @@ import InputObject from '../components/form/input/InputObject.vue'
 import InputArray from '../components/form/input/InputArray.vue'
 import InputTextarea from '../components/form/input/InputTextarea.vue'
 
+/**
+ * Maps Nuxt Content collection schema `$content.editor` display options onto a form item.
+ */
+function editorDisplayFromContent(
+  content: Draft07DefinitionProperty['$content'],
+): Partial<Pick<FormItem, 'fieldName' | 'fieldDescription' | 'tooltip'>> {
+  const editor = content?.editor
+  if (!editor) {
+    return {}
+  }
+
+  const result: Partial<Pick<FormItem, 'fieldName' | 'fieldDescription' | 'tooltip'>> = {}
+
+  if (editor.fieldName !== undefined) {
+    result.fieldName = editor.fieldName
+  }
+  if (editor.fieldDescription !== undefined) {
+    result.fieldDescription = editor.fieldDescription
+  }
+  if (editor.tooltip !== undefined) {
+    result.tooltip = editor.tooltip
+  }
+
+  return result
+}
+
 export const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   array: InputArray,
   boolean: InputBoolean,
@@ -103,6 +129,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
           title: upperFirst(itemKey),
           type: editor?.input ?? def.type,
           children,
+          ...editorDisplayFromContent(def.$content),
         }
 
         if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
@@ -119,6 +146,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
           title: upperFirst(itemKey),
           type: 'array',
           arrayItemForm: buildFormTreeItem(def.items, `#${itemKey}/items`)!,
+          ...editorDisplayFromContent(def.$content),
         }
       }
 
@@ -130,6 +158,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         id,
         title: upperFirst(itemKey),
         type: editorType ?? type,
+        ...editorDisplayFromContent(def.$content),
       }
 
       if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
@@ -150,6 +179,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
       id,
       title: upperFirst(itemKey),
       type: editorType ?? type as never,
+      ...editorDisplayFromContent(def.$content),
     }
 
     if (type === 'array' && def.items) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { titleCase } from 'scule'
 import type { FormItem } from '../../../types'
+import { formItemInputLabel } from '../../../utils/form-labels'
 import type { PropType } from 'vue'
 import { computed, nextTick, ref } from 'vue'
 
@@ -18,7 +18,9 @@ const props = defineProps({
 const model = defineModel({ type: Array as PropType<unknown[]>, default: () => [] })
 
 const itemsType = computed(() => props.formItem?.type)
-const itemsLabel = computed(() => titleCase(props.formItem?.title))
+const itemsLabel = computed(() =>
+  props.formItem?.title ? formItemInputLabel(props.formItem) : '',
+)
 
 const activeIndex = ref<number | null>(null)
 const stringEditingValue = ref('')

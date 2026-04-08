@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import type { PropType } from 'vue'
 import type { FormItem } from '../../../types'
+import { formItemInputLabel } from '../../../utils/form-labels'
 import { typeComponentMap } from '../../../utils/form'
 import InputText from './InputText.vue'
 
@@ -59,7 +60,7 @@ function closeNestedForm() {
     <div class="fixed inset-0 bg-default z-50 flex flex-col p-3 overflow-y-auto rounded-lg">
       <div class="flex items-center justify-between mb-2">
         <span class="text-sm font-mono font-semibold text-highlighted">
-          {{ formItem.title }}
+          {{ formItemInputLabel(formItem) }}
         </span>
         <UButton
           size="xs"

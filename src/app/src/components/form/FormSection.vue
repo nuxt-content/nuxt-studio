@@ -16,12 +16,21 @@ const visibleChildren = computed(() => {
   if (!props.formItem.children) return []
   return Object.keys(props.formItem.children).filter(key => !props.formItem.children![key].hidden)
 })
+
+const sectionLabel = computed(() => {
+  const custom = props.formItem.fieldName?.trim()
+  if (custom) {
+    return custom
+  }
+
+  return props.formItem.title
+})
 </script>
 
 <template>
   <Collapsible
     v-if="formItem.children"
-    :label="formItem.title"
+    :label="sectionLabel"
     :default-open="true"
     class="w-full mt-3"
   >

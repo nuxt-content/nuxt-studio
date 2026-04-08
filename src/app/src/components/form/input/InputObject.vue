@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { titleCase } from 'scule'
 import type { FormTree, FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
+import { formItemInputLabel } from '../../../utils/form-labels'
 
 const props = defineProps({
   formItem: {
@@ -37,7 +37,7 @@ const entries = computed(() => {
 
       return {
         key,
-        label: titleCase(child.title || key),
+        label: formItemInputLabel(child),
         value,
         formItem: child,
       }
@@ -71,11 +71,26 @@ function getDefault(type: string) {
         v-for="entry in entries"
         :key="entry.key"
         :name="entry.key"
-        :label="entry.label"
+        :label="entry.formItem.tooltip ? undefined : entry.label"
+        :description="entry.formItem.fieldDescription"
         :ui="{
           label: 'text-xs font-medium tracking-tight',
         }"
       >
+        <template
+          v-if="entry.formItem.tooltip"
+          #label
+        >
+          <span class="inline-flex items-center gap-1.5 min-w-0">
+            <span class="truncate">{{ entry.label }}</span>
+            <UTooltip :text="entry.formItem.tooltip">
+              <UIcon
+                name="i-lucide-circle-help"
+                class="size-3.5 text-muted shrink-0 cursor-help"
+              />
+            </UTooltip>
+          </span>
+        </template>
         <InputWrapper
           :model-value="entry.value"
           :form-item="entry.formItem"
