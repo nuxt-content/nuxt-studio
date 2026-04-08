@@ -91,6 +91,28 @@ function saveStringEditing() {
 function updateItem(index: number, value: unknown) {
   model.value = model.value.map((item, i) => i === index ? value : item)
 }
+
+function moveItem(index: number, offset: number) {
+  // Determine the index to which to move this item
+  let newIndex = index + offset
+  if (newIndex < 0) newIndex = model.value.length - 1
+  if (newIndex > model.value.length - 1) newIndex = 0
+
+  // Save the current active item
+  const activeItem = activeIndex.value !== null
+    ? model.value[activeIndex.value]
+    : null
+
+  // Swap items
+  const result = [...model.value];
+  [result[index], result[newIndex]] = [result[newIndex], result[index]]
+  model.value = result
+
+  // Change the active item to be the same item it was before the swap
+  if (activeItem !== null) {
+    activeIndex.value = result.findIndex(item => item === activeItem)
+  }
+}
 </script>
 
 <template>
@@ -111,9 +133,27 @@ function updateItem(index: number, value: unknown) {
               variant="ghost"
               color="neutral"
               size="2xs"
+              icon="i-lucide-arrow-up"
+              class="opacity-0 group-hover/item:opacity-100 transition-opacity"
+              :aria-label="$t('studio.form.array.moveItemUp')"
+              @click.stop="moveItem(item.index, -1)"
+            />
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="2xs"
+              icon="i-lucide-arrow-down"
+              class="opacity-0 group-hover/item:opacity-100 transition-opacity"
+              :aria-label="$t('studio.form.array.moveItemDown')"
+              @click.stop="moveItem(item.index, 1)"
+            />
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="2xs"
               icon="i-lucide-trash"
               class="opacity-0 group-hover/item:opacity-100 transition-opacity"
-              :aria-label="$t('studio.form.deleteItem')"
+              :aria-label="$t('studio.form.array.deleteItem')"
               @click.stop="deleteItem(item.index)"
             />
           </template>
