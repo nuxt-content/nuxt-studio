@@ -47,9 +47,11 @@
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit",
     "clean": "rm -rf dist .nuxt .output node_modules docs/node_modules docs/.output docs/.data docs/.nuxt playground/docus/node_modules playground/docus/.output playground/docus/.data playground/docus/.nuxt playground/minimal/node_modules playground/minimal/.output playground/minimal/.data playground/minimal/.nuxt pnpm-lock.yaml"
   },
+  "optionalDependencies": {
+    "ipx": "^3.1.1"
+  },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.91",
-    "ipx": "^3.1.1",
     "@ai-sdk/vue": "^3.0.149",
     "@iconify-json/lucide": "^1.2.101",
     "@nuxtjs/mdc": "^0.21.1",
