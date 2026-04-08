@@ -23,9 +23,9 @@ export default eventHandler(async (event) => {
   }
 
   const domain = requireAllowedDomain(parsed.id)
+  const originUrl = url.origin
 
-  const ipx = await getIpx(domain)
-
+  const ipx = await getIpx(domain, originUrl)
   let data: Buffer | string
   let format: string | undefined
 
@@ -37,7 +37,7 @@ export default eventHandler(async (event) => {
       format = result.format
     }
     catch (error) {
-      const fallbackData = await getOriginalImage(parsed.id)
+      const fallbackData = await getOriginalImage(parsed.id, originUrl)
       if (!fallbackData) {
         throw error
       }
@@ -47,7 +47,7 @@ export default eventHandler(async (event) => {
   }
   else {
     // IPX unavailable — serve original image without optimization
-    const fallbackData = await getOriginalImage(parsed.id)
+    const fallbackData = await getOriginalImage(parsed.id, originUrl)
     if (!fallbackData) {
       throw createError({ message: 'Image not found', statusCode: 404 })
     }
