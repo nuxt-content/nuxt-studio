@@ -12,6 +12,10 @@ export default defineNuxtConfig({
     blob: true,
   },
   studio: {
+    dev: true,
+    i18n: {
+      defaultLocale: 'cs',
+    },
     route: '/admin',
     repository: {
       provider: 'github',
