@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Rotmappe",
       "image": {
         "title": "Velg bilde",
         "description": "Velg et bilde fra mediebiblioteket ditt",
         "selectionTitle": "Bildedetaljer",
         "selectionDescription": "Se gjennom og bekreft valget ditt",
         "notAvailable": "Ingen bilder tilgjengelig i mediebiblioteket",
+        "notAvailableInFolder": "Ingen bilder tilgjengelig i mappen {fsPath}",
         "upload": "Last opp",
         "useExternal": "Bruk ekstern kilde"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Videodetaljer",
         "selectionDescription": "Se gjennom og bekreft valget ditt",
         "notAvailable": "Ingen videoer tilgjengelig i mediebiblioteket",
+        "notAvailableInFolder": "Ingen videoer tilgjengelig i mappen {fsPath}",
         "upload": "Last opp",
         "useExternal": "Bruk ekstern kilde"
       },

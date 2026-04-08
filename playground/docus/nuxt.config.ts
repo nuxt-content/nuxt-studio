@@ -29,11 +29,5 @@ export default defineNuxtConfig({
         tone: 'formal and professional',
       },
     },
-    media: {
-      external: true,
-      prefix: '',
-      maxFileSize: 10 * 1024 * 1024, // 10MB
-      allowedTypes: ['image/*'],
-    },
   },
 })

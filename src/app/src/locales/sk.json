@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Koreňový priečinok",
       "image": {
         "title": "Vybrať obrázok",
         "description": "Vyberte obrázok z vašej mediálnej knižnice",
         "selectionTitle": "Podrobnosti obrázka",
         "selectionDescription": "Skontrolujte a potvrďte výber",
         "notAvailable": "V mediálnej knižnici nie sú k dispozícii žiadne obrázky",
+        "notAvailableInFolder": "V priečinku {fsPath} nie sú k dispozícii žiadne obrázky",
         "upload": "Nahrať",
         "useExternal": "Použiť externý zdroj"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Podrobnosti videa",
         "selectionDescription": "Skontrolujte a potvrďte výber",
         "notAvailable": "V mediálnej knižnici nie sú k dispozícii žiadne videá",
+        "notAvailableInFolder": "V priečinku {fsPath} nie sú k dispozícii žiadne videá",
         "upload": "Nahrať",
         "useExternal": "Použiť externý zdroj"
       },

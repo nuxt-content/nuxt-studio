@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Rotmappe",
       "image": {
         "title": "Vel bilete",
         "description": "Vel eit bilete frå mediebiblioteket ditt",
         "selectionTitle": "Biletedetaljar",
         "selectionDescription": "Gå gjennom og stadfest valet ditt",
         "notAvailable": "Ingen bilete tilgjengelege i mediebiblioteket",
+        "notAvailableInFolder": "Ingen bilete tilgjengeleg i mappa {fsPath}",
         "upload": "Last opp",
         "useExternal": "Bruk ekstern kjelde"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Videodetaljar",
         "selectionDescription": "Gå gjennom og stadfest valet ditt",
         "notAvailable": "Ingen videoar tilgjengelege i mediebiblioteket",
+        "notAvailableInFolder": "Ingen videoar tilgjengeleg i mappa {fsPath}",
         "upload": "Last opp",
         "useExternal": "Bruk ekstern kjelde"
       },

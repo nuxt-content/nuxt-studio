@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "بوخچەی سەرەکی",
       "image": {
         "title": "هەڵبژاردنی وێنە",
         "description": "وێنەیەک لە کتێبخانەی میدیاکەت هەڵبژێرە",
         "selectionTitle": "وردەکارییەکانی وێنە",
         "selectionDescription": "هەڵبژاردنەکەت پشکنین بکە و دڵنیابەرەوە",
         "notAvailable": "هیچ وێنەیەک لە کتێبخانەی میدیاکەتدا نییە",
+        "notAvailableInFolder": "هیچ وێنەیەک لە بوخچەی {fsPath} بەردەست نییە",
         "upload": "بارکردن",
         "useExternal": "بەکارهێنانی سەرچاوەی دەرەوە"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "وردەکارییەکانی ڤیدیۆ",
         "selectionDescription": "هەڵبژاردنەکەت پشکنین بکە و دڵنیابەرەوە",
         "notAvailable": "هیچ ڤیدیۆیەک لە کتێبخانەی میدیاکەتدا نییە",
+        "notAvailableInFolder": "هیچ ڤیدیۆیەک لە بوخچەی {fsPath} بەردەست نییە",
         "upload": "بارکردن",
         "useExternal": "بەکارهێنانی سەرچاوەی دەرەوە"
       },

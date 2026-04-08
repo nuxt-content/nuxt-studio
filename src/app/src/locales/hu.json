@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Gyökérmappa",
       "image": {
         "title": "Kép kiválasztása",
         "description": "Válasszon képet a médiakönytárából",
         "selectionTitle": "Kép részletei",
         "selectionDescription": "Ellenőrizze és erősítse meg a kiválasztást",
         "notAvailable": "Nincs elérhető kép a médiakönytárában",
+        "notAvailableInFolder": "Nem találhatók képek a(z) {fsPath} mappában",
         "upload": "Feltöltés",
         "useExternal": "Külső forrás használata"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Videó részletei",
         "selectionDescription": "Ellenőrizze és erősítse meg a kiválasztást",
         "notAvailable": "Nincs elérhető videó a médiakönytárában",
+        "notAvailableInFolder": "Nem találhatók videók a(z) {fsPath} mappában",
         "upload": "Feltöltés",
         "useExternal": "Külső forrás használata"
       },

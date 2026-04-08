@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "پوشه اصلی",
       "image": {
         "title": "انتخاب تصویر",
         "description": "تصویری از کتابخانه رسانه خود انتخاب کنید",
         "selectionTitle": "جزئیات تصویر",
         "selectionDescription": "انتخاب خود را بررسی و تأیید کنید",
         "notAvailable": "هیچ تصویری در کتابخانه رسانه شما موجود نیست",
+        "notAvailableInFolder": "هیچ تصویری در پوشه {fsPath} موجود نیست",
         "upload": "آپلود",
         "useExternal": "استفاده از منبع خارجی"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "جزئیات ویدیو",
         "selectionDescription": "انتخاب خود را بررسی و تأیید کنید",
         "notAvailable": "هیچ ویدیویی در کتابخانه رسانه شما موجود نیست",
+        "notAvailableInFolder": "هیچ ویدیویی در پوشه {fsPath} موجود نیست",
         "upload": "آپلود",
         "useExternal": "استفاده از منبع خارجی"
       },

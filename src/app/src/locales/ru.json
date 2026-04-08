@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Корневая папка",
       "image": {
         "title": "Выберите изображение",
         "description": "Выберите изображение из вашей библиотеки медиа",
         "selectionTitle": "Сведения об изображении",
         "selectionDescription": "Проверьте и подтвердите выбор",
         "notAvailable": "В вашей библиотеке медиа нет доступных изображений",
+        "notAvailableInFolder": "В папке {fsPath} нет доступных изображений",
         "upload": "Загрузить",
         "useExternal": "Использовать внешний источник"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Сведения о видео",
         "selectionDescription": "Проверьте и подтвердите выбор",
         "notAvailable": "В вашей библиотеке медиа нет доступных видео",
+        "notAvailableInFolder": "В папке {fsPath} нет доступных видео",
         "upload": "Загрузить",
         "useExternal": "Использовать внешний источник"
       },

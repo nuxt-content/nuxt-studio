@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Folder utama",
       "image": {
         "title": "Pilih Gambar",
         "description": "Pilih gambar dari pustaka media Anda",
         "selectionTitle": "Detail gambar",
         "selectionDescription": "Tinjau dan konfirmasi pilihan Anda",
         "notAvailable": "Tidak ada gambar yang tersedia di pustaka media Anda",
+        "notAvailableInFolder": "Tidak ada gambar tersedia di folder {fsPath}",
         "upload": "Unggah",
         "useExternal": "Gunakan sumber eksternal"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Detail video",
         "selectionDescription": "Tinjau dan konfirmasi pilihan Anda",
         "notAvailable": "Tidak ada video yang tersedia di pustaka media Anda",
+        "notAvailableInFolder": "Tidak ada video tersedia di folder {fsPath}",
         "upload": "Unggah",
         "useExternal": "Gunakan sumber eksternal"
       },

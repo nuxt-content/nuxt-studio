@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "المجلد الجذر",
       "image": {
         "title": "اختر صورة",
         "description": "اختر صورة من مكتبة الوسائط الخاصة بك",
         "selectionTitle": "تفاصيل الصورة",
         "selectionDescription": "راجع وأكد اختيارك",
         "notAvailable": "لا توجد صور متاحة في مكتبة الوسائط الخاصة بك",
+        "notAvailableInFolder": "لا توجد صور متاحة في المجلد {fsPath}",
         "upload": "رفع",
         "useExternal": "استخدام مصدر خارجي"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "تفاصيل الفيديو",
         "selectionDescription": "راجع وأكد اختيارك",
         "notAvailable": "لا توجد فيديوهات متاحة في مكتبة الوسائط الخاصة بك",
+        "notAvailableInFolder": "لا توجد مقاطع فيديو متاحة في المجلد {fsPath}",
         "upload": "رفع",
         "useExternal": "استخدام مصدر خارجي"
       },

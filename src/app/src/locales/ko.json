@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "루트 폴더",
       "image": {
         "title": "이미지 선택",
         "description": "미디어 라이브러리에서 이미지를 선택하세요",
         "selectionTitle": "이미지 세부 정보",
         "selectionDescription": "선택 항목을 확인하고 확정하세요",
         "notAvailable": "미디어 라이브러리에 사용 가능한 이미지가 없습니다",
+        "notAvailableInFolder": "폴더 {fsPath}에 이미지가 없습니다",
         "upload": "업로드",
         "useExternal": "외부 소스 사용"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "비디오 세부 정보",
         "selectionDescription": "선택 항목을 확인하고 확정하세요",
         "notAvailable": "미디어 라이브러리에 사용 가능한 비디오가 없습니다",
+        "notAvailableInFolder": "폴더 {fsPath}에 동영상이 없습니다",
         "upload": "업로드",
         "useExternal": "외부 소스 사용"
       },
