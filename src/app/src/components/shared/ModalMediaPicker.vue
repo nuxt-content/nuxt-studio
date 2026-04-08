@@ -248,7 +248,11 @@ function isValidFileType(item: TreeItem) {
               color="neutral"
               size="sm"
               class="min-w-0"
-            />
+            >
+              <template #item-label="{ item }">
+                {{ item.type === 'root' ? t('studio.mediaPicker.rootFolder') : item.name }}
+              </template>
+            </UTree>
           </div>
 
           <!-- Right content: media -->
