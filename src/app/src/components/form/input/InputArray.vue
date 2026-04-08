@@ -29,9 +29,26 @@ const items = computed(() => {
     key: index,
     index,
     value: item,
-    label: `${itemsLabel.value} ${index + 1}`,
+    label: getItemLabel(item, index),
   }))
 })
+
+const LABEL_KEYS = ['title', 'label', 'name']
+
+function getItemLabel(item: unknown, index: number) {
+  const isObject = itemsType.value === 'object'
+    && typeof item === 'object'
+    && item !== null
+
+  if (isObject) {
+    const obj = item as Record<string, unknown>
+    const priorityValue = LABEL_KEYS.map(key => obj[key]).find(value => typeof value === 'string' && value)
+    const firstString = priorityValue ?? Object.values(obj).find(value => typeof value === 'string' && value)
+    return `${index + 1}: ${firstString || '—'}`
+  }
+
+  return `${itemsLabel.value} ${index + 1}`
+}
 
 // Increment level for nested items
 const childLevel = computed(() => props.level + 1)
