@@ -1,6 +1,5 @@
 import { createError } from 'h3'
-import { createIPX, ipxFSStorage, ipxHttpStorage } from 'ipx'
-import type { IPX, IPXStorage } from 'ipx'
+import type { IPXStorage } from 'ipx'
 import { readFile } from 'node:fs/promises'
 import { extname, resolve } from 'node:path'
 import { hasProtocol, parseURL } from 'ufo'
@@ -12,7 +11,12 @@ export const DAY_IN_SECONDS = 60 * 60 * 24
 const mediaConfig = useRuntimeConfig().public.studio.media
 export const publicDir: string = mediaConfig.publicUrl
 
-let cachedIpx: IPX | null = null
+// ipx is an optional dependency (requires sharp which uses native binaries
+// unavailable on some platforms such as Cloudflare Workers). The import is
+// performed at runtime through a variable so that Rollup/Nitro does NOT
+// follow it during the server bundle step.
+type IpxHandler = (id: string, modifiers?: Record<string, string>) => { process: () => Promise<{ data: Buffer | string, format?: string }> }
+let cachedIpx: IpxHandler | null | undefined
 
 export function requireAllowedDomain(id: string): string | undefined {
   if (!mediaConfig.external) return undefined
@@ -24,8 +28,16 @@ export function requireAllowedDomain(id: string): string | undefined {
   return requestDomain || configuredDomain || undefined
 }
 
-export function getIpx(domain?: string) {
-  if (!cachedIpx) {
+export async function getIpx(domain?: string) {
+  // undefined = not yet attempted, null = unavailable
+  if (cachedIpx !== undefined) return cachedIpx
+
+  try {
+    // Use a variable so Rollup cannot statically resolve the import.
+    // This prevents sharp (ipx's transitive dependency) from being pulled
+    // into the server bundle on platforms where native binaries are unsupported.
+    const ipxModuleId = 'ipx'
+    const { createIPX, ipxFSStorage, ipxHttpStorage } = await import(/* @vite-ignore */ ipxModuleId)
     if (mediaConfig.external) {
       cachedIpx = createIPX({
         storage: {} as IPXStorage,
@@ -39,6 +51,9 @@ export function getIpx(domain?: string) {
         maxAge: DAY_IN_SECONDS,
       })
     }
+  }
+  catch {
+    cachedIpx = null
   }
 
   return cachedIpx

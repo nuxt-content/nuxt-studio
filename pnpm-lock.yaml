@@ -38,9 +38,6 @@ importers:
       destr:
         specifier: ^2.0.5
         version: 2.0.5
-      ipx:
-        specifier: ^3.1.1
-        version: 3.1.1(@vercel/blob@2.3.3)(db0@0.3.4(better-sqlite3@12.8.0))(idb-keyval@6.2.2)(ioredis@5.10.1)(srvx@0.11.14)
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
@@ -156,6 +153,10 @@ importers:
       vue-tsc:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
+    optionalDependencies:
+      ipx:
+        specifier: ^3.1.1
+        version: 3.1.1(@vercel/blob@2.3.3)(db0@0.3.4(better-sqlite3@12.8.0))(idb-keyval@6.2.2)(ioredis@5.10.1)(srvx@0.11.14)
 
   docs:
     dependencies:
@@ -9286,7 +9287,8 @@ snapshots:
       '@eslint/core': 1.2.0
       levn: 0.4.1
 
-  '@fastify/accept-negotiator@2.0.1': {}
+  '@fastify/accept-negotiator@2.0.1':
+    optional: true
 
   '@fingerprintjs/botd@2.0.0': {}
 
@@ -9371,7 +9373,8 @@ snapshots:
       '@iconify/types': 2.0.0
       vue: 3.5.32(typescript@5.9.3)
 
-  '@img/colour@1.1.0': {}
+  '@img/colour@1.1.0':
+    optional: true
 
   '@img/sharp-darwin-arm64@0.34.5':
     optionalDependencies:
@@ -13638,7 +13641,8 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  cssfilter@0.0.10: {}
+  cssfilter@0.0.10:
+    optional: true
 
   cssnano-preset-default@7.0.12(postcss@8.5.8):
     dependencies:
@@ -15157,6 +15161,7 @@ snapshots:
       - ioredis
       - srvx
       - uploadthing
+    optional: true
 
   iron-webcrypto@1.2.1: {}
 
@@ -18470,6 +18475,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
+    optional: true
 
   shebang-command@2.0.0:
     dependencies:
@@ -19618,6 +19624,7 @@ snapshots:
     dependencies:
       commander: 2.20.3
       cssfilter: 0.0.10
+    optional: true
 
   y-protocols@1.0.7(yjs@13.6.30):
     dependencies:
