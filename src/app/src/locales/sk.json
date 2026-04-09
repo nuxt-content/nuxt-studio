@@ -52,7 +52,7 @@
     },
     "publishSuccess": {
       "title": "Zmeny publikované",
-      "summary": "Publikovaná {count} zmena na vetve {branch} v repozitári {repo} | Publikovaných {count} zmien na vetve {branch} v repozitári {repo}",
+      "summary": "{count} zmena publikovaná na vetve {branch} v repozitári {repo} | {count} zmeny publikované na vetve {branch} v repozitári {repo} | {count} zmien publikovaných na vetve {branch} v repozitári {repo}",
       "alertTitleWaiting": "Čaká sa na nasadenie...",
       "alertTitleComplete": "Nasadenie dokončené",
       "alertDescWaiting": "Aby boli zmeny viditeľné v Studiu, je potrebné web nasadiť.",
@@ -260,8 +260,8 @@
         "prop": "vlastnosť",
         "props": {
           "label": "vlastnosti",
-          "itemsCount": "{count} položka | {count} položiek",
-          "fieldsCount": "{count} pole | {count} polí",
+          "itemsCount": "{count} položka | {count} položky | {count} položiek",
+          "fieldsCount": "{count} pole | {count} polia | {count} polí",
           "edit": "Upraviť {type}"
         }
       },
@@ -323,12 +323,14 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Koreňový priečinok",
       "image": {
         "title": "Vybrať obrázok",
         "description": "Vyberte obrázok z vašej mediálnej knižnice",
         "selectionTitle": "Podrobnosti obrázka",
         "selectionDescription": "Skontrolujte a potvrďte výber",
         "notAvailable": "V mediálnej knižnici nie sú k dispozícii žiadne obrázky",
+        "notAvailableInFolder": "V priečinku {fsPath} nie sú k dispozícii žiadne obrázky",
         "upload": "Nahrať",
         "useExternal": "Použiť externý zdroj"
       },
@@ -338,6 +340,7 @@
         "selectionTitle": "Podrobnosti videa",
         "selectionDescription": "Skontrolujte a potvrďte výber",
         "notAvailable": "V mediálnej knižnici nie sú k dispozícii žiadne videá",
+        "notAvailableInFolder": "V priečinku {fsPath} nie sú k dispozícii žiadne videá",
         "upload": "Nahrať",
         "useExternal": "Použiť externý zdroj"
       },
@@ -370,7 +373,7 @@
         "searchPlaceholder": "Hľadať obrázky...",
         "noImagesFound": "Nenašli sa žiadne obrázky",
         "noImagesAvailable": "Žiadne obrázky nie sú k dispozícii",
-        "imageCount": "{count} z {total} obrázka | {count} z {total} obrázkov"
+        "imageCount": "{count} z {total} obrázka | {count} z {total} obrázkov | {count} z {total} obrázkov"
       },
       "icon": {
         "placeholder": "i-lucide-icon",
@@ -395,7 +398,7 @@
       "analyzingCollection": "Analýza kolekcie a generovanie AI sprievodcov...",
       "collectionGuide": "Sprievodca kolekciou {collectionName}",
       "writingStyleGuide": "AI sprievodca štýlom písania",
-      "characterCount": "{count} znakov",
+      "characterCount": "{count} znak | {count} znaky | {count} znakov",
       "noStyleGuide": "Žiadny sprievodca štýlom",
       "noStyleGuideDescription": "Vygenerujte komplexného AI sprievodcu písaním analýzou obsahu kolekcie {collectionName}.",
       "analyzing": "Analyzuje sa...",
