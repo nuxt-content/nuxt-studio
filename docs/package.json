@@ -11,7 +11,7 @@
     "@vercel/blob": "^2.3.3",
     "@vercel/speed-insights": "^2.0.0",
     "better-sqlite3": "^12.8.0",
-    "docus": "^5.9.0",
+    "docus": "https://pkg.pr.new/docus@08cabd0",
     "nuxt": "^4.4.2",
     "nuxt-studio": "workspace:*"
   }
