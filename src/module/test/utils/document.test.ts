@@ -387,6 +387,29 @@ Description`
     const _isDocumentMatchingContent = await isDocumentMatchingContent(markdownContent, document)
     expect(_isDocumentMatchingContent).toBe(true)
   })
+
+  it('should be true for JSON data collection with non-alphabetical key order', async () => {
+    const jsonContent = JSON.stringify({
+      seo_title: 'My Page Title',
+      seo_description: 'My page description.',
+      seo_schema: '{}',
+      description: 'Hello world',
+    }, null, 2)
+
+    const document = {
+      id: 'landing_page/landing_page.json',
+      extension: ContentFileExtension.JSON,
+      stem: 'landing_page',
+      meta: {},
+      description: 'Hello world',
+      seo_description: 'My page description.',
+      seo_schema: '{}',
+      seo_title: 'My Page Title',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(jsonContent, document)
+    expect(result).toBe(true)
+  })
 })
 
 describe('sanitizeDocumentTree', () => {

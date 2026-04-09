@@ -71,14 +71,19 @@ export async function documentFromJSONContent(id: string, content: string): Prom
   }
 
   // fsPath will be overridden by host
-  return {
+  const document = {
     id,
     extension: ContentFileExtension.JSON,
     stem: generateStemFromId(id),
     meta: {},
     ...parsed,
-    body: parsed.body || parsed,
   } as DatabaseItem
+
+  if (parsed.body) {
+    document.body = parsed.body
+  }
+
+  return document
 }
 
 export function isComarkTree(body: unknown): body is ComarkTree {

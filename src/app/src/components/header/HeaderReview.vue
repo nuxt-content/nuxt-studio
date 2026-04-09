@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed, watch, onMounted } from 'vue'
 import * as z from 'zod'
 import { useStudio } from '../../composables/useStudio'
 import { useRouter } from 'vue-router'
@@ -9,8 +9,19 @@ import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const { location } = useStudioState()
-const { context } = useStudio()
+const { context, host } = useStudio()
 const { t } = useI18n()
+
+const commitMessagePrefix = host.meta.git?.commit?.messagePrefix ?? ''
+
+const prefixRef = ref<HTMLElement | null>(null)
+const prefixWidth = ref(0)
+
+onMounted(() => {
+  if (prefixRef.value) {
+    prefixWidth.value = prefixRef.value.offsetWidth
+  }
+})
 
 const isPublishing = ref(false)
 const openTooltip = ref(false)
@@ -123,14 +134,30 @@ defineShortcuts({
       >
         <UInput
           v-model="state.commitMessage"
-          :placeholder="$t('studio.placeholders.commitMessage')"
+          :placeholder="commitMessagePrefix ? $t('studio.placeholders.commitMessageWithPrefix') : $t('studio.placeholders.commitMessage')"
           size="sm"
           :disabled="isPublishing"
           class="w-full"
           autofocus
-          :ui="{ base: 'focus-visible:ring-1' }"
+          :style="commitMessagePrefix ? { '--prefix-width': `${prefixWidth}px` } : undefined"
+          :ui="{
+            base: `focus-visible:ring-1${commitMessagePrefix ? ' !ps-[calc(var(--prefix-width)+16px)]' : ''}`,
+            leading: commitMessagePrefix ? 'pointer-events-none' : '',
+          }"
           @input="openTooltip = false"
-        />
+        >
+          <template
+            v-if="commitMessagePrefix"
+            #leading
+          >
+            <span
+              ref="prefixRef"
+              class="text-sm text-muted"
+            >
+              {{ commitMessagePrefix }}
+            </span>
+          </template>
+        </UInput>
       </UFormField>
 
       <UTooltip

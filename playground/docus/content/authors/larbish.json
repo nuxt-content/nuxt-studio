@@ -1,19 +1,19 @@
 {
-  "name": "Baptiste Leproux",
   "avatar": {
-    "src": "/larbish.jpeg"
+    "src": "/developers/larbish.jpeg"
   },
-  "to": "https://x.com/_larbish",
-  "username": "larbish",
-  "role": "contributor",
-  "order": 3,
   "birthDate": "1993-09-03",
-  "lastCommitAt": "2026-01-02 10:00:00",
   "icon": "i-lucide-palette",
   "isOpenSourceLover": true,
+  "lastCommitAt": "2026-01-02 10:00:00",
   "modules": [
     "studio",
     "content",
     "supabase"
-  ]
+  ],
+  "name": "Baptiste Leproux",
+  "order": 3,
+  "role": "contributor",
+  "to": "https://x.com/_larbish",
+  "username": "larbish"
 }

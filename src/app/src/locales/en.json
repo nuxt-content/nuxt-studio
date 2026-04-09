@@ -86,6 +86,7 @@
     },
     "placeholders": {
       "commitMessage": "Commit message",
+      "commitMessageWithPrefix": "Describe your changes",
       "order": "N°",
       "fileName": "File name"
     },
@@ -322,25 +323,43 @@
       }
     },
     "mediaPicker": {
+      "rootFolder": "Root folder",
       "image": {
         "title": "Select Image",
         "description": "Choose an image from your media library",
+        "selectionTitle": "Image details",
+        "selectionDescription": "Review and confirm your selection",
         "notAvailable": "No images available in your media library",
+        "notAvailableInFolder": "No images available in the folder {fsPath}",
         "upload": "Upload",
         "useExternal": "Use external source"
       },
       "video": {
         "title": "Select Video",
         "description": "Choose a video from your media library",
+        "selectionTitle": "Video details",
+        "selectionDescription": "Review and confirm your selection",
         "notAvailable": "No videos available in your media library",
+        "notAvailableInFolder": "No videos available in the folder {fsPath}",
         "upload": "Upload",
         "useExternal": "Use external source"
-      }
+      },
+      "name": "Name",
+      "path": "File path",
+      "publicPath": "Public path",
+      "extension": "Extension",
+      "fileSize": "File size",
+      "resolution": "Resolution",
+      "searchPlaceholder": "Search by full path",
+      "confirm": "Confirm",
+      "cancelSelection": "Cancel"
     },
     "form": {
       "array": {
         "addItem": "Add {label}",
         "deleteItem": "Delete item",
+        "moveItemUp": "Move item up",
+        "moveItemDown": "Move item down",
         "editItem": "Edit item",
         "unsupportedType": "Array type {type} not supported"
       },
