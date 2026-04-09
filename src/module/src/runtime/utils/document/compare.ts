@@ -8,53 +8,6 @@ import { compressTree } from '@nuxt/content/runtime'
 import { generateDocumentFromContent } from './generate'
 import { removeLastStylesFromTree } from './tree'
 
-function refineDocumentData(doc: Record<string, unknown>) {
-  const { meta, ...documentData } = doc
-  const refinedDoc = { ...documentData, ...(meta as Record<string, unknown> || {}) }
-
-  if (refinedDoc.seo) {
-    const seo = refinedDoc.seo as Record<string, unknown>
-    refinedDoc.seo = {
-      ...seo,
-      title: seo.title || refinedDoc.title,
-      description: seo.description || refinedDoc.description,
-    }
-  }
-
-  // documents with same id are being compared, so it is safe to remove `path` and `__hash__`
-  Reflect.deleteProperty(refinedDoc, '__hash__')
-  Reflect.deleteProperty(refinedDoc, 'path')
-
-  // default value of navigation is true
-  if (typeof refinedDoc.navigation === 'undefined') {
-    refinedDoc.navigation = true
-  }
-
-  for (const key in refinedDoc) {
-    const value = refinedDoc[key]
-    if (typeof value === 'string' && !Number.isNaN(Date.parse(value)) && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-      refinedDoc[key] = new Date(value).toISOString().split('T')[0]
-    }
-  }
-
-  function removeNullAndUndefined(obj: Record<string, unknown>): Record<string, unknown> {
-    const result: Record<string, unknown> = {}
-    for (const key in obj) {
-      const value = obj[key]
-      if (value === null || value === undefined) continue
-      if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
-        result[key] = removeNullAndUndefined(value as Record<string, unknown>)
-      }
-      else {
-        result[key] = value
-      }
-    }
-    return result
-  }
-
-  return removeNullAndUndefined(refinedDoc)
-}
-
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
   const generatedDocument = await generateDocumentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
 
@@ -114,4 +67,51 @@ export function areDocumentsEqual(document1: Record<string, unknown>, document2:
   }
 
   return true
+}
+
+function refineDocumentData(doc: Record<string, unknown>) {
+  const { meta, ...documentData } = doc
+  const refinedDoc = { ...documentData, ...(meta as Record<string, unknown> || {}) }
+
+  if (refinedDoc.seo) {
+    const seo = refinedDoc.seo as Record<string, unknown>
+    refinedDoc.seo = {
+      ...seo,
+      title: seo.title || refinedDoc.title,
+      description: seo.description || refinedDoc.description,
+    }
+  }
+
+  // documents with same id are being compared, so it is safe to remove `path` and `__hash__`
+  Reflect.deleteProperty(refinedDoc, '__hash__')
+  Reflect.deleteProperty(refinedDoc, 'path')
+
+  // default value of navigation is true
+  if (typeof refinedDoc.navigation === 'undefined') {
+    refinedDoc.navigation = true
+  }
+
+  for (const key in refinedDoc) {
+    const value = refinedDoc[key]
+    if (typeof value === 'string' && !Number.isNaN(Date.parse(value)) && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+      refinedDoc[key] = new Date(value).toISOString().split('T')[0]
+    }
+  }
+
+  function removeNullAndUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+    const result: Record<string, unknown> = {}
+    for (const key in obj) {
+      const value = obj[key]
+      if (value === null || value === undefined) continue
+      if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+        result[key] = removeNullAndUndefined(value as Record<string, unknown>)
+      }
+      else {
+        result[key] = value
+      }
+    }
+    return result
+  }
+
+  return removeNullAndUndefined(refinedDoc)
 }
