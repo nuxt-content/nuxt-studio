@@ -3,34 +3,7 @@ import { hash } from 'ohash'
 import { minimatch } from 'minimatch'
 import { join, dirname, parse } from 'pathe'
 import { withoutLeadingSlash, withoutTrailingSlash } from 'ufo'
-import { parseSourceBase } from './source'
-
-function joinSourcePath(root: string, path: string) {
-  return withoutLeadingSlash(withoutTrailingSlash(!root || root === '/' ? path : join(root, path)))
-}
-
-function getSourceRoot(source: ResolvedCollectionSource) {
-  const { fixed } = parseSourceBase(source)
-  const normalizedFixed = withoutLeadingSlash(withoutTrailingSlash(fixed))
-  const normalizedCwd = withoutLeadingSlash(withoutTrailingSlash(source.cwd || ''))
-
-  let cwdRoot = ''
-
-  if (normalizedCwd === 'content' || normalizedCwd.endsWith('/content')) {
-    cwdRoot = ''
-  }
-  else if (normalizedCwd.startsWith('content/')) {
-    cwdRoot = normalizedCwd.slice('content/'.length)
-  }
-  else if (normalizedCwd.includes('/content/')) {
-    cwdRoot = normalizedCwd.split('/content/').pop() || ''
-  }
-  else if (normalizedCwd) {
-    cwdRoot = normalizedCwd
-  }
-
-  return joinSourcePath(cwdRoot, normalizedFixed)
-}
+import { getSourceRoot, joinSourcePath } from './source'
 
 /**
  * Generation methods

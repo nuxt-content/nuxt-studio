@@ -11,6 +11,39 @@ export function parseSourceBase(source: CollectionSource) {
   }
 }
 
+export function joinSourcePath(root: string, path: string) {
+  const sourcePath = !root || root === '/' ? path : join(root, path)
+
+  if (!sourcePath || sourcePath === '/') {
+    return ''
+  }
+
+  return withoutLeadingSlash(withoutTrailingSlash(sourcePath))
+}
+
+function getContentRoot(cwd: string) {
+  const normalizedCwd = withoutLeadingSlash(withoutTrailingSlash(cwd))
+
+  if (normalizedCwd === 'content' || normalizedCwd.endsWith('/content')) {
+    return ''
+  }
+
+  if (normalizedCwd.startsWith('content/')) {
+    return normalizedCwd.slice('content/'.length)
+  }
+
+  if (normalizedCwd.includes('/content/')) {
+    return normalizedCwd.split('/content/').pop() || ''
+  }
+
+  return normalizedCwd
+}
+
+export function getSourceRoot(source: ResolvedCollectionSource) {
+  const { fixed } = parseSourceBase(source)
+  return joinSourcePath(getContentRoot(source.cwd || ''), fixed)
+}
+
 /**
  * On Nuxt Content, Id is built like this: {collection.name}/{source.prefix}/{path}
  * But 'source.prefix' can be different from the fixed part of 'source.include'
@@ -31,7 +64,7 @@ export function getCollectionSourceById(id: string, sources: ResolvedCollectionS
     }
 
     let fsPath
-    const [fixPart] = source.include.includes('*') ? source.include.split('*') : ['', source.include]
+    const { fixed: fixPart } = parseSourceBase(source)
     const fixed = withoutTrailingSlash(fixPart || '/')
     if (withoutLeadingSlash(fixed) === withoutLeadingSlash(prefix)) {
       fsPath = prefixAndPath

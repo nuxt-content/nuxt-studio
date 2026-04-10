@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getCollectionSourceById } from '../../src/runtime/utils/source'
+import { getCollectionSourceById, getSourceRoot } from '../../src/runtime/utils/source'
 import { collections } from '../mocks/collection'
 import type { ResolvedCollectionSource } from '@nuxt/content'
 
@@ -116,5 +116,34 @@ describe('getCollectionSourceById', () => {
     const id = 'collectionName/prefix/another_one.md'
     const source = getCollectionSourceById(id, customPrefixSource)
     expect(source).toEqual(customPrefixSource[0])
+  })
+})
+
+describe('getSourceRoot', () => {
+  it('should resolve source root relative to the content directory', () => {
+    const rootSource: ResolvedCollectionSource = {
+      _resolved: true,
+      prefix: '/',
+      include: '*.md',
+      cwd: 'content',
+    }
+
+    const nestedSource: ResolvedCollectionSource = {
+      _resolved: true,
+      prefix: '/guides',
+      include: '**/*.md',
+      cwd: 'content/guides',
+    }
+
+    const absoluteSource: ResolvedCollectionSource = {
+      _resolved: true,
+      prefix: '/docs',
+      include: 'reference/**/*.md',
+      cwd: '/tmp/project/content/docs',
+    }
+
+    expect(getSourceRoot(rootSource)).toBe('')
+    expect(getSourceRoot(nestedSource)).toBe('guides')
+    expect(getSourceRoot(absoluteSource)).toBe('docs/reference')
   })
 })
