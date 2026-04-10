@@ -5,6 +5,7 @@ import { withLeadingSlash } from 'ufo'
 // @ts-expect-error useStorage is not defined in .nuxt/imports.d.ts
 import { useStorage } from '#imports'
 import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../../utils/constants'
+import { parseMediaRequestBody } from '../../../utils/media/request'
 
 
 export default eventHandler(async (event) => {
@@ -49,9 +50,7 @@ export default eventHandler(async (event) => {
     }
     else {
       const value = await readRawBody(event, 'utf8')
-      const json = JSON.parse(value || '{}')
-      const data = json.raw.split(';base64,')[1]
-      await storage.setItemRaw(key, Buffer.from(data, 'base64'))
+      await storage.setItemRaw(key, parseMediaRequestBody(value))
     }
 
     return 'OK'
