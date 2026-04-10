@@ -3,40 +3,9 @@
  * Use with `studio.meta.slashCommand.exclude` in `nuxt.config.ts`.
  *
  * - `style` / `insert` remove the entire section.
- * - Other keys remove a single default command (headings use `heading1` … `heading4`).
+ * - Other keys remove a single default command (headings use `heading1` to `heading4`).
  */
-export type SlashCommandExcludeKey
-  = | 'style'
-    | 'insert'
-    | 'paragraph'
-    | 'heading1'
-    | 'heading2'
-    | 'heading3'
-    | 'heading4'
-    | 'bulletList'
-    | 'orderedList'
-    | 'blockquote'
-    | 'codeBlock'
-    | 'bold'
-    | 'italic'
-    | 'strike'
-    | 'code'
-    | 'image'
-    | 'video'
-    | 'horizontalRule'
-
-/**
- * Configuration for built-in TipTap slash menu defaults (not custom components).
- */
-export interface SlashCommandConfig {
-  /**
-   * Keys to hide from the `/` suggestion menu. Omitted keys remain visible.
-   */
-  exclude?: SlashCommandExcludeKey[]
-}
-
-/** All valid `exclude` keys for runtime validation of server/meta payloads. */
-export const SLASH_COMMAND_EXCLUDE_KEYS: readonly SlashCommandExcludeKey[] = [
+export const SLASH_COMMAND_EXCLUDE_KEYS = [
   'style',
   'insert',
   'paragraph',
@@ -55,14 +24,16 @@ export const SLASH_COMMAND_EXCLUDE_KEYS: readonly SlashCommandExcludeKey[] = [
   'image',
   'video',
   'horizontalRule',
-]
+] as const
 
-const slashExcludeKeySet = new Set<string>(SLASH_COMMAND_EXCLUDE_KEYS)
+export type SlashCommandExcludeKey = typeof SLASH_COMMAND_EXCLUDE_KEYS[number]
 
 /**
- * @param key - Raw string from config or API.
- * @returns Whether `key` is a supported built-in slash exclude entry.
+ * Configuration for built-in TipTap slash menu defaults (not custom components).
  */
-export function isSlashCommandExcludeKey(key: string): key is SlashCommandExcludeKey {
-  return slashExcludeKeySet.has(key)
+export interface SlashCommandConfig {
+  /**
+   * Keys to hide from the `/` suggestion menu. Omitted keys remain visible.
+   */
+  exclude?: SlashCommandExcludeKey[]
 }

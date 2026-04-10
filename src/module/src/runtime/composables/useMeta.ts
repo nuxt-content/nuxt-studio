@@ -1,6 +1,6 @@
 import { createSharedComposable } from '@vueuse/core'
 import type { ComponentMeta, SlashCommandConfig } from 'nuxt-studio/app'
-import { isSlashCommandExcludeKey } from '../../../../app/src/types/slashCommand'
+import { normalizeSlashCommandConfig } from 'nuxt-studio/app/utils'
 import { shallowRef, computed } from 'vue'
 import { kebabCase } from 'scule'
 
@@ -50,9 +50,7 @@ export const useHostMeta = createSharedComposable(() => {
 
     highlightTheme.value = data.highlightTheme
     markdownConfig.value = data.markdownConfig
-    slashCommand.value = {
-      exclude: (data.slashCommand?.exclude ?? []).filter(isSlashCommandExcludeKey),
-    }
+    slashCommand.value = normalizeSlashCommandConfig(data.slashCommand)
     componentGroups.value = data.components.groups ?? []
     ungrouped.value = data.components.ungrouped ?? 'include'
 

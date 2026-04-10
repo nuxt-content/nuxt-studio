@@ -9,9 +9,20 @@ import type { SlashCommandExcludeKey } from '../../types/slashCommand'
 
 import { isEmpty, omit } from '../object'
 
-import { applySlashCommandExclude } from './slashCommandFilter'
-
 type TFunction = (key: string) => string
+type SlashCommandSectionKey = Extract<SlashCommandExcludeKey, 'style' | 'insert'>
+type SlashCommandItemKey = Exclude<SlashCommandExcludeKey, SlashCommandSectionKey>
+
+interface SlashCommandItemDefinition {
+  key: SlashCommandItemKey
+  item: EditorSuggestionMenuItem
+}
+
+interface SlashCommandSectionDefinition {
+  key: SlashCommandSectionKey
+  label: string
+  items: SlashCommandItemDefinition[]
+}
 
 export const getHeadingItems = (t: TFunction) => [
   { kind: 'heading', level: 1, label: t('studio.tiptap.toolbar.h1'), icon: 'i-lucide-heading-1' },
@@ -93,44 +104,68 @@ export const getStandardToolbarItems = (t: TFunction) => [
   ],
 ] satisfies EditorToolbarItem[][]
 
-function buildStyleSuggestionSection(t: TFunction): EditorSuggestionMenuItem[] {
-  return [
-    {
-      type: 'label',
-      label: t('studio.tiptap.suggestion.style'),
-    },
-    {
-      kind: 'paragraph',
-      label: t('studio.tiptap.suggestion.paragraph'),
-      icon: 'i-lucide-type',
-    },
-    ...getHeadingItems(t) as EditorSuggestionMenuItem[],
-    ...getListItems(t) as EditorSuggestionMenuItem[],
-    ...getCodeBlockItem(t) as EditorSuggestionMenuItem[],
-    ...getMarkItems(t) as EditorSuggestionMenuItem[],
-  ]
-}
+function buildStandardSuggestionSections(t: TFunction): SlashCommandSectionDefinition[] {
+  const [heading1, heading2, heading3, heading4] = getHeadingItems(t) as EditorSuggestionMenuItem[]
+  const [bulletList, orderedList] = getListItems(t) as EditorSuggestionMenuItem[]
+  const [blockquote, codeBlock] = getCodeBlockItem(t) as EditorSuggestionMenuItem[]
+  const [bold, italic, strike, code] = getMarkItems(t) as EditorSuggestionMenuItem[]
 
-function buildInsertSuggestionSection(t: TFunction): EditorSuggestionMenuItem[] {
   return [
     {
-      type: 'label',
+      key: 'style',
+      label: t('studio.tiptap.suggestion.style'),
+      items: [
+        {
+          key: 'paragraph',
+          item: {
+            kind: 'paragraph',
+            label: t('studio.tiptap.suggestion.paragraph'),
+            icon: 'i-lucide-type',
+          },
+        },
+        { key: 'heading1', item: heading1! },
+        { key: 'heading2', item: heading2! },
+        { key: 'heading3', item: heading3! },
+        { key: 'heading4', item: heading4! },
+        { key: 'bulletList', item: bulletList! },
+        { key: 'orderedList', item: orderedList! },
+        { key: 'blockquote', item: blockquote! },
+        { key: 'codeBlock', item: codeBlock! },
+        { key: 'bold', item: bold! },
+        { key: 'italic', item: italic! },
+        { key: 'strike', item: strike! },
+        { key: 'code', item: code! },
+      ],
+    },
+    {
+      key: 'insert',
       label: t('studio.tiptap.suggestion.insert'),
-    },
-    {
-      kind: 'image',
-      label: t('studio.tiptap.suggestion.image'),
-      icon: 'i-lucide-image',
-    },
-    {
-      kind: 'video',
-      label: t('studio.tiptap.suggestion.video'),
-      icon: 'i-lucide-video',
-    },
-    {
-      kind: 'horizontalRule',
-      label: t('studio.tiptap.suggestion.horizontalRule'),
-      icon: 'i-lucide-separator-horizontal',
+      items: [
+        {
+          key: 'image',
+          item: {
+            kind: 'image',
+            label: t('studio.tiptap.suggestion.image'),
+            icon: 'i-lucide-image',
+          },
+        },
+        {
+          key: 'video',
+          item: {
+            kind: 'video',
+            label: t('studio.tiptap.suggestion.video'),
+            icon: 'i-lucide-video',
+          },
+        },
+        {
+          key: 'horizontalRule',
+          item: {
+            kind: 'horizontalRule',
+            label: t('studio.tiptap.suggestion.horizontalRule'),
+            icon: 'i-lucide-separator-horizontal',
+          },
+        },
+      ],
     },
   ]
 }
@@ -142,10 +177,29 @@ export function getStandardSuggestionItems(
   t: TFunction,
   exclude?: readonly SlashCommandExcludeKey[],
 ): EditorSuggestionMenuItem[][] {
-  return applySlashCommandExclude(
-    [buildStyleSuggestionSection(t), buildInsertSuggestionSection(t)],
-    exclude,
-  )
+  const hidden = new Set(exclude)
+
+  return buildStandardSuggestionSections(t).flatMap((section) => {
+    if (hidden.has(section.key)) {
+      return []
+    }
+
+    const items = section.items
+      .filter(({ key }) => !hidden.has(key))
+      .map(({ item }) => item)
+
+    if (items.length === 0) {
+      return []
+    }
+
+    return [[
+      {
+        type: 'label',
+        label: section.label,
+      },
+      ...items,
+    ]]
+  })
 }
 
 export const standardNuxtUIComponents: Record<string, { name: string, icon: string }> = {
