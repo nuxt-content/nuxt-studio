@@ -55,11 +55,12 @@ export function useTiptapEditor() {
    * Suggestion menu items
    */
   const suggestionItems = computed(() => {
+    const exclude = host.meta.slashCommand.exclude
     const componentGroups = host.meta.components.getGroups(t('studio.tiptap.editor.components'))
 
     if (componentGroups.length === 0) {
       return [
-        ...getStandardSuggestionItems(t),
+        ...getStandardSuggestionItems(t, exclude),
         [
           {
             type: 'label',
@@ -84,7 +85,7 @@ export function useTiptapEditor() {
     ])
 
     return [
-      ...getStandardSuggestionItems(t),
+      ...getStandardSuggestionItems(t, exclude),
       ...componentGroupItems,
     ] satisfies EditorSuggestionMenuItem[][]
   })

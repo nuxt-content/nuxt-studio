@@ -7,6 +7,7 @@ import type { Repository } from './git'
 import type { ComponentMeta } from './component'
 import type { MarkdownParsingOptions, SyntaxHighlightTheme } from './content'
 import type { CollectionInfo } from '@nuxt/content'
+import type { SlashCommandConfig } from './slashCommand'
 
 export * from './file'
 export * from './item'
@@ -22,6 +23,7 @@ export * from './media'
 export * from './content'
 export * from './form'
 export * from './ai'
+export * from './slashCommand'
 
 export interface StudioHost {
   meta: {
@@ -47,6 +49,7 @@ export interface StudioHost {
       hasNuxtUI: ComputedRef<boolean>
       getGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
     }
+    slashCommand: SlashCommandConfig
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
   }

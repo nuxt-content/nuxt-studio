@@ -5,7 +5,7 @@ import components from '#nuxt-component-meta/nitro'
 import type { ComponentMeta as VueComponentMeta } from 'vue-component-meta'
 // @ts-expect-error import does exist
 import { highlight } from '#mdc-imports'
-import type { ComponentMeta } from 'nuxt-studio/app'
+import type { ComponentMeta, SlashCommandConfig } from 'nuxt-studio/app'
 import { filterComponents } from '../utils/meta'
 import { requireStudioAuth } from '../utils/auth'
 
@@ -45,6 +45,7 @@ export default eventHandler(async (event) => {
   const response: {
     markdownConfig: object
     highlightTheme: object
+    slashCommand: SlashCommandConfig
     components: {
       list: ComponentMeta[]
       groups?: Array<{ label: string, include: string[] }>
@@ -53,6 +54,9 @@ export default eventHandler(async (event) => {
   } = {
     markdownConfig: config.studio.markdown || {},
     highlightTheme: highlight?.theme || { default: 'github-light', dark: 'github-dark', light: 'github-light' },
+    slashCommand: {
+      exclude: config.studio?.meta?.slashCommand?.exclude ?? [],
+    },
     components: {
       list: filteredComponents,
     },

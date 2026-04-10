@@ -101,6 +101,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           )
         },
       },
+      get slashCommand() {
+        return meta.slashCommand.value
+      },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
     },

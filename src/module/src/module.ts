@@ -8,10 +8,21 @@ import { setupDevMode } from './dev'
 import { validateAuthConfig } from './auth'
 import { setExternalMediaStorage, setDefaultMediaStorage } from './medias'
 import { setAIFeature } from './ai'
+import type { SlashCommandConfig } from '../../app/src/types/slashCommand'
 
 const logger = useLogger('nuxt-studio')
 
 interface MetaOptions {
+  /**
+   * Built-in TipTap slash menu (`/`) defaults: Style and Insert sections.
+   * Does not affect custom components; use `components` for those.
+   *
+   * @example Hide all built-in blocks and keep only custom components in `/`
+   * ```ts
+   * meta: { slashCommand: { exclude: ['style', 'insert'] } }
+   * ```
+   */
+  slashCommand?: SlashCommandConfig
   /**
    * Component filtering options.
    */
@@ -407,6 +418,9 @@ export default defineNuxtModule<ModuleOptions>({
       },
     },
     meta: {
+      slashCommand: {
+        exclude: [],
+      },
       components: {
         include: [],
         exclude: [],

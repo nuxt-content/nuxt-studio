@@ -1,5 +1,6 @@
 import { createSharedComposable } from '@vueuse/core'
-import type { ComponentMeta } from 'nuxt-studio/app'
+import type { ComponentMeta, SlashCommandConfig } from 'nuxt-studio/app'
+import { isSlashCommandExcludeKey } from '../../../../app/src/types/slashCommand'
 import { shallowRef, computed } from 'vue'
 import { kebabCase } from 'scule'
 
@@ -9,6 +10,7 @@ interface ComponentGroupConfig {
 }
 
 interface Meta {
+  slashCommand: SlashCommandConfig
   components: {
     list: ComponentMeta[]
     groups?: ComponentGroupConfig[]
@@ -21,6 +23,7 @@ interface Meta {
 }
 
 const defaultMeta: Meta = {
+  slashCommand: { exclude: [] },
   components: {
     list: [],
     groups: [],
@@ -34,6 +37,7 @@ export const useHostMeta = createSharedComposable(() => {
   const components = shallowRef<ComponentMeta[]>([])
   const highlightTheme = shallowRef<Meta['highlightTheme']>()
   const markdownConfig = shallowRef<Meta['markdownConfig']>()
+  const slashCommand = shallowRef<SlashCommandConfig>({ exclude: [] })
   const hasNuxtUI = computed(() => components.value.some(c => c.nuxtUI))
   const componentGroups = shallowRef<ComponentGroupConfig[]>([])
   const ungrouped = shallowRef<'include' | 'omit'>('include')
@@ -46,6 +50,9 @@ export const useHostMeta = createSharedComposable(() => {
 
     highlightTheme.value = data.highlightTheme
     markdownConfig.value = data.markdownConfig
+    slashCommand.value = {
+      exclude: (data.slashCommand?.exclude ?? []).filter(isSlashCommandExcludeKey),
+    }
     componentGroups.value = data.components.groups ?? []
     ungrouped.value = data.components.ungrouped ?? 'include'
 
@@ -132,6 +139,7 @@ export const useHostMeta = createSharedComposable(() => {
 
   return {
     fetch,
+    slashCommand,
     components: {
       list: components,
       hasNuxtUI,

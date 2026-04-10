@@ -5,7 +5,11 @@ import type { Editor, JSONContent } from '@tiptap/vue-3'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import { upperFirst } from 'scule'
 
+import type { SlashCommandExcludeKey } from '../../types/slashCommand'
+
 import { isEmpty, omit } from '../object'
+
+import { applySlashCommandExclude } from './slashCommandFilter'
 
 type TFunction = (key: string) => string
 
@@ -89,12 +93,13 @@ export const getStandardToolbarItems = (t: TFunction) => [
   ],
 ] satisfies EditorToolbarItem[][]
 
-export const getStandardSuggestionItems = (t: TFunction): EditorSuggestionMenuItem[][] => [
-  [
+function buildStyleSuggestionSection(t: TFunction): EditorSuggestionMenuItem[] {
+  return [
     {
       type: 'label',
       label: t('studio.tiptap.suggestion.style'),
-    }, {
+    },
+    {
       kind: 'paragraph',
       label: t('studio.tiptap.suggestion.paragraph'),
       icon: 'i-lucide-type',
@@ -103,17 +108,16 @@ export const getStandardSuggestionItems = (t: TFunction): EditorSuggestionMenuIt
     ...getListItems(t) as EditorSuggestionMenuItem[],
     ...getCodeBlockItem(t) as EditorSuggestionMenuItem[],
     ...getMarkItems(t) as EditorSuggestionMenuItem[],
-  ],
-  [
+  ]
+}
+
+function buildInsertSuggestionSection(t: TFunction): EditorSuggestionMenuItem[] {
+  return [
     {
       type: 'label',
       label: t('studio.tiptap.suggestion.insert'),
     },
     {
-    //   kind: 'emoji',
-    //   label: 'Emoji',
-    //   icon: 'i-lucide-smile-plus',
-    // }, {
       kind: 'image',
       label: t('studio.tiptap.suggestion.image'),
       icon: 'i-lucide-image',
@@ -128,8 +132,21 @@ export const getStandardSuggestionItems = (t: TFunction): EditorSuggestionMenuIt
       label: t('studio.tiptap.suggestion.horizontalRule'),
       icon: 'i-lucide-separator-horizontal',
     },
-  ],
-]
+  ]
+}
+
+/**
+ * Built-in `/` suggestion sections (Style, Insert), optionally filtered by `studio.meta.slashCommand.exclude`.
+ */
+export function getStandardSuggestionItems(
+  t: TFunction,
+  exclude?: readonly SlashCommandExcludeKey[],
+): EditorSuggestionMenuItem[][] {
+  return applySlashCommandExclude(
+    [buildStyleSuggestionSection(t), buildInsertSuggestionSection(t)],
+    exclude,
+  )
+}
 
 export const standardNuxtUIComponents: Record<string, { name: string, icon: string }> = {
   'icon-menu-toggle': { name: 'Icon Menu Toggle', icon: 'i-lucide-menu' },
