@@ -5,6 +5,33 @@ import { join, dirname, parse } from 'pathe'
 import { withoutLeadingSlash, withoutTrailingSlash } from 'ufo'
 import { parseSourceBase } from './source'
 
+function joinSourcePath(root: string, path: string) {
+  return withoutLeadingSlash(withoutTrailingSlash(!root || root === '/' ? path : join(root, path)))
+}
+
+function getSourceRoot(source: ResolvedCollectionSource) {
+  const { fixed } = parseSourceBase(source)
+  const normalizedFixed = withoutLeadingSlash(withoutTrailingSlash(fixed))
+  const normalizedCwd = withoutLeadingSlash(withoutTrailingSlash(source.cwd || ''))
+
+  let cwdRoot = ''
+
+  if (normalizedCwd === 'content' || normalizedCwd.endsWith('/content')) {
+    cwdRoot = ''
+  }
+  else if (normalizedCwd.startsWith('content/')) {
+    cwdRoot = normalizedCwd.slice('content/'.length)
+  }
+  else if (normalizedCwd.includes('/content/')) {
+    cwdRoot = normalizedCwd.split('/content/').pop() || ''
+  }
+  else if (normalizedCwd) {
+    cwdRoot = normalizedCwd
+  }
+
+  return joinSourcePath(cwdRoot, normalizedFixed)
+}
+
 /**
  * Generation methods
  */
@@ -13,19 +40,21 @@ export function generateStemFromFsPath(path: string) {
 }
 
 export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
-  const { fixed } = parseSourceBase(collectionInfo.source[0]!)
+  const source = collectionInfo.source[0]!
+  const sourceRoot = getSourceRoot(source)
+  const normalizedPath = withoutLeadingSlash(path)
 
-  const pathWithoutFixed = path.substring(fixed.length)
+  const pathWithoutFixed = sourceRoot && normalizedPath.startsWith(sourceRoot + '/')
+    ? normalizedPath.substring(sourceRoot.length + 1)
+    : normalizedPath
 
-  return join(collectionInfo.name, collectionInfo.source[0]?.prefix || '', pathWithoutFixed)
+  return join(collectionInfo.name, source.prefix || '', pathWithoutFixed)
 }
 
 export function generateFsPathFromId(id: string, source: ResolvedCollectionSource) {
   const [_, ...rest] = id.split(/[/:]/)
   let path = rest.join('/')
-
-  const { fixed } = parseSourceBase(source)
-  const normalizedFixed = withoutTrailingSlash(fixed)
+  const sourceRoot = getSourceRoot(source)
 
   // If source has a prefix and the path starts with the prefix, remove the prefix
   const prefix = withoutTrailingSlash(withoutLeadingSlash(source.prefix || ''))
@@ -33,13 +62,7 @@ export function generateFsPathFromId(id: string, source: ResolvedCollectionSourc
     path = path.substring(prefix.length + 1)
   }
 
-  // If path already starts with the fixed part, return as is
-  if (normalizedFixed && path.startsWith(normalizedFixed)) {
-    return path
-  }
-
-  // Otherwise, join fixed part with path
-  return join(fixed, path)
+  return joinSourcePath(sourceRoot, path)
 }
 
 /**
@@ -70,8 +93,9 @@ export function getCollectionByFilePath(path: string, collections: Record<string
     const paths = path === '/' ? ['index.yml', 'index.yaml', 'index.md', 'index.json'] : [path]
     return paths.some((p) => {
       matchedSource = collection.source.find((source) => {
-        const include = minimatch(p, source.include, { dot: true })
-        const exclude = source.exclude?.some(exclude => minimatch(p, exclude))
+        const sourceRoot = getSourceRoot(source)
+        const include = minimatch(p, joinSourcePath(sourceRoot, source.include), { dot: true })
+        const exclude = source.exclude?.some(exclude => minimatch(p, joinSourcePath(sourceRoot, exclude)))
 
         return include && !exclude
       })

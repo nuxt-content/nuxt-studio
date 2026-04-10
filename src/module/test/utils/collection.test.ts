@@ -53,6 +53,61 @@ describe('getCollectionByFilePath', () => {
     const result = generateFsPathFromId(id, source)
     expect(result).toBe('fs-prefix/hello.md')
   })
+
+  it('should keep root and prefixed collection indexes distinct', () => {
+    const marketing: CollectionInfo = {
+      name: 'marketing',
+      pascalName: 'Marketing',
+      tableName: '_content_marketing',
+      source: [
+        {
+          _resolved: true,
+          include: '*.md',
+          prefix: '/',
+          cwd: 'content',
+        },
+      ],
+      type: 'page',
+      fields: {},
+      schema: {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        $ref: '#/definitions/marketing',
+        definitions: {},
+      },
+      tableDefinition: '',
+    }
+
+    const guides: CollectionInfo = {
+      name: 'guides',
+      pascalName: 'Guides',
+      tableName: '_content_guides',
+      source: [
+        {
+          _resolved: true,
+          include: '**/*.md',
+          prefix: '/guides',
+          cwd: 'content/guides',
+        },
+      ],
+      type: 'page',
+      fields: {},
+      schema: {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        $ref: '#/definitions/guides',
+        definitions: {},
+      },
+      tableDefinition: '',
+    }
+
+    const collections = { marketing, guides }
+
+    expect(generateIdFromFsPath('index.md', marketing)).toBe('marketing/index.md')
+    expect(generateIdFromFsPath('guides/index.md', guides)).toBe('guides/guides/index.md')
+    expect(generateFsPathFromId('marketing/index.md', marketing.source[0]!)).toBe('index.md')
+    expect(generateFsPathFromId('guides/guides/index.md', guides.source[0]!)).toBe('guides/index.md')
+    expect(getCollectionByFilePath('index.md', collections)?.name).toBe('marketing')
+    expect(getCollectionByFilePath('guides/index.md', collections)?.name).toBe('guides')
+  })
 })
 
 describe('generateFsPathFromId', () => {
