@@ -972,6 +972,136 @@ My button
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
+
+  test('block element with inline class attributes and default content', async () => {
+    const inputContent = `::u-button{.any-class}
+My button
+::`
+
+    const expectedComarkNodes = [
+      ['u-button', { class: 'any-class' }, 'My button'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'u-button',
+            props: { class: 'any-class', __tiptapWrap: true },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default', props: { name: 'default' } },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'My button' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with inline class attributes and multiple sloted content', async () => {
+    const inputContent = `::u-button{.any-class}
+My button
+
+#icon
+My icon
+::`
+
+    const expectedComarkNodes = [
+      ['u-button', { class: 'any-class' },
+        ['p', {}, 'My button'],
+        ['template', { name: 'icon' }, 'My icon'],
+      ],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'u-button',
+            props: { class: 'any-class' },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default', props: { name: 'default' } },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'My button' }],
+                },
+              ],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'icon', props: { name: 'icon' } },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'My icon' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
 })
 
 describe('callout', () => {

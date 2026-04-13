@@ -500,15 +500,12 @@ function unwrapParagraph(content: JSONContent[]): JSONContent[] {
 function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
   // Only unwrap synthetic default slots (auto-created by wrapChildrenWithinSlot in comarkToTiptap).
   // Explicit #default named slots (user-authored) must be preserved.
-  if (
-    content.length === 1
-    && content[0]?.type === 'slot'
-    && content[0].attrs?.name === 'default'
-    && content[0].attrs?.__tiptapSynthetic
-  ) {
-    return content[0].content || []
-  }
-  return content
+  const idx = content.findIndex(
+    n => n?.type === 'slot' && n.attrs?.name === 'default' && n.attrs?.__tiptapSynthetic,
+  )
+  if (idx === -1) return content
+  const slotChildren = content[idx].content || []
+  return [...content.slice(0, idx), ...slotChildren, ...content.slice(idx + 1)]
 }
 
 /**
