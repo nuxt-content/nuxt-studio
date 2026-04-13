@@ -30,8 +30,8 @@ importers:
         specifier: ^6.0.149
         version: 6.0.149(zod@4.3.6)
       comark:
-        specifier: https://pkg.pr.new/comarkdown/comark@4840d77
-        version: https://pkg.pr.new/comarkdown/comark@4840d77(@types/markdown-it@14.1.2)(markdown-it@14.1.1)(shiki@4.0.2)
+        specifier: https://pkg.pr.new/comarkdown/comark@76bb4a4
+        version: https://pkg.pr.new/comarkdown/comark@76bb4a4(@types/markdown-it@14.1.2)(markdown-it@14.1.1)(shiki@4.0.2)
       defu:
         specifier: ^6.1.7
         version: 6.1.7
@@ -4531,8 +4531,8 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@https://pkg.pr.new/comarkdown/comark@4840d77:
-    resolution: {integrity: sha512-wGC3HzXjbnmhvOckHk/7spyVSK1YgEoB5n919XgZCg2TdmQ1CYDuvGdR9nZQiQRcUgY7y3NI6dyfFrgi0zHM2g==, tarball: https://pkg.pr.new/comarkdown/comark@4840d77}
+  comark@https://pkg.pr.new/comarkdown/comark@76bb4a4:
+    resolution: {integrity: sha512-42mlNQqjPBOOveptagpmtxCOvz3TgFpxyRE5gVXxjznxiaQcGZcKMaqFY0N9vP0gQrnbjHWKuPe29sKwZ8vcBw==, tarball: https://pkg.pr.new/comarkdown/comark@76bb4a4}
     version: 0.2.1
     peerDependencies:
       beautiful-mermaid: ^1.1.3
@@ -13534,7 +13534,7 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@https://pkg.pr.new/comarkdown/comark@4840d77(@types/markdown-it@14.1.2)(markdown-it@14.1.1)(shiki@4.0.2):
+  comark@https://pkg.pr.new/comarkdown/comark@76bb4a4(@types/markdown-it@14.1.2)(markdown-it@14.1.1)(shiki@4.0.2):
     dependencies:
       '@comark/markdown-it': 0.3.3(@types/markdown-it@14.1.2)(markdown-it@14.1.1)
       entities: 8.0.0
