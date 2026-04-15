@@ -103,6 +103,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
+      iconLibraries: studioConfig.iconLibraries,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {

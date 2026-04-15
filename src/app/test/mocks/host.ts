@@ -114,6 +114,7 @@ export const createMockHost = (): StudioHost => ({
   meta: {
     dev: false,
     components: vi.fn().mockReturnValue([]),
+    iconLibraries: undefined,
   },
   on: {
     routeChange: vi.fn(),
