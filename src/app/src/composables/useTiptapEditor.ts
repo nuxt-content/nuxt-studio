@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { titleCase } from 'scule'
 import type { EditorCustomHandlers } from '@nuxt/ui'
+import type { EditorToolbarItem } from '@nuxt/ui/runtime/components/EditorToolbar.vue.d.ts'
 import type { EditorSuggestionMenuItem } from '@nuxt/ui/runtime/components/EditorSuggestionMenu.vue.d.ts'
 import type { EditorEmojiMenuItem } from '@nuxt/ui/runtime/components/EditorEmojiMenu.vue.d.ts'
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
@@ -14,6 +15,17 @@ import {
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
 import { imageHandler, videoHandler, calloutHandler, componentHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
+
+function withoutAITransformToolbarSlot(rows: EditorToolbarItem[][]): EditorToolbarItem[][] {
+  return rows.map(row =>
+    row.filter((item) => {
+      if (!('kind' in item) || item.kind !== 'slot') {
+        return true
+      }
+      return item.slot !== 'ai-transform'
+    }),
+  )
+}
 
 /**
  * Composable for managing TipTap editor UI and configuration
@@ -90,9 +102,15 @@ export function useTiptapEditor() {
   })
 
   /**
-   * Toolbar items for bubble menu
+   * Toolbar items for bubble menu (omit refine-with-AI when Studio AI is not configured)
    */
-  const toolbarItems = computed(() => getStandardToolbarItems(t))
+  const toolbarItems = computed(() => {
+    const standard = getStandardToolbarItems(t)
+    if (host.meta.ai.enabled) {
+      return standard
+    }
+    return withoutAITransformToolbarSlot(standard)
+  })
 
   /**
    * Emoji items for emoji picker
