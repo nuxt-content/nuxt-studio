@@ -13,6 +13,38 @@ const props = defineProps({
 
 const model = defineModel<string>({ default: '' })
 
+/**
+ * Nuxt UI passes icon names to `@iconify/vue` after stripping a leading `i-`.
+ * Hyphenated collections (like `material-symbols`) must keep the Iconify `collection:name`
+ * separator as `:` using only hyphens breaks parsing (e.g. `material-symbols-blender-sharp`
+ * is read as prefix `material`).
+ */
+const HYPHENATED_COLLECTION_PREFIXES = ['material-symbols-light', 'material-symbols', 'simple-icons'] as const
+
+function normalizeIconName(stored: string): string {
+  if (!stored.startsWith('i-')) {
+    return stored
+  }
+
+  const body = stored.slice(2)
+
+  if (body.includes(':')) {
+    return stored
+  }
+
+  for (const prefix of HYPHENATED_COLLECTION_PREFIXES) {
+    const lead = `${prefix}-`
+
+    if (body.startsWith(lead) && body.length > lead.length) {
+      return `i-${prefix}:${body.slice(lead.length)}`
+    }
+  }
+
+  return stored
+}
+
+const resolvedIconName = computed(() => normalizeIconName(model.value))
+
 const search = ref('')
 const icons = ref<string[]>([])
 const isLoading = ref(false)
@@ -54,7 +86,7 @@ watch(search, (value) => {
 })
 
 function selectIcon(icon: string) {
-  model.value = `i-${icon.replace(':', '-')}`
+  model.value = `i-${icon}`
   popoverOpen.value = false
   search.value = ''
   icons.value = []
@@ -66,7 +98,7 @@ function selectIcon(icon: string) {
     <div class="flex items-center justify-center size-6 bg-muted border border-muted rounded shrink-0">
       <UIcon
         v-if="model"
-        :name="model"
+        :name="resolvedIconName"
         size="xs"
       />
       <UIcon
@@ -132,7 +164,7 @@ function selectIcon(icon: string) {
                     size="xs"
                     color="neutral"
                     variant="soft"
-                    :icon="`i-${icon.replace(':', '-')}`"
+                    :icon="`i-${icon}`"
                     class="flex items-center justify-center"
                     @click="selectIcon(icon)"
                   />
