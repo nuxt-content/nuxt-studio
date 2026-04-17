@@ -56,6 +56,11 @@ describe('getCollectionByFilePath', () => {
 })
 
 describe('generateFsPathFromId', () => {
+  it('should return path unchanged when source is undefined', () => {
+    const result = generateFsPathFromId('info/anything.md', undefined)
+    expect(result).toBe('anything.md')
+  })
+
   it('One file included', () => {
     const id = 'landing/index.md'
     const source = {
@@ -106,6 +111,16 @@ describe('generateFsPathFromId', () => {
 })
 
 describe('generateIdFromFsPath', () => {
+  it('should fall back to `{collectionName}/{path}` when collection has no source', () => {
+    const sourceLessCollection = {
+      name: 'info',
+      source: [],
+    } as unknown as CollectionInfo
+
+    const result = generateIdFromFsPath('anything.md', sourceLessCollection)
+    expect(result).toBe('info/anything.md')
+  })
+
   it('should generate id for single file with no prefix', () => {
     const path = 'index.md'
     const result = generateIdFromFsPath(path, collections.landing!)

@@ -1,9 +1,30 @@
 import { describe, it, expect } from 'vitest'
-import { getCollectionSourceById } from '../../src/runtime/utils/source'
+import { getCollectionSourceById, parseSourceBase } from '../../src/runtime/utils/source'
 import { collections } from '../mocks/collection'
-import type { ResolvedCollectionSource } from '@nuxt/content'
+import type { CollectionSource, ResolvedCollectionSource } from '@nuxt/content'
+
+describe('parseSourceBase', () => {
+  it('should return empty fixed/dynamic when source is undefined', () => {
+    expect(parseSourceBase(undefined)).toEqual({ fixed: '', dynamic: '' })
+  })
+
+  it('should return empty fixed/dynamic when source has no include', () => {
+    expect(parseSourceBase({} as CollectionSource)).toEqual({ fixed: '', dynamic: '' })
+  })
+})
 
 describe('getCollectionSourceById', () => {
+  it('should skip sources without include (e.g. from @nuxt/content internal `info` collection)', () => {
+    const brokenSources = [
+      undefined,
+      {} as ResolvedCollectionSource,
+    ] as unknown as ResolvedCollectionSource[]
+
+    const source = getCollectionSourceById('info/anything.md', brokenSources)
+
+    expect(source).toBeUndefined()
+  })
+
   it('should return matching source for root docs collection', () => {
     const id = 'collectionName/1.getting-started/2.introduction.md'
     const source = getCollectionSourceById(id, collections.docs!.source)

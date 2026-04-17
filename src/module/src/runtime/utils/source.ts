@@ -3,7 +3,10 @@ import { withLeadingSlash, withoutLeadingSlash, withoutTrailingSlash } from 'ufo
 import { join } from 'pathe'
 import { minimatch } from 'minimatch'
 
-export function parseSourceBase(source: CollectionSource) {
+export function parseSourceBase(source: CollectionSource | undefined) {
+  if (!source?.include) {
+    return { fixed: '', dynamic: '' }
+  }
   const [fixPart, ...rest] = source.include.includes('*') ? source.include.split('*') : ['', source.include]
   return {
     fixed: fixPart || '',
@@ -21,6 +24,9 @@ export function getCollectionSourceById(id: string, sources: ResolvedCollectionS
   const prefixAndPath = rest.join('/')
 
   const matchedSource = sources.find((source) => {
+    if (!source?.include) {
+      return false
+    }
     const prefix = source.prefix
     if (typeof prefix !== 'string') {
       return false

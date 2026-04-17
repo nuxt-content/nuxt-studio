@@ -13,6 +13,11 @@ export function generateStemFromFsPath(path: string) {
 }
 
 export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
+  // Guard against collections without a source (e.g. the internal `info`
+  // collection from @nuxt/content, which serializes `source` as an empty array).
+  if (!collectionInfo.source?.length) {
+    return join(collectionInfo.name, path)
+  }
   const { fixed } = parseSourceBase(collectionInfo.source[0]!)
 
   const pathWithoutFixed = path.substring(fixed.length)
@@ -20,9 +25,13 @@ export function generateIdFromFsPath(path: string, collectionInfo: CollectionInf
   return join(collectionInfo.name, collectionInfo.source[0]?.prefix || '', pathWithoutFixed)
 }
 
-export function generateFsPathFromId(id: string, source: ResolvedCollectionSource) {
+export function generateFsPathFromId(id: string, source: ResolvedCollectionSource | undefined) {
   const [_, ...rest] = id.split(/[/:]/)
   let path = rest.join('/')
+
+  if (!source?.include) {
+    return path
+  }
 
   const { fixed } = parseSourceBase(source)
   const normalizedFixed = withoutTrailingSlash(fixed)
