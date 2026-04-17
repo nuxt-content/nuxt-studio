@@ -150,7 +150,10 @@ function updateComponentProps(props: Record<string, unknown>) {
             />
           </UTooltip>
 
-          <UPopover v-model:open="openPropsPopover">
+          <TiptapComponentPropsSlideover
+            v-model:open="openPropsPopover"
+            :title="`${displayName} properties`"
+          >
             <UTooltip
               :text="$t('studio.tiptap.element.editProps')"
               :disabled="openPropsPopover"
@@ -166,13 +169,14 @@ function updateComponentProps(props: Record<string, unknown>) {
               />
             </UTooltip>
 
-            <template #content>
+            <template #body>
               <TiptapComponentProps
+                hide-title
                 :node="node"
                 :update-props="updateComponentProps"
               />
             </template>
-          </UPopover>
+          </TiptapComponentPropsSlideover>
 
           <UTooltip :text="$t('studio.tiptap.element.delete')">
             <UButton

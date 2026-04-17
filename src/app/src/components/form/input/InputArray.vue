@@ -9,9 +9,9 @@ const props = defineProps({
     type: Object as PropType<FormItem>,
     default: () => ({}),
   },
-  level: {
+  depth: {
     type: Number,
-    default: 1,
+    default: 0,
   },
 })
 
@@ -49,9 +49,6 @@ function getItemLabel(item: unknown, index: number) {
 
   return `${itemsLabel.value} ${index + 1}`
 }
-
-// Increment level for nested items
-const childLevel = computed(() => props.level + 1)
 
 function addItem() {
   const newItem = itemsType.value === 'object' ? {} : ''
@@ -161,7 +158,7 @@ function moveItem(index: number, offset: number) {
           <InputWrapper
             :model-value="item.value"
             :form-item="formItem"
-            :level="childLevel"
+            :depth="depth + 1"
             @update:model-value="updateItem(item.index, $event)"
           />
         </Collapsible>

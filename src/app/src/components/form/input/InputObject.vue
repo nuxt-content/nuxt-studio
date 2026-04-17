@@ -13,9 +13,9 @@ const props = defineProps({
     type: Object as PropType<FormTree>,
     default: null,
   },
-  level: {
+  depth: {
     type: Number,
-    default: 1,
+    default: 0,
   },
 })
 
@@ -24,28 +24,80 @@ const model = defineModel({
   default: (): Record<string, unknown> => ({}),
 })
 
-// Increment level for nested items
-const childLevel = computed(() => props.level + 1)
+/**
+ * FormTree keys use `:prop` for non-string props; parsed MDC / JSON values usually use plain `prop`.
+ */
+function collectKeyAliases(treeKey: string, child: FormItem): string[] {
+  const fromChild = child.key ?? treeKey
+  const variants = new Set<string>()
+  for (const k of [treeKey, fromChild]) {
+    if (!k) {
+      continue
+    }
+    variants.add(k)
+    if (k.startsWith(':')) {
+      variants.add(k.slice(1))
+    }
+    else {
+      variants.add(`:${k}`)
+    }
+  }
+  return [...variants]
+}
+
+function readChildValue(
+  model: Record<string, unknown> | undefined,
+  treeKey: string,
+  child: FormItem,
+): unknown {
+  if (!model) {
+    return child.default ?? getDefault(child.type)
+  }
+  for (const alias of collectKeyAliases(treeKey, child)) {
+    if (alias in model) {
+      return model[alias]
+    }
+  }
+  return child.default ?? getDefault(child.type)
+}
+
+function pickStorageKey(treeKey: string, child: FormItem, current: Record<string, unknown>): string {
+  for (const alias of collectKeyAliases(treeKey, child)) {
+    if (alias in current) {
+      return alias
+    }
+  }
+  const raw = child.key ?? treeKey
+  return raw.startsWith(':') ? raw.slice(1) : raw
+}
 
 const entries = computed(() => {
   if (!props.children) return []
 
   return Object.entries(props.children)
     .filter(([_, child]) => !child.hidden)
-    .map(([key, child]) => {
-      const value = model.value?.[key] ?? child.default ?? getDefault(child.type)
+    .map(([treeKey, child]) => {
+      const value = readChildValue(model.value, treeKey, child)
 
       return {
-        key,
-        label: titleCase(child.title || key),
+        key: treeKey,
+        label: titleCase(child.title || treeKey),
         value,
         formItem: child,
       }
     })
 })
 
-function updateValue(key: string, value: unknown) {
-  model.value = { ...model.value, [key]: value }
+function updateValue(treeKey: string, child: FormItem, value: unknown) {
+  const next = { ...model.value }
+  const storageKey = pickStorageKey(treeKey, child, next)
+  for (const alias of collectKeyAliases(treeKey, child)) {
+    if (alias !== storageKey && alias in next) {
+      Reflect.deleteProperty(next, alias)
+    }
+  }
+  next[storageKey] = value
+  model.value = next
 }
 
 function getDefault(type: string) {
@@ -65,7 +117,10 @@ function getDefault(type: string) {
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div
+    class="space-y-2"
+    :class="depth > 1 ? 'border-l border-muted pl-3' : ''"
+  >
     <template v-if="entries.length">
       <UFormField
         v-for="entry in entries"
@@ -79,8 +134,8 @@ function getDefault(type: string) {
         <InputWrapper
           :model-value="entry.value"
           :form-item="entry.formItem"
-          :level="childLevel"
-          @update:model-value="updateValue(entry.key, $event)"
+          :depth="depth + 1"
+          @update:model-value="updateValue(entry.key, entry.formItem, $event)"
         />
       </UFormField>
     </template>

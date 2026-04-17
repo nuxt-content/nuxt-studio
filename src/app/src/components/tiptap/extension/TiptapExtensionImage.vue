@@ -4,6 +4,7 @@ import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { useI18n } from 'vue-i18n'
 import type { ComponentMeta } from '../../../types'
 import TiptapComponentProps from '../TiptapComponentProps.vue'
+import TiptapComponentPropsSlideover from '../TiptapComponentPropsSlideover.vue'
 import { sanitizeMediaUrl } from '../../../utils/tiptap/props'
 
 const nodeProps = defineProps(nodeViewProps)
@@ -158,7 +159,10 @@ onMounted(() => {
         class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
         :class="{ 'opacity-100': isPopoverOpen || isSelected }"
       >
-        <UPopover v-model:open="isPopoverOpen">
+        <TiptapComponentPropsSlideover
+          v-model:open="isPopoverOpen"
+          :title="t('studio.tiptap.image.edit')"
+        >
           <UTooltip
             :text="t('studio.tiptap.image.edit') || 'Edit image'"
             :disabled="isPopoverOpen"
@@ -174,14 +178,15 @@ onMounted(() => {
             />
           </UTooltip>
 
-          <template #content>
+          <template #body>
             <TiptapComponentProps
+              hide-title
               :node="nodeProps.node"
               :update-props="updateImageAttributes"
               :override-meta="imageMeta"
             />
           </template>
-        </UPopover>
+        </TiptapComponentPropsSlideover>
 
         <UTooltip :text="t('studio.tiptap.image.delete')">
           <UButton

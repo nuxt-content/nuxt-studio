@@ -180,7 +180,7 @@ function normalizePropsTree(tree: FormTree): FormTree {
 
 <template>
   <div
-    class="p-3 min-w-[400px] max-w-[500px] not-prose overflow-y-auto max-h-[400px] relative"
+    class="p-3 w-full min-w-0 not-prose overflow-y-auto relative flex-1"
     @click.stop
   >
     <!-- Header -->

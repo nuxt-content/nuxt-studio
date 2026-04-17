@@ -7,6 +7,7 @@ import { useStudio } from '../../../composables/useStudio'
 import { isEmpty } from '../../../utils/object'
 import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
 import TiptapComponentProps from '../TiptapComponentProps.vue'
+import TiptapComponentPropsSlideover from '../TiptapComponentPropsSlideover.vue'
 
 const nodeProps = defineProps(nodeViewProps)
 
@@ -94,13 +95,13 @@ function handleKeyDown(event: KeyboardEvent) {
       />
     </div>
 
-    <UPopover
-      v-model:open="isPopoverOpen"
-      :ui="{ content: 'p-0' }"
-    >
-      <span />
-      <template #content>
-        <div class="flex flex-col min-w-80">
+    <TiptapComponentPropsSlideover v-model:open="isPopoverOpen">
+      <span
+        class="hidden"
+        aria-hidden="true"
+      />
+      <template #body>
+        <div class="flex flex-col min-h-0 w-full">
           <!-- Header with tabs -->
           <div class="flex items-center justify-between border-b border-default px-2 py-1.5">
             <div class="flex items-center gap-2">
@@ -157,7 +158,7 @@ function handleKeyDown(event: KeyboardEvent) {
           <!-- Edit Content -->
           <div
             v-if="activeTab === 'content' && hasDefaultSlot"
-            class="p-0.5 min-w-[400px] max-w-[500px]"
+            class="p-0.5 w-full min-w-0"
           >
             <UInput
               v-model="contentValue"
@@ -186,7 +187,7 @@ function handleKeyDown(event: KeyboardEvent) {
           <!-- Edit props -->
           <div
             v-else-if="activeTab === 'props'"
-            class="max-h-96 overflow-y-auto"
+            class="min-h-0 flex-1 overflow-y-auto"
           >
             <TiptapComponentProps
               :node="nodeProps.node"
@@ -196,6 +197,6 @@ function handleKeyDown(event: KeyboardEvent) {
           </div>
         </div>
       </template>
-    </UPopover>
+    </TiptapComponentPropsSlideover>
   </NodeViewWrapper>
 </template>

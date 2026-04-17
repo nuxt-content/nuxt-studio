@@ -71,7 +71,6 @@ function computeValue(formItem: FormItem): unknown {
     <InputWrapper
       v-model="model"
       :form-item="formItem"
-      :level="1"
     />
   </UFormField>
 </template>

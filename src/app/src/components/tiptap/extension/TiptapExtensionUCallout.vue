@@ -125,6 +125,11 @@ const config = computed(() => {
   return base
 })
 const icon = computed(() => (componentProps.value.icon as string) || config.value.icon)
+
+const propsSlideoverTitle = computed(() => {
+  const label = CALLOUT_CONFIG[tag.value]?.label ?? 'Callout'
+  return `${label} properties`
+})
 const to = computed(() => componentProps.value.to as string | undefined)
 const isExternalTo = computed(() => !!to.value && to.value.startsWith('http'))
 
@@ -167,7 +172,10 @@ function onDelete(event: Event) {
           />
         </UTooltip>
 
-        <UPopover v-model:open="openPropsPopover">
+        <TiptapComponentPropsSlideover
+          v-model:open="openPropsPopover"
+          :title="propsSlideoverTitle"
+        >
           <UTooltip
             :text="$t('studio.tiptap.element.editProps')"
             :disabled="openPropsPopover"
@@ -183,13 +191,14 @@ function onDelete(event: Event) {
             />
           </UTooltip>
 
-          <template #content>
+          <template #body>
             <TiptapComponentProps
+              hide-title
               :node="node"
               :update-props="updateComponentProps"
             />
           </template>
-        </UPopover>
+        </TiptapComponentPropsSlideover>
 
         <UTooltip :text="$t('studio.tiptap.element.delete')">
           <UButton
