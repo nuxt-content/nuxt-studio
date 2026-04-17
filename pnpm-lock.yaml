@@ -179,8 +179,8 @@ importers:
         specifier: ^12.8.0
         version: 12.8.0
       docus:
-        specifier: https://pkg.pr.new/docus@08cabd0
-        version: https://pkg.pr.new/docus@08cabd0(bfbfdf575de13fc9c1b66a7e578ce5db)
+        specifier: https://pkg.pr.new/docus@88c7c5e
+        version: https://pkg.pr.new/docus@88c7c5e(bfbfdf575de13fc9c1b66a7e578ce5db)
       nuxt:
         specifier: ^4.4.2
         version: 4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@parcel/watcher@2.5.6)(@types/node@25.5.0)(@vercel/blob@2.3.3)(@vue/compiler-sfc@3.5.32)(better-sqlite3@12.8.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.8.0))(eslint@10.2.0(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.10.1)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.0.0-beta.57(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2))(rollup-plugin-visualizer@7.0.1(rolldown@1.0.0-beta.57(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2))(rollup@4.60.1))(rollup@4.60.1)(srvx@0.11.14)(terser@5.46.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(yaml@2.8.3))(vue-tsc@3.2.6(typescript@5.9.3))(yaml@2.8.3)
@@ -4859,8 +4859,8 @@ packages:
       better-sqlite3: 12.x
       nuxt: 4.x
 
-  docus@https://pkg.pr.new/docus@08cabd0:
-    resolution: {integrity: sha512-GrMRrxNkDdjAL1hDyfSAiV1YGgNQHD0jmmrCAqvCAPcD0WlXLOno/feDX3xNdSH4Fz40tmNMgL7dC2htSsRyVg==, tarball: https://pkg.pr.new/docus@08cabd0}
+  docus@https://pkg.pr.new/docus@88c7c5e:
+    resolution: {integrity: sha512-NIMCJFuR8V0e4qqosJ/mArOXIeeHCIlubptiFq1Ybni9R8bCyJpeqvHMjHHnuUFZCCOq/bl2daIY/kl/W0SqQA==, tarball: https://pkg.pr.new/docus@88c7c5e}
     version: 5.9.0
     peerDependencies:
       better-sqlite3: 12.x
@@ -13898,7 +13898,7 @@ snapshots:
       - yjs
       - yup
 
-  docus@https://pkg.pr.new/docus@08cabd0(bfbfdf575de13fc9c1b66a7e578ce5db):
+  docus@https://pkg.pr.new/docus@88c7c5e(bfbfdf575de13fc9c1b66a7e578ce5db):
     dependencies:
       '@ai-sdk/gateway': 3.0.91(zod@4.3.6)
       '@ai-sdk/mcp': 1.0.32(zod@4.3.6)
