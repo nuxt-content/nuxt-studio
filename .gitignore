@@ -61,6 +61,7 @@ components.d.ts
 # VSC plugins
 .history
 .cursor
+.claude
 
 playground/docus/.data
 docs/.data
