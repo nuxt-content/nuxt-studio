@@ -10,7 +10,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.3.3",
     "@vercel/speed-insights": "^2.0.0",
-    "better-sqlite3": "^12.8.0",
+    "better-sqlite3": "^12.9.0",
     "docus": "^5.10.0",
     "nuxt": "^4.4.2",
     "nuxt-studio": "workspace:*"
