@@ -34,6 +34,13 @@ const MEDIA_EXTENSIONS = [
 
 function extractImagePath(url) {
   const pathname = url.pathname;
+  if (pathname.startsWith('/__nuxt_studio/ipx/')) {
+    // Strip prefix + IPX modifiers segment: /__nuxt_studio/ipx/{modifiers}/{path} → /{path}
+    const withoutPrefix = pathname.slice('/__nuxt_studio/ipx/'.length)
+    const slashIndex = withoutPrefix.indexOf('/')
+    return slashIndex !== -1 ? withoutPrefix.slice(slashIndex) : null
+  }
+
   if (pathname.startsWith('/_ipx/_/')) {
     return pathname.replace('/_ipx/_', '')
   }
