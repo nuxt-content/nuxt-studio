@@ -17,7 +17,7 @@ import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
-const serviceWorkerVersion = 'v0.0.3'
+const serviceWorkerVersion = 'v0.0.5'
 
 function getLocalColorMode(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
