@@ -8,7 +8,7 @@ import type { DatabaseItem, MediaItem } from '../types'
 export const nullStorageDriver: Driver = nullDriver()
 
 export const indexedDbStorageDriver = (name: string): Driver => indexedDbDriver({
-  dbName: `studio-${name}`,
+  dbName: `studio-v1-${name}`,
   storeName: 'drafts',
 })
 
