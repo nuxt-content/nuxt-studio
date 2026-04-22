@@ -31,7 +31,7 @@ const { error, clearError } = useError()
             <p class="text-sm font-medium text-highlighted">
               {{ error.title }}
             </p>
-            <p class="text-xs text-muted mt-0.5 truncate">
+            <p class="text-xs text-muted mt-0.5 line-clamp-3">
               {{ error.message }}
             </p>
           </div>
