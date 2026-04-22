@@ -1,5 +1,5 @@
 export const serviceWorker = () => `
-const DB_NAME = 'studio-media'
+const DB_NAME = 'studio-v1-media'
 const STORE_NAME = 'drafts'
 
 const DraftStatus = {
