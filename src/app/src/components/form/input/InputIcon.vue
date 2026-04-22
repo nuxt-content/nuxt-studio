@@ -13,13 +13,31 @@ const props = defineProps({
 
 const model = defineModel<string>({ default: '' })
 
-/**
- * Nuxt UI passes icon names to `@iconify/vue` after stripping a leading `i-`.
- * Hyphenated collections (like `material-symbols`) must keep the Iconify `collection:name`
- * separator as `:` using only hyphens breaks parsing (e.g. `material-symbols-blender-sharp`
- * is read as prefix `material`).
- */
-const HYPHENATED_COLLECTION_PREFIXES = ['material-symbols-light', 'material-symbols', 'simple-icons'] as const
+// Ensure ${collection}:${name} is preserved when collection is hyphenated
+const HYPHENATED_COLLECTION_PREFIXES = [
+  'material-symbols-light',
+  'material-symbols',
+  'fluent-emoji-high-contrast',
+  'fluent-emoji-flat',
+  'fluent-emoji',
+  'simple-icons',
+  'flat-color-icons',
+  'line-md',
+  'svg-spinners',
+  'vscode-icons',
+  'game-icons',
+  'file-icons',
+  'flag-icons',
+  'circle-flags',
+  'fa6-brands',
+  'fa6-regular',
+  'fa6-solid',
+  'fa-brands',
+  'fa-regular',
+  'fa-solid',
+  'skill-icons',
+  'token-branded',
+] as const
 
 function normalizeIconName(stored: string): string {
   if (!stored.startsWith('i-')) {
