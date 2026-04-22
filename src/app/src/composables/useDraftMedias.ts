@@ -9,7 +9,9 @@ import { mediaStorage as storage } from '../utils/storage'
 import { getFileExtension, slugifyFileName } from '../utils/file'
 import { useHooks } from './useHooks'
 import { useError } from './useError'
+import { consola } from 'consola'
 
+const logger = consola.withTag('Nuxt Studio')
 const hooks = useHooks()
 const { showError } = useError()
 
@@ -68,6 +70,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
       await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.upload' })
     }
     catch (error) {
+      logger.error('Error uploading media:', error)
       showError('Error uploading media', (error as Error).message)
     }
   }
