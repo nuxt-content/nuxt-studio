@@ -18,9 +18,7 @@ declare module '@tiptap/core' {
        */
       handleSlotBackspace: () => ReturnType
       /**
-       * When the cursor is in an empty text block that is a direct child of a slot,
-       * and the slot has another block, move that empty block after the slot (double-Enter exit).
-       * Does not run when the slot only contains that one empty block (would violate `block+`).
+       * Move empty trailing block out of slot on double-Enter.
        */
       exitEmptyTextblockFromSlot: () => ReturnType
     }
