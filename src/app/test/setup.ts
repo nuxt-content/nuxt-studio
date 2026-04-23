@@ -9,6 +9,7 @@ global.window = {
         enabled: false,
         context: undefined,
       },
+      iconLibraries: undefined,
     },
   })),
 } as never

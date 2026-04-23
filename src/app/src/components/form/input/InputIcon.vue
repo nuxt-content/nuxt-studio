@@ -3,6 +3,8 @@ import type { FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { ref, computed, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
+import { resolveIconLibraries } from '../../../utils/icon'
+import { useStudio } from '../../../composables/useStudio'
 
 const props = defineProps({
   formItem: {
@@ -68,9 +70,13 @@ const icons = ref<string[]>([])
 const isLoading = ref(false)
 const popoverOpen = ref(false)
 
-// Get allowed libraries from form item options (iconLibraries from schema)
+const { host } = useStudio()
+
 const iconLibraries = computed(() => {
-  return props.formItem?.options || 'all'
+  return resolveIconLibraries(
+    props.formItem?.options as string[] | undefined,
+    host.meta.iconLibraries,
+  )
 })
 
 // Fetch icons from Iconify API
