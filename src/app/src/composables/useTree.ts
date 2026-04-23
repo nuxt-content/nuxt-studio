@@ -155,6 +155,9 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       if (item) {
         select(item)
       }
+      else if (currentItem.value.type !== 'root') {
+        await selectParentByFsPath(currentItem.value.fsPath)
+      }
     }
 
     // Rerender host app
