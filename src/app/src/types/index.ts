@@ -49,6 +49,7 @@ export interface StudioHost {
     }
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
+    iconLibraries?: string[]
   }
   on: {
     routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void
