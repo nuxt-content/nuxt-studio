@@ -3,7 +3,8 @@ import type { FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { ref, computed, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import { resolveIconPickerLibraries } from '../../../utils/resolveIconPickerLibraries'
+import { resolveIconLibraries } from '../../../utils/icon'
+import { useStudio } from '../../../composables/useStudio'
 
 const props = defineProps({
   formItem: {
@@ -69,13 +70,12 @@ const icons = ref<string[]>([])
 const isLoading = ref(false)
 const popoverOpen = ref(false)
 
+const { host } = useStudio()
+
 const iconLibraries = computed(() => {
-  const globalLibraries = typeof window !== 'undefined'
-    ? window.useStudioHost?.()?.meta?.iconLibraries
-    : undefined
-  return resolveIconPickerLibraries(
+  return resolveIconLibraries(
     props.formItem?.options as string[] | undefined,
-    globalLibraries,
+    host.meta.iconLibraries,
   )
 })
 

@@ -49,10 +49,6 @@ export interface StudioHost {
     }
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
-    /**
-     * When set, restricts Iconify collection prefixes for all icon pickers unless a
-     * collection field sets `iconLibraries` in `.editor()`.
-     */
     iconLibraries?: string[]
   }
   on: {
