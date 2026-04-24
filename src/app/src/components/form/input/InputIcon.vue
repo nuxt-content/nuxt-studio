@@ -3,6 +3,8 @@ import type { FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { ref, computed, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
+import { resolveIconLibraries } from '../../../utils/icon'
+import { useStudio } from '../../../composables/useStudio'
 
 const props = defineProps({
   formItem: {
@@ -13,14 +15,68 @@ const props = defineProps({
 
 const model = defineModel<string>({ default: '' })
 
+// Ensure ${collection}:${name} is preserved when collection is hyphenated
+const HYPHENATED_COLLECTION_PREFIXES = [
+  'material-symbols-light',
+  'material-symbols',
+  'fluent-emoji-high-contrast',
+  'fluent-emoji-flat',
+  'fluent-emoji',
+  'simple-icons',
+  'flat-color-icons',
+  'line-md',
+  'svg-spinners',
+  'vscode-icons',
+  'game-icons',
+  'file-icons',
+  'flag-icons',
+  'circle-flags',
+  'fa6-brands',
+  'fa6-regular',
+  'fa6-solid',
+  'fa-brands',
+  'fa-regular',
+  'fa-solid',
+  'skill-icons',
+  'token-branded',
+] as const
+
+function normalizeIconName(stored: string): string {
+  if (!stored.startsWith('i-')) {
+    return stored
+  }
+
+  const body = stored.slice(2)
+
+  if (body.includes(':')) {
+    return stored
+  }
+
+  for (const prefix of HYPHENATED_COLLECTION_PREFIXES) {
+    const lead = `${prefix}-`
+
+    if (body.startsWith(lead) && body.length > lead.length) {
+      return `i-${prefix}:${body.slice(lead.length)}`
+    }
+  }
+
+  return stored
+}
+
+const resolvedIconName = computed(() => normalizeIconName(model.value))
+
 const search = ref('')
 const icons = ref<string[]>([])
 const isLoading = ref(false)
 const popoverOpen = ref(false)
 
-// Get allowed libraries from form item options (iconLibraries from schema)
+const { host } = useStudio()
+
 const iconLibraries = computed(() => {
-  return props.formItem?.options || 'all'
+  return resolveIconLibraries(
+    props.formItem?.options as string[] | undefined,
+    host.meta.iconLibraries,
+  )
 })
 
 // Fetch icons from Iconify API
@@ -54,7 +110,7 @@ watch(search, (value) => {
 })
 
 function selectIcon(icon: string) {
-  model.value = `i-${icon.replace(':', '-')}`
+  model.value = `i-${icon}`
   popoverOpen.value = false
   search.value = ''
   icons.value = []
@@ -66,7 +122,7 @@ function selectIcon(icon: string) {
     <div class="flex items-center justify-center size-6 bg-muted border border-muted rounded shrink-0">
       <UIcon
         v-if="model"
-        :name="model"
+        :name="resolvedIconName"
         size="xs"
       />
       <UIcon
@@ -132,7 +188,7 @@ function selectIcon(icon: string) {
                     size="xs"
                     color="neutral"
                     variant="soft"
-                    :icon="`i-${icon.replace(':', '-')}`"
+                    :icon="`i-${icon}`"
                     class="flex items-center justify-center"
                     @click="selectIcon(icon)"
                   />

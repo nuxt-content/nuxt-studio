@@ -1,9 +1,11 @@
-import { eventHandler, getRequestURL, setResponseHeader } from 'h3'
+import { createError, eventHandler, getRequestURL, setResponseHeader } from 'h3'
 import { requireStudioAuth } from '../../utils/auth'
 import { DAY_IN_SECONDS, IPX_PREFIX, getContentTypeFromPath, getIpx, getOriginalImage, parseIpxPath, requireAllowedDomain } from '../../utils/media/ipx'
 
 /**
  * Serve optimized thumbnails for Studio media picker using IPX.
+ * Falls back to serving original (unoptimized) images when IPX is unavailable
+ * (e.g. on platforms like Cloudflare Workers where sharp is not supported).
  * URL format: /__nuxt_studio/ipx/<modifiers>/<source-path>
  */
 export default eventHandler(async (event) => {
@@ -21,21 +23,33 @@ export default eventHandler(async (event) => {
   }
 
   const domain = requireAllowedDomain(parsed.id)
+  const originUrl = url.origin
 
-  const ipx = getIpx(domain)
-  const image = ipx(parsed.id, parsed.modifiers)
+  const ipx = await getIpx(domain, originUrl)
   let data: Buffer | string
   let format: string | undefined
 
-  try {
-    const result = await image.process()
-    data = result.data
-    format = result.format
+  if (ipx) {
+    const image = ipx(parsed.id, parsed.modifiers)
+    try {
+      const result = await image.process()
+      data = result.data
+      format = result.format
+    }
+    catch (error) {
+      const fallbackData = await getOriginalImage(parsed.id, originUrl)
+      if (!fallbackData) {
+        throw error
+      }
+
+      data = fallbackData
+    }
   }
-  catch (error) {
-    const fallbackData = await getOriginalImage(parsed.id)
+  else {
+    // IPX unavailable — serve original image without optimization
+    const fallbackData = await getOriginalImage(parsed.id, originUrl)
     if (!fallbackData) {
-      throw error
+      throw createError({ message: 'Image not found', statusCode: 404 })
     }
 
     data = fallbackData

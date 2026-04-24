@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.6.1](https://github.com/nuxt-content/studio/compare/v1.6.0...v1.6.1) (2026-04-22)
+
+### Bug Fixes
+
+* **medias:** create folder and ipx thumbnail preview ([#441](https://github.com/nuxt-content/studio/issues/441)) ([ca56f5d](https://github.com/nuxt-content/studio/commit/ca56f5d574098200328fdb45b886e301b7e7a43d))
+* **medias:** rename indexdb name ([#442](https://github.com/nuxt-content/studio/issues/442)) ([c89dd70](https://github.com/nuxt-content/studio/commit/c89dd700efa4ad76c2edbbabc104979f1621530a))
+
+## [1.6.0](https://github.com/nuxt-content/studio/compare/v1.5.1...v1.6.0) (2026-04-09)
+
+### Features
+
+* **data:** implement swapping objects in arrays ([#396](https://github.com/nuxt-content/studio/issues/396)) ([c84b094](https://github.com/nuxt-content/studio/commit/c84b0944655f7d102b5decd372490a2d684d05b5))
+* **data:** improve labels for arrays of objects ([#395](https://github.com/nuxt-content/studio/issues/395)) ([2a8e961](https://github.com/nuxt-content/studio/commit/2a8e9616eb8cdd3284270a2334dab54262e013b8))
+* **editor:** add folder filtering on media picker ([#411](https://github.com/nuxt-content/studio/issues/411)) ([6585be0](https://github.com/nuxt-content/studio/commit/6585be0402ce8b301d7eafa08dc21fe61c266d0f))
+* **i18n:** add custom pluralization rules for i18n ([#416](https://github.com/nuxt-content/studio/issues/416)) ([b3c9793](https://github.com/nuxt-content/studio/commit/b3c97937f1d0579a56751e78b9b20121ad52ccd1))
+* **i18n:** sync and improve chinese locale ([#399](https://github.com/nuxt-content/studio/issues/399)) ([4c4784c](https://github.com/nuxt-content/studio/commit/4c4784c91502bd72d7c27154dbbdb8245a5560bc))
+
+### Bug Fixes
+
+* **build:** externalize studio app from host vite build ([#412](https://github.com/nuxt-content/studio/issues/412)) ([15a2346](https://github.com/nuxt-content/studio/commit/15a23463c8e55e087aeb3beb43508a348047b05b))
+* **collections:** empty prefix not matched correctly ([#398](https://github.com/nuxt-content/studio/issues/398)) ([5892459](https://github.com/nuxt-content/studio/commit/58924590b0eadbdbb29cd3c34d87c731f53e112a))
+* **config:** prioritize CI-detected repository values ([#417](https://github.com/nuxt-content/studio/issues/417)) ([cf2c605](https://github.com/nuxt-content/studio/commit/cf2c605c64ad3c4299fa4100ca10342724895661))
+* **files:** skip `.navigation.yml` when collection source doesn't exists ([#414](https://github.com/nuxt-content/studio/issues/414)) ([0130bed](https://github.com/nuxt-content/studio/commit/0130bede750a12574d7aab07673a9655e8e64265))
+* **host:** filter null value from list ([#419](https://github.com/nuxt-content/studio/issues/419)) ([f068f8a](https://github.com/nuxt-content/studio/commit/f068f8a09fd96e1a8ff93dfc51056b9aac9dae94))
+* **i18n:** add missing locales keys ([5441313](https://github.com/nuxt-content/studio/commit/544131330d03e438bfa78444e07e44c066b44677))
+* **media:** make ipx optional to support Cloudflare Workers ([#404](https://github.com/nuxt-content/studio/issues/404)) ([e3db8ea](https://github.com/nuxt-content/studio/commit/e3db8ea62a222ebead5e2f6a15bcb44eda47b3d5))
+* **medias:** resolve ipx from http path ([#413](https://github.com/nuxt-content/studio/issues/413)) ([3635722](https://github.com/nuxt-content/studio/commit/3635722027ffad37a4e2158a2cb25e63754db4e8))
+* **tree:** empty route path for data items ([#407](https://github.com/nuxt-content/studio/issues/407)) ([c9eb844](https://github.com/nuxt-content/studio/commit/c9eb844d8588bdb42a1be3477f6e7e38fd9a175f))
+
+## [1.5.1](https://github.com/nuxt-content/studio/compare/v1.5.0...v1.5.1) (2026-03-19)
+
+### Bug Fixes
+
+* **medias:** ipx protocol normalization with S3 providers ([#392](https://github.com/nuxt-content/studio/issues/392)) ([90b0485](https://github.com/nuxt-content/studio/commit/90b048524214d4be56286a721840190652b37bf4))
+* **module:** user options override CI values ([#393](https://github.com/nuxt-content/studio/issues/393)) ([1f44cdf](https://github.com/nuxt-content/studio/commit/1f44cdf97899bac3de07879c6d4dbcafe7692b44))
+* **sw:** remove keyPath ([#391](https://github.com/nuxt-content/studio/issues/391)) ([5d8d4ac](https://github.com/nuxt-content/studio/commit/5d8d4ac8284fd4caaa86ff1d92c55c11c8a1f51c))
+
 ## [1.5.0](https://github.com/nuxt-content/studio/compare/v1.4.0...v1.5.0) (2026-03-18)
 
 ### Features
