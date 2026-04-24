@@ -40,7 +40,7 @@ export const getAITransformItems = (t: TFunction) => [
   { mode: 'translate', label: t('studio.tiptap.ai.translate'), icon: 'i-lucide-languages' },
 ] as const
 
-export const getStandardToolbarItems = (t: TFunction) => [
+export const getStandardToolbarItems = (t: TFunction, isAIEnabled = false) => [
   [
     {
       kind: 'undo',
@@ -82,10 +82,7 @@ export const getStandardToolbarItems = (t: TFunction) => [
       kind: 'slot',
       slot: 'span-style' as const,
     },
-    {
-      kind: 'slot',
-      slot: 'ai-transform' as const,
-    },
+    ...(isAIEnabled ? [{ kind: 'slot' as const, slot: 'ai-transform' as const }] : []),
   ],
 ] satisfies EditorToolbarItem[][]
 
