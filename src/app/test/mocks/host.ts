@@ -115,6 +115,11 @@ export const createMockHost = (): StudioHost => ({
     dev: false,
     components: vi.fn().mockReturnValue([]),
     iconLibraries: undefined,
+    ai: {
+      enabled: false,
+      experimental: { collectionContext: false },
+      context: { collectionName: '', contentFolder: '' },
+    },
   },
   on: {
     routeChange: vi.fn(),
