@@ -7,7 +7,7 @@ import type { CollectionInfo } from '@nuxt/content'
 import { findItemFromFsPath } from '../utils/tree'
 
 const { host, context, aiContextTree } = useStudio()
-const ai = useAI()
+const ai = useAI(host)
 
 const isAnalyzing = ref(false)
 const selectedCollection = ref<CollectionInfo | null>(null)

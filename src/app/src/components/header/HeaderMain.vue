@@ -10,8 +10,8 @@ import type { TabsItem } from '@nuxt/ui/components/Tabs.vue.d.ts'
 
 const router = useRouter()
 const route = useRoute()
-const { context } = useStudio()
-const ai = useAI()
+const { host, context } = useStudio()
+const ai = useAI(host)
 const { t } = useI18n()
 const { setLocation, devMode } = useStudioState()
 

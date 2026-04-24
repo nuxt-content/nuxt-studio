@@ -17,9 +17,9 @@ import { useAI } from './useAI'
  */
 export function useTiptapEditorAI(document: Ref<DatabasePageItem | undefined>) {
   const { t } = useI18n()
-  const ai = useAI()
-  const { preferences } = useStudioState()
   const { host } = useStudio()
+  const ai = useAI(host)
+  const { preferences } = useStudioState()
 
   const MAX_AI_SELECTION_LENGTH = AI_LIMITS.MAX_SELECTION_LENGTH
 
