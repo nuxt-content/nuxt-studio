@@ -5,23 +5,23 @@ import type { Editor, JSONContent } from '@tiptap/vue-3'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import { upperFirst } from 'scule'
 
-import type { SlashCommandExcludeKey } from '../../types/slashCommand'
+import type { CommandKey } from '../../types/editor'
 
 import { isEmpty, omit } from '../object'
 
 type TFunction = (key: string) => string
-type SlashCommandSectionKey = Extract<SlashCommandExcludeKey, 'style' | 'insert'>
-type SlashCommandItemKey = Exclude<SlashCommandExcludeKey, SlashCommandSectionKey>
+type CommandSectionKey = Extract<CommandKey, 'style' | 'insert'>
+type CommandItemKey = Exclude<CommandKey, CommandSectionKey>
 
-interface SlashCommandItemDefinition {
-  key: SlashCommandItemKey
+interface CommandItemDefinition {
+  key: CommandItemKey
   item: EditorSuggestionMenuItem
 }
 
-interface SlashCommandSectionDefinition {
-  key: SlashCommandSectionKey
+interface CommandSectionDefinition {
+  key: CommandSectionKey
   label: string
-  items: SlashCommandItemDefinition[]
+  items: CommandItemDefinition[]
 }
 
 export const getHeadingItems = (t: TFunction) => [
@@ -101,7 +101,7 @@ export const getStandardToolbarItems = (t: TFunction, isAIEnabled = false) => [
   ],
 ] satisfies EditorToolbarItem[][]
 
-function buildStandardSuggestionSections(t: TFunction): SlashCommandSectionDefinition[] {
+function buildStandardSuggestionSections(t: TFunction): CommandSectionDefinition[] {
   const [heading1, heading2, heading3, heading4] = getHeadingItems(t) as EditorSuggestionMenuItem[]
   const [bulletList, orderedList] = getListItems(t) as EditorSuggestionMenuItem[]
   const [blockquote, codeBlock] = getCodeBlockItem(t) as EditorSuggestionMenuItem[]
@@ -167,12 +167,9 @@ function buildStandardSuggestionSections(t: TFunction): SlashCommandSectionDefin
   ]
 }
 
-/**
- * Built-in `/` suggestion sections (Style, Insert), optionally filtered by `studio.meta.slashCommand.exclude`.
- */
 export function getStandardSuggestionItems(
   t: TFunction,
-  exclude?: readonly SlashCommandExcludeKey[],
+  exclude?: readonly CommandKey[],
 ): EditorSuggestionMenuItem[][] {
   const hidden = new Set(exclude)
 

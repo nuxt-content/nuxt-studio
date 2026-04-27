@@ -75,7 +75,7 @@ const { host } = useStudio()
 const iconLibraries = computed(() => {
   return resolveIconLibraries(
     props.formItem?.options as string[] | undefined,
-    host.meta.iconLibraries,
+    host.meta.editor.iconLibraries,
   )
 })
 

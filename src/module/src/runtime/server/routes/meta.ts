@@ -5,7 +5,7 @@ import components from '#nuxt-component-meta/nitro'
 import type { ComponentMeta as VueComponentMeta } from 'vue-component-meta'
 // @ts-expect-error import does exist
 import { highlight } from '#mdc-imports'
-import type { ComponentMeta, SlashCommandConfig } from 'nuxt-studio/app'
+import type { ComponentMeta } from 'nuxt-studio/app'
 import { filterComponents } from '../utils/meta'
 import { requireStudioAuth } from '../utils/auth'
 
@@ -34,18 +34,19 @@ export default eventHandler(async (event) => {
       }
     })
 
+  const editorConfig = config.studio?.editor
+
   const filteredComponents = filterComponents(
     mappedComponents,
-    config.studio?.meta?.components,
+    editorConfig?.components,
   )
 
-  const componentGroups = config.studio?.meta?.components?.groups
+  const componentGroups = editorConfig?.components?.groups
   const hasGroups = Array.isArray(componentGroups) && componentGroups.length > 0
 
   const response: {
     markdownConfig: object
     highlightTheme: object
-    slashCommand: SlashCommandConfig
     components: {
       list: ComponentMeta[]
       groups?: Array<{ label: string, include: string[] }>
@@ -54,9 +55,6 @@ export default eventHandler(async (event) => {
   } = {
     markdownConfig: config.studio.markdown || {},
     highlightTheme: highlight?.theme || { default: 'github-light', dark: 'github-dark', light: 'github-light' },
-    slashCommand: {
-      exclude: config.studio?.meta?.slashCommand?.exclude ?? [],
-    },
     components: {
       list: filteredComponents,
     },
@@ -64,7 +62,7 @@ export default eventHandler(async (event) => {
 
   if (hasGroups) {
     response.components.groups = componentGroups.map(g => ({ label: g.label, include: g.include }))
-    const ungrouped = config.studio?.meta?.components?.ungrouped
+    const ungrouped = editorConfig?.components?.ungrouped
     response.components.ungrouped = (ungrouped === 'omit' ? 'omit' : 'include') as 'include' | 'omit'
   }
 

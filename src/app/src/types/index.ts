@@ -4,10 +4,9 @@ import type { DatabaseItem } from './database'
 import type { RouteLocationNormalized } from 'vue-router'
 import type { MediaItem, MediaConfig } from './media'
 import type { Repository } from './git'
-import type { ComponentMeta } from './component'
+import type { ComponentMeta, CommandConfig } from './editor'
 import type { MarkdownParsingOptions, SyntaxHighlightTheme } from './content'
 import type { CollectionInfo } from '@nuxt/content'
-import type { SlashCommandConfig } from './slashCommand'
 
 export * from './file'
 export * from './item'
@@ -17,13 +16,11 @@ export * from './user'
 export * from './tree'
 export * from './git'
 export * from './context'
-export * from './component'
+export * from './editor'
 export * from './config'
 export * from './media'
 export * from './content'
-export * from './form'
 export * from './ai'
-export * from './slashCommand'
 
 export interface StudioHost {
   meta: {
@@ -44,15 +41,18 @@ export interface StudioHost {
         contentFolder: string
       }
     }
-    components: {
-      get: () => ComponentMeta[]
-      hasNuxtUI: ComputedRef<boolean>
-      getGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
+    editor: {
+      components: {
+        get: () => ComponentMeta[]
+        hasNuxtUI: ComputedRef<boolean>
+        getGroups: (fallbackLabel: string) => Array<{ label: string, components: ComponentMeta[] }>
+      }
+      commands: CommandConfig
+      iconLibraries?: string[]
+      highlightTheme: SyntaxHighlightTheme
+      markdown?: { contentHeading?: boolean }
     }
-    slashCommand: SlashCommandConfig
     defaultLocale: string
-    getHighlightTheme: () => SyntaxHighlightTheme
-    iconLibraries?: string[]
   }
   on: {
     routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void
