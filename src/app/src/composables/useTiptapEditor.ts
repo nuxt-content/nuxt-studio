@@ -14,13 +14,14 @@ import {
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
 import { imageHandler, videoHandler, calloutHandler, componentHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
+import { useStudio } from './useStudio'
 
 /**
  * Composable for managing TipTap editor UI and configuration
  */
 export function useTiptapEditor() {
   const { t } = useI18n()
-  const host = window.useStudioHost()
+  const { host } = useStudio()
 
   // Selected node for drag handle
   const selectedNode = ref<JSONContent | null>(null)
@@ -90,10 +91,7 @@ export function useTiptapEditor() {
     ] satisfies EditorSuggestionMenuItem[][]
   })
 
-  /**
-   * Toolbar items for bubble menu
-   */
-  const toolbarItems = computed(() => getStandardToolbarItems(t))
+  const toolbarItems = computed(() => getStandardToolbarItems(t, host.meta.ai.enabled))
 
   /**
    * Emoji items for emoji picker

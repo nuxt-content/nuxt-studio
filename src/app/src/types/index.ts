@@ -52,6 +52,7 @@ export interface StudioHost {
     slashCommand: SlashCommandConfig
     defaultLocale: string
     getHighlightTheme: () => SyntaxHighlightTheme
+    iconLibraries?: string[]
   }
   on: {
     routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => void

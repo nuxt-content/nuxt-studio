@@ -17,7 +17,7 @@ import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
-const serviceWorkerVersion = 'v0.0.3'
+const serviceWorkerVersion = 'v0.0.5'
 
 function getLocalColorMode(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
@@ -106,6 +106,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
       getHighlightTheme: () => meta.highlightTheme.value!,
+      iconLibraries: studioConfig.iconLibraries,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
