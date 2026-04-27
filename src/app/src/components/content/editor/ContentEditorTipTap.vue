@@ -39,7 +39,7 @@ const document = defineModel<DatabasePageItem>()
 const { host } = useStudio()
 const { preferences } = useStudioState()
 
-const hasNuxtUI = host.meta.components.hasNuxtUI
+const hasNuxtUI = host.meta.editor.components.hasNuxtUI
 
 const {
   customHandlers,
@@ -88,7 +88,7 @@ watch(tiptapJSON, async (json) => {
 
   // TipTap → ComarkTree (internal representation)
   const comarkTree = await tiptapToComark(cleanedTiptap, {
-    highlightTheme: host.meta.getHighlightTheme(),
+    highlightTheme: host.meta.editor.highlightTheme,
   })
 
   const updatedDocument: DatabasePageItem = {

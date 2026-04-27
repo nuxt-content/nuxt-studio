@@ -26,7 +26,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
   } = useDraftBase<DatabaseItem>('document', host, gitProvider, storage)
 
   const hooks = useHooks()
-  const ai = useAI()
+  const ai = useAI(host)
   const hostDb = host.document.db
   const generateContentFromDocument = host.document.generate.contentFromDocument
 

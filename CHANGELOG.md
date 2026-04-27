@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/nuxt-content/studio/compare/v1.6.0...v1.6.1) (2026-04-22)
+
+### Bug Fixes
+
+* **medias:** create folder and ipx thumbnail preview ([#441](https://github.com/nuxt-content/studio/issues/441)) ([ca56f5d](https://github.com/nuxt-content/studio/commit/ca56f5d574098200328fdb45b886e301b7e7a43d))
+* **medias:** rename indexdb name ([#442](https://github.com/nuxt-content/studio/issues/442)) ([c89dd70](https://github.com/nuxt-content/studio/commit/c89dd700efa4ad76c2edbbabc104979f1621530a))
+
 ## [1.6.0](https://github.com/nuxt-content/studio/compare/v1.5.1...v1.6.0) (2026-04-09)
 
 ### Features
