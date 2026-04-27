@@ -3,7 +3,7 @@ import { hasProtocol, isRelative } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
-import type { ComponentMeta } from '../../types/component'
+import type { ComponentMeta } from '../../types/editor'
 import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
 
 const HIDDEN_PROPS = [

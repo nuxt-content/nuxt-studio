@@ -37,7 +37,7 @@ export default defineNuxtConfig({
       external: true,
       prefix: '',
     },
-    meta: {
+    editor: {
       components: {
         groups: [
           { label: 'Custom', include: ['app/components/**'] },

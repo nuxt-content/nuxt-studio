@@ -30,7 +30,7 @@ export function useTiptapEditor() {
    * Component items for suggestions menu
    */
   const componentItems = computed(() => {
-    return host.meta.components.get().map(component => ({
+    return host.meta.editor.components.get().map(component => ({
       kind: component.name,
       type: undefined as never,
       label: titleCase(component.name),
@@ -56,11 +56,12 @@ export function useTiptapEditor() {
    * Suggestion menu items
    */
   const suggestionItems = computed(() => {
-    const componentGroups = host.meta.components.getGroups(t('studio.tiptap.editor.components'))
+    const exclude = host.meta.editor.commands.exclude
+    const componentGroups = host.meta.editor.components.getGroups(t('studio.tiptap.editor.components'))
 
     if (componentGroups.length === 0) {
       return [
-        ...getStandardSuggestionItems(t),
+        ...getStandardSuggestionItems(t, exclude),
         [
           {
             type: 'label',
@@ -85,7 +86,7 @@ export function useTiptapEditor() {
     ])
 
     return [
-      ...getStandardSuggestionItems(t),
+      ...getStandardSuggestionItems(t, exclude),
       ...componentGroupItems,
     ] satisfies EditorSuggestionMenuItem[][]
   })

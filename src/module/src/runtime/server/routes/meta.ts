@@ -34,12 +34,14 @@ export default eventHandler(async (event) => {
       }
     })
 
+  const editorConfig = config.studio?.editor
+
   const filteredComponents = filterComponents(
     mappedComponents,
-    config.studio?.meta?.components,
+    editorConfig?.components,
   )
 
-  const componentGroups = config.studio?.meta?.components?.groups
+  const componentGroups = editorConfig?.components?.groups
   const hasGroups = Array.isArray(componentGroups) && componentGroups.length > 0
 
   const response: {
@@ -60,7 +62,7 @@ export default eventHandler(async (event) => {
 
   if (hasGroups) {
     response.components.groups = componentGroups.map(g => ({ label: g.label, include: g.include }))
-    const ungrouped = config.studio?.meta?.components?.ungrouped
+    const ungrouped = editorConfig?.components?.ungrouped
     response.components.ungrouped = (ungrouped === 'omit' ? 'omit' : 'include') as 'include' | 'omit'
   }
 
