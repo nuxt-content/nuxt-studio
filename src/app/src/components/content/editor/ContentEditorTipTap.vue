@@ -42,7 +42,7 @@ const document = defineModel<DatabasePageItem>()
 const { host } = useStudio()
 const { preferences } = useStudioState()
 
-const hasNuxtUI = host.meta.components.hasNuxtUI
+const hasNuxtUI = host.meta.editor.components.hasNuxtUI
 
 const {
   customHandlers,
@@ -92,7 +92,7 @@ watch(tiptapJSON, async (json) => {
   const cleanedTiptap = removeLastEmptyParagraph(json!)
 
   const { body, data } = await tiptapToMDC(cleanedTiptap, {
-    highlightTheme: host.meta.getHighlightTheme(),
+    highlightTheme: host.meta.editor.highlightTheme,
   })
 
   const compressedBody: MarkdownRoot = compressTree(body)

@@ -12,7 +12,7 @@ import { useAI } from './useAI'
 export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType<typeof useDraftDocuments | typeof useDraftMedias>) => {
   const hooks = useHooks()
   const { preferences, setLocation, devMode } = useStudioState()
-  const { contextFolder } = useAI()
+  const { contextFolder } = useAI(host)
 
   const tree = ref<TreeItem[]>([])
 
@@ -154,6 +154,9 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       const item = findItemFromFsPath(tree.value, currentItem.value.fsPath)
       if (item) {
         select(item)
+      }
+      else if (currentItem.value.type !== 'root') {
+        await selectParentByFsPath(currentItem.value.fsPath)
       }
     }
 

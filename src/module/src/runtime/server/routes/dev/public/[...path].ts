@@ -50,8 +50,13 @@ export default eventHandler(async (event) => {
     else {
       const value = await readRawBody(event, 'utf8')
       const json = JSON.parse(value || '{}')
-      const data = json.raw.split(';base64,')[1]
-      await storage.setItemRaw(key, Buffer.from(data, 'base64'))
+      if (json.raw) {
+        const data = json.raw.split(';base64,')[1]
+        await storage.setItemRaw(key, Buffer.from(data, 'base64'))
+      }
+      else {
+        await storage.setItemRaw(key, Buffer.alloc(0))
+      }
     }
 
     return 'OK'

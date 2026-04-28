@@ -37,7 +37,7 @@ export const useStudio = createSharedComposable(() => {
 
   const gitProvider = useGitProvider(gitOptions, devMode.value)
   const ui = useUI(host)
-  const ai = useAI()
+  const ai = useAI(host)
   const draftDocuments = useDraftDocuments(host, gitProvider)
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
   const draftMedias = useDraftMedias(host, gitProvider)

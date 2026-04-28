@@ -17,7 +17,7 @@ import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
-const serviceWorkerVersion = 'v0.0.3'
+const serviceWorkerVersion = 'v0.0.5'
 
 function getLocalColorMode(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
@@ -88,21 +88,26 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           contentFolder: aiConfig.context.contentFolder,
         },
       },
-      components: {
-        hasNuxtUI: meta.components.hasNuxtUI,
-        get: () => meta.components.list.value,
-        getGroups: (fallbackLabel: string) => {
-          if (meta.components.groups.value.length === 0) return []
-          return assignComponentsToGroups(
-            meta.components.list.value,
-            meta.components.groups.value,
-            meta.components.ungrouped.value,
-            fallbackLabel,
-          )
+      editor: {
+        components: {
+          hasNuxtUI: meta.components.hasNuxtUI,
+          get: () => meta.components.list.value,
+          getGroups: (fallbackLabel: string) => {
+            if (meta.components.groups.value.length === 0) return []
+            return assignComponentsToGroups(
+              meta.components.list.value,
+              meta.components.groups.value,
+              meta.components.ungrouped.value,
+              fallbackLabel,
+            )
+          },
         },
+        commands: studioConfig.commands ?? { exclude: [] },
+        iconLibraries: studioConfig.iconLibraries,
+        get highlightTheme() { return meta.highlightTheme.value! },
+        get markdown() { return meta.markdownConfig.value },
       },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
-      getHighlightTheme: () => meta.highlightTheme.value!,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
