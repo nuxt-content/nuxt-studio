@@ -1,7 +1,12 @@
-import type { DatabaseItem, MediaItem, DraftItem, ContentConflict, StudioHost } from '../types'
-import { DraftStatus } from '../types'
+import type { DatabaseItem, MediaItem, DraftItem, ContentConflict, GitFile, MarkdownFormattingChange, StudioHost } from '../types'
+import { ContentFileExtension, DraftStatus } from '../types'
 import { fromBase64ToUTF8 } from '../utils/string'
-import { isMediaFile } from './file'
+import { getFileExtension, isMediaFile } from './file'
+import { areContentEqual } from './content'
+
+export function decodeRemoteContent(remoteFile: GitFile): string {
+  return remoteFile.encoding === 'base64' ? fromBase64ToUTF8(remoteFile.content!) : remoteFile.content!
+}
 
 export async function checkConflict(host: StudioHost, draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<ContentConflict | undefined> {
   const generateContentFromDocument = host.document.generate.contentFromDocument
@@ -20,9 +25,7 @@ export async function checkConflict(host: StudioHost, draftItem: DraftItem<Datab
     return
   }
 
-  const remoteContent = draftItem.remoteFile?.encoding === 'base64'
-    ? fromBase64ToUTF8(draftItem.remoteFile.content!)
-    : draftItem.remoteFile!.content!
+  const remoteContent = decodeRemoteContent(draftItem.remoteFile)
 
   if (draftItem.status === DraftStatus.Created && remoteContent) {
     return {
@@ -44,6 +47,33 @@ export async function checkConflict(host: StudioHost, draftItem: DraftItem<Datab
     remoteContent,
     localContent,
   }
+}
+
+export async function getMarkdownFormattingChange(host: StudioHost, draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<MarkdownFormattingChange | undefined> {
+  if (getFileExtension(draftItem.fsPath) !== ContentFileExtension.Markdown) {
+    return
+  }
+
+  if (!draftItem.original || !draftItem.remoteFile?.content) {
+    return
+  }
+
+  const formattedContent = await host.document.generate.contentFromDocument(draftItem.original as DatabaseItem)
+  if (typeof formattedContent !== 'string') return
+
+  const originalContent = decodeRemoteContent(draftItem.remoteFile)
+  if (areContentEqual(formattedContent, originalContent)) return
+
+  return { originalContent, formattedContent }
+}
+
+export function getPristineMarkdownRemoteContent(draftItem: DraftItem<DatabaseItem | MediaItem>): string | undefined {
+  if (draftItem.status !== DraftStatus.Pristine || !draftItem.original || !draftItem.remoteFile?.content || getFileExtension(draftItem.fsPath) !== ContentFileExtension.Markdown) return
+  return decodeRemoteContent(draftItem.remoteFile)
+}
+
+export function shouldShowMarkdownFormattingBanner(draftItem: DraftItem<DatabaseItem | MediaItem>): boolean {
+  return !!draftItem.formatting && draftItem.status !== DraftStatus.Pristine
 }
 
 export function findDescendantsFromFsPath(list: DraftItem[], fsPath: string): DraftItem[] {

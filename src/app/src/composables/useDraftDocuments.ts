@@ -37,7 +37,18 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     }
 
     const oldStatus = existingItem.status
-    existingItem.status = getStatus(document, existingItem.original as DatabaseItem)
+    const nextStatus = getStatus(document, existingItem.original as DatabaseItem)
+    const isNoOpPristineUpdate = oldStatus === DraftStatus.Pristine
+      && nextStatus === DraftStatus.Pristine
+      && host.document.utils.areEqual(document, existingItem.modified as DatabaseItem)
+
+    // Skip initialization writes from editors that round-trip the document without
+    // any semantic change. This keeps opening a file from immediately normalizing it.
+    if (isNoOpPristineUpdate) {
+      return existingItem
+    }
+
+    existingItem.status = nextStatus
     existingItem.modified = document
 
     await storage.setItem(fsPath, existingItem)

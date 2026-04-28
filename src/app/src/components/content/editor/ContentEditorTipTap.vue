@@ -71,6 +71,7 @@ const {
 const tiptapJSON = ref<JSONContent>()
 
 const cleanDataKeys = host.document.utils.cleanDataKeys
+const areDocumentsEqual = host.document.utils.areEqual
 
 // Debug
 const debug = computed(() => preferences.value.debug)
@@ -105,6 +106,11 @@ watch(tiptapJSON, async (json) => {
       ...compressedBody,
       toc,
     } as MarkdownRoot,
+  }
+
+  if (document.value && areDocumentsEqual(updatedDocument, document.value)) {
+    isConverting = false
+    return
   }
 
   document.value = updatedDocument
@@ -267,7 +273,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
       <ContentEditorAILanguageSelection
         :rect="aiLanguageInputDomRect"
         :show="isAILanguageInputVisible"
-        @submit="(language) => handleLanguageSubmit(language, editor)"
+        @submit="(language: string) => handleLanguageSubmit(language, editor)"
         @cancel="handleLanguageCancel"
       />
     </UEditor>
