@@ -30,6 +30,9 @@ export type FormItem = {
   toggleable?: boolean
   custom?: boolean
   arrayItemForm?: FormItem
+  label?: string
+  description?: string
+  tooltip?: string
 }
 
 export const COMMAND_KEYS = [
