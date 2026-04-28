@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.7.0](https://github.com/nuxt-content/studio/compare/v1.6.1...v1.7.0) (2026-04-28)
+
+### Features
+
+* **editor:** add `meta.commands` option to filter tiptap command([#421](https://github.com/nuxt-content/studio/issues/421)) ([ad542d5](https://github.com/nuxt-content/studio/commit/ad542d54c231cf67e2836aaaaf2c730f3b72f351))
+* **editor:** double-enter to escape current slot context ([#430](https://github.com/nuxt-content/studio/issues/430)) ([ea3b530](https://github.com/nuxt-content/studio/commit/ea3b5309fb76f2572872c9ae16985f36165c4f8e))
+* **studio:** add a global option to restrict icon libraries ([#432](https://github.com/nuxt-content/studio/issues/432)) ([9dee6d7](https://github.com/nuxt-content/studio/commit/9dee6d7e507efe51249ee01abd158b5514d74518))
+
+### Bug Fixes
+
+* **editor:** disable AI toolbar items when not setup ([#429](https://github.com/nuxt-content/studio/issues/429)) ([c5da214](https://github.com/nuxt-content/studio/commit/c5da2147eceba4441733dc870f1702d49dbde6c3))
+* **editor:** normalize icon names for `InputIcon` ([#433](https://github.com/nuxt-content/studio/issues/433)) ([880e860](https://github.com/nuxt-content/studio/commit/880e860f67f9833e5b969fddd4a62fb74558039a))
+* **i18n:** improve Ukrainian(ua) locales ([#431](https://github.com/nuxt-content/studio/issues/431)) ([c24fda7](https://github.com/nuxt-content/studio/commit/c24fda727bc38c8a626642ab64883453117b2d4e))
+* **tests:** ai mock in host ([c436159](https://github.com/nuxt-content/studio/commit/c436159dcc97018b51e608f39cc84022092bb9eb))
+
 ## [1.6.1](https://github.com/nuxt-content/studio/compare/v1.6.0...v1.6.1) (2026-04-22)
 
 ### Bug Fixes
