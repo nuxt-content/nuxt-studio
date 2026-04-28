@@ -44,6 +44,7 @@ export default defineNuxtConfig({
           { label: 'Nuxt UI', include: ['../node_modules/.pnpm/**'] },
         ],
       },
+      iconLibraries: ['lucide', 'phosphor', 'simple-icons'],
     },
     git: {
       commit: {
