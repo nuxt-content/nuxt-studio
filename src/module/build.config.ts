@@ -13,6 +13,9 @@ export default defineBuildConfig({
     'readdirp',
     'picomatch',
     'normalize-path',
+    'postcss',
+    'nuxt-component-meta',
+    'untyped',
   ],
   entries: [
     './src/module',
