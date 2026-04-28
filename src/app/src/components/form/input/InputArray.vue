@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormItem } from '../../../types'
-import { formItemInputLabel } from '../../../utils/form-labels'
+import { formItemInputLabel } from '../../../utils/form'
 import type { PropType } from 'vue'
 import { computed, nextTick, ref } from 'vue'
 

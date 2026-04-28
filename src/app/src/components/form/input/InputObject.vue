@@ -2,7 +2,7 @@
 import type { FormTree, FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
-import { formItemInputLabel } from '../../../utils/form-labels'
+import { formItemInputLabel } from '../../../utils/form'
 
 const props = defineProps({
   formItem: {
@@ -72,9 +72,10 @@ function getDefault(type: string) {
         :key="entry.key"
         :name="entry.key"
         :label="entry.formItem.tooltip ? undefined : entry.label"
-        :description="entry.formItem.fieldDescription"
+        :description="entry.formItem.description"
         :ui="{
           label: 'text-xs font-medium tracking-tight',
+          description: 'text-[10px] text-muted',
         }"
       >
         <template

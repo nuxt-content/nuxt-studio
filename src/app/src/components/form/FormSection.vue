@@ -18,7 +18,7 @@ const visibleChildren = computed(() => {
 })
 
 const sectionLabel = computed(() => {
-  const custom = props.formItem.fieldName?.trim()
+  const custom = props.formItem.label?.trim()
   if (custom) {
     return custom
   }

@@ -2,8 +2,7 @@
 import type { FormItem, FormTree } from '../../types'
 import type { PropType } from 'vue'
 import { computed, ref, watch } from 'vue'
-import { formItemInputLabel } from '../../utils/form-labels'
-import { applyValueById } from '../../utils/form'
+import { formItemInputLabel, applyValueById } from '../../utils/form'
 
 const props = defineProps({
   formItem: {
@@ -63,10 +62,11 @@ function computeValue(formItem: FormItem): unknown {
   <UFormField
     :name="formItem.id"
     :label="formItem.tooltip ? undefined : displayLabel"
-    :description="formItem.fieldDescription"
+    :description="formItem.description"
     :ui="{
       root: 'w-full mt-2',
       label: 'text-xs font-semibold tracking-tight',
+      description: 'text-[10px] text-muted',
     }"
   >
     <template
@@ -78,7 +78,7 @@ function computeValue(formItem: FormItem): unknown {
         <UTooltip :text="formItem.tooltip">
           <UIcon
             name="i-lucide-circle-help"
-            class="size-3.5 text-muted shrink-0 cursor-help"
+            class="size-3.5 text-muted shrink-0"
           />
         </UTooltip>
       </span>

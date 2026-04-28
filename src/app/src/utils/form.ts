@@ -1,55 +1,41 @@
-import type { Draft07, Draft07DefinitionProperty, Draft07DefinitionPropertyAnyOf, Draft07DefinitionPropertyAllOf, Draft07DefinitionPropertyOneOf } from '@nuxt/content'
-import type { FormTree, FormItem, FormInputsTypes } from '../types'
-import { upperFirst } from 'scule'
+import type { Draft07, Draft07DefinitionProperty, Draft07DefinitionPropertyAnyOf, Draft07DefinitionPropertyAllOf, Draft07DefinitionPropertyOneOf, EditorOptions } from '@nuxt/content'
+import type { FormTree, FormItem } from '../types'
+import { upperFirst, titleCase } from 'scule'
 import { omit } from './object'
-import type { Component } from 'vue'
-import InputBoolean from '../components/form/input/InputBoolean.vue'
-import InputDate from '../components/form/input/InputDate.vue'
-import InputIcon from '../components/form/input/InputIcon.vue'
-import InputMedia from '../components/form/input/InputMedia.vue'
-import InputNumber from '../components/form/input/InputNumber.vue'
-import InputText from '../components/form/input/InputText.vue'
-import InputObject from '../components/form/input/InputObject.vue'
-import InputArray from '../components/form/input/InputArray.vue'
-import InputTextarea from '../components/form/input/InputTextarea.vue'
+
+export function formItemInputLabel(formItem: FormItem): string {
+  const custom = formItem.label?.trim()
+  if (custom) {
+    return custom
+  }
+
+  return titleCase(formItem.title)
+}
 
 /**
  * Maps Nuxt Content collection schema `$content.editor` display options onto a form item.
  */
 function editorDisplayFromContent(
   content: Draft07DefinitionProperty['$content'],
-): Partial<Pick<FormItem, 'fieldName' | 'fieldDescription' | 'tooltip'>> {
-  const editor = content?.editor
+): Partial<Pick<FormItem, 'label' | 'description' | 'tooltip'>> {
+  const editor = content?.editor as EditorOptions | undefined
   if (!editor) {
     return {}
   }
 
-  const result: Partial<Pick<FormItem, 'fieldName' | 'fieldDescription' | 'tooltip'>> = {}
+  const result: Partial<Pick<FormItem, 'label' | 'description' | 'tooltip'>> = {}
 
-  if (editor.fieldName !== undefined) {
-    result.fieldName = editor.fieldName
+  if (editor.label !== undefined) {
+    result.label = editor.label
   }
-  if (editor.fieldDescription !== undefined) {
-    result.fieldDescription = editor.fieldDescription
+  if (editor.description !== undefined) {
+    result.description = editor.description
   }
   if (editor.tooltip !== undefined) {
     result.tooltip = editor.tooltip
   }
 
   return result
-}
-
-export const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
-  array: InputArray,
-  boolean: InputBoolean,
-  date: InputDate,
-  datetime: InputDate,
-  icon: InputIcon,
-  media: InputMedia,
-  number: InputNumber,
-  string: InputText,
-  object: InputObject,
-  textarea: InputTextarea,
 }
 
 export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormTree => {
