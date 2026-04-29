@@ -578,7 +578,9 @@ Hello
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
     const rtComarkTree = await tiptapToComark(tiptapJSON)
-    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    // Comark strips the #default slot
+    expect(rtComarkTree.nodes).toMatchObject([['block-element', {}, 'Hello']])
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -587,7 +589,7 @@ Hello
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Comark strips #default from named default slots when serializing (treated as implicit)
+    // Idem for output content (comark strips the #default slot)
     expect(outputContent).toBe('::block-element\nHello\n::\n')
   })
 
@@ -1093,6 +1095,33 @@ My icon
 
     const rtComarkTree = await tiptapToComark(tiptapJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element link as default and multiple sloted content', async () => {
+    const inputContent = [
+      '::code-preview',
+      '[Installation](/getting-started/installation)',
+      '',
+      '#code',
+      '```mdc',
+      '[Installation](/getting-started/installation)',
+      '```',
+      '::',
+    ].join('\n')
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,

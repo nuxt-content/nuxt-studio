@@ -498,10 +498,8 @@ function unwrapParagraph(content: JSONContent[]): JSONContent[] {
 }
 
 function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
-  // Only unwrap synthetic default slots (auto-created by wrapChildrenWithinSlot in comarkToTiptap).
-  // Explicit #default named slots (user-authored) must be preserved.
   const idx = content.findIndex(
-    n => n?.type === 'slot' && n.attrs?.name === 'default' && n.attrs?.__tiptapSynthetic,
+    n => n?.type === 'slot' && n.attrs?.name === 'default',
   )
   if (idx === -1) return content
   const slotChildren = content[idx].content || []

@@ -287,28 +287,17 @@ function createTemplateNode(node: ComarkElement): JSONContent {
     || (nodeAttrs as Record<string, unknown>)?.name as string
     || 'default'
 
-  // Detect if this is a synthetic default slot (auto-created by wrapChildrenWithinSlot, not explicit in source)
-  const isSynthetic = (nodeAttrs as Record<string, unknown>)?.__tiptapSynthetic !== undefined
-
-  // Wrap text children in paragraph (TipTap requires text to be in block nodes)
+  // Wrap inline content in paragraph (TipTap slot requires block+ content)
   let children = getChildren(node)
-  if (children.length > 0 && typeof children[0] === 'string') {
+  const firstChild = children[0]
+  const isInlineFirstChild = typeof firstChild === 'string'
+    || (Array.isArray(firstChild) && firstChild[0] !== null && (firstChild[0] as string) in tagToMark)
+  if (children.length > 0 && isInlineFirstChild) {
     children = [['p', {}, ...children] as ComarkElement]
   }
 
-  // Strip __tiptapSynthetic from processedNode so it doesn't leak into element props
-  const cleanAttrs = { ...nodeAttrs }
-  delete (cleanAttrs as Record<string, unknown>).__tiptapSynthetic
-
-  const processedNode: ComarkElement = [getTag(node), cleanAttrs, ...children]
-  const slotNode = createTipTapNode(processedNode, 'slot', { attrs: { name } })
-
-  // Propagate synthetic flag to TipTap slot attrs so tiptapToComark can identify it
-  if (isSynthetic) {
-    ;(slotNode.attrs as Record<string, unknown>).__tiptapSynthetic = true
-  }
-
-  return slotNode
+  const processedNode: ComarkElement = [getTag(node), nodeAttrs, ...children]
+  return createTipTapNode(processedNode, 'slot', { attrs: { name } })
 }
 
 function createPreNode(node: ComarkElement): JSONContent {
@@ -460,9 +449,7 @@ function wrapChildrenWithinSlot(children: ComarkNode[]): ComarkNode[] {
     })
 
     if (defaultSlotIndex === -1) {
-      // __tiptapSynthetic marks this as auto-created by wrapChildrenWithinSlot (not explicit in source).
-      // This flag lets tiptapToComark unwrap ONLY synthetic default slots, preserving explicit #default slots.
-      const defaultSlot: ComarkElement = ['template', { name: 'default', __tiptapSynthetic: '' }, ...noneTemplateChildren]
+      const defaultSlot: ComarkElement = ['template', { name: 'default' }, ...noneTemplateChildren]
       templates = [defaultSlot, ...templates]
     }
     else {
