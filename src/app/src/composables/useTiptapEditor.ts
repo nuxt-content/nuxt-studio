@@ -13,7 +13,7 @@ import {
   standardNuxtUIComponents,
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
-import { imageHandler, videoHandler, calloutHandler, componentHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
+import { imageHandler, videoHandler, calloutHandler, componentHandler, tableHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
 import { useStudio } from './useStudio'
 
 /**
@@ -44,6 +44,7 @@ export function useTiptapEditor() {
   const customHandlers = computed(() => ({
     image: imageHandler(),
     video: videoHandler(),
+    table: tableHandler(),
     ...Object.fromEntries(
       componentItems.value.map(item => [
         item.kind,
