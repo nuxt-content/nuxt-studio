@@ -194,7 +194,6 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
 
   // Process element props
   const propsArray = normalizeProps(node.attrs?.props || {}, props)
-
   if (node.type === 'paragraph') {
     // Empty paragraph
     if (!children || children.length === 0) {
@@ -204,11 +203,9 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
     return createParagraphElement(node, propsArray, rest)
   }
 
-  // Unwrap default slot (reverts `wrapChildrenWithinSlot` from `comarkToTiptap`)
   children = unwrapDefaultSlot(children)
-
-  // Unwrap single paragraph child (MDC auto-unwrap feature)
   children = unwrapParagraph(children)
+  children = wrapImageInParagraph(children)
 
   const elementProps = Object.fromEntries(propsArray)
   const elementChildren = (node.children || comarkNodesFromTiptap(children)) as ComarkNode[]
@@ -490,6 +487,21 @@ async function applyShikiSyntaxHighlighting(tree: ComarkTree, theme: SyntaxHighl
   tree.nodes = highlighted.nodes
 }
 
+/**
+ * Ensure image and video blocks are wrapped in a paragraph when named slots are present.
+ */
+function wrapImageInParagraph(content: JSONContent[]): JSONContent[] {
+  if (!content.some(c => (c as JSONContent).type === 'slot')) return content
+  return content.map(child =>
+    (child as JSONContent).type === 'image'
+      ? { type: 'paragraph', content: [child as JSONContent] }
+      : child,
+  )
+}
+
+/**
+ * Unwrap single paragraph child (MDC auto-unwrap feature)
+ */
 function unwrapParagraph(content: JSONContent[]): JSONContent[] {
   if (content.length === 1 && content[0]?.type === 'paragraph') {
     return content[0].content || []
@@ -497,6 +509,9 @@ function unwrapParagraph(content: JSONContent[]): JSONContent[] {
   return content
 }
 
+/**
+ * Unwrap default slot (reverts `wrapChildrenWithinSlot` from `comarkToTiptap`)
+ */
 function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
   const idx = content.findIndex(
     n => n?.type === 'slot' && n.attrs?.name === 'default',
