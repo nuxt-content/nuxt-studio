@@ -228,7 +228,8 @@
         "insert": "Insert",
         "image": "Image",
         "video": "Video",
-        "horizontalRule": "Horizontal Rule"
+        "horizontalRule": "Horizontal Rule",
+        "table": "Table"
       },
       "drag": {
         "turnInto": "Turn into",
