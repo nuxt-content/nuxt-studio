@@ -65,4 +65,31 @@ describe('table', () => {
     expect(outputContent).toContain('**Alice**')
     expect(outputContent).toContain('[Profile](https://example.com)')
   })
+
+  test('table with empty cells', async () => {
+    const inputContent = `| A | B |
+| --- | --- |
+|   | value |
+| value |   |`
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as never, {})
+
+    const tableNode = tiptapJSON.content?.find(c => c.type === 'table')
+    expect(tableNode).toBeDefined()
+
+    const dataRow1 = tableNode!.content![1]
+    const emptyCell = dataRow1.content![0]
+    expect(emptyCell.type).toBe('tableCell')
+    expect(emptyCell.content).toEqual([{ type: 'paragraph', content: [] }])
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toMatch(/\|\s*\|\s*value\s*\|/)
+  })
 })
