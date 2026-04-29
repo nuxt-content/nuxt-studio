@@ -92,4 +92,30 @@ describe('table', () => {
 
     expect(outputContent).toMatch(/\|\s*\|\s*value\s*\|/)
   })
+
+  test('single-column table', async () => {
+    const inputContent = `| Header |
+| --- |
+| One |
+| Two |`
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as never, {})
+
+    const tableNode = tiptapJSON.content?.find(c => c.type === 'table')
+    expect(tableNode).toBeDefined()
+    expect(tableNode?.content).toHaveLength(3)
+    expect(tableNode?.content?.[0].content).toHaveLength(1)
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toMatch(/\|\s*Header\s*\|/)
+    expect(outputContent).toMatch(/\|\s*One\s*\|/)
+    expect(outputContent).toMatch(/\|\s*Two\s*\|/)
+  })
 })
