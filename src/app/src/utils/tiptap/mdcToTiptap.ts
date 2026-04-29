@@ -38,6 +38,12 @@ const mdcToTiptapMap: MDCToTipTapMap = {
   blockquote: node => createTipTapNode(node as MDCElement, 'blockquote'),
   binding: node => createTipTapNode(node as MDCElement, 'binding', { attrs: { value: (node as MDCElement).props?.value, defaultValue: (node as MDCElement).props?.defaultValue } }),
   hr: node => createTipTapNode(node as MDCElement, 'horizontalRule'),
+  table: node => createTableNode(node as MDCElement),
+  thead: node => createTableSectionNode(node as MDCElement),
+  tbody: node => createTableSectionNode(node as MDCElement),
+  tr: node => createTableRowNode(node as MDCElement),
+  th: node => createTableCellNode(node as MDCElement, 'tableHeader'),
+  td: node => createTableCellNode(node as MDCElement, 'tableCell'),
 }
 
 export function mdcToTiptap(body: MDCRoot, frontmatter: Record<string, unknown>, options?: { hasNuxtUI?: boolean }) {
@@ -422,4 +428,45 @@ function removeStyleElementsFromMDC(node: MDCRoot | MDCNode): void {
       removeStyleElementsFromMDC(child)
     })
   }
+}
+
+function createTableNode(node: MDCElement): JSONContent {
+  const rows: JSONContent[] = []
+  for (const child of node.children || []) {
+    const el = child as MDCElement
+    if (el.tag === 'thead' || el.tag === 'tbody') {
+      for (const tr of (el.children || [])) {
+        rows.push(mdcNodeToTiptap(tr, node as MDCNode))
+      }
+    }
+    else if (el.tag === 'tr') {
+      rows.push(mdcNodeToTiptap(el, node as MDCNode))
+    }
+  }
+  return { type: 'table', content: rows }
+}
+
+function createTableSectionNode(node: MDCElement): JSONContent {
+  return {
+    type: 'doc',
+    content: (node.children || []).map(c => mdcNodeToTiptap(c, node as MDCNode)),
+  }
+}
+
+function createTableRowNode(node: MDCElement): JSONContent {
+  return {
+    type: 'tableRow',
+    content: (node.children || []).map(c => mdcNodeToTiptap(c, node as MDCNode)),
+  }
+}
+
+function createTableCellNode(node: MDCElement, type: 'tableHeader' | 'tableCell'): JSONContent {
+  const children = (node.children || []).flatMap(c => mdcNodeToTiptap(c, node as MDCNode))
+  const isAllInline = children.length > 0 && children.every(c => c.type === 'text' || (c.marks !== undefined && c.marks.length > 0))
+  const content = children.length === 0
+    ? [{ type: 'paragraph', content: [] }]
+    : isAllInline
+      ? [{ type: 'paragraph', content: children }]
+      : children
+  return { type, content }
 }
