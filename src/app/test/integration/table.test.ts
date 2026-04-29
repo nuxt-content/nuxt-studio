@@ -38,8 +38,9 @@ describe('table', () => {
     })
     const outputContent = await generateContentFromDocument(generatedDocument)
 
-    expect(outputContent).toContain('| Name | Role |')
-    expect(outputContent).toContain('| Alice | Admin |')
-    expect(outputContent).toContain('| Bob | User |')
+    // GFM serializer pads columns to the longest cell value — use regex to match content regardless of padding
+    expect(outputContent).toMatch(/\|\s*Name\s*\|\s*Role\s*\|/)
+    expect(outputContent).toMatch(/\|\s*Alice\s*\|\s*Admin\s*\|/)
+    expect(outputContent).toMatch(/\|\s*Bob\s*\|\s*User\s*\|/)
   })
 })
