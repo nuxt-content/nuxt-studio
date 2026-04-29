@@ -43,4 +43,26 @@ describe('table', () => {
     expect(outputContent).toMatch(/\|\s*Alice\s*\|\s*Admin\s*\|/)
     expect(outputContent).toMatch(/\|\s*Bob\s*\|\s*User\s*\|/)
   })
+
+  test('table with bold and link inside cells', async () => {
+    const inputContent = `| Name | Link |
+| --- | --- |
+| **Alice** | [Profile](https://example.com) |`
+
+    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as never, {})
+
+    const tableNode = tiptapJSON.content?.find(c => c.type === 'table')
+    expect(tableNode).toBeDefined()
+
+    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: generatedMdcJSON.body as unknown as MarkdownRoot,
+      ...generatedMdcJSON.data,
+    })
+    const outputContent = await generateContentFromDocument(generatedDocument)
+
+    expect(outputContent).toContain('**Alice**')
+    expect(outputContent).toContain('[Profile](https://example.com)')
+  })
 })
