@@ -242,6 +242,16 @@
         "insertAfter": "Insert after",
         "delete": "Delete"
       },
+      "table": {
+        "addRowAbove": "Add row above",
+        "addRowBelow": "Add row below",
+        "addColumnLeft": "Add column left",
+        "addColumnRight": "Add column right",
+        "toggleHeader": "Toggle header row",
+        "deleteRow": "Delete row",
+        "deleteColumn": "Delete column",
+        "deleteTable": "Delete table"
+      },
       "ai": {
         "fix": "Fix Grammar & Spelling",
         "improve": "Improve writing and clarity",

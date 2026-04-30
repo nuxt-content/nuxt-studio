@@ -24,6 +24,7 @@ import { InlineElement } from '../../../utils/tiptap/extensions/inline-element'
 import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import { compressTree } from '@nuxt/content/runtime'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
+import TiptapTableMenu from '../../tiptap/TiptapTableMenu.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
 import { Callout } from '../../../utils/tiptap/extensions/callout'
 import { Table, TableRow, TableCell, TableHeader } from '../../../utils/tiptap/extensions/table'
@@ -256,6 +257,8 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         :editor="editor"
         :items="suggestionItems"
       />
+
+      <TiptapTableMenu :editor="editor" />
 
       <UEditorEmojiMenu
         :editor="editor"
