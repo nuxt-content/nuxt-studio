@@ -51,6 +51,7 @@ export const COMMAND_KEYS = [
   'image',
   'video',
   'horizontalRule',
+  'table',
 ] as const
 
 export type CommandKey = typeof COMMAND_KEYS[number]

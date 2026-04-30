@@ -53,6 +53,10 @@ const tiptapToMDCMap: TiptapToMDCMap = {
   },
   'br': (node: JSONContent) => createElement(node, 'br'),
   'u-callout': (node: JSONContent) => createCalloutElement(node),
+  'table': (node: JSONContent) => createTableElement(node),
+  'tableRow': (node: JSONContent) => createElement(node, 'tr'),
+  'tableHeader': (node: JSONContent) => createTableCellElement(node, 'th'),
+  'tableCell': (node: JSONContent) => createTableCellElement(node, 'td'),
 }
 
 let slugs = new Slugger()
@@ -583,4 +587,41 @@ function getNodeContent(node: JSONContent) {
   })
 
   return content
+}
+
+function createTableElement(node: JSONContent): MDCElement {
+  const children = node.content || []
+  const headerRows: MDCNode[] = []
+  const bodyRows: MDCNode[] = []
+
+  for (const row of children) {
+    const firstCell = row.content?.[0]
+    const converted = tiptapNodeToMDC(row)
+    const rowNode = (Array.isArray(converted) ? converted[0] : converted) as MDCNode
+    if (firstCell?.type === 'tableHeader') {
+      headerRows.push(rowNode)
+    }
+    else {
+      bodyRows.push(rowNode)
+    }
+  }
+
+  const tableChildren: MDCElement[] = []
+  if (headerRows.length > 0) {
+    tableChildren.push({ type: 'element', tag: 'thead', props: {}, children: headerRows as MDCElement[] })
+  }
+  if (bodyRows.length > 0) {
+    tableChildren.push({ type: 'element', tag: 'tbody', props: {}, children: bodyRows as MDCElement[] })
+  }
+
+  return { type: 'element', tag: 'table', props: {}, children: tableChildren }
+}
+
+function createTableCellElement(node: JSONContent, tag: 'th' | 'td'): MDCElement {
+  const children = (node.content || []).flatMap(tiptapNodeToMDC) as MDCNode[]
+  const first = children[0] as MDCElement | undefined
+  const unwrapped = children.length === 1 && first?.tag === 'p'
+    ? (first.children as MDCNode[])
+    : children
+  return { type: 'element', tag, props: {}, children: unwrapped as MDCElement[] }
 }

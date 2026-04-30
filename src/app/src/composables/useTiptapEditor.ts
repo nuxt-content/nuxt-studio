@@ -13,7 +13,7 @@ import {
   standardNuxtUIComponents,
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
-import { imageHandler, videoHandler, calloutHandler, componentHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
+import { imageHandler, videoHandler, calloutHandler, componentHandler, tableHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
 import { useStudio } from './useStudio'
 
 /**
@@ -26,30 +26,38 @@ export function useTiptapEditor() {
   // Selected node for drag handle
   const selectedNode = ref<JSONContent | null>(null)
 
+  // The native TipTap Table extension owns the 'table' kind. Skip any project-defined
+  // <UTable> / <Table> component so the slash menu doesn't show two "Table" entries that
+  // route to different behaviors (collapsed Vue component block vs. editable cells).
+  const NATIVE_OVERRIDE_COMPONENTS = new Set(['table'])
+
   /**
    * Component items for suggestions menu
    */
   const componentItems = computed(() => {
-    return host.meta.editor.components.get().map(component => ({
-      kind: component.name,
-      type: undefined as never,
-      label: titleCase(component.name),
-      icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
-    }))
+    return host.meta.editor.components.get()
+      .filter(component => !NATIVE_OVERRIDE_COMPONENTS.has(component.name))
+      .map(component => ({
+        kind: component.name,
+        type: undefined as never,
+        label: titleCase(component.name),
+        icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+      }))
   })
 
   /**
    * Custom handlers for editor commands
    */
   const customHandlers = computed(() => ({
-    image: imageHandler(),
-    video: videoHandler(),
     ...Object.fromEntries(
       componentItems.value.map(item => [
         item.kind,
         CALLOUT_TYPES.has(item.kind) ? calloutHandler(item.kind) : componentHandler(item.kind),
       ]),
     ),
+    image: imageHandler(),
+    video: videoHandler(),
+    table: tableHandler(),
   }) satisfies EditorCustomHandlers)
 
   /**
@@ -77,12 +85,14 @@ export function useTiptapEditor() {
         type: 'label' as const,
         label: group.label,
       },
-      ...group.components.map(component => ({
-        kind: component.name,
-        type: undefined as never,
-        label: titleCase(component.name),
-        icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
-      })),
+      ...group.components
+        .filter(component => !NATIVE_OVERRIDE_COMPONENTS.has(component.name))
+        .map(component => ({
+          kind: component.name,
+          type: undefined as never,
+          label: titleCase(component.name),
+          icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+        })),
     ])
 
     return [

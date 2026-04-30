@@ -67,7 +67,8 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   optimizeDeps: {
-    include: ['vue', 'vue-router', '@unhead/vue/client', '@nuxt/content/runtime', '@vueuse/core', '@unpic/vue', 'scule', 'zod', 'ufo', 'unstorage', 'unstorage/drivers/indexedb', 'unstorage/drivers/null', 'hookable', 'ofetch', '@nuxtjs/mdc/runtime', 'remark-mdc', 'unist-util-visit', 'destr', 'minimark/stringify', 'prosemirror-state', 'prosemirror-transform', 'prosemirror-model', 'prosemirror-view'],
+    include: ['vue', 'vue-router', '@unhead/vue/client', '@nuxt/content/runtime', '@vueuse/core', '@unpic/vue', 'scule', 'zod', 'ufo', 'unstorage', 'unstorage/drivers/indexedb', 'unstorage/drivers/null', 'hookable', 'ofetch', '@nuxtjs/mdc/runtime', 'remark-mdc', 'unist-util-visit', 'destr', 'minimark/stringify', 'prosemirror-state', 'prosemirror-transform', 'prosemirror-model', 'prosemirror-view', '@tiptap/pm/tables'],
+    exclude: ['@tiptap/extension-table'],
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),

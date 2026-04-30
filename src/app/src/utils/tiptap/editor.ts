@@ -162,6 +162,14 @@ function buildStandardSuggestionSections(t: TFunction): CommandSectionDefinition
             icon: 'i-lucide-separator-horizontal',
           },
         },
+        {
+          key: 'table',
+          item: {
+            kind: 'table',
+            label: t('studio.tiptap.suggestion.table'),
+            icon: 'i-lucide-table',
+          },
+        },
       ],
     },
   ]
@@ -239,11 +247,25 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
     codeBlock: 'studio.tiptap.toolbar.codeBlock',
     image: 'studio.tiptap.suggestion.image',
     horizontalRule: 'studio.tiptap.suggestion.horizontalRule',
+    table: 'studio.tiptap.suggestion.table',
   }
 
   if (typeTranslationMap[type]) {
     label = t(typeTranslationMap[type])
   }
+
+  // ProseMirror would allow converting a table into a paragraph, but doing so silently drops
+  // every cell value. Force-disable Turn into for tables to match the UX of custom block
+  // components like Card / Element where the same options are greyed out.
+  const turnIntoChildren: EditorSuggestionMenuItem[] = [
+    { kind: 'paragraph', label: t('studio.tiptap.suggestion.paragraph'), icon: 'i-lucide-type' },
+    ...getHeadingItems(t) as EditorSuggestionMenuItem[],
+    ...getListItems(t) as EditorSuggestionMenuItem[],
+    ...getCodeBlockItem(t) as EditorSuggestionMenuItem[],
+  ]
+  const turnIntoChildrenForType = type === 'table'
+    ? turnIntoChildren.map(({ kind: _kind, ...rest }) => ({ ...rest, disabled: true }))
+    : turnIntoChildren
 
   return mapEditorItems(editor, [
     [
@@ -254,12 +276,7 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
       {
         label: t('studio.tiptap.drag.turnInto'),
         icon: 'i-lucide-repeat-2',
-        children: [
-          { kind: 'paragraph', label: t('studio.tiptap.suggestion.paragraph'), icon: 'i-lucide-type' },
-          ...getHeadingItems(t),
-          ...getListItems(t),
-          ...getCodeBlockItem(t),
-        ],
+        children: turnIntoChildrenForType,
       },
       {
         kind: 'clearFormatting',
