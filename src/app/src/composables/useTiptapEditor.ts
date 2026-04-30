@@ -26,16 +26,23 @@ export function useTiptapEditor() {
   // Selected node for drag handle
   const selectedNode = ref<JSONContent | null>(null)
 
+  // The native TipTap Table extension owns the 'table' kind. Skip any project-defined
+  // <UTable> / <Table> component so the slash menu doesn't show two "Table" entries that
+  // route to different behaviors (collapsed Vue component block vs. editable cells).
+  const NATIVE_OVERRIDE_COMPONENTS = new Set(['table'])
+
   /**
    * Component items for suggestions menu
    */
   const componentItems = computed(() => {
-    return host.meta.editor.components.get().map(component => ({
-      kind: component.name,
-      type: undefined as never,
-      label: titleCase(component.name),
-      icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
-    }))
+    return host.meta.editor.components.get()
+      .filter(component => !NATIVE_OVERRIDE_COMPONENTS.has(component.name))
+      .map(component => ({
+        kind: component.name,
+        type: undefined as never,
+        label: titleCase(component.name),
+        icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+      }))
   })
 
   /**
@@ -78,12 +85,14 @@ export function useTiptapEditor() {
         type: 'label' as const,
         label: group.label,
       },
-      ...group.components.map(component => ({
-        kind: component.name,
-        type: undefined as never,
-        label: titleCase(component.name),
-        icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
-      })),
+      ...group.components
+        .filter(component => !NATIVE_OVERRIDE_COMPONENTS.has(component.name))
+        .map(component => ({
+          kind: component.name,
+          type: undefined as never,
+          label: titleCase(component.name),
+          icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+        })),
     ])
 
     return [
