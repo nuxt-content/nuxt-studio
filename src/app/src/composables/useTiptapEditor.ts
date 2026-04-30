@@ -42,15 +42,15 @@ export function useTiptapEditor() {
    * Custom handlers for editor commands
    */
   const customHandlers = computed(() => ({
-    image: imageHandler(),
-    video: videoHandler(),
-    table: tableHandler(),
     ...Object.fromEntries(
       componentItems.value.map(item => [
         item.kind,
         CALLOUT_TYPES.has(item.kind) ? calloutHandler(item.kind) : componentHandler(item.kind),
       ]),
     ),
+    image: imageHandler(),
+    video: videoHandler(),
+    table: tableHandler(),
   }) satisfies EditorCustomHandlers)
 
   /**
