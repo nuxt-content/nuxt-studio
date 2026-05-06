@@ -59,12 +59,18 @@ export function cleanDataKeys(document: DatabaseItem): DatabaseItem {
   }
 
   if (document.seo) {
-    const seo = document.seo as Record<string, unknown>
-    if (
-      (!seo.title || seo.title === document.title)
-      && (!seo.description || seo.description === document.description)
-    ) {
+    const seo = { ...(document.seo as Record<string, unknown>) }
+    if (!seo.title || seo.title === document.title) {
+      Reflect.deleteProperty(seo, 'title')
+    }
+    if (!seo.description || seo.description === document.description) {
+      Reflect.deleteProperty(seo, 'description')
+    }
+    if (Object.keys(seo).length === 0) {
       Reflect.deleteProperty(result, 'seo')
+    }
+    else {
+      result.seo = seo
     }
   }
 
