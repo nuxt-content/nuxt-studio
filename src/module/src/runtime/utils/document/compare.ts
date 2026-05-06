@@ -9,7 +9,7 @@ import { generateDocumentFromContent } from './generate'
 import { removeLastStylesFromTree } from './tree'
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
-  const generatedDocument = await generateDocumentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
+  const generatedDocument = await generateDocumentFromContent(document.id, content, { compress: true }) as DatabaseItem
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
     const { body: generatedBody, ...generatedDocumentData } = generatedDocument
@@ -73,8 +73,8 @@ export function areDocumentsEqual(document1: Record<string, unknown>, document2:
     Reflect.deleteProperty(doc, '__hash__')
     Reflect.deleteProperty(doc, 'path')
 
-    // default value of navigation is true
-    if (typeof doc.navigation === 'undefined') {
+    // default value of navigation is true; D1 may store it as string 'true'
+    if (typeof doc.navigation === 'undefined' || doc.navigation === 'true') {
       doc.navigation = true
     }
 
