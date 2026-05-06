@@ -107,7 +107,6 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
     },
   })
 
-
   let body = document.body as never as MarkdownRoot
   if (options.compress && document.body.type === 'root') {
     body = compressTree(document.body)
