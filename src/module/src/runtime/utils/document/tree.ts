@@ -3,7 +3,7 @@ import type { DatabaseItem } from 'nuxt-studio/app'
 import type { MinimarkNode, MinimarkTree } from 'minimark'
 import { visit as minimarkVisit } from 'minimark'
 
-export function sanitizeDocumentTree(document: DatabaseItem, collection: CollectionInfo) {
+export function sanitizeDocumentTree(document: DatabaseItem, _collection: CollectionInfo) {
   if (!document.body && (document.meta?.body as unknown as MinimarkTree)?.type === 'minimark') {
     document.body = (document.meta?.body as unknown as MinimarkTree)
     Reflect.deleteProperty(document.meta, 'body')
