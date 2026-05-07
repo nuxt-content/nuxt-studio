@@ -6,6 +6,7 @@ import { createMockDocument } from '../mocks/document'
 import { comarkToTiptap } from '../../src/utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../src/utils/tiptap/tiptapToComark'
 import type { ComarkTree, ComarkNode } from 'comark'
+import highlight from 'comark/plugins/highlight'
 
 describe('paragraph', () => {
   test('simple paragraph', async () => {
@@ -1362,6 +1363,63 @@ describe('code block', () => {
     })
   })
 
+  test('code block containing triple backticks is serialized with tilde fences', async () => {
+    const inputContent = [
+      '````mdc',
+      '```bash',
+      'npx install',
+      '```',
+      '````',
+    ].join('\n')
+
+    const expectedOutput = [
+      '~~~mdc',
+      '```bash',
+      'npx install',
+      '```',
+      '~~~',
+      '',
+    ].join('\n')
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(expectedOutput)
+  })
+
+  test('code block with tilde fence containing triple backticks roundtrips correctly', async () => {
+    const inputContent = [
+      '~~~mdc',
+      '```bash',
+      'npx install',
+      '```',
+      '~~~',
+    ].join('\n')
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
   test('simple code block highlighting', async () => {
     const inputContent = 'console.log("Hello, world!");'
 
@@ -1433,12 +1491,9 @@ describe('inline code', () => {
     const inputContent = '`const foo = "bar"`{lang="ts"}'
 
     const { parse } = await import('comark')
+    const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
     const tree = await parse(inputContent, {
-      plugins: [{
-        post: async (state) => {
-          const { highlightCodeBlocks } = await import('comark/plugins/highlight')
-          state.tree = await highlightCodeBlocks(state.tree, { themes: { default: 'github-light', dark: 'github-dark' } })
-        } }],
+      plugins: [highlight({ themes })],
     })
 
     // After Shiki, the `language` prop must still be present so comarkToTiptap can preserve it.
@@ -1495,13 +1550,9 @@ describe('inline code', () => {
     const inputContent = '`docus`{.shiki,shiki-themes,material-theme-lighter,material-theme,material-theme-palenight lang="ts"}'
 
     const { parse } = await import('comark')
+    const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
     const tree = await parse(inputContent, {
-      plugins: [{
-        post: async (state) => {
-          const { highlightCodeBlocks } = await import('comark/plugins/highlight')
-          state.tree = await highlightCodeBlocks(state.tree, { themes: { default: 'github-light', dark: 'github-dark' } })
-        },
-      }],
+      plugins: [highlight({ themes })],
     })
 
     const tiptapJSON = comarkToTiptap(tree)
@@ -1846,9 +1897,9 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as block element with YAML frontmatter when there are more than 3 props
+    // Video is serialized as block element with YAML props block when there are more than 3 props
     // Attribute order follows tiptapToComark insertion order: src, poster, then booleans
-    expect(outputContent).toBe('::video\n---\nsrc: https://example.com/video.mp4\nposter: https://example.com/poster.jpg\ncontrols: true\nloop: true\nmuted: true\n---\n::\n')
+    expect(outputContent).toBe('::video\n```yaml [props]\nsrc: https://example.com/video.mp4\nposter: https://example.com/poster.jpg\ncontrols: true\nloop: true\nmuted: true\n```\n::\n')
   })
 })
 

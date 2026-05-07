@@ -32,8 +32,8 @@ importers:
         specifier: ^6.0.168
         version: 6.0.168(zod@4.3.6)
       comark:
-        specifier: https://pkg.pr.new/comarkdown/comark@76bb4a4
-        version: https://pkg.pr.new/comarkdown/comark@76bb4a4(@types/markdown-it@14.1.2)(markdown-it@14.1.1)(shiki@4.0.2)
+        specifier: https://pkg.pr.new/comark@35a5e29
+        version: https://pkg.pr.new/comark@35a5e29(shiki@4.0.2)
       defu:
         specifier: ^6.1.7
         version: 6.1.7
@@ -438,12 +438,6 @@ packages:
 
   '@colordx/core@5.0.3':
     resolution: {integrity: sha512-xBQ0MYRTNNxW3mS2sJtlQTT7C3Sasqgh1/PsHva7fyDb5uqYY+gv9V0utDdX8X80mqzbGz3u/IDJdn2d/uW09g==}
-
-  '@comark/markdown-it@0.3.4':
-    resolution: {integrity: sha512-btB+klvBi08qRZGeSLbykfD2ROxhLLQJ4+uDI7FjL560ztlzTtBlGmqe6zP49mW/Yp9y39kSWeRS46iEFpGa0w==}
-    peerDependencies:
-      '@types/markdown-it': '*'
-      markdown-it: ^14.0.0
 
   '@conventional-changelog/git-client@2.6.0':
     resolution: {integrity: sha512-T+uPDciKf0/ioNNDpMGc8FDsehJClZP0yR3Q5MN6wE/Y/1QZ7F+80OgznnTCOlMEG4AV0LvH2UJi3C/nBnaBUg==}
@@ -3549,9 +3543,6 @@ packages:
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
 
-  '@types/markdown-it@14.1.2':
-    resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
-
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -4494,12 +4485,12 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@https://pkg.pr.new/comarkdown/comark@76bb4a4:
-    resolution: {tarball: https://pkg.pr.new/comarkdown/comark@76bb4a4}
-    version: 0.2.1
+  comark@https://pkg.pr.new/comark@35a5e29:
+    resolution: {integrity: sha512-Bs++XZJP98dhbsfflFb2gNIf+BB3iQH4ylkhFvNKHThtU6jBQmDRP5wUlU0/o0oAg+yqKquMbRjjfI04vrS3Bw==, tarball: https://pkg.pr.new/comark@35a5e29}
+    version: 0.3.2
     peerDependencies:
       beautiful-mermaid: ^1.1.3
-      katex: ^0.16.33
+      katex: ^0.16.45
       shiki: ^4.0.0
     peerDependenciesMeta:
       beautiful-mermaid:
@@ -6204,10 +6195,6 @@ packages:
 
   markdown-exit@1.0.0-beta.9:
     resolution: {integrity: sha512-5tzrMKMF367amyBly131vm6eGuWRL2DjBqWaFmPzPbLyuxP0XOmyyyroOAIXuBAMF/3kZbbfqOxvW/SotqKqbQ==}
-
-  markdown-it@14.1.1:
-    resolution: {integrity: sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA==}
-    hasBin: true
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
@@ -8987,12 +8974,6 @@ snapshots:
   '@cloudflare/workers-types@4.20260403.1': {}
 
   '@colordx/core@5.0.3': {}
-
-  '@comark/markdown-it@0.3.4(@types/markdown-it@14.1.2)(markdown-it@14.1.1)':
-    dependencies:
-      '@types/markdown-it': 14.1.2
-      js-yaml: 4.1.1
-      markdown-it: 14.1.1
 
   '@conventional-changelog/git-client@2.6.0(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)':
     dependencies:
@@ -12529,11 +12510,6 @@ snapshots:
 
   '@types/linkify-it@5.0.0': {}
 
-  '@types/markdown-it@14.1.2':
-    dependencies:
-      '@types/linkify-it': 5.0.0
-      '@types/mdurl': 2.0.0
-
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -13497,18 +13473,14 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@https://pkg.pr.new/comarkdown/comark@76bb4a4(@types/markdown-it@14.1.2)(markdown-it@14.1.1)(shiki@4.0.2):
+  comark@https://pkg.pr.new/comark@35a5e29(shiki@4.0.2):
     dependencies:
-      '@comark/markdown-it': 0.3.4(@types/markdown-it@14.1.2)(markdown-it@14.1.1)
       entities: 8.0.0
       htmlparser2: 12.0.0
       js-yaml: 4.1.1
       markdown-exit: 1.0.0-beta.9
     optionalDependencies:
       shiki: 4.0.2
-    transitivePeerDependencies:
-      - '@types/markdown-it'
-      - markdown-it
 
   comma-separated-tokens@2.0.3: {}
 
@@ -15623,15 +15595,6 @@ snapshots:
       '@types/linkify-it': 5.0.0
       '@types/mdurl': 2.0.0
       entities: 7.0.1
-      linkify-it: 5.0.0
-      mdurl: 2.0.0
-      punycode.js: 2.3.1
-      uc.micro: 2.1.0
-
-  markdown-it@14.1.1:
-    dependencies:
-      argparse: 2.0.1
-      entities: 4.5.0
       linkify-it: 5.0.0
       mdurl: 2.0.0
       punycode.js: 2.3.1
