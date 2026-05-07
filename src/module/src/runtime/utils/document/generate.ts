@@ -1,12 +1,10 @@
 import type { MarkdownRoot } from '@nuxt/content'
-import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
+import type { MDCRoot } from '@nuxtjs/mdc'
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
-import type { Node } from 'unist'
 import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
 import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
-import { visit } from 'unist-util-visit'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import destr from 'destr'
 import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
@@ -109,14 +107,6 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
     },
   })
 
-  // Remove nofollow from links (skip when preserving attributes for comparison purposes)
-  if (!options.preserveLinkAttributes) {
-    visit(document.body, (node: unknown) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: unknown) => {
-      // TODO: handle rel custom properties
-      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-    })
-  }
-
   let body = document.body as never as MarkdownRoot
   if (options.compress && document.body.type === 'root') {
     body = compressTree(document.body)
@@ -176,12 +166,6 @@ export async function generateContentFromJSONDocument(document: DatabaseItem): P
 export async function generateContentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
   // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
   const body = document.body!.type === 'minimark' ? decompressTree(document.body) : (document.body as MDCRoot)
-
-  // Remove nofollow from links
-  visit(body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
-    // TODO: handle rel custom properties
-    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-  })
 
   const markdown = await stringifyMarkdown(body, cleanDataKeys(document), {
     frontMatter: {
