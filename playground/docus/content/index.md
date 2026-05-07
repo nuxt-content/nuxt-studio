@@ -27,9 +27,9 @@ Docus brings the best of the Nuxt ecosystem into one CLI.
   :::u-button
   ---
   color: neutral
-  icon: simple-icons-github
   size: xl
   to: https://github.com/nuxt-ui-pro/docus
+  icon: simple-icons-github
   variant: outline
   ---
   Star on GitHub
@@ -41,12 +41,7 @@ Docus brings the best of the Nuxt ecosystem into one CLI.
 Shipped with many features
 
 #features
-  :::u-page-feature
-  ---
-  icon: i-simple-icons-nuxt
-  target: _blank
-  to: https://nuxt.com
-  ---
+  :::u-page-feature{icon="i-simple-icons-nuxt" target="_blank" to="https://nuxt.com"}
   #title
   Built with [Nuxt 4]{.text-primary}
 
@@ -54,12 +49,7 @@ Shipped with many features
   Optimized by the most famous Vue framework. Docus gives you everything you need to build fast, performant, and SEO-friendly websites.
   :::
 
-  :::u-page-feature
-  ---
-  icon: i-simple-icons-nuxt
-  target: _blank
-  to: https://ui.nuxt.com/
-  ---
+  :::u-page-feature{icon="i-simple-icons-nuxt" target="_blank" to="https://ui.nuxt.com/"}
   #title
   Powered by [Nuxt UI Pro]{.text-primary}
 
@@ -67,12 +57,7 @@ Shipped with many features
   Beautiful out of the box, minimal by design but highly customizable. Docus leverages Nuxt UI Pro to give you the best docs writing experience with zero boilerplate, just focus on your content.
   :::
 
-  :::u-page-feature
-  ---
-  icon: i-simple-icons-nuxt
-  target: _blank
-  to: https://content.nuxt.com
-  ---
+  :::u-page-feature{icon="i-simple-icons-nuxt" target="_blank" to="https://content.nuxt.com"}
   #title
   Enhanced Markdown syntax by [Nuxt Content]{.text-primary}
 
@@ -80,12 +65,7 @@ Shipped with many features
   The only thing you need to take care about is writing your content. Write your pages in Markdown and extend with MDC syntax to embed Nuxt UI or custom Vue components. Structure, routing, and rendering are handled for you.
   :::
 
-  :::u-page-feature
-  ---
-  icon: i-simple-icons-nuxt
-  target: _blank
-  to: https://nuxt.com/docs/guide/directory-structure/app-config
-  ---
+  :::u-page-feature{icon="i-simple-icons-nuxt" target="_blank" to="https://nuxt.com/docs/guide/directory-structure/app-config"}
   #title
   Customize with [Nuxt App Config]{.text-primary}
 
@@ -93,12 +73,7 @@ Shipped with many features
   Update colors, social links, header logos and component styles globally using the `app.config.ts`, no direct code modifications required.
   :::
 
-  :::u-page-feature
-  ---
-  icon: i-simple-icons-nuxt
-  target: _blank
-  to: https://content.nuxt.com/studio
-  ---
+  :::u-page-feature{icon="i-simple-icons-nuxt" target="_blank" to="https://content.nuxt.com/studio"}
   #title
   Collaborate on [Nuxt Studio]{.text-primary}
 
@@ -106,12 +81,7 @@ Shipped with many features
   Write and manage your content visually, with zero Markdown knowledge required. Let your non technical colleagues collaborate on the documentation and integrate Vue components without code skills.
   :::
 
-  :::u-page-feature
-  ---
-  icon: i-simple-icons-nuxt
-  target: _blank
-  to: https://ui.nuxt.com/components/content-search
-  ---
+  :::u-page-feature{icon="i-simple-icons-nuxt" target="_blank" to="https://ui.nuxt.com/components/content-search"}
   #title
   Built-in navigation and [full-text search]{.text-primary}
 
