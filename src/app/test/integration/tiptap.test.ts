@@ -1434,8 +1434,6 @@ describe('code block', () => {
     const rtComarkTree = await tiptapToComark(tiptapJSON, { highlightTheme: { default: 'github-light', dark: 'github-dark' } })
     const preNode = rtComarkTree.nodes[0]
 
-    console.log('preNode', preNode)
-
     // Tags: pre -> code -> line -> span -> text
     expect(preNode[0]).toBe('pre')
     // expect(preNode[1].language).toBe('javascript')
@@ -1897,9 +1895,20 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as block element with YAML props block when there are more than 3 props
-    // Attribute order follows tiptapToComark insertion order: src, poster, then booleans
-    expect(outputContent).toBe('::video\n```yaml [props]\nsrc: https://example.com/video.mp4\nposter: https://example.com/poster.jpg\ncontrols: true\nloop: true\nmuted: true\n```\n::\n')
+    // Video is serialized as block element with YAML props block when there are more than 3 prop
+    const res = [
+      '::video',
+      '---',
+      'src: https://example.com/video.mp4',
+      'poster: https://example.com/poster.jpg',
+      'controls: true',
+      'loop: true',
+      'muted: true',
+      '---',
+      '::',
+      '',
+    ]
+    expect(outputContent).toBe(res.join('\n'))
   })
 })
 
