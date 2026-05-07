@@ -13,8 +13,6 @@ export default eventHandler((event) => {
   }
 
   // Detect providers from runtimeConfig (populated at build time from env vars).
-  // Using runtimeConfig instead of process.env ensures this works on platforms
-  // where build-time env vars are not forwarded to the runtime (e.g. AWS Amplify).
   const { studio } = useRuntimeConfig(event)
   const auth = studio?.auth
   const hasGithub = auth?.github?.clientId && 'github'
