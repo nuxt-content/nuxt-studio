@@ -155,6 +155,6 @@ export async function contentFromJSONDocument(document: DatabaseItem): Promise<s
 }
 
 export async function contentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
-  const markdown = await renderMarkdown(document.body as unknown as ComarkTree)
+  const markdown = await renderMarkdown(document.body as unknown as ComarkTree, { blockAttributesStyle: 'frontmatter' })
   return markdown.replace(/&#x2A;/g, '*') + '\n'
 }
