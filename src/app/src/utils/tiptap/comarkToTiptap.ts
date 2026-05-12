@@ -41,6 +41,7 @@ const comarkToTiptapMap: ComarkToTipTapMap = {
   blockquote: node => createTipTapNode(node, 'blockquote'),
   binding: node => createTipTapNode(node, 'binding', { attrs: { value: getAttrs(node)?.value, defaultValue: getAttrs(node)?.defaultValue } }),
   hr: node => createTipTapNode(node, 'horizontalRule'),
+  br: () => ({ type: 'br' }),
 }
 
 /*
