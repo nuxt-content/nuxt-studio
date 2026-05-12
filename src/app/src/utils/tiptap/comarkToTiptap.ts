@@ -287,6 +287,13 @@ function createTemplateNode(node: ComarkElement): JSONContent {
     || (nodeAttrs as Record<string, unknown>)?.name as string
     || 'default'
 
+  // Strip slot-internal attrs
+  const cleanAttrs = Object.fromEntries(
+    Object.entries(nodeAttrs || {}).filter(([key]) =>
+      !key.includes('v-slot:') && key !== 'name',
+    ),
+  )
+
   // Wrap inline content in paragraph (TipTap slot requires block+ content)
   let children = getChildren(node)
   const firstChild = children[0]
@@ -296,7 +303,7 @@ function createTemplateNode(node: ComarkElement): JSONContent {
     children = [['p', {}, ...children] as ComarkElement]
   }
 
-  const processedNode: ComarkElement = [getTag(node), nodeAttrs, ...children]
+  const processedNode: ComarkElement = [getTag(node), cleanAttrs, ...children]
   return createTipTapNode(processedNode, 'slot', { attrs: { name } })
 }
 

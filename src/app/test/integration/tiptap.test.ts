@@ -550,9 +550,6 @@ Hello
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
@@ -626,9 +623,6 @@ Hello
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
@@ -698,9 +692,6 @@ Hello
               type: 'slot',
               attrs: {
                 name: 'custom',
-                props: {
-                  name: 'custom',
-                },
               },
               content: [
                 {
@@ -739,6 +730,41 @@ Hello
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('block element with unwrap="p" on slot names', async () => {
+    const inputContent = `::u-page-feature
+#title{unwrap="p"}
+Visual Editor
+
+#description{unwrap="p"}
+Edit pages visually without touching code.
+::`
+
+    const expectedComarkNodes = [
+      [
+        'u-page-feature',
+        {},
+        ['template', { name: 'title', unwrap: 'p' }, 'Visual Editor'],
+        ['template', { name: 'description', unwrap: 'p' }, 'Edit pages visually without touching code.'],
+      ],
+    ]
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
   test('block element nested in other block element', async () => {
     const inputContent = `::first-level-element
   :::second-level-element
@@ -769,9 +795,6 @@ Hello
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
@@ -784,9 +807,6 @@ Hello
                       type: 'slot',
                       attrs: {
                         name: 'default',
-                        props: {
-                          name: 'default',
-                        },
                       },
                       content: [
                         {
@@ -859,9 +879,6 @@ My button
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
@@ -934,9 +951,6 @@ My button
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
@@ -1001,7 +1015,7 @@ My button
           content: [
             {
               type: 'slot',
-              attrs: { name: 'default', props: { name: 'default' } },
+              attrs: { name: 'default' },
               content: [
                 {
                   type: 'paragraph',
@@ -1064,7 +1078,7 @@ My icon
           content: [
             {
               type: 'slot',
-              attrs: { name: 'default', props: { name: 'default' } },
+              attrs: { name: 'default' },
               content: [
                 {
                   type: 'paragraph',
@@ -1074,7 +1088,7 @@ My icon
             },
             {
               type: 'slot',
-              attrs: { name: 'icon', props: { name: 'icon' } },
+              attrs: { name: 'icon' },
               content: [
                 {
                   type: 'paragraph',
@@ -2383,9 +2397,6 @@ text 1
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
@@ -2462,9 +2473,6 @@ text 1
               type: 'slot',
               attrs: {
                 name: 'default',
-                props: {
-                  name: 'default',
-                },
               },
               content: [
                 {
