@@ -388,6 +388,58 @@ Description`
     expect(_isDocumentMatchingContent).toBe(true)
   })
 
+  it('should be true when stored body and source markdown only differ in attribute order', async () => {
+    const markdownContent = `::card{orientation="horizontal" .text-primary}\nHello\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [['card', { class: 'text-primary', orientation: 'horizontal' }, ['p', {}, 'Hello']]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(true)
+  })
+
+  it('should still be false when content actually differs', async () => {
+    const markdownContent = `::card{orientation="horizontal"}\nHello\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [['card', { orientation: 'vertical' }, ['p', {}, 'Hello']]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(false)
+  })
+
   it('should be true for JSON data collection with non-alphabetical key order', async () => {
     const jsonContent = JSON.stringify({
       seo_title: 'My Page Title',
