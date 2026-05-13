@@ -44,7 +44,7 @@ function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
     return {
       type: 'element',
       tag: tag as string,
-      props: (attrs as Record<string, unknown>) || {},
+      props: propsComarkToMDC(tag as string, (attrs as Record<string, unknown>) || {}),
       children: (children as ComarkNode[]).map(comarkNodeToMDCNode),
     } as MDCElement
   }
@@ -73,12 +73,93 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
     const el = node as MDCElement
     return [
       el.tag!,
-      (el.props as Record<string, unknown>) || {},
+      propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
       ...(el.children || []).map(mdcNodeToComarkNode),
     ] as ComarkElement
   }
 
   return ''
+}
+
+/**
+ * Normalize props when crossing the MDC → Comark boundary.
+ *
+ * - `template` slot elements: MDC encodes the slot name in the prop key
+ *   (`v-slot:headline=""`), Comark's template handler expects `{ name: 'headline' }`.
+ * - `className` (array form used by @nuxtjs/mdc) → `class` (space-joined string
+ *   form used by Comark's attribute stringifier).
+ * - `rel`: dropped entirely. @nuxt/content's `rehype-external-links` injects
+ *   `rel: ['nofollow']` on external links at SQLite-build time, which is not
+ *   user-authored and shouldn't leak into the editor or conflict diffs.
+ *   We'll add a proper configurable surface for this later.
+ */
+function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<string, unknown> {
+  let next: Record<string, unknown> = props
+
+  if (tag === 'template') {
+    const vSlotKey = Object.keys(next).find(k => k.startsWith('v-slot:'))
+    if (vSlotKey) {
+      const slotName = vSlotKey.slice('v-slot:'.length) || 'default'
+      const { [vSlotKey]: _omit, ...rest } = next
+      next = { name: slotName, ...rest }
+    }
+  }
+
+  if ('className' in next) {
+    const { className, ...rest } = next
+    const classStr = Array.isArray(className) ? (className as unknown[]).join(' ') : String(className ?? '')
+    if (classStr) {
+      next = { ...rest, class: typeof rest.class === 'string' ? `${rest.class} ${classStr}` : classStr }
+    }
+    else {
+      next = rest
+    }
+  }
+
+  if ('rel' in next) {
+    const { rel: _rel, ...rest } = next
+    next = rest
+  }
+
+  // Token-list attrs (class, ping, accept, …) come out of @nuxtjs/mdc as
+  // arrays but as space-joined strings from comark's parser. Collapse any
+  // remaining arrays of primitives so the bridged body matches comark's shape.
+  for (const key in next) {
+    const value = next[key]
+    if (Array.isArray(value) && value.every(v => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) {
+      next[key] = value.join(' ')
+    }
+  }
+
+  // Emit attrs in a deterministic alphabetical order so legacy-bridged bodies
+  // are canonical at the data boundary.
+  return Object.fromEntries(Object.entries(next).sort(([a], [b]) => a.localeCompare(b)))
+}
+
+/**
+ * Reverse of `propsMDCToComark`. Used when writing a Comark body back to the
+ * legacy MarkdownRoot format consumed by @nuxt/content.
+ */
+function propsComarkToMDC(tag: string, attrs: Record<string, unknown>): Record<string, unknown> {
+  let next: Record<string, unknown> = attrs
+
+  if (tag === 'template' && typeof next.name === 'string') {
+    const { name, ...rest } = next
+    next = { ...rest, [`v-slot:${name as string}`]: '' }
+  }
+
+  if (typeof next.class === 'string') {
+    const { class: classStr, ...rest } = next
+    const classes = (classStr as string).split(/\s+/).filter(Boolean)
+    if (classes.length) {
+      next = { ...rest, className: classes }
+    }
+    else {
+      next = rest
+    }
+  }
+
+  return next
 }
 
 /**
