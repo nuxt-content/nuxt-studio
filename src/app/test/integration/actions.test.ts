@@ -128,10 +128,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value[0]
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(documentFsPath, updatedDocument as DatabaseItem)
 
@@ -212,10 +209,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value[0]
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(documentFsPath, updatedDocument)
 
@@ -292,10 +286,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value[0]
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(documentFsPath, updatedDocument)
 
@@ -429,10 +420,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value.find(item => item.fsPath === newFsPath)!
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(newFsPath, updatedDocument)
 

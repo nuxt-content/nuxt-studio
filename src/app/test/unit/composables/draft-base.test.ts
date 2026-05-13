@@ -7,41 +7,38 @@ import { createMockHost } from '../../mocks/host'
 const { getStatus } = useDraftBase('document', createMockHost(), null as never, null as never)
 
 describe('getStatus', () => {
-  it('returns Deleted status when modified item is undefined', () => {
+  it('returns Deleted status when modified item is undefined', async () => {
     const original = dbItemsList[0] // landing/index.md
 
-    expect(getStatus(undefined as never, original)).toBe(DraftStatus.Deleted)
+    expect(await getStatus(undefined as never, original)).toBe(DraftStatus.Deleted)
   })
 
-  it('returns Created status when original is undefined', () => {
+  it('returns Created status when original is undefined', async () => {
     const modified = dbItemsList[1] // docs/1.getting-started/2.introduction.md
 
-    expect(getStatus(modified, undefined as never)).toBe(DraftStatus.Created)
+    expect(await getStatus(modified, undefined as never)).toBe(DraftStatus.Created)
   })
 
-  it('returns Created status when original has different id', () => {
+  it('returns Created status when original has different id', async () => {
     const original = dbItemsList[0] // landing/index.md
     const modified = dbItemsList[1] // docs/1.getting-started/2.introduction.md
 
-    expect(getStatus(modified, original)).toBe(DraftStatus.Created)
+    expect(await getStatus(modified, original)).toBe(DraftStatus.Created)
   })
 
-  it('returns Updated status when markdown content is different', () => {
+  it('returns Updated status when markdown content is different', async () => {
     const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
     const modified = {
       ...original,
-      body: {
-        type: 'minimark',
-        value: ['text', 'Modified'],
-      },
+      body: { nodes: [['p', {}, 'text'], ['p', {}, 'Modified']], frontmatter: {}, meta: {} },
     }
 
-    expect(getStatus(modified, original)).toBe(DraftStatus.Updated)
+    expect(await getStatus(modified, original)).toBe(DraftStatus.Updated)
   })
 
-  it('returns Pristine status when markdown content is identical', () => {
+  it('returns Pristine status when markdown content is identical', async () => {
     const original = dbItemsList[1] // docs/1.getting-started/2.introduction.md
 
-    expect(getStatus(original, original)).toBe(DraftStatus.Pristine)
+    expect(await getStatus(original, original)).toBe(DraftStatus.Pristine)
   })
 })

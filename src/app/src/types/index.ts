@@ -82,7 +82,7 @@ export interface StudioHost {
       delete: (fsPath: string) => Promise<void>
     }
     utils: {
-      areEqual: (document1: DatabaseItem, document2: DatabaseItem) => boolean
+      areEqual: (document1: DatabaseItem, document2: DatabaseItem) => Promise<boolean>
       isMatchingContent: (content: string, document: DatabaseItem) => Promise<boolean>
       pickReservedKeys: (document: DatabaseItem) => DatabaseItem
       cleanDataKeys: (document: DatabaseItem) => DatabaseItem

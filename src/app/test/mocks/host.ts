@@ -5,7 +5,7 @@ import { createMockDocument } from './document'
 import { createMockMedia } from './media'
 import { joinURL } from 'ufo'
 import type { MediaItem } from '../../src/types/media'
-import { isDocumentMatchingContent, areDocumentsEqual, generateDocumentFromContent, generateContentFromDocument, pickReservedKeysFromDocument, cleanDataKeys } from '../../../module/dist/runtime/utils/document'
+import { isDocumentMatchingContent, areDocumentsEqual, documentFromContent, contentFromDocument, pickReservedKeysFromDocument, cleanDataKeys } from '../../../module/dist/runtime/utils/document'
 
 // Helper to convert fsPath to id (simulates module's internal mapping)
 export const fsPathToId = (fsPath: string, type: 'document' | 'media') => {
@@ -38,7 +38,7 @@ export const createMockHost = (): StudioHost => ({
       }),
       create: vi.fn().mockImplementation(async (fsPath: string, content: string) => {
         const id = fsPathToId(fsPath, 'document')
-        const document = createMockDocument(id, { body: { type: 'minimark', value: [content?.trim() || 'Test content'] }, fsPath })
+        const document = createMockDocument(id, { body: { nodes: [['p', {}, content?.trim() || 'Test content']], frontmatter: {}, meta: {} }, fsPath })
         documentDb.set(id, document)
         return document
       }),
@@ -55,7 +55,7 @@ export const createMockHost = (): StudioHost => ({
       }),
     },
     utils: {
-      areEqual: vi.fn().mockImplementation((document1: DatabaseItem, document2: DatabaseItem) => {
+      areEqual: vi.fn().mockImplementation(async (document1: DatabaseItem, document2: DatabaseItem) => {
         return areDocumentsEqual(document1, document2)
       }),
       isMatchingContent: vi.fn().mockImplementation(async (content: string, document: DatabaseItem) => {
@@ -71,10 +71,10 @@ export const createMockHost = (): StudioHost => ({
     },
     generate: {
       documentFromContent: vi.fn().mockImplementation(async (id: string, content: string) => {
-        return generateDocumentFromContent(id, content, { collectionType: 'page', compress: true })
+        return documentFromContent(id, content, { collectionType: 'page', compress: true })
       }),
       contentFromDocument: vi.fn().mockImplementation(async (document: DatabaseItem) => {
-        return generateContentFromDocument(document)
+        return contentFromDocument(document)
       }),
     },
   },

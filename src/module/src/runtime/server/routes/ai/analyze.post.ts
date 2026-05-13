@@ -109,12 +109,12 @@ export default eventHandler(async (event) => {
         break
       }
 
-      // Use generateContentFromDocument to get the raw markdown content
+      // Use contentFromDocument to get the raw markdown content
       // Lazy load to avoid loading Shiki/MDC at server startup
       let excerpt = ''
       try {
-        const { generateContentFromDocument } = await import('../../../utils/document/generate')
-        const rawContent = await generateContentFromDocument(document as DatabasePageItem)
+        const { contentFromDocument } = await import('../../../utils/document/generate')
+        const rawContent = await contentFromDocument(document as DatabasePageItem)
         if (rawContent) {
           excerpt = rawContent
         }

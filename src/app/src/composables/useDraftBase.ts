@@ -54,7 +54,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     const draftItem: DraftItem<T> = {
       fsPath,
       remoteFile,
-      status: getStatus(item, original!),
+      status: await getStatus(item, original!),
       modified: item,
     }
 
@@ -157,7 +157,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         // @ts-expect-error upsert type is wrong, second param should be DatabaseItem | MediaItem
         await hostDb.upsert(draftItem.fsPath, existingItem.original)
         existingItem.modified = existingItem.original
-        existingItem.status = getStatus(existingItem.modified as DatabaseItem, existingItem.original as DatabaseItem)
+        existingItem.status = await getStatus(existingItem.modified as DatabaseItem, existingItem.original as DatabaseItem)
         await storage.setItem(draftItem.fsPath, existingItem)
       }
     }
@@ -244,7 +244,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
   }
 
-  function getStatus(modified: BaseItem, original: BaseItem): DraftStatus {
+  async function getStatus(modified: BaseItem, original: BaseItem): Promise<DraftStatus> {
     if (devMode.value) {
       return DraftStatus.Pristine
     }
@@ -262,12 +262,12 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
 
     if (original.extension === ContentFileExtension.Markdown) {
-      if (!areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
+      if (!await areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
         return DraftStatus.Updated
       }
     }
     else if (typeof original === 'object' && typeof modified === 'object') {
-      if (!areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
+      if (!await areDocumentsEqual(original as DatabaseItem, modified as DatabaseItem)) {
         return DraftStatus.Updated
       }
     }

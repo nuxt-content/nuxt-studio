@@ -37,7 +37,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     }
 
     const oldStatus = existingItem.status
-    existingItem.status = getStatus(document, existingItem.original as DatabaseItem)
+    existingItem.status = await getStatus(document, existingItem.original as DatabaseItem)
     existingItem.modified = document
 
     await storage.setItem(fsPath, existingItem)

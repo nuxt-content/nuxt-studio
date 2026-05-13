@@ -14,15 +14,22 @@ export {
 
 // Generate
 export {
-  generateDocumentFromContent,
-  generateDocumentFromMarkdownContent,
-  generateDocumentFromYAMLContent,
-  generateDocumentFromJSONContent,
-  generateContentFromDocument,
-  generateContentFromMarkdownDocument,
-  generateContentFromYAMLDocument,
-  generateContentFromJSONDocument,
+  documentFromContent,
+  documentFromMarkdownContent,
+  documentFromYAMLContent,
+  documentFromJSONContent,
+  contentFromDocument,
+  contentFromMarkdownDocument,
+  contentFromYAMLDocument,
+  contentFromJSONDocument,
+  isComarkTree,
 } from './generate'
+
+// Legacy compatibility — delete this section when @nuxt/content natively returns ComarkTree bodies
+export {
+  comarkTreeFromLegacyDocument,
+  markdownRootFromComarkTree,
+} from './legacy'
 
 // Utils
 export {
