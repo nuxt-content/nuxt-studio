@@ -1,9 +1,30 @@
-import type { ComarkTree } from 'comark'
+import type { ComarkNode, ComarkTree } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import { ContentFileExtension } from '../../types/content'
 import { doObjectsMatch } from '../object'
 import { renderMarkdown } from 'comark/render'
 import { documentFromContent } from './generate'
+
+/**
+ * Sort and normalize every element's attributes alphabetically.
+ */
+function normalizeAttrsDeep(tree: ComarkTree): ComarkTree {
+  return { ...tree, nodes: tree.nodes.map(normalizeNode) }
+}
+
+function normalizeNode(node: ComarkNode): ComarkNode {
+  if (typeof node === 'string') return node
+  if (!Array.isArray(node)) return node
+
+  const [tag, attrs, ...children] = node
+  if (tag === null) return node // comment
+
+  const sortedAttrs = attrs && typeof attrs === 'object'
+    ? Object.fromEntries(Object.entries(attrs as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
+    : attrs
+
+  return [tag, sortedAttrs, ...children.map(normalizeNode)] as ComarkNode
+}
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
   const generatedDocument = await documentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
@@ -12,9 +33,11 @@ export async function isDocumentMatchingContent(content: string, document: Datab
     const { body: generatedBody, ...generatedDocumentData } = generatedDocument
     const { body: documentBody, ...documentData } = document
 
-    // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below)
-    const generatedBodyStringified = (await renderMarkdown({ ...(generatedBody as ComarkTree), frontmatter: {} })).replace(/\n/g, '')
-    const documentBodyStringified = (await renderMarkdown({ ...(documentBody as ComarkTree), frontmatter: {} })).replace(/\n/g, '')
+    // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below).
+    const generatedNormalized = normalizeAttrsDeep({ ...(generatedBody as ComarkTree), frontmatter: {} })
+    const documentNormalized = normalizeAttrsDeep({ ...(documentBody as ComarkTree), frontmatter: {} })
+    const generatedBodyStringified = (await renderMarkdown(generatedNormalized)).replace(/\n/g, '')
+    const documentBodyStringified = (await renderMarkdown(documentNormalized)).replace(/\n/g, '')
     if (generatedBodyStringified !== documentBodyStringified) {
       return false
     }
