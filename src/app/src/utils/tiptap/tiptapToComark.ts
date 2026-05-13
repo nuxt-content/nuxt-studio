@@ -49,7 +49,7 @@ const tiptapToComarkMap: TiptapToComarkMap = {
     const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
     return ['binding', { defaultValue, value }] as ComarkElement
   },
-  'br': (node: JSONContent) => createElement(node, 'br'),
+  'hardBreak': (node: JSONContent) => createElement(node, 'br'),
   'u-callout': (node: JSONContent) => createCalloutElement(node),
 }
 

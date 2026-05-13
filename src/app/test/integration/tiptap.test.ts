@@ -1103,7 +1103,7 @@ My icon
           type: 'paragraph',
           content: [
             { type: 'text', text: 'Hello ' },
-            { type: 'br' },
+            { type: 'hardBreak' },
             { type: 'text', text: ' world' },
           ],
         },

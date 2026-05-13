@@ -143,6 +143,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
       class="mb-4 ml-1"
       content-type="json"
       :handlers="customHandlers"
+      :image="false"
       :starter-kit="{
         codeBlock: false,
         link: {
