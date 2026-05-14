@@ -25,7 +25,7 @@ import { Binding } from '../../../utils/tiptap/extensions/binding'
 import { Callout } from '../../../utils/tiptap/extensions/callout'
 import { Table, TableRow, TableCell, TableHeader } from '../../../utils/tiptap/extensions/table'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
-import TiptapTableMenu from '../../tiptap/TiptapTableMenu.vue'
+import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
 
@@ -238,7 +238,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         </UDropdownMenu>
       </UEditorDragHandle>
 
-      <TiptapTableMenu :editor="editor" />
+      <TiptapTableGrips :editor="editor" />
 
       <UEditorSuggestionMenu
         :editor="editor"

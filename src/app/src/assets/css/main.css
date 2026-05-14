@@ -18,12 +18,16 @@
   --ui-primary: white;
 }
 
+.tableWrapper {
+  position: relative;
+  overflow: visible;
+}
+
 .studio-table {
   border-collapse: collapse;
   width: 100%;
   margin: 0.75rem 0;
   table-layout: fixed;
-  overflow: hidden;
 }
 
 .studio-table td,
