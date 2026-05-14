@@ -23,7 +23,9 @@ import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
 import { Callout } from '../../../utils/tiptap/extensions/callout'
+import { Table, TableRow, TableCell, TableHeader } from '../../../utils/tiptap/extensions/table'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
+import TiptapTableMenu from '../../tiptap/TiptapTableMenu.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
 
@@ -169,6 +171,10 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         CodeBlock,
         Emoji,
         Binding,
+        Table,
+        TableRow,
+        TableCell,
+        TableHeader,
         ...aiExtensions,
       ]"
     >
@@ -231,6 +237,8 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
           />
         </UDropdownMenu>
       </UEditorDragHandle>
+
+      <TiptapTableMenu :editor="editor" />
 
       <UEditorSuggestionMenu
         :editor="editor"

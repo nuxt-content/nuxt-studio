@@ -96,6 +96,9 @@ importers:
       '@tiptap/extension-emoji':
         specifier: ^3.22.4
         version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/suggestion@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(emojibase@17.0.0)
+      '@tiptap/extension-table':
+        specifier: ^3.23.4
+        version: 3.23.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -3452,6 +3455,12 @@ packages:
     resolution: {integrity: sha512-LTdnGmglK1f/AW//36k+Km8URA1wrTLENi3R5N+/ipv+yP2rZ2Ki1R1m6yJx3KSFzR55c91xE6659/vz1uZ6iA==}
     peerDependencies:
       '@tiptap/core': 3.22.4
+
+  '@tiptap/extension-table@3.23.4':
+    resolution: {integrity: sha512-TRh6JMTRYXCWpwavGt3aAHH2f51ZzkhurfW3XvrURG3It8MvfuuY1xB1xba1ss5c0QLWlrKx6GVaSXrUCdFLlg==}
+    peerDependencies:
+      '@tiptap/core': 3.22.4
+      '@tiptap/pm': 3.22.4
 
   '@tiptap/extension-text@3.22.1':
     resolution: {integrity: sha512-wFCNCATSTTFhvA9wOPkAgzPVyG3RM6+jOlDeRhHUCHsFWFWj0w9ZPwA/nP+Qi5hEW7kGG9V8o62RjBdHNvK2PQ==}
@@ -12393,6 +12402,11 @@ snapshots:
   '@tiptap/extension-strike@3.22.1(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
     dependencies:
       '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+
+  '@tiptap/extension-table@3.23.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+    dependencies:
+      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/pm': 3.22.4
 
   '@tiptap/extension-text@3.22.1(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
     dependencies:

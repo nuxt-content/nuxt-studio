@@ -51,6 +51,10 @@ const tiptapToComarkMap: TiptapToComarkMap = {
   },
   'hardBreak': (node: JSONContent) => createElement(node, 'br'),
   'u-callout': (node: JSONContent) => createCalloutElement(node),
+  'table': (node: JSONContent) => createTableElement(node),
+  'tableRow': (node: JSONContent) => createElement(node, 'tr'),
+  'tableHeader': (node: JSONContent) => createTableCellElement(node, 'th'),
+  'tableCell': (node: JSONContent) => createTableCellElement(node, 'td'),
 }
 
 let slugs = new Slugger()
@@ -365,6 +369,42 @@ function createCalloutElement(node: JSONContent): ComarkElement {
   // Support both new 'tag' attr and legacy 'type' attr for backward compatibility
   const tag = node.attrs?.tag || node.attrs?.type || 'note'
   return createElement(node, tag) as ComarkElement
+}
+
+function createTableElement(node: JSONContent): ComarkElement {
+  const headerRows: ComarkNode[] = []
+  const bodyRows: ComarkNode[] = []
+
+  for (const row of (node.content || [])) {
+    if (row.type !== 'tableRow') continue
+    const firstCell = row.content?.[0]
+    if (firstCell?.type === 'tableHeader') {
+      headerRows.push(tiptapNodeToComark(row) as ComarkNode)
+    }
+    else {
+      bodyRows.push(tiptapNodeToComark(row) as ComarkNode)
+    }
+  }
+
+  const children: ComarkNode[] = []
+  if (headerRows.length > 0) {
+    children.push(['thead', {}, ...headerRows] as ComarkElement)
+  }
+  if (bodyRows.length > 0) {
+    children.push(['tbody', {}, ...bodyRows] as ComarkElement)
+  }
+
+  return ['table', {}, ...children] as ComarkElement
+}
+
+function createTableCellElement(node: JSONContent, tag: 'th' | 'td'): ComarkElement {
+  const content = comarkNodesFromTiptap(node.content || [])
+  // Unwrap single paragraph wrapper (reverses the wrapping done in comarkToTiptap)
+  if (content.length === 1 && Array.isArray(content[0]) && (content[0] as ComarkElement)[0] === 'p') {
+    const pChildren = (content[0] as ComarkElement).slice(2) as ComarkNode[]
+    return [tag, {}, ...pChildren] as ComarkElement
+  }
+  return [tag, {}, ...content] as ComarkElement
 }
 
 function createLinkElement(node: JSONContent): ComarkElement {

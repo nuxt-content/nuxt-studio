@@ -228,7 +228,18 @@
         "insert": "Insert",
         "image": "Image",
         "video": "Video",
-        "horizontalRule": "Horizontal Rule"
+        "horizontalRule": "Horizontal Rule",
+        "table": "Table"
+      },
+      "table": {
+        "addRowAbove": "Add row above",
+        "addRowBelow": "Add row below",
+        "addColumnLeft": "Add column left",
+        "addColumnRight": "Add column right",
+        "toggleHeader": "Toggle header row",
+        "deleteRow": "Delete row",
+        "deleteColumn": "Delete column",
+        "deleteTable": "Delete table"
       },
       "drag": {
         "turnInto": "Turn into",

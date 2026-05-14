@@ -18,6 +18,47 @@
   --ui-primary: white;
 }
 
+.studio-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.75rem 0;
+  table-layout: fixed;
+  overflow: hidden;
+}
+
+.studio-table td,
+.studio-table th {
+  border: 1px solid var(--ui-border, #e5e7eb);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  position: relative;
+  min-width: 4rem;
+}
+
+.studio-table th {
+  background-color: var(--ui-bg-elevated, #f9fafb);
+  font-weight: 600;
+  text-align: left;
+}
+
+.studio-table .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(59, 130, 246, 0.15);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dark .studio-table td,
+.dark .studio-table th {
+  border-color: var(--ui-border, #374151);
+}
+
+.dark .studio-table th {
+  background-color: var(--ui-bg-elevated, #1f2937);
+}
+
 @theme static {
   --color-green-50: '#EFFDF5';
   --color-green-100: '#D9FBE8';
