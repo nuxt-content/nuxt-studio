@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { titleCase } from 'scule'
 import type { FormItem, FormTree } from '../../types'
 import type { PropType } from 'vue'
 import { computed, ref, watch } from 'vue'
-import { applyValueById } from '../../utils/form'
+import { formItemInputLabel, applyValueById } from '../../utils/form'
 
 const props = defineProps({
   formItem: {
@@ -14,7 +13,7 @@ const props = defineProps({
 
 const form = defineModel({ type: Object as PropType<FormTree>, default: () => ({}) })
 
-const label = computed(() => titleCase(props.formItem.title))
+const displayLabel = computed(() => formItemInputLabel(props.formItem))
 
 // Initialize model value
 const model = ref(computeValue(props.formItem))
@@ -62,12 +61,28 @@ function computeValue(formItem: FormItem): unknown {
 <template>
   <UFormField
     :name="formItem.id"
-    :label="label"
+    :label="formItem.tooltip ? undefined : displayLabel"
+    :description="formItem.description"
     :ui="{
       root: 'w-full mt-2',
       label: 'text-xs font-semibold tracking-tight',
+      description: 'text-[10px] text-muted',
     }"
   >
+    <template
+      v-if="formItem.tooltip"
+      #label
+    >
+      <span class="inline-flex items-center gap-1.5 min-w-0">
+        <span class="truncate">{{ displayLabel }}</span>
+        <UTooltip :text="formItem.tooltip">
+          <UIcon
+            name="i-lucide-circle-help"
+            class="size-3.5 text-muted shrink-0"
+          />
+        </UTooltip>
+      </span>
+    </template>
     <InputWrapper
       v-model="model"
       :form-item="formItem"
