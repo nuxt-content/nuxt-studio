@@ -13,21 +13,24 @@ const createDocsSchema = () => z.object({
 })
 
 const createAuthorsSchema = () => z.object({
-  name: z.string(),
-  avatar: z.object({
-    src: property(z.string()).editor({ input: 'media' }),
-    alt: z.string(),
+  name: property(z.string()).editor({
+    description: 'Full display name shown on the author page',
+    tooltip: 'Use your real name or well-known alias',
   }),
-  to: z.string(),
-  username: z.string(),
-  description: property(z.string()).editor({ input: 'textarea' }),
+  avatar: z.object({
+    src: property(z.string()).editor({ input: 'media', label: 'Avatar image', description: 'Profile picture displayed next to the author name' }),
+    alt: property(z.string()).editor({ label: 'Alt text', description: 'Describes the image for screen readers and SEO', tooltip: 'Keep it short: "Jane Doe avatar"' }),
+  }),
+  to: property(z.string()).editor({ label: 'Profile URL', description: 'Link to the author\'s profile page or website' }),
+  username: property(z.string()).editor({ tooltip: 'GitHub or GitLab username, used to link commits' }),
+  description: property(z.string()).editor({ input: 'textarea', label: 'Bio', description: 'Short biography displayed on the author card', tooltip: 'Aim for 1–2 sentences' }),
   role: z.enum(['creator', 'maintainer', 'contributor']).default('contributor'),
-  order: z.number().default(0),
-  birthDate: z.string().date(),
-  lastCommitAt: z.string().datetime(),
-  icon: property(z.string()).editor({ input: 'icon', iconLibraries: ['lucide'] }),
-  isOpenSourceLover: z.boolean().default(true),
-  modules: z.array(z.string()),
+  order: property(z.number()).editor({ description: 'Lower numbers appear first in author listings' }),
+  birthDate: property(z.string().date()).editor({ label: 'Date of birth' }),
+  lastCommitAt: property(z.string().datetime()).editor({ label: 'Last commit date', tooltip: 'ISO 8601 datetime, e.g. 2024-01-15T12:00:00Z' }),
+  icon: property(z.string()).editor({ input: 'icon', iconLibraries: ['lucide'], description: 'Icon shown next to the author name in listings' }),
+  isOpenSourceLover: property(z.boolean()).editor({ label: 'Open source lover', tooltip: 'Enables the ❤️ badge on the author card' }).default(true),
+  modules: property(z.array(z.string())).editor({ label: 'Maintained modules', description: 'List of Nuxt module names this author maintains' }),
 })
 
 const collections: Record<string, DefinedCollection> = {
