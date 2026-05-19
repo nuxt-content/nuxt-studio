@@ -56,7 +56,7 @@ studio/
 
 - **Nuxt 3**: Core framework
 - **Nuxt Content**: Content management layer (peer dependency)
-- **@nuxtjs/mdc**: MDC (Markdown Components) parsing and rendering
+- **comark**: MDC (Markdown Components) parsing and rendering — produces a compact array-based `ComarkTree` AST
 - **TipTap**: Visual WYSIWYG editor
 - **Monaco Editor**: Code editor
 - **Vue Router**: SPA routing inside Studio
@@ -232,9 +232,9 @@ description: 'meta description of the page'
 
 **Tiptap editor**
 - Can edit Markdown files with MDC syntax
-- Tiptap editor manipulate Tiptap AST which is directly converted to MDC AST and stored in the existing SQLite database
+- TipTap AST is converted to/from `ComarkTree` (via `comarkToTiptap.ts` / `tiptapToComark.ts`) and stored in the SQLite database
 - If we want to display raw markdown of a file, we can use the `generateContentFromDocument` function to get the raw markdown (ie. preview page or monaco editor)
-- If we want to generate the MDC AST from the raw markdown, we can use the `generateDocumentFromMarkdownContent` function
+- If we want to generate a `ComarkTree` from raw markdown, we can use the `generateDocumentFromMarkdownContent` function
 
 **Form editor**
 - Can edit YAML files
@@ -504,7 +504,7 @@ This ensures AI never generates headings when you're writing paragraphs, or full
 
 **In production mode:**
 - Exisiting db files is stored in SQLite browser side database by Nuxt Content. It's loaded by a dump file.
-- Markdown files are stored as MDC AST
+- Markdown files are stored as `ComarkTree` (the array-based AST produced by the comark parser)
 - YAML and JSON files are stored as pure json
 - Drafts files and meta are stored client-side in IndexedDB
 - Drafts files content is merged with the existing db files in the browser before being rendered => app is rerendered with updated content in db => this is the preview you see in the browser
@@ -521,12 +521,18 @@ Studio uses `nuxt-component-meta` to:
 - Find props editors for components
 - Find slots for components
 
-#### @nuxtjs/mdc
+#### comark
 
-Studio uses `@nuxtjs/mdc` to:
-- Parse MDC syntax
-- Render MDC syntax
-- Generate MDC AST
+Studio uses `comark` to:
+- Parse MDC/Markdown content into a `ComarkTree` — a compact array-based AST: `[tag, attrs, ...children]`
+- Render a `ComarkTree` back to raw markdown (via `renderMarkdown` from `comark/render`)
+- Apply plugins during parsing: emoji, syntax highlighting (shiki themes), and table of contents
+
+**Key files:**
+- `src/module/src/runtime/utils/document/generate.ts` — parses markdown files server-side with `parse()` from comark
+- `src/app/src/utils/tiptap/comarkToTiptap.ts` / `tiptapToComark.ts` — convert between ComarkTree and TipTap JSON in the visual editor
+- `src/app/src/utils/comark.ts` — helpers to traverse ComarkTree nodes (`isElement`, `getTag`, `getAttrs`, `getChildren`)
+- `src/module/src/runtime/utils/document/legacy.ts` — backward-compatible conversion layer between the old `MarkdownRoot` format (produced by `@nuxtjs/mdc`) and the new `ComarkTree`, allowing Nuxt Content to continue storing documents in its existing format until it natively supports ComarkTree
 
 #### shiki
 
@@ -586,7 +592,7 @@ Studio uses `shiki` to highlight code in code blocks.
 
 **Required**:
 - `@nuxt/content` - Content layer (peer dependency)
-- `@nuxtjs/mdc` - MDC parsing/rendering
+- `comark` - MDC parsing/rendering (produces `ComarkTree` AST)
 
 **Core**:
 - `unstorage` - Storage abstraction
@@ -595,7 +601,7 @@ Studio uses `shiki` to highlight code in code blocks.
 
 **Editors**:
 - `modern-monaco` - Code editor
-- `minimark` - Markdown processing (TipTap)
+- `minimark` - Legacy MarkdownRoot format (used only in backward-compat layer)
 
 **Git Providers**:
 - `@octokit/types` - GitHub API

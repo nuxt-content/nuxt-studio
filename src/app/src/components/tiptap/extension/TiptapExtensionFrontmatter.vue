@@ -8,7 +8,7 @@ import type { Draft07 } from '@nuxt/content'
 const nodeProps = defineProps(nodeViewProps)
 
 const { host, context } = useStudio()
-const ai = useAI()
+const ai = useAI(host)
 
 const collapsed = ref(true)
 

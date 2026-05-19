@@ -29,5 +29,10 @@ export default defineNuxtConfig({
         tone: 'formal and professional',
       },
     },
+    editor: {
+      commands: {
+        exclude: ['blockquote'],
+      },
+    },
   },
 })

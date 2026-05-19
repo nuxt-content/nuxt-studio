@@ -1,10 +1,9 @@
 import { useCompletion } from '@ai-sdk/vue'
 import { ref } from 'vue'
-import type { AIGenerateOptions } from '../types'
+import type { AIGenerateOptions, StudioHost } from '../types'
 import type { CollectionInfo } from '@nuxt/content'
 
-export function useAI() {
-  const host = window.useStudioHost()
+export function useAI(host: StudioHost) {
   const enabled = host.meta.ai.enabled
   const contextFolder = host.meta.ai.context?.contentFolder
   const experimentalCollectionContext = host.meta.ai.experimental?.collectionContext ?? false

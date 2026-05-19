@@ -1,7 +1,7 @@
 {
   "studio": {
     "buttons": {
-      "edit": "Редагувати цю сторінку",
+      "edit": "Редагувати сторінку",
       "retryPublish": "Повторити публікацію",
       "reloadApp": "Перезавантажити додаток",
       "reload": "Перезавантажити",
@@ -19,7 +19,7 @@
       "pageSettings": "Налаштування сторінки"
     },
     "tooltips": {
-      "toggleStudio": "Перемкнути Studio",
+      "toggleStudio": "Показати/сховати Studio",
       "unlinkEditor": "Від'єднати редактор і попередній перегляд",
       "linkEditor": "З'єднати редактор і попередній перегляд",
       "copiedToClipboard": "Скопійовано в буфер обміну",
@@ -39,8 +39,8 @@
     },
     "publish": {
       "failedTitle": "Публікація не вдалася",
-      "summary": "на {branch} репозиторію {repo}",
-      "errorTitle": "Помилка під час публікації {providerName}",
+      "summary": "на гілці {branch} репозиторію {repo}",
+      "errorTitle": "Помилка під час публікації на {providerName}",
       "failedGeneric": "Не вдалося опублікувати зміни"
     },
     "review": {
@@ -87,7 +87,7 @@
     "placeholders": {
       "commitMessage": "Повідомлення коміту",
       "commitMessageWithPrefix": "Опишіть ваші зміни",
-      "order": "N°",
+      "order": "№",
       "fileName": "Назва файлу"
     },
     "validation": {
@@ -176,7 +176,7 @@
       "other": {
         "emojis": "Емодзі",
         "blockquote": "Цитата",
-        "code": "Код",
+        "code": "Блок коду",
         "inlineCode": "Вбудований код",
         "link": "Посилання",
         "image": "Зображення"
@@ -204,7 +204,7 @@
     },
     "tiptap": {
       "editor": {
-        "placeholder": "Пишіть, введіть '/' для команд...",
+        "placeholder": "Введіть '/' для команд...",
         "components": "Компоненти"
       },
       "toolbar": {

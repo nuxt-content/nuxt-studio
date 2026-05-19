@@ -1,9 +1,30 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { PropType } from 'vue'
-import type { FormItem } from '../../../types'
-import { typeComponentMap } from '../../../utils/form'
+import type { PropType, Component } from 'vue'
+import type { FormItem, FormInputsTypes } from '../../../types'
+import { formItemInputLabel } from '../../../utils/form'
+import InputBoolean from './InputBoolean.vue'
+import InputDate from './InputDate.vue'
+import InputIcon from './InputIcon.vue'
+import InputMedia from './InputMedia.vue'
+import InputNumber from './InputNumber.vue'
 import InputText from './InputText.vue'
+import InputObject from './InputObject.vue'
+import InputArray from './InputArray.vue'
+import InputTextarea from './InputTextarea.vue'
+
+const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
+  array: InputArray,
+  boolean: InputBoolean,
+  date: InputDate,
+  datetime: InputDate,
+  icon: InputIcon,
+  media: InputMedia,
+  number: InputNumber,
+  string: InputText,
+  object: InputObject,
+  textarea: InputTextarea,
+}
 
 const props = defineProps({
   formItem: {
@@ -59,7 +80,7 @@ function closeNestedForm() {
     <div class="fixed inset-0 bg-default z-50 flex flex-col p-3 overflow-y-auto rounded-lg">
       <div class="flex items-center justify-between mb-2">
         <span class="text-sm font-mono font-semibold text-highlighted">
-          {{ formItem.title }}
+          {{ formItemInputLabel(formItem) }}
         </span>
         <UButton
           size="xs"

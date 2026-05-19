@@ -26,7 +26,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
   } = useDraftBase<DatabaseItem>('document', host, gitProvider, storage)
 
   const hooks = useHooks()
-  const ai = useAI()
+  const ai = useAI(host)
   const hostDb = host.document.db
   const generateContentFromDocument = host.document.generate.contentFromDocument
 
@@ -37,10 +37,10 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     }
 
     const oldStatus = existingItem.status
-    const nextStatus = getStatus(document, existingItem.original as DatabaseItem)
+    const nextStatus = await getStatus(document, existingItem.original as DatabaseItem)
     const isNoOpPristineUpdate = oldStatus === DraftStatus.Pristine
       && nextStatus === DraftStatus.Pristine
-      && host.document.utils.areEqual(document, existingItem.modified as DatabaseItem)
+      && await host.document.utils.areEqual(document, existingItem.modified as DatabaseItem)
 
     // Skip initialization writes from editors that round-trip the document without
     // any semantic change. This keeps opening a file from immediately normalizing it.

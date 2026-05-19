@@ -59,8 +59,9 @@ describe('getMarkdownFormattingChange', () => {
     const document = createMockDocument('docs/formatting.md', {
       fsPath: 'formatting.md',
       body: {
-        type: 'minimark',
-        value: ['- one', '- two'],
+        nodes: [['ul', {}, ['li', {}, 'one'], ['li', {}, 'two']]],
+        frontmatter: {},
+        meta: {},
       },
     })
 
@@ -77,7 +78,7 @@ describe('getMarkdownFormattingChange', () => {
 
     expect(formatting).toEqual({
       originalContent: '* one\n* two\n',
-      formattedContent: '- one\n- two',
+      formattedContent: '- one\n- two\n',
     })
   })
 
@@ -86,8 +87,9 @@ describe('getMarkdownFormattingChange', () => {
     const document = createMockDocument('docs/formatting.md', {
       fsPath: 'formatting.md',
       body: {
-        type: 'minimark',
-        value: ['- one', '- two'],
+        nodes: [['ul', {}, ['li', {}, 'one'], ['li', {}, 'two']]],
+        frontmatter: {},
+        meta: {},
       },
     })
 

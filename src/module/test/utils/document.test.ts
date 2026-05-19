@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
-import type { DatabaseItem, DatabasePageItem } from 'nuxt-studio/app'
+import type { DatabaseItem } from 'nuxt-studio/app'
 import type { CollectionInfo } from '@nuxt/content'
 
 describe('areDocumentsEqual', () => {
-  it('should return true for two identical markdown documents with diffrent hash', () => {
-    const document1: DatabasePageItem = {
+  it('should return true for two identical markdown documents with diffrent hash', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.md',
       path: '/index',
       title: 'Test Document',
@@ -14,16 +14,13 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Hello World'],
-      },
+      body: { nodes: [['p', {}, 'Hello World']], frontmatter: {}, meta: {} },
       meta: {
         __hash__: 'hash123',
       },
     }
 
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.md',
       path: '/index',
       title: 'Test Document',
@@ -31,20 +28,17 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Hello World'],
-      },
+      body: { nodes: [['p', {}, 'Hello World']], frontmatter: {}, meta: {} },
       meta: {
         __hash__: 'hash456',
       },
     }
 
-    expect(areDocumentsEqual(document1, document2)).toBe(true)
+    expect(await areDocumentsEqual(document1, document2)).toBe(true)
   })
 
-  it('should return false for two different markdown documents', () => {
-    const document1: DatabasePageItem = {
+  it('should return false for two different markdown documents', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.md',
       path: '/index',
       title: 'Test Document',
@@ -52,16 +46,13 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Hello World'],
-      },
+      body: { nodes: [['p', {}, 'Hello World']], frontmatter: {}, meta: {} },
       meta: {
         title: 'Test Document',
       },
     }
 
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.md',
       path: '/index',
       title: 'Test Document',
@@ -69,20 +60,17 @@ describe('areDocumentsEqual', () => {
       extension: ContentFileExtension.Markdown,
       stem: 'index',
       seo: {},
-      body: {
-        type: 'minimark',
-        value: ['Different content'],
-      },
+      body: { nodes: [['p', {}, 'Different content']], frontmatter: {}, meta: {} },
       meta: {
         title: 'Test Document',
       },
     }
 
-    expect(areDocumentsEqual(document1, document2)).toBe(false)
+    expect(await areDocumentsEqual(document1, document2)).toBe(false)
   })
 
-  it('should return true for two identical yaml document with different order of keys', () => {
-    const document1: DatabasePageItem = {
+  it('should return true for two identical yaml document with different order of keys', async () => {
+    const document1: DatabaseItem = {
       extension: ContentFileExtension.YAML,
       description: 'A test document',
       title: 'Test Document',
@@ -100,7 +88,7 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.yml',
       stem: 'index.yml',
       path: '/index',
@@ -118,11 +106,11 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    expect(areDocumentsEqual(document1, document2)).toBe(true)
+    expect(await areDocumentsEqual(document1, document2)).toBe(true)
   })
 
-  it('should return true if one document has extra key with null/undefined value', () => {
-    const document1: DatabasePageItem = {
+  it('should return true if one document has extra key with null/undefined value', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -138,7 +126,7 @@ describe('areDocumentsEqual', () => {
         title: 'Test Document',
       },
     }
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -155,11 +143,11 @@ describe('areDocumentsEqual', () => {
         title: 'Test Document',
       },
     }
-    expect(areDocumentsEqual(document1, document2)).toBe(true)
+    expect(await areDocumentsEqual(document1, document2)).toBe(true)
   })
 
-  it('should ignore null/undefined values', () => {
-    const document1: DatabasePageItem = {
+  it('should ignore null/undefined values', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -176,7 +164,7 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -193,11 +181,11 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    expect(areDocumentsEqual(document1, document2)).toBe(true)
+    expect(await areDocumentsEqual(document1, document2)).toBe(true)
   })
 
-  it('should return false if one of documents missing a key', () => {
-    const document1: DatabasePageItem = {
+  it('should return false if one of documents missing a key', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -227,13 +215,13 @@ describe('areDocumentsEqual', () => {
       meta: {
         title: 'Test Document',
       },
-    } as never as DatabasePageItem
+    } as never as DatabaseItem
 
-    expect(areDocumentsEqual(document1, document2)).toBe(false)
+    expect(await areDocumentsEqual(document1, document2)).toBe(false)
   })
 
-  it('should return false if array values are different', () => {
-    const document1: DatabasePageItem = {
+  it('should return false if array values are different', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -251,7 +239,7 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       tags: ['tag1', 'tag3'],
@@ -269,11 +257,11 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    expect(areDocumentsEqual(document1, document2)).toBe(false)
+    expect(await areDocumentsEqual(document1, document2)).toBe(false)
   })
 
-  it('should return true if date values are same but different format', () => {
-    const document1: DatabasePageItem = {
+  it('should return true if date values are same but different format', async () => {
+    const document1: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -290,7 +278,7 @@ describe('areDocumentsEqual', () => {
         title: 'Test Document',
       },
     }
-    const document2: DatabasePageItem = {
+    const document2: DatabaseItem = {
       id: 'content:index.yml',
       path: '/index',
       title: 'Test Document',
@@ -308,7 +296,7 @@ describe('areDocumentsEqual', () => {
       },
     }
 
-    expect(areDocumentsEqual(document1, document2)).toBe(true)
+    expect(await areDocumentsEqual(document1, document2)).toBe(true)
   })
 })
 
@@ -319,22 +307,7 @@ describe('isDocumentMatchingContent', () => {
     const document = {
       id: 'docs/1.getting-started/test.md',
       title: '',
-      body: {
-        type: 'minimark',
-        value: [
-          [
-            'p',
-            {},
-            'Hello',
-          ],
-        ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
-      },
+      body: { nodes: [['p', {}, 'Hello']], frontmatter: {}, meta: {} },
       description: 'Hello',
       extension: 'md',
       layout: null,
@@ -360,29 +333,7 @@ Description`
     const document = {
       id: 'docs/1.getting-started/test.md',
       title: 'Hello',
-      body: {
-        type: 'minimark',
-        value: [
-          [
-            'h1',
-            {
-              id: 'hello',
-            },
-            'Hello',
-          ],
-          [
-            'p',
-            {},
-            'Description',
-          ],
-        ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
-      },
+      body: { nodes: [['h1', { id: 'hello' }, 'Hello'], ['p', {}, 'Description']], frontmatter: {}, meta: {} },
       description: 'Description',
       extension: 'md',
       layout: null,
@@ -416,29 +367,7 @@ Description`
     const document = {
       id: 'docs/1.getting-started/test.md',
       title: 'Hello',
-      body: {
-        type: 'minimark',
-        value: [
-          [
-            'h1',
-            {
-              id: 'hello',
-            },
-            'Hello',
-          ],
-          [
-            'p',
-            {},
-            'Description',
-          ],
-        ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
-      },
+      body: { nodes: [['h1', { id: 'hello' }, 'Hello'], ['p', {}, 'Description']], frontmatter: {}, meta: {} },
       description: 'Description',
       extension: 'md',
       layout: null,
@@ -480,17 +409,12 @@ Quick heads-up before voting goes live, a few important notes:
       id: 'docs/blog/131.communitycouncil-voting-guide.md',
       title: 'Community Council Elections Voting Guide',
       body: {
-        type: 'minimark',
-        value: [
+        nodes: [
           ['p', {}, 'Quick heads-up before voting goes live, a few important notes:'],
           ['ul', {}, ['li', {}, ['strong', {}, 'Stakers:'], ' No need to un-stake.']],
         ],
-        toc: {
-          title: '',
-          searchDepth: 2,
-          depth: 2,
-          links: [],
-        },
+        frontmatter: {},
+        meta: {},
       },
       description: 'The election of the Nimiq Community Council is getting closer. Today, we’ll explain how the voting process works and how you can participate.',
       extension: 'md',
@@ -514,6 +438,58 @@ Quick heads-up before voting goes live, a few important notes:
 
     const result = await isDocumentMatchingContent(markdownContent, document as unknown as DatabaseItem)
     expect(result).toBe(true)
+  })
+
+  it('should be true when stored body and source markdown only differ in attribute order', async () => {
+    const markdownContent = `::card{orientation="horizontal" .text-primary}\nHello\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [['card', { class: 'text-primary', orientation: 'horizontal' }, ['p', {}, 'Hello']]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(true)
+  })
+
+  it('should still be false when content actually differs', async () => {
+    const markdownContent = `::card{orientation="horizontal"}\nHello\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [['card', { orientation: 'vertical' }, ['p', {}, 'Hello']]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(false)
   })
 
   it('should be true for JSON data collection with non-alphabetical key order', async () => {

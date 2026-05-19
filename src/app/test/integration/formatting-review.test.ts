@@ -29,15 +29,16 @@ describe('Markdown formatting review metadata', () => {
     expect(selectedDraft.status).toBe(DraftStatus.Pristine)
     expect(selectedDraft.formatting).toEqual({
       originalContent: '* one\n* two\n',
-      formattedContent: '- one\n- two',
+      formattedContent: '- one\n- two\n',
     })
     expect(context.draftCount.value).toBe(0)
 
     const updatedDocument = {
       ...selectedDraft.modified!,
       body: {
-        type: 'minimark',
-        value: ['- one', '- two', '- three'],
+        nodes: [['ul', {}, ['li', {}, 'one'], ['li', {}, 'two'], ['li', {}, 'three']]],
+        frontmatter: {},
+        meta: {},
       },
     } as DatabaseItem
 
@@ -47,7 +48,7 @@ describe('Markdown formatting review metadata', () => {
     expect(updatedDraft.status).toBe(DraftStatus.Updated)
     expect(updatedDraft.formatting).toEqual({
       originalContent: '* one\n* two\n',
-      formattedContent: '- one\n- two',
+      formattedContent: '- one\n- two\n',
     })
     expect(context.draftCount.value).toBe(1)
 
@@ -62,7 +63,7 @@ describe('Markdown formatting review metadata', () => {
       expect.objectContaining({
         path: `content/${documentFsPath}`,
         status: DraftStatus.Updated,
-        content: '- one\n- two\n- three',
+        content: '- one\n- two\n- three\n',
       }),
     ]))
   })
@@ -94,7 +95,7 @@ describe('Markdown formatting review metadata', () => {
     expect(context.activeTree.value.draft.list.value[0].status).toBe(DraftStatus.Pristine)
     expect(context.activeTree.value.draft.list.value[0].formatting).toEqual({
       originalContent: '* one\n* two\n',
-      formattedContent: '- one\n- two',
+      formattedContent: '- one\n- two\n',
     })
     expect(context.draftCount.value).toBe(0)
     expect(mockHost.document.db.upsert).not.toHaveBeenCalled()

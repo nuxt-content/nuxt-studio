@@ -1,5 +1,5 @@
 import { eventHandler, getQuery, setCookie, sendRedirect, getRequestProtocol } from 'h3'
-import { createError } from '#imports'
+import { createError, useRuntimeConfig } from '#imports'
 
 export default eventHandler((event) => {
   const { redirect } = getQuery(event)
@@ -12,11 +12,13 @@ export default eventHandler((event) => {
     })
   }
 
-  // Detect providers based on configured environment variables
-  const hasGithub = process.env.STUDIO_GITHUB_CLIENT_ID && 'github'
-  const hasGitlab = process.env.STUDIO_GITLAB_APPLICATION_ID && 'gitlab'
-  const hasGoogle = process.env.STUDIO_GOOGLE_CLIENT_ID && 'google'
-  const hasSSO = (process.env.STUDIO_SSO_URL && process.env.STUDIO_SSO_CLIENT_ID && process.env.STUDIO_SSO_CLIENT_SECRET) && 'sso'
+  // Detect providers from runtimeConfig (populated at build time from env vars).
+  const { studio } = useRuntimeConfig(event)
+  const auth = studio?.auth
+  const hasGithub = auth?.github?.clientId && 'github'
+  const hasGitlab = auth?.gitlab?.applicationId && 'gitlab'
+  const hasGoogle = auth?.google?.clientId && 'google'
+  const hasSSO = (auth?.sso?.serverUrl && auth?.sso?.clientId && auth?.sso?.clientSecret) && 'sso'
 
   const providers = [hasGithub, hasGitlab, hasGoogle, hasSSO].filter(Boolean)
   if (providers.length === 0) {

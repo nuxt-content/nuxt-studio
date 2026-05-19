@@ -3,7 +3,7 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema, isDocumentMatchingContent, generateDocumentFromContent, generateContentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree } from './utils/document'
+import { applyCollectionSchema, isDocumentMatchingContent, documentFromContent, contentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree, comarkTreeFromLegacyDocument, markdownRootFromComarkTree, isComarkTree } from './utils/document'
 import { getHostStyles, getSidebarWidth, adjustFixedElements } from './utils/sidebar'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -17,7 +17,15 @@ import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
-const serviceWorkerVersion = 'v0.0.3'
+const serviceWorkerVersion = 'v0.0.5'
+
+function toComarkBody(document: DatabaseItem): DatabaseItem {
+  if (document.extension !== 'md' || !document.body) return document
+  if (isComarkTree(document.body)) return document
+  const comarkTree = comarkTreeFromLegacyDocument(document)
+  if (!comarkTree) return document
+  return { ...document, body: comarkTree as unknown }
+}
 
 function getLocalColorMode(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
@@ -88,21 +96,26 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           contentFolder: aiConfig.context.contentFolder,
         },
       },
-      components: {
-        hasNuxtUI: meta.components.hasNuxtUI,
-        get: () => meta.components.list.value,
-        getGroups: (fallbackLabel: string) => {
-          if (meta.components.groups.value.length === 0) return []
-          return assignComponentsToGroups(
-            meta.components.list.value,
-            meta.components.groups.value,
-            meta.components.ungrouped.value,
-            fallbackLabel,
-          )
+      editor: {
+        components: {
+          hasNuxtUI: meta.components.hasNuxtUI,
+          get: () => meta.components.list.value,
+          getGroups: (fallbackLabel: string) => {
+            if (meta.components.groups.value.length === 0) return []
+            return assignComponentsToGroups(
+              meta.components.list.value,
+              meta.components.groups.value,
+              meta.components.ungrouped.value,
+              fallbackLabel,
+            )
+          },
         },
+        commands: studioConfig.commands ?? { exclude: [] },
+        iconLibraries: studioConfig.iconLibraries,
+        get highlightTheme() { return meta.highlightTheme.value! },
+        get markdown() { return meta.markdownConfig.value },
       },
       defaultLocale: studioConfig.i18n?.defaultLocale || 'en',
-      getHighlightTheme: () => meta.highlightTheme.value!,
     },
     on: {
       routeChange: (fn: (to: RouteLocationNormalized, from: RouteLocationNormalized) => void) => {
@@ -201,7 +214,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
             return undefined
           }
 
-          return sanitizeDocumentTree({ ...item, fsPath }, collectionInfo)
+          return toComarkBody(sanitizeDocumentTree({ ...item, fsPath }, collectionInfo))
         },
         list: async (): Promise<DatabaseItem[]> => {
           const collections = Object.values(useContentCollections()).filter(collection => collection.name !== 'info')
@@ -212,7 +225,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
               const source = getCollectionSourceById(document.id, collection.source)
               const fsPath = generateFsPathFromId(document.id, source!)
 
-              return sanitizeDocumentTree({ ...document, fsPath }, collection)
+              return toComarkBody(sanitizeDocumentTree({ ...document, fsPath }, collection))
             })
           }))
 
@@ -231,12 +244,12 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo!)
           const generateOptions = { collectionType: collectionInfo.type, compress: true }
-          const document = await generateDocumentFromContent(id, content, generateOptions)
+          const document = await documentFromContent(id, content, generateOptions)
           const normalizedDocument = applyCollectionSchema(id, collectionInfo, document!)
 
           await host.document.db.upsert(fsPath, normalizedDocument)
 
-          return sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo)
+          return toComarkBody(sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo))
         },
         upsert: async (fsPath: string, document: CollectionItemBase) => {
           const collectionInfo = getCollectionByFilePath(fsPath, useContentCollections())
@@ -246,7 +259,13 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo)
 
-          const normalizedDocument = applyCollectionSchema(id, collectionInfo, document)
+          // Convert ComarkTree body back to MarkdownRoot before storing in DB
+          const body = (document as DatabaseItem).body
+          const documentToStore = isComarkTree(body)
+            ? { ...document, body: markdownRootFromComarkTree(body) as unknown }
+            : document
+
+          const normalizedDocument = applyCollectionSchema(id, collectionInfo, documentToStore)
 
           await useContentDatabaseAdapter(collectionInfo.name).exec(generateRecordDeletion(collectionInfo, id))
           await useContentDatabaseAdapter(collectionInfo.name).exec(generateRecordInsert(collectionInfo, normalizedDocument))
@@ -263,7 +282,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
       },
       utils: {
-        areEqual: (document1: DatabaseItem, document2: DatabaseItem) => areDocumentsEqual(document1, document2),
+        areEqual: async (document1: DatabaseItem, document2: DatabaseItem) => areDocumentsEqual(document1, document2),
         isMatchingContent: async (content: string, document: DatabaseItem) => isDocumentMatchingContent(content, document),
         pickReservedKeys: (document: DatabaseItem) => pickReservedKeysFromDocument(document),
         cleanDataKeys: (document: DatabaseItem) => cleanDataKeys(document),
@@ -292,9 +311,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           const collection = getCollectionById(id, useContentCollections())
 
           const generateOptions = { collectionType: collection.type, compress: true }
-          return await generateDocumentFromContent(id, content, generateOptions)
+          return await documentFromContent(id, content, generateOptions)
         },
-        contentFromDocument: async (document: DatabaseItem) => generateContentFromDocument(document),
+        contentFromDocument: async (document: DatabaseItem) => contentFromDocument(document),
       },
     },
     media: (() => {
@@ -307,11 +326,12 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
         list: async (): Promise<MediaItem[]> => {
           const storage = getStorage()
-          return await Promise.all(
+          const items = await Promise.all(
             await storage.getKeys().then((keys: string[]) =>
               keys.map((key: string) => storage.getItem(key)),
             ),
-          ) as MediaItem[]
+          )
+          return items.filter(Boolean) as MediaItem[]
         },
         upsert: async (fsPath: string, media: MediaItem) => {
           const id = generateMediaIdFromFsPath(fsPath)

@@ -53,18 +53,25 @@ export function pickReservedKeysFromDocument(document: DatabaseItem): DatabaseIt
 
 export function cleanDataKeys(document: DatabaseItem): DatabaseItem {
   const result = omit(document, reservedKeys)
-  // Default value of navigation is true, so we can safely remove it
-  if (result.navigation === true) {
+  // Default value of navigation is true, so we can safely remove it.
+  // D1 may store booleans as strings, so handle both 'true' and true.
+  if (result.navigation === true || result.navigation === 'true') {
     Reflect.deleteProperty(result, 'navigation')
   }
 
   if (document.seo) {
-    const seo = document.seo as Record<string, unknown>
-    if (
-      (!seo.title || seo.title === document.title)
-      && (!seo.description || seo.description === document.description)
-    ) {
+    const seo = { ...(document.seo as Record<string, unknown>) }
+    if (!seo.title || seo.title === document.title) {
+      Reflect.deleteProperty(seo, 'title')
+    }
+    if (!seo.description || seo.description === document.description) {
+      Reflect.deleteProperty(seo, 'description')
+    }
+    if (Object.keys(seo).length === 0) {
       Reflect.deleteProperty(result, 'seo')
+    }
+    else {
+      result.seo = seo
     }
   }
 
