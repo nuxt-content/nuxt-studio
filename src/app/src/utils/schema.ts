@@ -40,9 +40,9 @@ function mergeObjectDefinitions(definitions: Draft07DefinitionProperty[]) {
     return undefined
   }
 
-  return objectDefinitions.reduce((merged, definition) => {
+  return objectDefinitions.reduce<Draft07DefinitionProperty | undefined>((merged, definition) => {
     return merged ? mergeDefinitions(merged, definition) : definition
-  }) as Draft07DefinitionProperty | undefined
+  }, undefined)
 }
 
 function mergeDefinitions(
@@ -219,4 +219,3 @@ export function generateInitialContentForCollection(
 
   return serializeInitialData(extension, bodyContent, initialData)
 }
-

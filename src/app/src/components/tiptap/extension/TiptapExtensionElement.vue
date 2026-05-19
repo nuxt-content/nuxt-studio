@@ -25,7 +25,7 @@ const componentName = computed(() => titleCase(componentTag.value).replace(/^U /
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const hasSlots = computed(() => nodeProps.node.content.size > 0)
 const componentProps = computed(() => nodeProps.node.attrs.props || {})
-const componentMeta = computed(() => host.meta.components.get().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
+const componentMeta = computed(() => host.meta.editor.components.get().find(c => kebabCase(c.name) === kebabCase(componentTag.value)))
 
 // Nuxt UI Components bindings
 const nuxtUIComponent = computed(() => standardNuxtUIComponents[componentTag.value])
@@ -109,15 +109,13 @@ function updateComponentProps(props: Record<string, unknown>) {
           <UIcon
             v-if="hasSlots"
             :name="collapsed ? 'i-lucide-chevron-right' : 'i-lucide-chevron-down'"
-            size="xs"
-            class="text-muted group-hover:text-default transition-all duration-150"
+            class="size-3.5 text-muted group-hover:text-default transition-all duration-150"
             :class="{ 'text-dimmed': collapsed }"
           />
           <UIcon
             v-else
             :name="displayIcon"
-            size="xs"
-            class="text-muted group-hover:text-default transition-colors duration-150"
+            class="size-3.5 text-muted group-hover:text-default transition-colors duration-150"
             :class="{ 'text-dimmed': collapsed }"
           />
 

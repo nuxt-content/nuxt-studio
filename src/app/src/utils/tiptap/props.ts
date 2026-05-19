@@ -3,7 +3,7 @@ import { hasProtocol, isRelative } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
-import type { ComponentMeta } from '../../types/component'
+import type { ComponentMeta } from '../../types/editor'
 import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
 
 const HIDDEN_PROPS = [
@@ -96,9 +96,7 @@ export const cleanSpanProps = (attrs?: Record<string, unknown> | null) => {
   const props: Record<string, string | string[]> = {}
   if (isValidAttr(attrs?.style as string)) props.style = String(attrs!.style).trim()
   if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) {
-    const classValue = String((attrs as Record<string, unknown>).class).trim()
-    // Convert space-separated class string back to array for className
-    props.className = classValue.split(' ')
+    props.class = String((attrs as Record<string, unknown>).class).trim()
   }
   return props
 }

@@ -33,7 +33,9 @@ const open = defineModel('open', { type: Boolean, default: undefined })
         <slot name="badge" />
       </div>
 
-      <slot name="actions" />
+      <div class="flex items-center gap-1">
+        <slot name="actions" />
+      </div>
     </div>
 
     <template #content>

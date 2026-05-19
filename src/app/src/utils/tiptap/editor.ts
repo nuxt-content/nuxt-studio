@@ -5,9 +5,24 @@ import type { Editor, JSONContent } from '@tiptap/vue-3'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import { upperFirst } from 'scule'
 
+import type { CommandKey } from '../../types/editor'
+
 import { isEmpty, omit } from '../object'
 
 type TFunction = (key: string) => string
+type CommandSectionKey = Extract<CommandKey, 'style' | 'insert'>
+type CommandItemKey = Exclude<CommandKey, CommandSectionKey>
+
+interface CommandItemDefinition {
+  key: CommandItemKey
+  item: EditorSuggestionMenuItem
+}
+
+interface CommandSectionDefinition {
+  key: CommandSectionKey
+  label: string
+  items: CommandItemDefinition[]
+}
 
 export const getHeadingItems = (t: TFunction) => [
   { kind: 'heading', level: 1, label: t('studio.tiptap.toolbar.h1'), icon: 'i-lucide-heading-1' },
@@ -40,7 +55,7 @@ export const getAITransformItems = (t: TFunction) => [
   { mode: 'translate', label: t('studio.tiptap.ai.translate'), icon: 'i-lucide-languages' },
 ] as const
 
-export const getStandardToolbarItems = (t: TFunction) => [
+export const getStandardToolbarItems = (t: TFunction, isAIEnabled = false) => [
   [
     {
       kind: 'undo',
@@ -82,54 +97,104 @@ export const getStandardToolbarItems = (t: TFunction) => [
       kind: 'slot',
       slot: 'span-style' as const,
     },
-    {
-      kind: 'slot',
-      slot: 'ai-transform' as const,
-    },
+    ...(isAIEnabled ? [{ kind: 'slot' as const, slot: 'ai-transform' as const }] : []),
   ],
 ] satisfies EditorToolbarItem[][]
 
-export const getStandardSuggestionItems = (t: TFunction): EditorSuggestionMenuItem[][] => [
-  [
+function buildStandardSuggestionSections(t: TFunction): CommandSectionDefinition[] {
+  const [heading1, heading2, heading3, heading4] = getHeadingItems(t) as EditorSuggestionMenuItem[]
+  const [bulletList, orderedList] = getListItems(t) as EditorSuggestionMenuItem[]
+  const [blockquote, codeBlock] = getCodeBlockItem(t) as EditorSuggestionMenuItem[]
+  const [bold, italic, strike, code] = getMarkItems(t) as EditorSuggestionMenuItem[]
+
+  return [
     {
-      type: 'label',
+      key: 'style',
       label: t('studio.tiptap.suggestion.style'),
-    }, {
-      kind: 'paragraph',
-      label: t('studio.tiptap.suggestion.paragraph'),
-      icon: 'i-lucide-type',
+      items: [
+        {
+          key: 'paragraph',
+          item: {
+            kind: 'paragraph',
+            label: t('studio.tiptap.suggestion.paragraph'),
+            icon: 'i-lucide-type',
+          },
+        },
+        { key: 'heading1', item: heading1! },
+        { key: 'heading2', item: heading2! },
+        { key: 'heading3', item: heading3! },
+        { key: 'heading4', item: heading4! },
+        { key: 'bulletList', item: bulletList! },
+        { key: 'orderedList', item: orderedList! },
+        { key: 'blockquote', item: blockquote! },
+        { key: 'codeBlock', item: codeBlock! },
+        { key: 'bold', item: bold! },
+        { key: 'italic', item: italic! },
+        { key: 'strike', item: strike! },
+        { key: 'code', item: code! },
+      ],
     },
-    ...getHeadingItems(t) as EditorSuggestionMenuItem[],
-    ...getListItems(t) as EditorSuggestionMenuItem[],
-    ...getCodeBlockItem(t) as EditorSuggestionMenuItem[],
-    ...getMarkItems(t) as EditorSuggestionMenuItem[],
-  ],
-  [
     {
-      type: 'label',
+      key: 'insert',
       label: t('studio.tiptap.suggestion.insert'),
+      items: [
+        {
+          key: 'image',
+          item: {
+            kind: 'image',
+            label: t('studio.tiptap.suggestion.image'),
+            icon: 'i-lucide-image',
+          },
+        },
+        {
+          key: 'video',
+          item: {
+            kind: 'video',
+            label: t('studio.tiptap.suggestion.video'),
+            icon: 'i-lucide-video',
+          },
+        },
+        {
+          key: 'horizontalRule',
+          item: {
+            kind: 'horizontalRule',
+            label: t('studio.tiptap.suggestion.horizontalRule'),
+            icon: 'i-lucide-separator-horizontal',
+          },
+        },
+      ],
     },
-    {
-    //   kind: 'emoji',
-    //   label: 'Emoji',
-    //   icon: 'i-lucide-smile-plus',
-    // }, {
-      kind: 'image',
-      label: t('studio.tiptap.suggestion.image'),
-      icon: 'i-lucide-image',
-    },
-    {
-      kind: 'video',
-      label: t('studio.tiptap.suggestion.video'),
-      icon: 'i-lucide-video',
-    },
-    {
-      kind: 'horizontalRule',
-      label: t('studio.tiptap.suggestion.horizontalRule'),
-      icon: 'i-lucide-separator-horizontal',
-    },
-  ],
-]
+  ]
+}
+
+export function getStandardSuggestionItems(
+  t: TFunction,
+  exclude?: readonly CommandKey[],
+): EditorSuggestionMenuItem[][] {
+  const hidden = new Set(exclude)
+
+  return buildStandardSuggestionSections(t).flatMap((section) => {
+    if (hidden.has(section.key)) {
+      return []
+    }
+
+    const items = section.items
+      .filter(({ key }) => !hidden.has(key))
+      .map(({ item }) => item)
+
+    if (items.length === 0) {
+      return []
+    }
+
+    return [[
+      {
+        type: 'label',
+        label: section.label,
+      },
+      ...items,
+    ]]
+  })
+}
 
 export const standardNuxtUIComponents: Record<string, { name: string, icon: string }> = {
   'icon-menu-toggle': { name: 'Icon Menu Toggle', icon: 'i-lucide-menu' },

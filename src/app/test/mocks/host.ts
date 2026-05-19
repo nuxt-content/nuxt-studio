@@ -1,21 +1,18 @@
-import type { DatabaseItem, StudioHost } from '../../src/types'
-import type { MediaItem } from '../../src/types/media'
+import type { StudioHost, DatabaseItem } from '../../src/types'
 import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../src/utils/media'
 import { vi } from 'vitest'
-import { joinURL } from 'ufo'
 import { createMockDocument } from './document'
 import { createMockMedia } from './media'
-
-const documentDb = new Map<string, DatabaseItem>()
-const mediaDb = new Map<string, MediaItem>()
-const reservedDocumentKeys = ['id', 'fsPath', 'path', 'stem', 'extension', 'body', 'meta', 'rawbody', '__hash__'] as const
+import { joinURL } from 'ufo'
+import type { MediaItem } from '../../src/types/media'
+import { isDocumentMatchingContent, areDocumentsEqual, documentFromContent, contentFromDocument, pickReservedKeysFromDocument, cleanDataKeys } from '../../../module/dist/runtime/utils/document'
 
 // Helper to convert fsPath to id (simulates module's internal mapping)
 export const fsPathToId = (fsPath: string, type: 'document' | 'media') => {
   if (type === 'media') {
     return joinURL(VIRTUAL_MEDIA_COLLECTION_NAME, fsPath)
   }
-
+  // For documents, prefix with a collection name
   return joinURL('docs', fsPath)
 }
 
@@ -24,34 +21,8 @@ export const idToFsPath = (id: string) => {
   return id.split('/').slice(1).join('/')
 }
 
-function getBodyContent(document?: DatabaseItem) {
-  const body = document?.body as { value?: string[] } | undefined
-  return Array.isArray(body?.value) ? body.value.join('\n') : ''
-}
-
-function pickReservedKeys(document: DatabaseItem) {
-  return Object.fromEntries(
-    reservedDocumentKeys
-      .filter(key => key in document)
-      .map(key => [key, document[key as keyof DatabaseItem | '__hash__']]),
-  ) as DatabaseItem
-}
-
-function cleanDocumentData(document: DatabaseItem) {
-  return Object.fromEntries(
-    Object.entries(document).filter(([key]) => !reservedDocumentKeys.includes(key as typeof reservedDocumentKeys[number])),
-  ) as DatabaseItem
-}
-
-async function generateDocumentFromContent(id: string, content: string) {
-  return createMockDocument(id, {
-    fsPath: idToFsPath(id),
-    body: {
-      type: 'minimark',
-      value: [content?.trim() || 'Test content'],
-    },
-  })
-}
+const documentDb = new Map<string, DatabaseItem>()
+const mediaDb = new Map<string, MediaItem>()
 
 export const createMockHost = (): StudioHost => ({
   document: {
@@ -61,49 +32,49 @@ export const createMockHost = (): StudioHost => ({
         if (documentDb.has(id)) {
           return documentDb.get(id)
         }
-
         const document = createMockDocument(id)
         documentDb.set(id, document)
         return document
       }),
       create: vi.fn().mockImplementation(async (fsPath: string, content: string) => {
         const id = fsPathToId(fsPath, 'document')
-        const document = createMockDocument(id, {
-          body: { type: 'minimark', value: [content?.trim() || 'Test content'] },
-          fsPath,
-        })
+        const document = createMockDocument(id, { body: { nodes: [['p', {}, content?.trim() || 'Test content']], frontmatter: {}, meta: {} }, fsPath })
         documentDb.set(id, document)
         return document
       }),
       upsert: vi.fn().mockImplementation(async (fsPath: string, document: DatabaseItem) => {
-        documentDb.set(fsPathToId(fsPath, 'document'), document)
+        const id = fsPathToId(fsPath, 'document')
+        documentDb.set(id, document)
       }),
       delete: vi.fn().mockImplementation(async (fsPath: string) => {
-        documentDb.delete(fsPathToId(fsPath, 'document'))
+        const id = fsPathToId(fsPath, 'document')
+        documentDb.delete(id)
       }),
-      list: vi.fn().mockImplementation(async () => Array.from(documentDb.values())),
+      list: vi.fn().mockImplementation(async () => {
+        return Array.from(documentDb.values())
+      }),
     },
     utils: {
-      areEqual: vi.fn().mockImplementation((document1: DatabaseItem, document2: DatabaseItem) => {
-        return JSON.stringify(document1) === JSON.stringify(document2)
+      areEqual: vi.fn().mockImplementation(async (document1: DatabaseItem, document2: DatabaseItem) => {
+        return areDocumentsEqual(document1, document2)
       }),
       isMatchingContent: vi.fn().mockImplementation(async (content: string, document: DatabaseItem) => {
-        return getBodyContent(document).trim() === content.trim()
+        return isDocumentMatchingContent(content, document)
       }),
       pickReservedKeys: vi.fn().mockImplementation((document: DatabaseItem) => {
-        return pickReservedKeys(document)
+        return pickReservedKeysFromDocument(document) as DatabaseItem
       }),
       cleanDataKeys: vi.fn().mockImplementation((document: DatabaseItem) => {
-        return cleanDocumentData(document)
+        return cleanDataKeys(document) as DatabaseItem
       }),
       detectActives: vi.fn().mockReturnValue([]),
     },
     generate: {
       documentFromContent: vi.fn().mockImplementation(async (id: string, content: string) => {
-        return generateDocumentFromContent(id, content)
+        return documentFromContent(id, content, { collectionType: 'page', compress: true })
       }),
       contentFromDocument: vi.fn().mockImplementation(async (document: DatabaseItem) => {
-        return getBodyContent(document)
+        return contentFromDocument(document)
       }),
     },
   },
@@ -113,7 +84,6 @@ export const createMockHost = (): StudioHost => ({
       if (mediaDb.has(id)) {
         return mediaDb.get(id)
       }
-
       const media = createMockMedia(id)
       mediaDb.set(id, media)
       return media
@@ -125,12 +95,16 @@ export const createMockHost = (): StudioHost => ({
       return media
     }),
     upsert: vi.fn().mockImplementation(async (fsPath: string, media: MediaItem) => {
-      mediaDb.set(fsPathToId(fsPath, 'media'), media)
+      const id = fsPathToId(fsPath, 'media')
+      mediaDb.set(id, media)
     }),
     delete: vi.fn().mockImplementation(async (fsPath: string) => {
-      mediaDb.delete(fsPathToId(fsPath, 'media'))
+      const id = fsPathToId(fsPath, 'media')
+      mediaDb.delete(id)
     }),
-    list: vi.fn().mockImplementation(async () => Array.from(mediaDb.values())),
+    list: vi.fn().mockImplementation(async () => {
+      return Array.from(mediaDb.values())
+    }),
   },
   app: {
     requestRerender: vi.fn(),
@@ -140,6 +114,12 @@ export const createMockHost = (): StudioHost => ({
   meta: {
     dev: false,
     components: vi.fn().mockReturnValue([]),
+    iconLibraries: undefined,
+    ai: {
+      enabled: false,
+      experimental: { collectionContext: false },
+      context: { collectionName: '', contentFolder: '' },
+    },
   },
   on: {
     routeChange: vi.fn(),

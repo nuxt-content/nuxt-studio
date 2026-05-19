@@ -22,7 +22,7 @@ export function getCollectionSourceById(id: string, sources: ResolvedCollectionS
 
   const matchedSource = sources.find((source) => {
     const prefix = source.prefix
-    if (!prefix) {
+    if (typeof prefix !== 'string') {
       return false
     }
 

@@ -1,15 +1,15 @@
-name: Sébastien Chopin
 avatar:
-  src: /atinux.jpeg
-to: https://x.com/atinux
-username: atinux
-role: creator
-order: 1
+  src: /developers/atinux.jpeg
 birthDate: 1992-11-23
-lastCommitAt: 2026-02-22 10:00:00
 icon: i-lucide-rocket
 isOpenSourceLover: true
+lastCommitAt: 2026-02-22 10:00:00
 modules:
   - hub
   - ui
   - auth
+name: Sébastien Chopin
+order: 1
+role: creator
+to: https://x.com/atinux
+username: atinux

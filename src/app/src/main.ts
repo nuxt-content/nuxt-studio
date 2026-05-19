@@ -14,6 +14,7 @@ import AI from './pages/ai.vue'
 import Review from './pages/review.vue'
 import Success from './pages/success.vue'
 import Error from './pages/error.vue'
+import { i18nPluralizationRulesMap } from './localizationRules/index.ts'
 
 if (typeof window !== 'undefined' && 'customElements' in window) {
   const NuxtStudio = defineCustomElement(
@@ -65,6 +66,7 @@ if (typeof window !== 'undefined' && 'customElements' in window) {
           locale: 'en',
           fallbackLocale: 'en',
           globalInjection: true,
+          pluralRules: i18nPluralizationRulesMap,
         })
 
         app.provide('i18n', i18n)

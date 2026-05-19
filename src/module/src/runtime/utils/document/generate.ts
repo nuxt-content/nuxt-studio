@@ -1,43 +1,42 @@
-import type { CollectionInfo, MarkdownRoot } from '@nuxt/content'
-import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
+import type { CollectionInfo } from '@nuxt/content'
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
-import type { Node } from 'unist'
 import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
-import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
-import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'
-import { visit } from 'unist-util-visit'
-import { compressTree, decompressTree } from '@nuxt/content/runtime'
+import { parse } from 'comark'
+import comarkEmoji from 'comark/plugins/emoji'
+import tocPlugin from 'comark/plugins/toc'
+import type { ComarkTree } from 'comark'
+import highlight from 'comark/plugins/highlight'
+import { renderMarkdown } from 'comark/render'
 import destr from 'destr'
-import { parseFrontMatter, stringifyFrontMatter } from 'remark-mdc'
+import yaml from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
-import { remarkEmojiPlugin } from 'nuxt-studio/app/utils'
 
 const logger = consola.withTag('Nuxt Studio')
 
-export async function generateDocumentFromContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem | null> {
+export async function documentFromContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem | null> {
   const [_id, _hash] = id.split('#')
   const extension = getFileExtension(id)
 
   if (extension === ContentFileExtension.Markdown) {
-    return await generateDocumentFromMarkdownContent(id, content, options)
+    return await documentFromMarkdownContent(id, content, options)
   }
 
   if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
-    return await generateDocumentFromYAMLContent(id, content)
+    return await documentFromYAMLContent(id, content)
   }
 
   if (extension === ContentFileExtension.JSON) {
-    return await generateDocumentFromJSONContent(id, content)
+    return await documentFromJSONContent(id, content)
   }
 
   return null
 }
 
-export async function generateDocumentFromYAMLContent(id: string, content: string): Promise<DatabaseItem> {
-  const { data } = parseFrontMatter(`---\n${content}\n---`)
+export async function documentFromYAMLContent(id: string, content: string): Promise<DatabaseItem> {
+  const data = (yaml.load(content) || {}) as Record<string, unknown>
 
   // Keep array contents under `body` key
   let parsed = data
@@ -61,7 +60,7 @@ export async function generateDocumentFromYAMLContent(id: string, content: strin
   return document
 }
 
-export async function generateDocumentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
+export async function documentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
   let parsed: Record<string, unknown> = destr(content)
 
   // Keep array contents under `body` key
@@ -88,50 +87,37 @@ export async function generateDocumentFromJSONContent(id: string, content: strin
   return document
 }
 
-export async function generateDocumentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
-  const markdownConfig = useHostMeta().markdownConfig.value
-  const document = await parseMarkdown(content, {
-    contentHeading: markdownConfig?.contentHeading !== false ? options.collectionType === 'page' : false,
-    highlight: {
-      theme: useHostMeta().highlightTheme.value,
-    },
-    remark: {
-      plugins: {
-        'emoji': {
-          instance: remarkEmojiPlugin,
-        },
-        'remark-mdc': {
-          options: {
-            autoUnwrap: true,
-          },
-        },
-      },
-    },
+export function isComarkTree(body: unknown): body is ComarkTree {
+  return typeof body === 'object' && body !== null && Array.isArray((body as ComarkTree).nodes)
+}
+
+export async function documentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
+  const highlightTheme = useHostMeta().highlightTheme.value
+  const themes: Record<string, string> = highlightTheme
+    ? {
+        default: highlightTheme.default || 'github-light',
+        dark: highlightTheme.dark || 'github-dark',
+        light: highlightTheme.light || 'github-light',
+      }
+    : { default: 'github-light', dark: 'github-dark' }
+
+  const tree = await parse(content, {
+    autoClose: false,
+    autoUnwrap: true,
+    plugins: [
+      comarkEmoji(),
+      highlight({ themes }),
+      tocPlugin({ depth: 2, searchDepth: 2, title: '', links: [] }),
+    ],
   })
-
-  // Remove nofollow from links (skip when preserving attributes for comparison purposes)
-  if (!options.preserveLinkAttributes) {
-    visit(document.body, (node: unknown) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: unknown) => {
-      // TODO: handle rel custom properties
-      Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-    })
-  }
-
-  let body = document.body as never as MarkdownRoot
-  if (options.compress && document.body.type === 'root') {
-    body = compressTree(document.body)
-  }
 
   const result: DatabaseItem = {
     id,
     meta: {},
     extension: 'md',
     stem: id.split('/').slice(1).join('/').split('.').slice(0, -1).join('.'),
-    body: {
-      ...body,
-      toc: document.toc,
-    },
-    ...document.data,
+    body: tree,
+    ...tree.frontmatter,
   }
 
   // Do not need to calculate path meta information for data collections
@@ -142,61 +128,44 @@ export async function generateDocumentFromMarkdownContent(id: string, content: s
   return result
 }
 
-export async function generateContentFromDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+export async function contentFromDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
   const [id, _hash] = document.id.split('#')
   const extension = getFileExtension(id!)
 
   if (extension === ContentFileExtension.Markdown) {
-    return await generateContentFromMarkdownDocument(document as DatabasePageItem, collection)
+    return await contentFromMarkdownDocument(document as DatabasePageItem, collection)
   }
 
   if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
-    return await generateContentFromYAMLDocument(document, collection)
+    return await contentFromYAMLDocument(document, collection)
   }
 
   if (extension === ContentFileExtension.JSON) {
-    return await generateContentFromJSONDocument(document, collection)
+    return await contentFromJSONDocument(document, collection)
   }
 
   return null
 }
 
-export async function generateContentFromYAMLDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
-  return await stringifyFrontMatter(cleanDataKeys(document, collection), '', {
-    prefix: '',
-    suffix: '',
-    lineWidth: 0,
-  })
+export async function contentFromYAMLDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  return yaml.dump(cleanDataKeys(document, collection), { lineWidth: -1 })
 }
 
-export async function generateContentFromJSONDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+export async function contentFromJSONDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
   return JSON.stringify(cleanDataKeys(document, collection), null, 2)
 }
 
-export async function generateContentFromMarkdownDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
-  // @ts-expect-error todo fix MarkdownRoot/MDCRoot conversion in MDC module
-  const body = document.body!.type === 'minimark' ? decompressTree(document.body) : (document.body as MDCRoot)
+export async function contentFromMarkdownDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  const body = {
+    ...(document.body as unknown as ComarkTree),
+    frontmatter: cleanDataKeys(document, collection),
+  }
 
-  // Remove nofollow from links
-  visit(body, (node: Node) => (node as MDCElement).type === 'element' && (node as MDCElement).tag === 'a', (node: Node) => {
-    // TODO: handle rel custom properties
-    Reflect.deleteProperty((node as MDCElement).props!, 'rel')
-  })
-
-  const markdown = await stringifyMarkdown(body, cleanDataKeys(document, collection), {
-    frontMatter: {
-      options: {
-        lineWidth: 0,
-      },
-    },
-    plugins: {
-      remarkMDC: {
-        options: {
-          autoUnwrap: true,
-        },
-      },
+  const markdown = await renderMarkdown(body, {
+    blockAttributesStyle: 'frontmatter',
+    components: {
+      br: () => ':br',
     },
   })
-
-  return typeof markdown === 'string' ? markdown.replace(/&#x2A;/g, '*') : markdown
+  return markdown.replace(/&#x2A;/g, '*') + '\n'
 }

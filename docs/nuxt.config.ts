@@ -37,13 +37,14 @@ export default defineNuxtConfig({
       external: true,
       prefix: '',
     },
-    meta: {
+    editor: {
       components: {
         groups: [
           { label: 'Custom', include: ['app/components/**'] },
           { label: 'Nuxt UI', include: ['../node_modules/.pnpm/**'] },
         ],
       },
+      iconLibraries: ['lucide', 'phosphor', 'simple-icons'],
     },
     git: {
       commit: {

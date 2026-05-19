@@ -343,3 +343,33 @@ function calculateDirectoryStatuses(items: TreeItem[], isDev = false) {
     }
   }
 }
+
+/**
+ * Returns a copy of the item with children filtered to directories only (recursive).
+ */
+export function filterDirectories(item: TreeItem): TreeItem {
+  const dirChildren = (item.children || [])
+    .filter(c => c.type === 'directory')
+    .map(filterDirectories)
+  return { ...item, children: dirChildren }
+}
+
+/**
+ * Finds a non-file node (directory or root) in a TreeItem tree by fsPath.
+ */
+export function findDirectoryItem(item: TreeItem, fsPath: string): TreeItem | undefined {
+  if (item.type !== 'file' && item.fsPath === fsPath) {
+    return item
+  }
+
+  for (const child of item.children || []) {
+    if (child.type === 'file') {
+      continue
+    }
+
+    const matchingChild = findDirectoryItem(child, fsPath)
+    if (matchingChild) {
+      return matchingChild
+    }
+  }
+}

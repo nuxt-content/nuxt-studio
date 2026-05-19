@@ -1,6 +1,7 @@
 import { createSharedComposable } from './createSharedComposable'
 import { computed, ref } from 'vue'
-import { StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
+import {
+  StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature, ContentFileExtension,
 } from '../types'
 import type {
   PublishBranchParams,
@@ -24,7 +25,9 @@ import { findDescendantsFileItemsFromFsPath } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
 import { generateInitialContentForCollection } from '../utils/schema'
-import { ContentFileExtension } from '../types'
+import { consola } from 'consola'
+
+const logger = consola.withTag('useContext')
 
 export const useContext = createSharedComposable((
   host: StudioHost,
@@ -115,24 +118,29 @@ export const useContext = createSharedComposable((
       const rootDocumentFsPath = joinURL(fsPath, 'index.md')
       const navigationDocumentFsPath = joinURL(fsPath, '.navigation.yml')
 
-      const navigationDocument = await host.document.db.create(navigationDocumentFsPath, generateInitialContentForCollection(
-        ContentFileExtension.YML,
-        '',
-        host.collection.getByFsPath(navigationDocumentFsPath),
-        {
-          fallbackData: { title: folderName },
-          title: folderName,
-        },
-      ))
+      try {
+        const navigationDocument = await host.document.db.create(navigationDocumentFsPath, generateInitialContentForCollection(
+          ContentFileExtension.YML,
+          '',
+          host.collection.getByFsPath(navigationDocumentFsPath),
+          {
+            fallbackData: { title: folderName },
+            title: folderName,
+          },
+        ))
+        await activeTree.value.draft.create(navigationDocumentFsPath, navigationDocument)
+      }
+      catch (e) {
+        logger.warn(`Navigation document at path ${navigationDocumentFsPath} failed to create: ${e}`)
+      }
+
       const rootTitle = upperFirst(folderName)
       const rootDocument = await host.document.db.create(rootDocumentFsPath, generateInitialContentForCollection(
         ContentFileExtension.Markdown,
-        `# ${rootTitle} file`,
+        `# ${rootTitle} root file`,
         host.collection.getByFsPath(rootDocumentFsPath),
         { title: rootTitle },
       ))
-
-      await activeTree.value.draft.create(navigationDocumentFsPath, navigationDocument)
       const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocumentFsPath, rootDocument)
 
       unsetActionInProgress()

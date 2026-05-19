@@ -37,7 +37,7 @@ export const useStudio = createSharedComposable(() => {
 
   const gitProvider = useGitProvider(gitOptions, devMode.value)
   const ui = useUI(host)
-  const ai = useAI()
+  const ai = useAI(host)
   const draftDocuments = useDraftDocuments(host, gitProvider)
   const documentTree = useTree(StudioFeature.Content, host, draftDocuments)
   const draftMedias = useDraftMedias(host, gitProvider)
@@ -118,7 +118,7 @@ function initDevelopmentMode() {
         const document = await host.document.db.get(fsPath)
         item.modified = document
         item.original = document
-        item.status = context.activeTree.value.draft.getStatus(document as DatabaseItem, item.original as DatabaseItem)
+        item.status = await context.activeTree.value.draft.getStatus(document as DatabaseItem, item.original as DatabaseItem)
         item.version = item.version ? item.version + 1 : 1
       }
     }
@@ -141,7 +141,7 @@ function initDevelopmentMode() {
         const media = await host.media.get(fsPath)
         item.modified = media
         item.original = media
-        item.status = mediaTree.draft.getStatus(media, item.original)
+        item.status = await mediaTree.draft.getStatus(media, item.original)
         item.version = item.version ? item.version + 1 : 1
       }
     }

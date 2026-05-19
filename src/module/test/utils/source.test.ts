@@ -88,6 +88,22 @@ describe('getCollectionSourceById', () => {
     expect(source).toEqual(rootPrefixSource[0])
   })
 
+  it('should return correct source when source has empty prefix with custom dynamic include pattern', () => {
+    const rootPrefixSource: ResolvedCollectionSource[] = [
+      {
+        _resolved: true,
+        prefix: '',
+        include: 'pages/**/*.md',
+        cwd: '',
+      },
+    ]
+
+    // {collection.name}/{source.prefix}/{name}
+    const id = 'collectionName/about.md'
+    const source = getCollectionSourceById(id, rootPrefixSource)
+    expect(source).toEqual(rootPrefixSource[0])
+  })
+
   it('should return correct source when source has custom prefix with custom dynamic include pattern', () => {
     const customPrefixSource: ResolvedCollectionSource[] = [
       {
