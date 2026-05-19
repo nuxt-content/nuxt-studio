@@ -7,6 +7,28 @@ import { StudioFeature } from '../../types'
 
 const logger = consola.withTag('Nuxt Studio')
 
+/**
+ * GitLab repository commit actions expect raw base64 payload. Upload flows often
+ * provide a full data URL, which makes GitLab decode fail.
+ *
+ * @param content - Base64 or data-URL string from the client
+ * @returns Payload suitable for the GitLab `encoding: "base64"` commit action body
+ */
+function normalizeGitLabBase64Payload(content: string): string {
+  if (!content.startsWith('data:')) {
+    return content
+  }
+
+  const base64Marker = ';base64,'
+  const markerIndex = content.indexOf(base64Marker)
+
+  if (markerIndex === -1) {
+    return content
+  }
+
+  return content.slice(markerIndex + base64Marker.length)
+}
+
 export function createGitLabProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail, instanceUrl = 'https://gitlab.com' } = options
   const gitFiles: Record<string, GitFile> = {}
@@ -109,21 +131,25 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
           file_path: file.path,
         }
       }
-      else if (file.status === DraftStatus.Created) {
+
+      const useBase64 = file.encoding === 'base64'
+      const rawContent = file.content ?? ''
+      const content = useBase64 ? normalizeGitLabBase64Payload(rawContent) : rawContent
+
+      if (file.status === DraftStatus.Created) {
         return {
           action: 'create',
           file_path: file.path,
-          content: file.content,
-          encoding: file.encoding === 'base64' ? 'base64' : 'text',
+          content,
+          encoding: useBase64 ? 'base64' : 'text',
         }
       }
-      else {
-        return {
-          action: 'update',
-          file_path: file.path,
-          content: file.content,
-          encoding: file.encoding === 'base64' ? 'base64' : 'text',
-        }
+
+      return {
+        action: 'update',
+        file_path: file.path,
+        content,
+        encoding: useBase64 ? 'base64' : 'text',
       }
     })
 
