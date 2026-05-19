@@ -19,12 +19,12 @@ seo:
 #headline
   :::u-button
   ---
-  to: https://github.com/nuxt-content/studio
-  variant: outline
+  class: mb-3 rounded-full
   size: sm
   target: _blank
+  to: https://github.com/nuxt-content/studio
   trailing-icon: i-lucide-arrow-right
-  class: mb-3 rounded-full
+  variant: outline
   ---
   Open Source & Self-hosted
   :::
@@ -38,10 +38,10 @@ Self-hosted CMS for Nuxt Content websites. Edit content visually, manage media, 
 #links
   :::u-button
   ---
-  to: /introduction
   label: Get Started
-  trailingIcon: i-lucide-arrow-right
   size: lg
+  to: /introduction
+  trailingIcon: i-lucide-arrow-right
   ---
   :::
 
@@ -133,7 +133,7 @@ Everything you need for content editing
 Edit **Markdown** with **Vue** components, structure data using **YAML** and **JSON** forms, manage media assets and publish directly to **Git**. All from your live production website.
 ::
 
-::u-page-section{orientation="horizontal" reverse}
+::u-page-section{reverse orientation="horizontal"}
   :::browser-frame
   ![Visual Markdown Editor](/studio/visual-markdown-editor.webp){.rounded-none height="900" width="1440"}
   :::
@@ -163,14 +163,14 @@ A powerful editor built on TipTap that enables natural content creation while au
 #links
   :::u-button
   ---
-  to: /content
-  label: Learn more about the Visual Editor
-  variant: subtle
   color: neutral
-  trailingIcon: i-lucide-arrow-right
+  icon: i-simple-icons-github
+  label: Learn more about the Visual Editor
   size: lg
   target: _blank
-  icon: i-simple-icons-github
+  to: /content
+  trailingIcon: i-lucide-arrow-right
+  variant: subtle
   ---
   :::
 ::
@@ -205,16 +205,16 @@ Forms are automatically generated from your [Nuxt Content](https://content.nuxt.
 #links
   :::u-button
   ---
-  to: /content#form-editor
-  label: Learn more about Forms
-  variant: subtle
   color: neutral
+  label: Learn more about Forms
+  to: /content#form-editor
   trailingIcon: i-lucide-arrow-right
+  variant: subtle
   ---
   :::
 ::
 
-::u-page-section{orientation="horizontal" reverse}
+::u-page-section{reverse orientation="horizontal"}
   :::browser-frame
   ![GitHub Sync](/studio/github-sync.webp){.rounded-none height="900" width="1440"}
   :::
@@ -244,11 +244,11 @@ Publish changes directly to GitHub or GitLab from your production site. Your CI/
 #links
   :::u-button
   ---
-  to: /git-providers
-  label: Configure Git providers
-  variant: subtle
   color: neutral
+  label: Configure Git providers
+  to: /git-providers
   trailingIcon: i-lucide-arrow-right
+  variant: subtle
   ---
   :::
 ::
@@ -290,11 +290,11 @@ Leverage [Vercel AI Gateway](https://vercel.com/ai-gateway) to automatically gen
 #links
   :::u-button
   ---
-  to: /ai
-  label: Learn more about AI integration
-  variant: subtle
   color: neutral
+  label: Learn more about AI integration
+  to: /ai
   trailingIcon: i-lucide-arrow-right
+  variant: subtle
   ---
   :::
 ::
@@ -310,16 +310,16 @@ Leverage [Vercel AI Gateway](https://vercel.com/ai-gateway) to automatically gen
   Start editing your Nuxt website today.
 
   #links
-    ::::u-button{to="/introduction" label="Get Started" trailing-icon="i-lucide-arrow-right"}
+    ::::u-button{label="Get Started" to="/introduction" trailing-icon="i-lucide-arrow-right"}
     ::::
 
     ::::u-button
     ---
+    color: neutral
+    icon: i-simple-icons-github
+    target: _blank
     to: https://github.com/nuxt-content/studio
     variant: outline
-    color: neutral
-    target: _blank
-    icon: i-simple-icons-github
     ---
     Star on GitHub
     ::::
