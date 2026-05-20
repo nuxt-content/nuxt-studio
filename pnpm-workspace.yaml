@@ -14,3 +14,5 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - better-sqlite3
   - sharp
+
+minimumReleaseAge: 2880
