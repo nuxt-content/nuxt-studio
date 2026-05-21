@@ -10,7 +10,8 @@
       "publish": "Terbitkan",
       "back": "Kembali",
       "backToEdition": "Kembali ke penyuntingan",
-      "seeChanges": "Lihat perubahan"
+      "seeChanges": "Lihat perubahan",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Direktori",
@@ -69,7 +70,8 @@
       "debugMode": "Mode Debug"
     },
     "alert": {
-      "mdcFormatting": "Pemformatan diterapkan untuk menyesuaikan dengan standar sintaksis MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Konflik Terdeteksi",

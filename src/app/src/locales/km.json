@@ -10,7 +10,8 @@
       "publish": "បង្ហោះ",
       "back": "ត្រលប់ទៅក្រោយ",
       "backToEdition": "ត្រលប់ទៅការកែសម្រួល",
-      "seeChanges": "មើលការផ្លាស់ប្តូរ"
+      "seeChanges": "មើលការផ្លាស់ប្តូរ",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "ថតឯកសារ",
@@ -69,7 +70,8 @@
       "debugMode": "ពេលវេលាសាកល្បង"
     },
     "alert": {
-      "mdcFormatting": "ការធ្វើទម្រង់ត្រូវបានអនុវត្តដើម្បីផ្គូផ្គងជាមួយស្តង់ដារវាក្យសរសេរី MDC។"
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "បានរកឃើញជម្លោះ",

@@ -10,7 +10,8 @@
       "publish": "Публикуване",
       "back": "Назад",
       "backToEdition": "Връщане към редактирането",
-      "seeChanges": "Преглед на промените"
+      "seeChanges": "Преглед на промените",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Директории",
@@ -69,7 +70,8 @@
       "debugMode": "Режим за отстраняване на грешки"
     },
     "alert": {
-      "mdcFormatting": "Приложено е форматиране, за да се съобрази със стандарта за MDC синтаксис."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Открит е конфликт",

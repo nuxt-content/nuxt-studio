@@ -486,7 +486,7 @@ function wrapImageInParagraph(content: JSONContent[]): JSONContent[] {
 }
 
 /**
- * Unwrap single paragraph child (MDC auto-unwrap feature)
+ * Unwrap single paragraph child (Comark auto-unwrap feature)
  */
 function unwrapParagraph(content: JSONContent[]): JSONContent[] {
   if (content.length === 1 && content[0]?.type === 'paragraph') {
