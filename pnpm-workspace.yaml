@@ -14,3 +14,5 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - better-sqlite3
   - sharp
+patchedDependencies:
+  '@nuxtjs/mdc@0.22.0': patches/@nuxtjs__mdc@0.22.0.patch

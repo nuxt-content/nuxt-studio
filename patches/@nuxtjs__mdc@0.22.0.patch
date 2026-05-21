@@ -1,0 +1,33 @@
+diff --git a/dist/runtime/parser/options.js b/dist/runtime/parser/options.js
+index 7b1d60a42e792d87e32dc6d62fb344eb2c999b4d..10f5d0f149917d1fabd9b9b3c60127384f688e72 100644
+--- a/dist/runtime/parser/options.js
++++ b/dist/runtime/parser/options.js
+@@ -1,10 +1,13 @@
+ import remarkGFM from "remark-gfm";
+ import remarkMDC from "remark-mdc";
+ import rehypeExternalLinks from "rehype-external-links";
+-import rehypeSortAttributeValues from "rehype-sort-attribute-values";
+-import rehypeSortAttributes from "rehype-sort-attributes";
+ import rehypeRaw from "rehype-raw";
+ import handlers from "./handlers/index.js";
++// Studio patch: removed rehype-sort-attribute-values and rehype-sort-attributes
++// to preserve the author's attribute insertion order through the parser.
++// Comark renders attrs in insertion order; an upstream alphabetical sort here
++// causes the "Formatting applied" banner to fire on every file open whose
++// authored attrs aren't already in alphabetical order.
+ export const defaults = {
+   remark: {
+     plugins: {
+@@ -25,12 +28,6 @@ export const defaults = {
+       "rehype-external-links": {
+         instance: rehypeExternalLinks
+       },
+-      "rehype-sort-attribute-values": {
+-        instance: rehypeSortAttributeValues
+-      },
+-      "rehype-sort-attributes": {
+-        instance: rehypeSortAttributes
+-      },
+       "rehype-raw": {
+         instance: rehypeRaw,
+         options: {

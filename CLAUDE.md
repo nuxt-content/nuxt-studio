@@ -512,6 +512,52 @@ This ensures AI never generates headings when you're writing paragraphs, or full
 **In development mode:**
 - There is no draft system, changes are synced with the server filesystem directly
 
+### Content states (the same markdown, five representations)
+
+A single piece of content exists in several distinct forms as it flows from disk through Studio. Knowing which one is on each side of a comparison is essential when debugging the "Formatting applied" banner, conflict detection, or any round-trip discrepancy.
+
+| # | Name | What it is | Where it lives | Who transforms it |
+|---|------|-----------|----------------|-------------------|
+| **A** | **Raw file on disk** | Plain text exactly as the user authored it | Git remote (fetched via GitHub/GitLab API), or local filesystem in dev mode | Nobody — just bytes |
+| **B** | **Stored ComarkTree (`original.body`)** — *today* | The AST `@nuxt/content` built at SQLite-build time, then bridged to ComarkTree on read | Browser SQLite (loaded from the dump), then in-memory under `draftItem.original` | `comarkTreeFromLegacyDocument` → `mdcToComark` → `propsMDCToComark` |
+| **B bis** | **Stored ComarkTree (`original.body`)** — *future, post-comark-native `@nuxt/content`* | The same immutable "as-stored" snapshot — but built directly by comark at @nuxt/content build time, no MDC bridge in between | Browser SQLite, then in-memory under `draftItem.original` (same shape as what was stored) | None at runtime — Studio just reads it. The upstream `comark.parse` ran once at build time and the result was stored as-is. The whole `legacy.ts` bridge file can be deleted at that point. |
+| **C** | **TipTap document JSON** | Editor-internal representation of the same content | TipTap editor state, in memory only | `comarkToTiptap(original.body)` on mount; lives as long as the editor is open |
+| **D** | **Edited ComarkTree (`modified.body`)** | Result of bouncing state C back through `tiptapToComark` after every editor `onUpdate` (which fires even on harmless normalizations like wrapping inline nodes) | In-memory `draftItem.modified`; persisted to IndexedDB as the draft | `tiptapToComark` → `createElement` / `createVideoElement` / `createImageElement` / `createLinkElement` / link-mark branch in `createTextElement` — all use `buildAttrs` to preserve incoming attr order, no hardcoded reordering |
+| **E** | **Rendered markdown string** | Any ComarkTree (B or D) serialized back to text via `contentFromMarkdownDocument` → comark `renderMarkdown` | Computed on demand by `host.document.generate.contentFromDocument` | Pure render; comark preserves insertion order — no Studio-imposed sort |
+
+**Mapping to UI surfaces:**
+
+- **TipTap editor** — shows state **C** rendered visually. v-models on `modified`, so anything you type updates **D**.
+- **Monaco code editor** — shows **E(D)** (the round-tripped string of the current draft). Edits parse back via `documentFromContent` (comark.parse) into a fresh **D**.
+- **MDC formatting banner** ([ContentEditor.vue](src/app/src/components/content/editor/ContentEditor.vue) + [ContentEditorDiff](src/app/src/components/content/editor/ContentEditorDiff.vue)) — left pane = **A** (raw remote file), right pane = **E(B)** (round-trip of `original`). Fires when `A !== E(B)`.
+- **Review card** ([ContentCardReview](src/app/src/components/content/ContentCardReview.vue)) — for `Updated` drafts, left = **A**, right = **E(D)**. For `Created`/`Deleted` it falls back to a single-pane monaco of whichever side exists.
+- **Conflict editor** ([ContentEditorConflict](src/app/src/components/content/editor/ContentEditorConflict.vue)) — shown via `draft.checkConflict` when the remote moved on while a draft existed locally. Left = **E(B)**, right = **A** (re-fetched).
+
+**Where each state can drift from the others:**
+
+- **A vs E(B)** — drifts when comark applies its **canonical syntax rules** to a tree (see below). This is *expected* and triggers the formatting banner, not a conflict.
+- **E(B) vs E(D)** — drifts when any TipTap serializer rebuilds in a different order from `original.body`.
+- **B vs D structurally** — diverge as soon as TipTap mounts and emits its first `onUpdate`, even with no user edits.
+
+When triaging any new version-mismatch bug, ask: *which two states are we comparing, and which transform between them is wrong?*
+
+### Comark normalization rules (why A ≠ E(B) can be expected)
+
+Comark's render is **not** a byte-perfect round-trip of the input — it normalizes MDC syntax to a canonical form defined by the [comark SPEC](https://github.com/comarkdown/comark/tree/main/packages/comark/SPEC). 
+
+These are intentional. A file authored loosely (4 inline props, wrong colon depth, …) goes through `comark.parse → renderMarkdown` and comes out as canonical comark. That difference between A and E(B) is exactly what the **MDC formatting banner** is for.
+
+### Conflict detection vs. formatting drift — the distinction
+
+Two separate checks run when a file is opened, and they answer different questions:
+
+| Check | Question it answers | Compared values | Where in the code |
+|-------|---------------------|-----------------|-------------------|
+| **Conflict** | Did the file change *on the remote* while we had a draft? | Raw **A** at load time vs raw **A** re-fetched | [`draft.ts:checkConflict`](src/app/src/utils/draft.ts) |
+| **Formatting banner** | Does the author's text differ from comark's canonical form? | Raw **A** vs **E(B)** | [`ContentEditor.vue`](src/app/src/components/content/editor/ContentEditor.vue) + [`areContentEqual`](src/app/src/utils/content.ts) |
+
+**The two must not be conflated.** Conflict detection must operate on **raw text** (A vs A) — *before* any comark parsing — otherwise comark's syntactic normalization gets misread as a remote change and the conflict UI fires when there's no actual remote drift.
+
 ### External helpers
 
 #### nuxt-component-meta

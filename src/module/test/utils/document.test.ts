@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
+import { applyCollectionSchema, areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { CollectionInfo } from '@nuxt/content'
@@ -504,5 +504,44 @@ describe('sanitizeDocumentTree', () => {
     expect('secret' in result).toBe(false)
     expect(result.public).toBe('should stay')
     expect(result.misc).toBe('also stays')
+  })
+})
+
+describe('applyCollectionSchema', () => {
+  const pageCollection = {
+    type: 'page',
+    name: 'docs',
+    schema: {
+      definitions: {
+        docs: {
+          properties: {
+            title: { type: 'string' },
+            description: { type: 'string' },
+            seo: { type: 'object' },
+          },
+        },
+      },
+    },
+  } as unknown as CollectionInfo
+
+  it('does not mutate a shared seo object on the input document', () => {
+    const collection = pageCollection
+
+    // Simulate the aliasing TipTap creates
+    const sharedSeo = { description: 'Welcome to Docus theme documentation.' }
+    const document = {
+      title: 'Introduction',
+      description: 'Welcome to Docus theme documentation.',
+      seo: sharedSeo,
+      body: { frontmatter: { seo: sharedSeo }, nodes: [], meta: {} },
+      meta: {},
+    } as unknown as DatabaseItem
+
+    applyCollectionSchema('content:introduction.md', collection, document)
+
+    // The input's seo object MUST be unchanged
+    expect(sharedSeo).toEqual({ description: 'Welcome to Docus theme documentation.' })
+    expect('title' in sharedSeo).toBe(false)
+    expect((document.body as { frontmatter: { seo: object } }).frontmatter.seo).toEqual(sharedSeo)
   })
 })

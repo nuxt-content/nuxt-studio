@@ -2,7 +2,7 @@ import { expect, test, describe } from 'vitest'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { PropertyMeta } from 'vue-component-meta'
-import { buildFormTreeFromProps, convertStringToArray, convertStringToValue } from '../../../../src/utils/tiptap/props'
+import { buildAttrs, buildFormTreeFromProps, convertStringToArray, convertStringToValue } from '../../../../src/utils/tiptap/props'
 import { buttonPropsSchema, iconPropsSchema } from '../../../mocks/props'
 import type { ComponentMeta } from '../../../../src/types/component'
 
@@ -1397,5 +1397,51 @@ describe('props', () => {
     //     },
     //   })
     // })
+  })
+
+  describe('buildAttrs', () => {
+    test('preserves insertion order of input keys', () => {
+      const out = buildAttrs({ 'src': 'a.mp4', 'poster': 'a.jpg', ':controls': 'true' })
+      expect(Object.keys(out)).toEqual(['src', 'poster', ':controls'])
+    })
+
+    test('returns an empty object when input is nullish', () => {
+      expect(buildAttrs(undefined)).toEqual({})
+      expect(buildAttrs(null)).toEqual({})
+    })
+
+    test('applies transform to rename / re-value entries while keeping position', () => {
+      const out = buildAttrs({ src: 'a.mp4', controls: true, poster: 'a.jpg' }, {
+        transform: (key, value) => {
+          if (key === 'controls') return value ? [':controls', 'true'] : null
+          return [key, value]
+        },
+      })
+      // controls keeps its slot (index 1) but is rewritten to `:controls: 'true'`
+      expect(Object.keys(out)).toEqual(['src', ':controls', 'poster'])
+      expect(out[':controls']).toBe('true')
+    })
+
+    test('drops entries when transform returns null', () => {
+      const out = buildAttrs({ href: 'x', rel: 'noopener', target: '_blank' }, {
+        transform: (key, value) => (key === 'rel' ? null : [key, value]),
+      })
+      expect(Object.keys(out)).toEqual(['href', 'target'])
+    })
+
+    test('appends fallbacks at the end for missing keys, skipping nullish values', () => {
+      const out = buildAttrs({ width: '800' }, {
+        fallbacks: { src: 'a.mp4', alt: undefined, title: null },
+      })
+      expect(Object.keys(out)).toEqual(['width', 'src'])
+      expect(out.src).toBe('a.mp4')
+    })
+
+    test('does not overwrite existing keys with fallbacks', () => {
+      const out = buildAttrs({ src: 'authored.mp4' }, {
+        fallbacks: { src: 'fallback.mp4' },
+      })
+      expect(out.src).toBe('authored.mp4')
+    })
   })
 })

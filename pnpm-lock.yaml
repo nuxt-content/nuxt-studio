@@ -13,6 +13,11 @@ overrides:
   '@tiptap/pm': 3.22.4
   remark-mdc: ^3.11.0
 
+patchedDependencies:
+  '@nuxtjs/mdc@0.22.0':
+    hash: cfa789bfeeb21649afadd710c39352cd8b144377ba1eed057726f23cbfef09c5
+    path: patches/@nuxtjs__mdc@0.22.0.patch
+
 importers:
 
   .:
@@ -9905,7 +9910,7 @@ snapshots:
   '@nuxt/content@3.14.0(better-sqlite3@12.9.0)(magicast@0.5.2)':
     dependencies:
       '@nuxt/kit': 4.4.6(magicast@0.5.2)
-      '@nuxtjs/mdc': 0.22.0(magicast@0.5.2)
+      '@nuxtjs/mdc': 0.22.0(patch_hash=cfa789bfeeb21649afadd710c39352cd8b144377ba1eed057726f23cbfef09c5)(magicast@0.5.2)
       '@shikijs/langs': 4.0.2
       '@sqlite.org/sqlite-wasm': 3.50.4-build1
       '@standard-schema/spec': 1.1.0
@@ -11395,7 +11400,7 @@ snapshots:
       - magicast
       - supports-color
 
-  '@nuxtjs/mdc@0.22.0(magicast@0.5.2)':
+  '@nuxtjs/mdc@0.22.0(patch_hash=cfa789bfeeb21649afadd710c39352cd8b144377ba1eed057726f23cbfef09c5)(magicast@0.5.2)':
     dependencies:
       '@nuxt/kit': 4.4.6(magicast@0.5.2)
       '@shikijs/core': 4.0.2

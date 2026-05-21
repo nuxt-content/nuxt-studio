@@ -131,9 +131,7 @@ function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<s
     }
   }
 
-  // Emit attrs in a deterministic alphabetical order so legacy-bridged bodies
-  // are canonical at the data boundary.
-  return Object.fromEntries(Object.entries(next).sort(([a], [b]) => a.localeCompare(b)))
+  return next
 }
 
 /**
