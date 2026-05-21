@@ -10,7 +10,8 @@
       "publish": "Julkaise",
       "back": "Takaisin",
       "backToEdition": "Takaisin muokkaukseen",
-      "seeChanges": "Katso muutokset"
+      "seeChanges": "Katso muutokset",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Hakemistot",
@@ -69,7 +70,8 @@
       "debugMode": "Virheenjäljitystila"
     },
     "alert": {
-      "mdcFormatting": "Muotoilu on tehty MDC-syntaksin standardin mukaiseksi."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Ristiriitoja havaittu",
