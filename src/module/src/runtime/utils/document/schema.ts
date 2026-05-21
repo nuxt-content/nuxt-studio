@@ -39,9 +39,11 @@ export function applyCollectionSchema(id: string, collectionInfo: CollectionInfo
   // }
 
   if (collectionKeys.includes('seo')) {
-    const seo = result.seo = (result.seo || {}) as DatabasePageItem['seo']
+    // DO NOT mutate the input's seo object
+    const seo = { ...((result.seo as DatabasePageItem['seo']) || {}) }
     seo.title = seo.title || result.title as string
     seo.description = seo.description || result.description as string
+    result.seo = seo
   }
 
   return result

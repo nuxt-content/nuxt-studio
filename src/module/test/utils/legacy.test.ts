@@ -145,7 +145,8 @@ describe('mdc → comark className translation', () => {
 })
 
 describe('mdc → comark attribute ordering', () => {
-  it('emits attrs in alphabetical order on a single element', () => {
+  // Preserves the upstream attribute order
+  it('preserves the input attribute order on a single element', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{
@@ -164,15 +165,15 @@ describe('mdc → comark attribute ordering', () => {
 
     const button = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
     expect(Object.keys(button[1])).toEqual([
+      'to',
+      'variant',
       'size',
       'target',
-      'to',
       'trailing-icon',
-      'variant',
     ])
   })
 
-  it('sorts attrs deeply on nested elements', () => {
+  it('preserves attribute order on nested elements', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{
@@ -189,14 +190,14 @@ describe('mdc → comark attribute ordering', () => {
     }))!
 
     const outer = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
-    expect(Object.keys(outer[1])).toEqual(['a', 'z'])
+    expect(Object.keys(outer[1])).toEqual(['z', 'a'])
     const inner = outer[2] as [string, Record<string, unknown>, ...unknown[]]
-    expect(Object.keys(inner[1])).toEqual(['b', 'y'])
+    expect(Object.keys(inner[1])).toEqual(['y', 'b'])
   })
 
-  it('sorts attrs after a slot name has been hoisted out of `v-slot:name`', () => {
-    // The `name` derived from `v-slot:title` must participate in the final
-    // sort, not stay at whatever position the source-shaped translation left it.
+  it('hoists slot `name` to the front when translating `v-slot:name`', () => {
+    // `v-slot:title` → `{ name: 'title' }` lands first
+    // Any sibling attrs that were already present keep their relative order behind it.
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{
