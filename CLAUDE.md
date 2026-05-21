@@ -558,6 +558,14 @@ Two separate checks run when a file is opened, and they answer different questio
 
 **The two must not be conflated.** Conflict detection must operate on **raw text** (A vs A) — *before* any comark parsing — otherwise comark's syntactic normalization gets misread as a remote change and the conflict UI fires when there's no actual remote drift.
 
+### Apply formatting — banner UX rules
+
+The `ComarkFormattingBanner` (shown inside the editor) lets the user explicitly accept comark's canonical form for a Pristine draft without typing anything. The rules:
+
+- **Visible** only when the draft is `Pristine` AND `render(B) !== A` (formatting drift detected).
+- **Hidden** once the draft status is `Updated` — whether the user got there by editing or by clicking the Apply button. Editing already publishes the canonical form on save; there's nothing to "apply" after that point.
+- **Revert** clears the apply intent (`formattingApplied: false`) and rolls back to `Pristine` → the banner reappears if drift still exists.
+
 ### External helpers
 
 #### nuxt-component-meta
@@ -634,6 +642,11 @@ Studio uses `shiki` to highlight code in code blocks.
 3. Create corresponding form component
 4. Map input type in form generator
 
+### Adding a new TipTap component serializer
+
+When adding a new node type to `src/app/src/utils/tiptap/tiptapToComark.ts` (e.g. a new MDC component the editor handles natively), **always use `buildAttrs` from `props.ts`** to construct the output props. Do NOT rebuild props key-by-key in a hardcoded or any custom order.
+
+
 ## Key Dependencies
 
 **Required**:
@@ -652,6 +665,12 @@ Studio uses `shiki` to highlight code in code blocks.
 **Git Providers**:
 - `@octokit/types` - GitHub API
 - `@gitbeaker/core` - GitLab API
+
+### Patched dependencies (`patches/`)
+
+Studio carries a pnpm patch (`patches/@nuxtjs__mdc@<version>.patch`, registered in `pnpm-workspace.yaml` under `patchedDependencies`) that **removes `rehype-sort-attribute-values` and `rehype-sort-attributes` from `@nuxtjs/mdc`'s default rehype pipeline**. Without this patch, every MDC component's attrs would be sorted alphabetically at parse time — silently reshuffling the author's intent and forcing the formatting banner to fire on every file open whose attrs aren't already in alphabetical order.
+
+When bumping the `@nuxtjs/mdc` version, the patch will likely need to be re-created (`pnpm patch @nuxtjs/mdc@<new-version>`, drop the same two plugins in `dist/runtime/parser/options.js`, then `pnpm patch-commit <tmp-dir>`). The retire path is once `@nuxt/content` natively supports ComarkTree (see the comment at the top of `legacy.ts`) — at that point the patch becomes unnecessary along with the whole MDC bridge.
 
 ## SSR Requirements
 
@@ -695,3 +714,9 @@ export default defineNuxtConfig({
 - All persisted changes ultimately go through Git (for the moment)
 - Temporary changes are stored in IndexedDB and synced with the SQLite db in production mode and sync with filesystem in development mode
 - The Studio UI is a separate Vue x Vite app embedded via the Nuxt module
+
+### Gotchas
+
+- **Never mutate nested objects on a `DatabaseItem` you didn't construct fresh.** Several flows share references between top-level fields and `body.frontmatter` (notably TipTap's `{ ...comarkTree.frontmatter, body: comarkTree }` spread in `ContentEditorTipTap.vue`). An in-place mutation in a "normalize" step (e.g. `seo.title = seo.title || result.title`) will back-propagate through the shared reference and silently corrupt the body's frontmatter. Always shallow-clone the nested object first: `const seo = { ...(result.seo || {}) }`.
+- **TipTap emits an initial `onUpdate` on mount even with no real edits.** This means `draftItem.modified.body` diverges *structurally* from `original.body` as soon as the editor opens. Don't compare `modified` and `original` by reference equality or deep tree equality — always compare via render output (or use `compare.ts:normalizeAttrsDeep` for AST-aware equivalence).
+- **`@nuxtjs/mdc` is patched** (see `patches/`). Don't assume upstream parser behavior — the patch disables attribute sorting. If the patch is missing after `pnpm install`, the formatting banner will fire on most files.

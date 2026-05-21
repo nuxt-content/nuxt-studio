@@ -10,7 +10,8 @@
       "publish": "প্রকাশ করুন",
       "back": "পিছনে",
       "backToEdition": "সম্পাদনায় ফিরে যান",
-      "seeChanges": "কী পরিবর্তন হয়েছে দেখুন"
+      "seeChanges": "কী পরিবর্তন হয়েছে দেখুন",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "ডিরেক্টরি",
@@ -69,7 +70,8 @@
       "debugMode": "ডিবাগ মোড"
     },
     "alert": {
-      "mdcFormatting": "MDC সিনট্যাক্স স্ট্যান্ডার্ড অনুযায়ী ফরম্যাটিং প্রয়োগ করা হয়েছে।"
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "কনফ্লিক্ট শনাক্ত হয়েছে",

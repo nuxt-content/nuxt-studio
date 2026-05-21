@@ -10,7 +10,8 @@
       "publish": "Publiser",
       "back": "Tilbake",
       "backToEdition": "Tilbake til redigering",
-      "seeChanges": "Se hva som er endret"
+      "seeChanges": "Se hva som er endret",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Mapper",
@@ -69,7 +70,8 @@
       "debugMode": "Feilsøkingsmodus"
     },
     "alert": {
-      "mdcFormatting": "Formatering er brukt for å samsvare med MDC-syntaksstandarden."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Konflikt oppdaget",

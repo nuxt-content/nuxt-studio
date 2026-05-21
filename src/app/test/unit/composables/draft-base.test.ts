@@ -41,4 +41,18 @@ describe('getStatus', () => {
 
     expect(await getStatus(original, original)).toBe(DraftStatus.Pristine)
   })
+
+  it('returns Updated status when formattingApplied is true, even if modified === original', async () => {
+    // The Comark formatting banner's "Apply" action sets `formattingApplied: true`
+    const original = dbItemsList[1]
+
+    expect(await getStatus(original, original, { formattingApplied: true })).toBe(DraftStatus.Updated)
+  })
+
+  it('still returns Pristine when formattingApplied is false/undefined and content matches', async () => {
+    const original = dbItemsList[1]
+
+    expect(await getStatus(original, original, { formattingApplied: false })).toBe(DraftStatus.Pristine)
+    expect(await getStatus(original, original, {})).toBe(DraftStatus.Pristine)
+  })
 })

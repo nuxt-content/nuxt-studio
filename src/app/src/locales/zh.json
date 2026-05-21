@@ -10,7 +10,8 @@
       "publish": "发布",
       "back": "返回",
       "backToEdition": "返回编辑",
-      "seeChanges": "查看更改"
+      "seeChanges": "查看更改",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "目录",
@@ -69,7 +70,8 @@
       "debugMode": "调试模式"
     },
     "alert": {
-      "mdcFormatting": "已应用格式以符合 MDC 语法标准。"
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard Comark syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "检测到冲突",
