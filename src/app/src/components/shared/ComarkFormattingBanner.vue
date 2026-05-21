@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-defineProps({
-  showAction: {
-    type: Boolean,
-    default: false,
-  },
+withDefaults(defineProps<{
+  showAction?: boolean
+}>(), {
+  showAction: false,
 })
 
-const emit = defineEmits(['showDiff', 'applyFormatting'])
+const emit = defineEmits<{
+  showDiff: [value: boolean]
+  applyFormatting: []
+}>()
 
 const isDiffShown = ref(false)
 
