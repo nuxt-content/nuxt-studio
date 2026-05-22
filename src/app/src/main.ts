@@ -1,7 +1,6 @@
 import type { VueElementConstructor } from 'vue'
 import { defineCustomElement } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
-// @ts-expect-error -- inline css
 import styles from './assets/css/main.css?inline'
 import { createHead } from '@unhead/vue/client'
 import { generateColors, tailwindColors } from './utils/colors'
