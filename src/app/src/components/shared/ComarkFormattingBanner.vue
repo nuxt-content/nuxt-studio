@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import comarkLogo from '../../assets/comark.svg?raw'
 
 withDefaults(defineProps<{
   showAction?: boolean
@@ -27,17 +28,45 @@ function applyFormatting() {
 <template>
   <UAlert
     :title="$t('studio.alert.comarkFormatting')"
-    :description="$t('studio.alert.comarkFormattingDescription')"
-    icon="i-lucide-sparkles"
-    color="info"
+    color="secondary"
     variant="soft"
     :ui="{
       root: 'rounded-none border-b border-default px-4 py-3 gap-2',
-      title: 'text-sm font-semibold',
+      title: 'text-xs font-semibold',
       description: 'text-xs leading-relaxed',
       wrapper: 'gap-1',
     }"
   >
+    <template #leading>
+      <a
+        href="https://comark.dev"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Comark"
+        class="inline-flex items-center"
+      >
+        <!-- eslint-disable-next-line vue/no-v-html -- static build-time asset -->
+        <span
+          class="h-4 w-auto text-secondary [&_svg]:h-full [&_svg]:w-auto"
+          v-html="comarkLogo"
+        />
+      </a>
+    </template>
+    <template #description>
+      <i18n-t
+        keypath="studio.alert.comarkFormattingDescription"
+        tag="span"
+      >
+        <template #comark>
+          <a
+            href="https://comark.dev/syntax/markdown"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-medium underline underline-offset-2 hover:text-secondary"
+          >Comark</a>
+        </template>
+      </i18n-t>
+    </template>
     <template
       v-if="showAction"
       #actions
