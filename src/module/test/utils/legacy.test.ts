@@ -96,6 +96,129 @@ describe('mdc → comark slot translation', () => {
   })
 })
 
+describe('mdc → comark autoUnwrap compensation', () => {
+  it('re-wraps a bare inline child sitting next to a template slot in <p>', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'code-preview',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'code',
+            props: {},
+            children: [{ type: 'text', value: 'inline code' }],
+          },
+          {
+            type: 'element',
+            tag: 'template',
+            props: { 'v-slot:code': '' },
+            children: [{
+              type: 'element',
+              tag: 'pre',
+              props: { language: 'mdc', code: '`inline code`\n' },
+              children: [{
+                type: 'element',
+                tag: 'code',
+                props: {},
+                children: [{ type: 'text', value: '`inline code`\n' }],
+              }],
+            }],
+          },
+        ],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['code-preview', {},
+        ['p', {}, ['code', {}, 'inline code']],
+        ['template', { name: 'code' }, ['pre', { language: 'mdc' }, ['code', {}, '`inline code`\n']]],
+      ],
+    ])
+  })
+
+  it('renders the wrapped tree with a paragraph boundary before #code', async () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'code-preview',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'code',
+            props: {},
+            children: [{ type: 'text', value: 'inline code' }],
+          },
+          {
+            type: 'element',
+            tag: 'template',
+            props: { 'v-slot:code': '' },
+            children: [{ type: 'text', value: 'slot body' }],
+          },
+        ],
+      }],
+    }))!
+
+    const md = await renderMarkdown(tree)
+    expect(md).toContain('`inline code`\n\n#code')
+    expect(md).not.toContain('`inline code`#code')
+  })
+
+  it('leaves pure-inline children alone (single text/inline child, no wrap)', () => {
+    // ::u-button{.x}\nMy button\n:: already works through the bridge — adding the
+    // normalization must not regress this single-flow case.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'u-button',
+        props: { className: ['any-class'] },
+        children: [{ type: 'text', value: 'My button' }],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['u-button', { class: 'any-class' }, 'My button'],
+    ])
+  })
+
+  it('leaves pure-block children alone (no spurious p insertion)', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'code-preview',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: { language: 'ts' },
+            children: [{ type: 'text', value: 'const x = 1' }],
+          },
+          {
+            type: 'element',
+            tag: 'template',
+            props: { 'v-slot:code': '' },
+            children: [{ type: 'text', value: 'slot' }],
+          },
+        ],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['code-preview', {},
+        ['pre', { language: 'ts' }, 'const x = 1'],
+        ['template', { name: 'code' }, 'slot'],
+      ],
+    ])
+  })
+})
+
 describe('mdc → comark className translation', () => {
   it('joins `className: string[]` into `class: "a b"`', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({

@@ -54,7 +54,7 @@ function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
 
 function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkTree {
   return {
-    nodes: (root.children || []).map(mdcNodeToComarkNode),
+    nodes: normalizeMdcChildren(root.children || []).map(mdcNodeToComarkNode),
     frontmatter: data,
     meta: {},
   }
@@ -71,14 +71,88 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
 
   if (node.type === 'element') {
     const el = node as MDCElement
+    const children = normalizeMdcChildren(el.children || [])
     return [
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
-      ...(el.children || []).map(mdcNodeToComarkNode),
+      ...children.map(mdcNodeToComarkNode),
     ] as ComarkElement
   }
 
   return ''
+}
+
+/**
+ * Standard HTML tags whose children we must NOT touch when normalizing — their
+ * content model is already well-defined upstream.
+ */
+const HTML_BLOCK_TAGS = new Set([
+  'address', 'article', 'aside', 'blockquote', 'details', 'dialog', 'dd', 'div',
+  'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2',
+  'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'iframe', 'li', 'main', 'nav',
+  'ol', 'p', 'pre', 'section', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead',
+  'tr', 'ul', 'video', 'template',
+])
+
+const HTML_INLINE_TAGS = new Set([
+  'a', 'abbr', 'b', 'bdi', 'bdo', 'br', 'cite', 'code', 'data', 'dfn',
+  'em', 'i', 'img', 'kbd', 'mark', 'q', 's', 'samp', 'small', 'span',
+  'strong', 'sub', 'sup', 'time', 'u', 'var', 'wbr', 'del', 'ins',
+])
+
+function isMdcBlockChild(node: MDCNode): boolean {
+  if (node.type !== 'element') return false
+  const tag = (node as MDCElement).tag
+  return tag !== undefined && HTML_BLOCK_TAGS.has(tag)
+}
+
+function isMdcInlineChild(node: MDCNode): boolean {
+  if (node.type === 'text') return true
+  if (node.type !== 'element') return false
+  const tag = (node as MDCElement).tag
+  return tag !== undefined && HTML_INLINE_TAGS.has(tag)
+}
+
+/**
+ * Re-wrap inline children in `<p>` when an MDC component's children mix
+ * inline-level and block-level nodes.
+ */
+function normalizeMdcChildren(children: MDCNode[]): MDCNode[] {
+  const hasBlock = children.some(isMdcBlockChild)
+  const hasInline = children.some(isMdcInlineChild)
+  if (!hasBlock || !hasInline) return children
+
+  const result: MDCNode[] = []
+  let inlineBuf: MDCNode[] = []
+
+  const flush = () => {
+    if (inlineBuf.length === 0) return
+    const hasContent = inlineBuf.some(c =>
+      c.type === 'element' || (c.type === 'text' && (c as MDCText).value.trim().length > 0),
+    )
+    if (hasContent) {
+      result.push({
+        type: 'element',
+        tag: 'p',
+        props: {},
+        children: inlineBuf,
+      } as MDCElement)
+    }
+    inlineBuf = []
+  }
+
+  for (const child of children) {
+    if (isMdcInlineChild(child)) {
+      inlineBuf.push(child)
+    }
+    else {
+      flush()
+      result.push(child)
+    }
+  }
+  flush()
+
+  return result
 }
 
 /**
