@@ -1041,6 +1041,82 @@ My icon
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('block element with inline code as default and multiple sloted content', async () => {
+    const inputContent = [
+      '::code-preview',
+      '`inline code`',
+      '',
+      '#code',
+      '`inline code`',
+      '::',
+    ].join('\n')
+
+    const expectedComarkNodes = [
+      ['code-preview', {},
+        ['p', {}, ['code', {}, 'inline code']],
+        ['template', { name: 'code' }, ['code', {}, 'inline code']],
+      ],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: { tag: 'code-preview' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'inline code', marks: [{ type: 'code' }] },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'code' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'inline code', marks: [{ type: 'code' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
   test('inline element', async () => {
     const inputContent = 'This is a :badge component'
 
