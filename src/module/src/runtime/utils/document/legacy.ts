@@ -54,7 +54,7 @@ function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
 
 function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkTree {
   return {
-    nodes: normalizeMdcChildren(root.children || []).map(mdcNodeToComarkNode),
+    nodes: normalizeMdcChildren(repairClosingMarkerArtifact(root.children || [])).map(mdcNodeToComarkNode),
     frontmatter: data,
     meta: {},
   }
@@ -71,7 +71,7 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
 
   if (node.type === 'element') {
     const el = node as MDCElement
-    const children = normalizeMdcChildren(el.children || [])
+    const children = normalizeMdcChildren(repairClosingMarkerArtifact(el.children || []))
     return [
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
@@ -80,6 +80,59 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
   }
 
   return ''
+}
+
+/**
+ * Detect and compensate for an @nuxtjs/mdc parser artifact.
+ *
+ * When a nested MDC container (e.g. `:::tabs-item{Code}`) wraps a fenced code
+ * block (```` ```mdc ```` …), the parser sometimes fails to recognize the
+ * trailing `:::` / `::` closing markers.
+ */
+function repairClosingMarkerArtifact(children: MDCNode[]): MDCNode[] {
+  if (!children.some(isClosingMarkerArtifact)) return children
+
+  return children
+    .filter(c => !isClosingMarkerArtifact(c))
+    .map(c => stripWrappingIndentFromPre(c))
+}
+
+function isClosingMarkerArtifact(node: MDCNode): boolean {
+  if (node.type !== 'element') return false
+  const el = node as MDCElement
+  if (el.tag !== 'p') return false
+  if (!el.children || el.children.length !== 1) return false
+  const child = el.children[0]
+  if (child?.type !== 'text') return false
+  // eslint-disable-next-line
+  return /^\s*:{2,}(\s*\n\s*:{2,})*\s*$/.test((child as MDCText).value)
+}
+
+function stripWrappingIndentFromPre(node: MDCNode): MDCNode {
+  if (node.type !== 'element') return node
+  const el = node as MDCElement
+  if (el.tag !== 'pre') return node
+  const code = el.props?.code
+  if (typeof code !== 'string') return node
+  const indent = commonLeadingWhitespace(code)
+  if (!indent) return node
+  const stripped = code.split('\n')
+    .map(line => line.startsWith(indent) ? line.slice(indent.length) : line)
+    .join('\n')
+  return { ...el, props: { ...el.props, code: stripped } } as MDCElement
+}
+
+function commonLeadingWhitespace(text: string): string {
+  const lines = text.split('\n').filter(l => l.trim().length > 0)
+  if (lines.length === 0) return ''
+  let common = lines[0]?.match(/^\s*/)?.[0] || ''
+  for (let i = 1; i < lines.length && common.length > 0; i++) {
+    const lws = lines[i]?.match(/^\s*/)?.[0] || ''
+    let j = 0
+    while (j < common.length && j < lws.length && common[j] === lws[j]) j++
+    common = common.slice(0, j)
+  }
+  return common
 }
 
 /**

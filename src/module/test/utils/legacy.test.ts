@@ -219,6 +219,152 @@ describe('mdc → comark autoUnwrap compensation', () => {
   })
 })
 
+describe('mdc → comark closing-marker artifact repair', () => {
+  it('drops the spurious paragraph and strips wrapping indent from <pre>', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs-item',
+        props: { label: 'Code' },
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: {
+              code: '  ::accordion\n    :::accordion-item{label="A"}\n    body\n    :::\n  ::\n',
+              language: 'mdc',
+            },
+            children: [{
+              type: 'element',
+              tag: 'code',
+              props: {},
+              children: [{ type: 'text', value: '  ::accordion\n  ::\n' }],
+            }],
+          },
+          {
+            type: 'element',
+            tag: 'p',
+            props: {},
+            children: [{ type: 'text', value: ':::\n::' }],
+          },
+        ],
+      }],
+    }))!
+
+    const tabsItem = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    // Only one child remains (the pre), spurious p was dropped
+    expect(tabsItem.length).toBe(3)
+    const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[0]).toBe('pre')
+    // Wrapping 2-space indent stripped from each line of code
+    expect(pre[1].code).toBe('::accordion\n  :::accordion-item{label="A"}\n  body\n  :::\n::\n')
+  })
+
+  it('round-trips through render preserving the original indent', async () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'tabs-item',
+          props: { label: 'Code' },
+          children: [
+            {
+              type: 'element',
+              tag: 'pre',
+              props: {
+                code: '  ::accordion\n  ::\n',
+                language: 'mdc',
+              },
+              children: [],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: ':::\n::' }],
+            },
+          ],
+        }],
+      }],
+    }))!
+
+    const md = await renderMarkdown(tree)
+    // The rendered output should not contain the spurious markers
+    expect(md).not.toMatch(/```[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*:::[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*::[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*:::/)
+    // Code content should be wrapped exactly once (2 spaces from tabs-item),
+    // not doubled (would be 4 spaces)
+    expect(md).toContain('  ::accordion')
+    expect(md).not.toContain('    ::accordion')
+  })
+
+  it('leaves a <p> alone if it contains non-marker text', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs-item',
+        props: { label: 'Code' },
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: { code: '  foo\n', language: 'ts' },
+            children: [],
+          },
+          {
+            type: 'element',
+            tag: 'p',
+            props: {},
+            children: [{ type: 'text', value: 'This is real content.' }],
+          },
+        ],
+      }],
+    }))!
+
+    const tabsItem = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    // Both children preserved (the p is real content, not a marker artifact)
+    expect(tabsItem.length).toBe(4)
+    // And since no artifact was detected, the pre's code prop is left as-is
+    const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[1].code).toBe('  foo\n')
+  })
+
+  it('matches multi-line closing markers (`:::` followed by `::`)', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'outer',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: { code: '  body\n', language: 'mdc' },
+            children: [],
+          },
+          {
+            type: 'element',
+            tag: 'p',
+            props: {},
+            children: [{ type: 'text', value: ':::\n::' }],
+          },
+        ],
+      }],
+    }))!
+
+    const outer = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    expect(outer.length).toBe(3) // only pre remains
+    const pre = outer[2] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[1].code).toBe('body\n')
+  })
+})
+
 describe('mdc → comark className translation', () => {
   it('joins `className: string[]` into `class: "a b"`', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
