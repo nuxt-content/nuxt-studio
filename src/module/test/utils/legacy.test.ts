@@ -363,6 +363,108 @@ describe('mdc → comark closing-marker artifact repair', () => {
     const pre = outer[2] as [string, Record<string, unknown>, ...unknown[]]
     expect(pre[1].code).toBe('body\n')
   })
+
+  // When the @nuxtjs/mdc parser fails to close a deeply-nested container, it
+  // not only injects the spurious `<p>` — it captures EVERY subsequent
+  // top-level sibling as a child of the broken container. The artifact's text
+  // (`:::\n::`) tells us how many ancestor containers should also close. The
+  // bridge promotes the captured siblings back up through that many levels.
+  it('promotes captured siblings out of the broken container (single-level close)', () => {
+    // artifact says only THIS container closes — leak stays at parent's level.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'tabs-item',
+          props: { label: 'Code' },
+          children: [
+            {
+              type: 'element',
+              tag: 'pre',
+              props: { code: '  body\n', language: 'mdc' },
+              children: [],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: ':::' }], // ONLY one close
+            },
+            {
+              type: 'element',
+              tag: 'h3',
+              props: { id: 'leaked' },
+              children: [{ type: 'text', value: 'Should escape one level' }],
+            },
+          ],
+        }],
+      }],
+    }))!
+
+    // Expected: tabs > [tabs-item with [pre], h3] — h3 is now a sibling of tabs-item
+    expect(tree.nodes).toMatchObject([
+      ['tabs', {},
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }]],
+        ['h3', { id: 'leaked' }, 'Should escape one level'],
+      ],
+    ])
+  })
+
+  it('promotes captured siblings out across two ancestor containers (`:::\\n::`)', () => {
+    // artifact says THIS container AND parent close — leak escapes to grandparent's level.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'tabs-item',
+          props: { label: 'Code' },
+          children: [
+            {
+              type: 'element',
+              tag: 'pre',
+              props: { code: '  body\n', language: 'mdc' },
+              children: [],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: ':::\n::' }], // TWO closes
+            },
+            {
+              type: 'element',
+              tag: 'h3',
+              props: { id: 'leaked' },
+              children: [{ type: 'text', value: 'Should escape two levels' }],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: 'Body text' }],
+            },
+          ],
+        }],
+      }],
+    }))!
+
+    // Expected: tabs only contains tabs-item with [pre]. h3 + p are siblings of tabs.
+    expect(tree.nodes).toMatchObject([
+      ['tabs', {},
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }]],
+      ],
+      ['h3', { id: 'leaked' }, 'Should escape two levels'],
+      ['p', {}, 'Body text'],
+    ])
+  })
 })
 
 describe('mdc → comark className translation', () => {

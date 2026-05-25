@@ -53,8 +53,9 @@ function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
 }
 
 function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkTree {
+  const repaired = repairMdcRoot(root)
   return {
-    nodes: normalizeMdcChildren(repairClosingMarkerArtifact(root.children || [])).map(mdcNodeToComarkNode),
+    nodes: normalizeMdcChildren(repaired.children || []).map(mdcNodeToComarkNode),
     frontmatter: data,
     meta: {},
   }
@@ -71,7 +72,7 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
 
   if (node.type === 'element') {
     const el = node as MDCElement
-    const children = normalizeMdcChildren(repairClosingMarkerArtifact(el.children || []))
+    const children = normalizeMdcChildren(el.children || [])
     return [
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
@@ -83,18 +84,84 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
 }
 
 /**
- * Detect and compensate for an @nuxtjs/mdc parser artifact.
+ * Detect and compensate for the @nuxtjs/mdc parser artifact, recursively across
+ * the whole tree.
  *
  * When a nested MDC container (e.g. `:::tabs-item{Code}`) wraps a fenced code
- * block (```` ```mdc ```` …), the parser sometimes fails to recognize the
- * trailing `:::` / `::` closing markers.
+ * block (```` ```mdc ```` …), the parser sometimes fails to close the container
+ * and CAPTURES every subsequent sibling — at the document level — as content
+ * inside it. The artifact is a literal `<p>` whose only text is the missed
+ * `:::`/`::` close markers. When we find that `<p>`, we know how deep the
+ * miscapture was (one close line per ancestor that should also close), strip
+ * the `<pre>`'s baked-in indent, and "promote" the captured siblings back up
+ * to their rightful position.
  */
-function repairClosingMarkerArtifact(children: MDCNode[]): MDCNode[] {
-  if (!children.some(isClosingMarkerArtifact)) return children
+function repairMdcRoot(root: MDCRoot): MDCRoot {
+  const sentinel: MDCElement = {
+    type: 'element',
+    tag: '__root_sentinel__',
+    props: {},
+    children: root.children || [],
+  } as MDCElement
+  const repaired = repairMdcNode(sentinel)
+  // Any leak that bubbled all the way to the root joins the top-level siblings.
+  return {
+    type: 'root',
+    children: [...((repaired.node as MDCElement).children || []), ...repaired.leak],
+  }
+}
 
-  return children
-    .filter(c => !isClosingMarkerArtifact(c))
-    .map(c => stripWrappingIndentFromPre(c))
+interface RepairResult {
+  node: MDCNode
+  leak: MDCNode[]
+  promote: number
+}
+
+function repairMdcNode(node: MDCNode): RepairResult {
+  if (node.type !== 'element') {
+    return { node, leak: [], promote: 0 }
+  }
+  const el = node as MDCElement
+
+  // Recurse depth-first so deeper artifacts are resolved before we scan our level.
+  const recursed = (el.children || []).map(repairMdcNode)
+
+  const newChildren: MDCNode[] = []
+  const leakUp: MDCNode[] = []
+  let promoteUp = 0
+
+  for (const r of recursed) {
+    newChildren.push(r.node)
+    if (r.leak.length === 0 && r.promote === 0) continue
+    if (r.promote === 0) {
+      newChildren.push(...r.leak)
+      continue
+    }
+    // Child wants its leak to escape this level too — one ancestor consumed per hop.
+    leakUp.push(...r.leak)
+    promoteUp = Math.max(promoteUp, r.promote - 1)
+  }
+
+  // Now check whether WE directly own an artifact at this level.
+  const artifactIdx = newChildren.findIndex(isClosingMarkerArtifact)
+  if (artifactIdx !== -1) {
+    const artifact = newChildren[artifactIdx] as MDCElement
+    const before = newChildren.slice(0, artifactIdx).map(c => stripWrappingIndentFromPre(c))
+    const after = newChildren.slice(artifactIdx + 1)
+    const text = (artifact.children?.[0] as MDCText)?.value || ''
+    const closeLines = text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+    return {
+      node: { ...el, children: before } as MDCElement,
+      leak: [...after, ...leakUp],
+      promote: Math.max(0, closeLines - 1) + promoteUp,
+    }
+  }
+
+  return {
+    node: { ...el, children: newChildren } as MDCElement,
+    leak: leakUp,
+    promote: promoteUp,
+  }
 }
 
 function isClosingMarkerArtifact(node: MDCNode): boolean {
