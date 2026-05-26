@@ -364,6 +364,45 @@ describe('mdc → comark closing-marker artifact repair', () => {
     expect(pre[1].code).toBe('body\n')
   })
 
+  // A `<p>` at the document root level whose text happens to be just `:::`/`::`
+  // markers is NOT a parser artifact — it's literal content (e.g. the rendered
+  // text of a previously-stripped artifact written back to disk by an earlier
+  // round-trip, or the user genuinely writing `:::` as text). Removing it would
+  // silently diverge the bridge render from what's on disk, breaking the
+  // `localContent === remoteContent` fallback in `checkConflict`.
+  it('preserves colon-only <p> at document root (no false positive)', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [{ type: 'text', value: 'Some real content.' }],
+        },
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [{ type: 'text', value: ':::\n::' }],
+        },
+        {
+          type: 'element',
+          tag: 'h3',
+          props: { id: 'next' },
+          children: [{ type: 'text', value: 'Next section' }],
+        },
+      ],
+    }))!
+
+    // All three top-level paragraphs/headings preserved.
+    expect(tree.nodes).toMatchObject([
+      ['p', {}, 'Some real content.'],
+      ['p', {}, ':::\n::'],
+      ['h3', { id: 'next' }, 'Next section'],
+    ])
+  })
+
   // When the @nuxtjs/mdc parser fails to close a deeply-nested container, it
   // not only injects the spurious `<p>` — it captures EVERY subsequent
   // top-level sibling as a child of the broken container. The artifact's text

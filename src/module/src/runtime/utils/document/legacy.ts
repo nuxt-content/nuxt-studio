@@ -142,18 +142,25 @@ function repairMdcNode(node: MDCNode): RepairResult {
     promoteUp = Math.max(promoteUp, r.promote - 1)
   }
 
-  // Now check whether WE directly own an artifact at this level.
-  const artifactIdx = newChildren.findIndex(isClosingMarkerArtifact)
-  if (artifactIdx !== -1) {
-    const artifact = newChildren[artifactIdx] as MDCElement
-    const before = newChildren.slice(0, artifactIdx).map(c => stripWrappingIndentFromPre(c))
-    const after = newChildren.slice(artifactIdx + 1)
-    const text = (artifact.children?.[0] as MDCText)?.value || ''
-    const closeLines = text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
-    return {
-      node: { ...el, children: before } as MDCElement,
-      leak: [...after, ...leakUp],
-      promote: Math.max(0, closeLines - 1) + promoteUp,
+  // Now check whether WE directly own an artifact at this level. Only strip
+  // when we're a genuine MDC container — at the document root level (sentinel)
+  // a `<p>` that happens to contain colon-only text is just literal content
+  // (often the rendered text of a previously-stripped artifact written back
+  // to disk), and removing it would silently diverge the render from what's
+  // on disk → fake conflict.
+  if (isMdcContainer(el)) {
+    const artifactIdx = newChildren.findIndex(isClosingMarkerArtifact)
+    if (artifactIdx !== -1) {
+      const artifact = newChildren[artifactIdx] as MDCElement
+      const before = newChildren.slice(0, artifactIdx).map(c => stripWrappingIndentFromPre(c))
+      const after = newChildren.slice(artifactIdx + 1)
+      const text = (artifact.children?.[0] as MDCText)?.value || ''
+      const closeLines = text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+      return {
+        node: { ...el, children: before } as MDCElement,
+        leak: [...after, ...leakUp],
+        promote: Math.max(0, closeLines - 1) + promoteUp,
+      }
     }
   }
 
@@ -162,6 +169,21 @@ function repairMdcNode(node: MDCNode): RepairResult {
     leak: leakUp,
     promote: promoteUp,
   }
+}
+
+/**
+ * An element is an MDC container — meaning its colon-only `<p>` children could
+ * be parser-artifact closing markers — when its tag is a custom MDC component
+ * (any tag not in the standard HTML block/inline sets) OR `template` (the slot
+ * marker). The root sentinel and plain HTML elements never own these
+ * artifacts; colon-only text at those levels is literal content.
+ */
+function isMdcContainer(el: MDCElement): boolean {
+  const tag = el.tag
+  if (!tag) return false
+  if (tag === '__root_sentinel__') return false
+  if (tag === 'template') return true
+  return !HTML_BLOCK_TAGS.has(tag) && !HTML_INLINE_TAGS.has(tag)
 }
 
 function isClosingMarkerArtifact(node: MDCNode): boolean {
