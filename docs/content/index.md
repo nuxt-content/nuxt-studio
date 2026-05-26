@@ -8,10 +8,10 @@ seo:
   :::browser-frame
     ::::video
     ---
-    src: https://res.cloudinary.com/nuxt/video/upload/v1767647099/studio/studio-demo_eiofld.mp4
-    poster: /video-thumbnail.jpg
     controls: true
     loop: true
+    src: https://res.cloudinary.com/nuxt/video/upload/v1767647099/studio/studio-demo_eiofld.mp4
+    poster: /video-thumbnail.jpg
     ---
     ::::
   :::
@@ -19,12 +19,12 @@ seo:
 #headline
   :::u-button
   ---
-  class: mb-3 rounded-full
+  to: https://github.com/nuxt-content/studio
+  variant: outline
   size: sm
   target: _blank
-  to: https://github.com/nuxt-content/studio
   trailing-icon: i-lucide-arrow-right
-  variant: outline
+  class: mb-3 rounded-full
   ---
   Open Source & Self-hosted
   :::
@@ -38,10 +38,10 @@ Self-hosted CMS for Nuxt Content websites. Edit content visually, manage media, 
 #links
   :::u-button
   ---
-  label: Get Started
-  size: lg
   to: /introduction
+  label: Get Started
   trailingIcon: i-lucide-arrow-right
+  size: lg
   ---
   :::
 
@@ -133,9 +133,9 @@ Everything you need for content editing
 Edit **Markdown** with **Vue** components, structure data using **YAML** and **JSON** forms, manage media assets and publish directly to **Git**. All from your live production website.
 ::
 
-::u-page-section{reverse orientation="horizontal"}
+::u-page-section{orientation="horizontal" reverse}
   :::browser-frame
-  ![Visual Markdown Editor](/studio/visual-markdown-editor.webp){.rounded-none height="900" width="1440"}
+  ![Visual Markdown Editor](/studio/visual-markdown-editor.webp){height="900" width="1440" .rounded-none}
   :::
 
 #title
@@ -163,21 +163,21 @@ A powerful editor built on TipTap that enables natural content creation while au
 #links
   :::u-button
   ---
-  color: neutral
-  icon: i-simple-icons-github
+  to: /content
   label: Learn more about the Visual Editor
+  variant: subtle
+  color: neutral
+  trailingIcon: i-lucide-arrow-right
   size: lg
   target: _blank
-  to: /content
-  trailingIcon: i-lucide-arrow-right
-  variant: subtle
+  icon: i-simple-icons-github
   ---
   :::
 ::
 
 ::u-page-section{orientation="horizontal"}
   :::browser-frame
-  ![Schema-based Forms](/studio/json-yml-forms.webp){.rounded-none height="900" width="1440"}
+  ![Schema-based Forms](/studio/json-yml-forms.webp){height="900" width="1440" .rounded-none}
   :::
 
 #title
@@ -205,18 +205,18 @@ Forms are automatically generated from your [Nuxt Content](https://content.nuxt.
 #links
   :::u-button
   ---
-  color: neutral
-  label: Learn more about Forms
   to: /content#form-editor
-  trailingIcon: i-lucide-arrow-right
+  label: Learn more about Forms
   variant: subtle
+  color: neutral
+  trailingIcon: i-lucide-arrow-right
   ---
   :::
 ::
 
-::u-page-section{reverse orientation="horizontal"}
+::u-page-section{orientation="horizontal" reverse}
   :::browser-frame
-  ![GitHub Sync](/studio/github-sync.webp){.rounded-none height="900" width="1440"}
+  ![GitHub Sync](/studio/github-sync.webp){height="900" width="1440" .rounded-none}
   :::
 
 #title
@@ -244,11 +244,11 @@ Publish changes directly to GitHub or GitLab from your production site. Your CI/
 #links
   :::u-button
   ---
-  color: neutral
-  label: Configure Git providers
   to: /git-providers
-  trailingIcon: i-lucide-arrow-right
+  label: Configure Git providers
   variant: subtle
+  color: neutral
+  trailingIcon: i-lucide-arrow-right
   ---
   :::
 ::
@@ -257,9 +257,9 @@ Publish changes directly to GitHub or GitLab from your production site. Your CI/
   :::browser-frame
     ::::video
     ---
-    src: https://res.cloudinary.com/nuxt/video/upload/v1770661582/studio/studio-ai_bsmqs6.mp4
     controls: true
     loop: true
+    src: https://res.cloudinary.com/nuxt/video/upload/v1770661582/studio/studio-ai_bsmqs6.mp4
     muted: true
     ---
     ::::
@@ -290,11 +290,11 @@ Leverage [Vercel AI Gateway](https://vercel.com/ai-gateway) to automatically gen
 #links
   :::u-button
   ---
-  color: neutral
-  label: Learn more about AI integration
   to: /ai
-  trailingIcon: i-lucide-arrow-right
+  label: Learn more about AI integration
   variant: subtle
+  color: neutral
+  trailingIcon: i-lucide-arrow-right
   ---
   :::
 ::
@@ -310,16 +310,16 @@ Leverage [Vercel AI Gateway](https://vercel.com/ai-gateway) to automatically gen
   Start editing your Nuxt website today.
 
   #links
-    ::::u-button{label="Get Started" to="/introduction" trailing-icon="i-lucide-arrow-right"}
+    ::::u-button{to="/introduction" label="Get Started" trailing-icon="i-lucide-arrow-right"}
     ::::
 
     ::::u-button
     ---
-    color: neutral
-    icon: i-simple-icons-github
-    target: _blank
     to: https://github.com/nuxt-content/studio
     variant: outline
+    color: neutral
+    target: _blank
+    icon: i-simple-icons-github
     ---
     Star on GitHub
     ::::
