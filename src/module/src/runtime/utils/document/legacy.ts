@@ -53,8 +53,9 @@ function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
 }
 
 function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkTree {
+  const repaired = repairMdcRoot(root)
   return {
-    nodes: normalizeMdcChildren(root.children || []).map(mdcNodeToComarkNode),
+    nodes: normalizeMdcChildren(repaired.children || []).map(mdcNodeToComarkNode),
     frontmatter: data,
     meta: {},
   }
@@ -80,6 +81,147 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
   }
 
   return ''
+}
+
+/**
+ * Detect and compensate for the @nuxtjs/mdc parser artifact, recursively across
+ * the whole tree.
+ *
+ * When a nested MDC container (e.g. `:::tabs-item{Code}`) wraps a fenced code
+ * block (```` ```mdc ```` …), the parser sometimes fails to close the container
+ * and CAPTURES every subsequent sibling — at the document level — as content
+ * inside it. The artifact is a literal `<p>` whose only text is the missed
+ * `:::`/`::` close markers. When we find that `<p>`, we know how deep the
+ * miscapture was (one close line per ancestor that should also close), strip
+ * the `<pre>`'s baked-in indent, and "promote" the captured siblings back up
+ * to their rightful position.
+ */
+function repairMdcRoot(root: MDCRoot): MDCRoot {
+  const sentinel: MDCElement = {
+    type: 'element',
+    tag: '__root_sentinel__',
+    props: {},
+    children: root.children || [],
+  } as MDCElement
+  const repaired = repairMdcNode(sentinel)
+  // Any leak that bubbled all the way to the root joins the top-level siblings.
+  return {
+    type: 'root',
+    children: [...((repaired.node as MDCElement).children || []), ...repaired.leak],
+  }
+}
+
+interface RepairResult {
+  node: MDCNode
+  leak: MDCNode[]
+  promote: number
+}
+
+function repairMdcNode(node: MDCNode): RepairResult {
+  if (node.type !== 'element') {
+    return { node, leak: [], promote: 0 }
+  }
+  const el = node as MDCElement
+
+  // Recurse depth-first so deeper artifacts are resolved before we scan our level.
+  const recursed = (el.children || []).map(repairMdcNode)
+
+  const newChildren: MDCNode[] = []
+  const leakUp: MDCNode[] = []
+  let promoteUp = 0
+
+  for (const r of recursed) {
+    newChildren.push(r.node)
+    if (r.leak.length === 0 && r.promote === 0) continue
+    if (r.promote === 0) {
+      newChildren.push(...r.leak)
+      continue
+    }
+    // Child wants its leak to escape this level too — one ancestor consumed per hop.
+    leakUp.push(...r.leak)
+    promoteUp = Math.max(promoteUp, r.promote - 1)
+  }
+
+  // Now check whether WE directly own an artifact at this level. Only strip
+  // when we're a genuine MDC container — at the document root level (sentinel)
+  // a `<p>` that happens to contain colon-only text is just literal content
+  // (often the rendered text of a previously-stripped artifact written back
+  // to disk), and removing it would silently diverge the render from what's
+  // on disk → fake conflict.
+  if (isMdcContainer(el)) {
+    const artifactIdx = newChildren.findIndex(isClosingMarkerArtifact)
+    if (artifactIdx !== -1) {
+      const artifact = newChildren[artifactIdx] as MDCElement
+      const before = newChildren.slice(0, artifactIdx).map(c => stripWrappingIndentFromPre(c))
+      const after = newChildren.slice(artifactIdx + 1)
+      const text = (artifact.children?.[0] as MDCText)?.value || ''
+      const closeLines = text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+      return {
+        node: { ...el, children: before } as MDCElement,
+        leak: [...after, ...leakUp],
+        promote: Math.max(0, closeLines - 1) + promoteUp,
+      }
+    }
+  }
+
+  return {
+    node: { ...el, children: newChildren } as MDCElement,
+    leak: leakUp,
+    promote: promoteUp,
+  }
+}
+
+/**
+ * An element is an MDC container — meaning its colon-only `<p>` children could
+ * be parser-artifact closing markers — when its tag is a custom MDC component
+ * (any tag not in the standard HTML block/inline sets) OR `template` (the slot
+ * marker). The root sentinel and plain HTML elements never own these
+ * artifacts; colon-only text at those levels is literal content.
+ */
+function isMdcContainer(el: MDCElement): boolean {
+  const tag = el.tag
+  if (!tag) return false
+  if (tag === '__root_sentinel__') return false
+  if (tag === 'template') return true
+  return !HTML_BLOCK_TAGS.has(tag) && !HTML_INLINE_TAGS.has(tag)
+}
+
+function isClosingMarkerArtifact(node: MDCNode): boolean {
+  if (node.type !== 'element') return false
+  const el = node as MDCElement
+  if (el.tag !== 'p') return false
+  if (!el.children || el.children.length !== 1) return false
+  const child = el.children[0]
+  if (child?.type !== 'text') return false
+  // eslint-disable-next-line
+  return /^\s*:{2,}(\s*\n\s*:{2,})*\s*$/.test((child as MDCText).value)
+}
+
+function stripWrappingIndentFromPre(node: MDCNode): MDCNode {
+  if (node.type !== 'element') return node
+  const el = node as MDCElement
+  if (el.tag !== 'pre') return node
+  const code = el.props?.code
+  if (typeof code !== 'string') return node
+  const indent = commonLeadingWhitespace(code)
+  if (!indent) return node
+  const stripped = code.split('\n')
+    .map(line => line.startsWith(indent) ? line.slice(indent.length) : line)
+    .join('\n')
+  return { ...el, props: { ...el.props, code: stripped } } as MDCElement
+}
+
+function commonLeadingWhitespace(text: string): string {
+  const lines = text.split('\n').filter(l => l.trim().length > 0)
+  if (lines.length === 0) return ''
+  let common = lines[0]?.match(/^\s*/)?.[0] || ''
+  for (let i = 1; i < lines.length && common.length > 0; i++) {
+    const lws = lines[i]?.match(/^\s*/)?.[0] || ''
+    let j = 0
+    while (j < common.length && j < lws.length && common[j] === lws[j]) j++
+    common = common.slice(0, j)
+  }
+  return common
 }
 
 /**
