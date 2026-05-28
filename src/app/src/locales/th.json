@@ -10,7 +10,8 @@
       "publish": "พับลิช",
       "back": "กลับ",
       "backToEdition": "กลับไปแก้ไข",
-      "seeChanges": "ดูการเปลี่ยนแปลง"
+      "seeChanges": "ดูการเปลี่ยนแปลง",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "โฟลเดอร์",
@@ -69,7 +70,8 @@
       "debugMode": "โหมดดีบัก"
     },
     "alert": {
-      "mdcFormatting": "จัดรูปแบบตามมาตรฐาน MDC แล้ว"
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "พบคอนฟลิกต์",

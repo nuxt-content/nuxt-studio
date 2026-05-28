@@ -24,6 +24,10 @@ const { preferences } = useStudioState()
 const showAutomaticFormattingDiff = ref(false)
 const formattingChange = computed(() => shouldShowMarkdownFormattingBanner(props.draftItem) ? props.draftItem.formatting : undefined)
 
+function toggleDiffView(show: boolean) {
+  showAutomaticFormattingDiff.value = show
+}
+
 const document = computed<DatabasePageItem>({
   get() {
     if (!props.draftItem) {
@@ -45,9 +49,15 @@ const document = computed<DatabasePageItem>({
   },
 })
 
-watch(() => props.draftItem.fsPath, () => {
+watch(() => `${props.draftItem.fsPath}-${props.draftItem.status}`, () => {
   showAutomaticFormattingDiff.value = false
 }, { immediate: true })
+
+async function applyFormatting() {
+  // ContentEditor only handles document drafts; narrow the union accordingly.
+  await context.activeTree.value.draft.applyFormatting(props.draftItem.fsPath)
+  showAutomaticFormattingDiff.value = false
+}
 
 const language = computed(() => {
   switch (document.value?.extension) {
@@ -71,12 +81,13 @@ const language = computed(() => {
       :draft-item="draftItem"
     />
     <template v-else>
-      <MDCFormattingBanner
+      <ComarkFormattingBanner
         v-if="formattingChange"
         show-action
         :shown="showAutomaticFormattingDiff"
         class="flex-none"
-        @show-diff="(show: boolean) => showAutomaticFormattingDiff = show"
+        @show-diff="toggleDiffView"
+        @apply-formatting="applyFormatting"
       />
       <ContentEditorDiff
         v-if="showAutomaticFormattingDiff"

@@ -10,7 +10,8 @@
       "publish": "نشر",
       "back": "العودة",
       "backToEdition": "العودة للتعديل",
-      "seeChanges": "عرض التغييرات"
+      "seeChanges": "عرض التغييرات",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "المجلدات",
@@ -69,7 +70,8 @@
       "debugMode": "وضع التصحيح"
     },
     "alert": {
-      "mdcFormatting": "تم تطبيق التنسيق لمطابقة معيار صيغة MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "تم اكتشاف تعارض",

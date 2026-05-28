@@ -38,7 +38,9 @@ const language = computed(() => {
 const hasAutomaticFormatting = computed(() => !!props.draftItem.formatting)
 
 watch(isOpen, () => {
-  if (isOpen.value && !isLoadingContent.value) initializeEditor()
+  if (isOpen.value && !isLoadingContent.value) {
+    initializeEditor()
+  }
 })
 
 async function initializeEditor() {
@@ -97,7 +99,7 @@ async function initializeEditor() {
           v-else
           class="flex flex-col h-full"
         >
-          <MDCFormattingBanner
+          <ComarkFormattingBanner
             v-if="hasAutomaticFormatting"
             show-action
             :shown="showAutomaticFormattingDiff"

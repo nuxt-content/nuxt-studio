@@ -162,6 +162,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         // @ts-expect-error upsert type is wrong, second param should be DatabaseItem | MediaItem
         await hostDb.upsert(draftItem.fsPath, existingItem.original)
         existingItem.modified = existingItem.original
+        existingItem.formattingApplied = false
         existingItem.status = await getStatus(existingItem.modified as DatabaseItem, existingItem.original as DatabaseItem)
         await storage.setItem(draftItem.fsPath, existingItem)
       }
@@ -249,7 +250,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
   }
 
-  async function getStatus(modified: BaseItem, original: BaseItem): Promise<DraftStatus> {
+  async function getStatus(modified: BaseItem, original: BaseItem, opts?: { formattingApplied?: boolean }): Promise<DraftStatus> {
     if (devMode.value) {
       return DraftStatus.Pristine
     }
@@ -264,6 +265,11 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
     if (!original || original.id !== modified.id) {
       return DraftStatus.Created
+    }
+
+    // User explicitly accepted comark's formatting via the banner
+    if (opts?.formattingApplied) {
+      return DraftStatus.Updated
     }
 
     if (original.extension === ContentFileExtension.Markdown) {

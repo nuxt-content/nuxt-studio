@@ -10,7 +10,8 @@
       "publish": "배포",
       "back": "뒤로",
       "backToEdition": "편집으로 돌아가기",
-      "seeChanges": "변경사항 보기"
+      "seeChanges": "변경사항 보기",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "디렉토리",
@@ -69,7 +70,8 @@
       "debugMode": "디버그 모드"
     },
     "alert": {
-      "mdcFormatting": "MDC 구문 표준에 맞추기 위해 서식이 적용되었습니다."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "콘텐츠 충돌이 감지되었습니다",

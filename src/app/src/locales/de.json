@@ -10,7 +10,8 @@
       "publish": "Veröffentlichen",
       "back": "Zurück",
       "backToEdition": "Zurück zur Bearbeitung",
-      "seeChanges": "Änderungen anzeigen"
+      "seeChanges": "Änderungen anzeigen",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Ordner",
@@ -69,7 +70,8 @@
       "debugMode": "Debug-Modus"
     },
     "alert": {
-      "mdcFormatting": "Formatierung angewendet, um dem MDC-Syntaxstandard zu entsprechen."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Konflikt erkannt",

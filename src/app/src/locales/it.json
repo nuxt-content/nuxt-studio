@@ -10,7 +10,8 @@
       "publish": "Pubblica",
       "back": "Indietro",
       "backToEdition": "Torna all'edizione",
-      "seeChanges": "Vedi differenze"
+      "seeChanges": "Vedi differenze",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Cartelle",
@@ -69,7 +70,8 @@
       "debugMode": "Modalità Debug"
     },
     "alert": {
-      "mdcFormatting": "Formattazione applicata per allinearsi allo standard di sintassi MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Conflitto rilevato",

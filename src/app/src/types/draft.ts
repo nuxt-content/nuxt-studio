@@ -41,7 +41,14 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    */
   conflict?: ContentConflict
   /**
-   * Markdown source differs from Studio's canonical serialization.
+   * Generated markdown differs from the repository source and should be visible in review.
    */
   formatting?: MarkdownFormattingChange
+  /**
+   * Marks the draft as "the user explicitly accepted the comark
+   * formatting for this file." Even if there is no manual updates from the editor.
+   *
+   * Set by `useDraftDocuments.applyFormatting(fsPath)`, cleared by `revert`.
+   */
+  formattingApplied?: boolean
 }
