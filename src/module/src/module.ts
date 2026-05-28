@@ -509,6 +509,12 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    // Override merged allowedTypes with original user input if defined to prevent defu merging arrays
+    const rawAllowedTypes = (nuxt.options as { studio?: { media?: { allowedTypes?: string[] } } }).studio?.media?.allowedTypes
+    if (rawAllowedTypes) {
+      options.media!.allowedTypes = rawAllowedTypes
+    }
+
     if (!options.media!.publicUrl) {
       options.media!.publicUrl = isExternalMediaEnabled
         ? process.env.S3_PUBLIC_URL

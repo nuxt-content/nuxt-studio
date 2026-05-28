@@ -4,6 +4,9 @@ import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
 import { isImageFile, MEDIA_EXTENSIONS } from '../../utils/file'
+import { useStudio } from '../../composables/useStudio'
+
+const { host } = useStudio()
 
 const props = defineProps({
   actionId: {
@@ -29,7 +32,7 @@ const isImage = computed(() => props.renamedItem && isImageFile(props.renamedIte
     :parent-item="parentItem"
     :renamed-item="renamedItem"
     :config="{
-      allowed: MEDIA_EXTENSIONS,
+      allowed: host.meta.media?.allowedTypes || MEDIA_EXTENSIONS,
       editable: false,
     }"
   >

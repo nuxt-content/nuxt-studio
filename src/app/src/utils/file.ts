@@ -114,3 +114,23 @@ export function slugifyFileName(fileName: string): string {
 
   return `${slugifiedName}.${extension}`
 }
+
+export function isAllowedType(file: File, allowedTypes?: string[]): boolean {
+  if (!allowedTypes || allowedTypes.length === 0) {
+    return true
+  }
+  const fileType = file.type
+  const fileName = file.name.toLowerCase()
+
+  return allowedTypes.some((type) => {
+    const cleanType = type.trim().toLowerCase()
+    if (cleanType.endsWith('/*')) {
+      const category = cleanType.replace('/*', '')
+      return fileType.startsWith(category + '/')
+    }
+    if (cleanType.startsWith('.')) {
+      return fileName.endsWith(cleanType)
+    }
+    return fileType === cleanType
+  })
+}

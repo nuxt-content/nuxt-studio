@@ -19,5 +19,8 @@ export default defineNuxtConfig({
       rootDir: 'playground/minimal',
       private: false,
     },
+    media: {
+      allowedTypes: ['.jpg', '.jpeg'],
+    },
   },
 })
