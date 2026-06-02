@@ -81,7 +81,50 @@ export default eventHandler(async (event) => {
         bytes[i] = binaryString.charCodeAt(i)!
       }
 
-      await blob.put(pathname, bytes, { contentType: mimeType })
+      let uploadData: Uint8Array | Buffer = bytes
+
+      const isCompressibleImage = mimeType.startsWith('image/')
+        && mimeType !== 'image/svg+xml'
+        && mimeType !== 'image/gif'
+      if (isCompressibleImage) {
+        try {
+          const sharp = await import('sharp').then(m => m.default || m)
+          const originalSize = bytes.byteLength
+
+          const sharpInstance = sharp(Buffer.from(bytes)).resize(2560, 2560, {
+            fit: 'inside',
+            withoutEnlargement: true,
+          })
+
+          if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') {
+            console.log('comporessing')
+            uploadData = await sharpInstance
+              .jpeg({ quality: 82, mozjpeg: true })
+              .toBuffer()
+          }
+          else if (mimeType === 'image/png') {
+            uploadData = await sharpInstance
+              .png({ compressionLevel: 9, effort: 10 })
+              .toBuffer()
+          }
+          else if (mimeType === 'image/webp') {
+            uploadData = await sharpInstance
+              .webp({ quality: 82, effort: 6 })
+              .toBuffer()
+          }
+
+          const compressedSize = (uploadData as Buffer).byteLength
+          console.info(
+            `[sharp] Compressed ${blobPath}: ${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB`
+            + ` (saved ${(((originalSize - compressedSize) / originalSize) * 100).toFixed(1)}%)`,
+          )
+        }
+        catch (err) {
+          console.warn('[sharp] Failed to compress image, uploading original:', err)
+        }
+      }
+
+      await blob.put(pathname, uploadData, { contentType: mimeType })
     }
 
     return 'OK'

@@ -39,9 +39,55 @@ export default eventHandler(async (event) => {
   }
 
   if (event.method === 'PUT') {
+    const compressImageIfNeeded = async (buffer: Buffer, key: string): Promise<Buffer> => {
+      const extension = key.split('.').pop()?.toLowerCase()
+      if (!extension || !['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
+        return buffer
+      }
+
+      try {
+        const sharp = await import('sharp').then(m => m.default || m)
+        const originalSize = buffer.byteLength
+
+        const sharpInstance = sharp(buffer).resize(2560, 2560, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+
+        let compressed: Buffer = buffer
+        if (extension === 'jpg' || extension === 'jpeg') {
+          compressed = await sharpInstance
+            .jpeg({ quality: 82, mozjpeg: true })
+            .toBuffer()
+        }
+        else if (extension === 'png') {
+          compressed = await sharpInstance
+            .png({ compressionLevel: 9, effort: 10 })
+            .toBuffer()
+        }
+        else if (extension === 'webp') {
+          compressed = await sharpInstance
+            .webp({ quality: 82, effort: 6 })
+            .toBuffer()
+        }
+
+        const compressedSize = compressed.byteLength
+        console.info(
+          `[sharp-dev] Compressed ${key.replace(/:/g, '/')}: ${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB`
+          + ` (saved ${(((originalSize - compressedSize) / originalSize) * 100).toFixed(1)}%)`,
+        )
+        return compressed
+      }
+      catch (err) {
+        console.warn('[sharp-dev] Failed to compress image, uploading original:', err)
+        return buffer
+      }
+    }
+
     if (getRequestHeader(event, 'content-type') === 'application/octet-stream') {
-      const value = await readRawBody(event, false)
-      await storage.setItemRaw(key, value)
+      const value = await readRawBody(event, false) as Buffer
+      const processedValue = await compressImageIfNeeded(value, key)
+      await storage.setItemRaw(key, processedValue)
     }
     else if (getRequestHeader(event, 'content-type') === 'text/plain') {
       const value = await readRawBody(event, 'utf8')
@@ -52,7 +98,9 @@ export default eventHandler(async (event) => {
       const json = JSON.parse(value || '{}')
       if (json.raw) {
         const data = json.raw.split(';base64,')[1]
-        await storage.setItemRaw(key, Buffer.from(data, 'base64'))
+        const buffer = Buffer.from(data!, 'base64')
+        const processedBuffer = await compressImageIfNeeded(buffer, key)
+        await storage.setItemRaw(key, processedBuffer)
       }
       else {
         await storage.setItemRaw(key, Buffer.alloc(0))
