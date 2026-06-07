@@ -462,16 +462,18 @@ function createTableRowNode(node: ComarkElement): JSONContent {
   return { type: 'tableRow', content: getChildren(node).flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[] }
 }
 
+const INLINE_CELL_TYPES = new Set(['text', 'hardBreak', 'inline-element', 'span-style'])
+
 /**
  * TipTap requires every cell to contain at least one block node
  */
 function createTableCellNode(node: ComarkElement, type: 'tableHeader' | 'tableCell'): JSONContent {
   const children = getChildren(node)
   const content = children.flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[]
-  const allInline = content.every(c => c.type === 'text' || c.marks)
   if (content.length === 0) {
     return { type, content: [{ type: 'paragraph', content: [] }] }
   }
+  const allInline = content.every(c => INLINE_CELL_TYPES.has(c.type as string))
   if (allInline) {
     return { type, content: [{ type: 'paragraph', content }] }
   }

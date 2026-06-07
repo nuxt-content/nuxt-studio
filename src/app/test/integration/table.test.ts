@@ -88,6 +88,37 @@ describe('table', () => {
     expect(outputContent).toMatch(/\|\s*\|\s*value\s*\|/)
   })
 
+  test('table cell with <br> wraps content in a paragraph', async () => {
+    const inputContent = `| Col |
+| --- |
+| line1<br>line2 |`
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const tiptapJSON: JSONContent = comarkToTiptap(document.body)
+
+    const tableNode = tiptapJSON.content?.find(c => c.type === 'table')
+    expect(tableNode).toBeDefined()
+
+    const dataRow = tableNode!.content![1]
+    const cell = dataRow.content![0]
+    expect(cell.type).toBe('tableCell')
+    // Cell must contain a block-level child (paragraph), not raw inline nodes
+    expect(cell.content).toHaveLength(1)
+    expect(cell.content![0].type).toBe('paragraph')
+
+    const paragraphContent = cell.content![0].content!
+    expect(paragraphContent.some(c => c.type === 'hardBreak')).toBe(true)
+
+    const comarkTree = await tiptapToComark(tiptapJSON)
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: comarkTree,
+    })
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toContain('line1')
+    expect(outputContent).toContain('line2')
+  })
+
   test('single-column table', async () => {
     const inputContent = `| Header |
 | --- |
