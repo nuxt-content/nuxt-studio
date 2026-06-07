@@ -234,15 +234,10 @@
         "table": "Table"
       },
       "table": {
-        "addRowAbove": "Add row above",
-        "addRowBelow": "Add row below",
-        "addColumnLeft": "Add column left",
-        "addColumnRight": "Add column right",
         "insertLeft": "Insert left",
         "insertRight": "Insert right",
         "insertAbove": "Insert above",
         "insertBelow": "Insert below",
-        "toggleHeader": "Toggle header row",
         "deleteRow": "Delete row",
         "deleteColumn": "Delete column",
         "deleteTable": "Delete table"
