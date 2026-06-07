@@ -10,7 +10,8 @@
       "publish": "انتشار",
       "back": "بازگشت",
       "backToEdition": "بازگشت به ویرایش",
-      "seeChanges": "مشاهده تغییرات"
+      "seeChanges": "مشاهده تغییرات",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "پوشه‌ها",
@@ -69,7 +70,8 @@
       "debugMode": "حالت اشکال‌زدایی"
     },
     "alert": {
-      "mdcFormatting": "قالب‌بندی برای هماهنگی با استاندارد نوشتار MDC اعمال شد."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "ناهماهنگی شناسایی شد",

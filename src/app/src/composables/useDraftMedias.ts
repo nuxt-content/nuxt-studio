@@ -183,5 +183,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     upload,
     listAsRawFiles,
     getStatus,
+    applyFormatting: () => {},
   }
 })

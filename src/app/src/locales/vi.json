@@ -10,7 +10,8 @@
       "publish": "Đăng tải",
       "back": "Quay lại",
       "backToEdition": "Quay lại chỉnh sửa",
-      "seeChanges": "Xem thay đổi"
+      "seeChanges": "Xem thay đổi",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Thư mục",
@@ -69,7 +70,8 @@
       "debugMode": "Chế độ gỡ lỗi"
     },
     "alert": {
-      "mdcFormatting": "Định dạng đã được áp dụng để tuân thủ chuẩn cú pháp MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Phát hiện xung đột",

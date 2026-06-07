@@ -276,6 +276,22 @@ describe('paragraph', () => {
     expect(outputContent).toBe('[link](https://external.com)\n')
   })
 
+  test('link with non-default attr order preserves order through round-trip', async () => {
+    const inputContent = '[link](/relative){.my-class target="_blank"}'
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const tiptapJSON: JSONContent = comarkToTiptap(document.body)
+    const rtTree = await tiptapToComark(tiptapJSON)
+
+    const originalRender = await contentFromDocument(
+      createMockDocument('docs/test.md', { body: document.body, ...document.body.frontmatter }),
+    )
+    const modifiedRender = await contentFromDocument(
+      createMockDocument('docs/test.md', { body: rtTree, ...rtTree.frontmatter }),
+    )
+    expect(originalRender).toBe(modifiedRender)
+  })
+
   test('relative link with target="_blank" keeps target', async () => {
     const inputContent = '[link](/relative){target="_blank"}'
 
@@ -1015,6 +1031,82 @@ My icon
 
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with inline code as default and multiple sloted content', async () => {
+    const inputContent = [
+      '::code-preview',
+      '`inline code`',
+      '',
+      '#code',
+      '`inline code`',
+      '::',
+    ].join('\n')
+
+    const expectedComarkNodes = [
+      ['code-preview', {},
+        ['p', {}, ['code', {}, 'inline code']],
+        ['template', { name: 'code' }, ['code', {}, 'inline code']],
+      ],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: { tag: 'code-preview' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'inline code', marks: [{ type: 'code' }] },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'code' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'inline code', marks: [{ type: 'code' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -1839,8 +1931,8 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Inline :video is serialized as block ::video after roundtrip; src comes first (tiptapToComark insertion order)
-    expect(outputContent).toBe('::video{src="https://example.com/video.mp4" controls}\n::\n')
+    // Inline :video is serialized as block ::video after roundtrip
+    expect(outputContent).toBe('::video{controls src="https://example.com/video.mp4"}\n::\n')
   })
 
   test('video with poster', async () => {
@@ -1894,8 +1986,8 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Inline :video is serialized as block ::video after roundtrip; src/poster come first (tiptapToComark insertion order)
-    expect(outputContent).toBe('::video{src="https://example.com/video.mp4" poster="https://example.com/poster.jpg" controls}\n::\n')
+    // Inline :video is serialized as block ::video after roundtrip
+    expect(outputContent).toBe('::video{controls poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}\n::\n')
   })
 
   test('video with loop and muted', async () => {
@@ -1956,15 +2048,15 @@ describe('videos', () => {
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as block element with YAML props block when there are more than 3 prop
+    // Video is serialized as block element with YAML props block when there are more than 3 props.
     const res = [
       '::video',
       '---',
-      'src: https://example.com/video.mp4',
-      'poster: https://example.com/poster.jpg',
       'controls: true',
       'loop: true',
       'muted: true',
+      'poster: https://example.com/poster.jpg',
+      'src: https://example.com/video.mp4',
       '---',
       '::',
       '',

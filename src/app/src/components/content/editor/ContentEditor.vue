@@ -52,9 +52,13 @@ const document = computed<DatabasePageItem>({
   },
 })
 
-watch(() => props.draftItem.fsPath, async () => {
+watch(() => `${props.draftItem.fsPath}-${props.draftItem.status}`, async () => {
   isAutomaticFormattingDetected.value = false
   showAutomaticFormattingDiff.value = false
+
+  // The banner only makes sense for Pristine drafts.
+  // Once the user edits or accepts the formatting, the banner is no longer relevant.
+  if (props.draftItem.status !== DraftStatus.Pristine) return
 
   if (props.draftItem.original && props.draftItem.remoteFile?.content) {
     const generateContentFromDocument = host.document.generate.contentFromDocument
@@ -70,6 +74,12 @@ watch(() => props.draftItem.fsPath, async () => {
     }
   }
 }, { immediate: true })
+
+async function applyFormatting() {
+  // ContentEditor only handles document drafts; narrow the union accordingly.
+  await context.activeTree.value.draft.applyFormatting(props.draftItem.fsPath)
+  showAutomaticFormattingDiff.value = false
+}
 
 const language = computed(() => {
   switch (document.value?.extension) {
@@ -93,11 +103,12 @@ const language = computed(() => {
       :draft-item="draftItem"
     />
     <template v-else>
-      <MDCFormattingBanner
+      <ComarkFormattingBanner
         v-if="isAutomaticFormattingDetected"
         show-action
         class="flex-none"
         @show-diff="toggleDiffView"
+        @apply-formatting="applyFormatting"
       />
       <ContentEditorDiff
         v-if="showAutomaticFormattingDiff"

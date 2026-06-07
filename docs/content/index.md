@@ -8,10 +8,10 @@ seo:
   :::browser-frame
     ::::video
     ---
-    src: https://res.cloudinary.com/nuxt/video/upload/v1767647099/studio/studio-demo_eiofld.mp4
-    poster: /video-thumbnail.jpg
     controls: true
     loop: true
+    src: https://res.cloudinary.com/nuxt/video/upload/v1767647099/studio/studio-demo_eiofld.mp4
+    poster: /video-thumbnail.jpg
     ---
     ::::
   :::
@@ -135,7 +135,7 @@ Edit **Markdown** with **Vue** components, structure data using **YAML** and **J
 
 ::u-page-section{orientation="horizontal" reverse}
   :::browser-frame
-  ![Visual Markdown Editor](/studio/visual-markdown-editor.webp){.rounded-none height="900" width="1440"}
+  ![Visual Markdown Editor](/studio/visual-markdown-editor.webp){height="900" width="1440" .rounded-none}
   :::
 
 #title
@@ -177,7 +177,7 @@ A powerful editor built on TipTap that enables natural content creation while au
 
 ::u-page-section{orientation="horizontal"}
   :::browser-frame
-  ![Schema-based Forms](/studio/json-yml-forms.webp){.rounded-none height="900" width="1440"}
+  ![Schema-based Forms](/studio/json-yml-forms.webp){height="900" width="1440" .rounded-none}
   :::
 
 #title
@@ -216,7 +216,7 @@ Forms are automatically generated from your [Nuxt Content](https://content.nuxt.
 
 ::u-page-section{orientation="horizontal" reverse}
   :::browser-frame
-  ![GitHub Sync](/studio/github-sync.webp){.rounded-none height="900" width="1440"}
+  ![GitHub Sync](/studio/github-sync.webp){height="900" width="1440" .rounded-none}
   :::
 
 #title
@@ -257,9 +257,9 @@ Publish changes directly to GitHub or GitLab from your production site. Your CI/
   :::browser-frame
     ::::video
     ---
-    src: https://res.cloudinary.com/nuxt/video/upload/v1770661582/studio/studio-ai_bsmqs6.mp4
     controls: true
     loop: true
+    src: https://res.cloudinary.com/nuxt/video/upload/v1770661582/studio/studio-ai_bsmqs6.mp4
     muted: true
     ---
     ::::

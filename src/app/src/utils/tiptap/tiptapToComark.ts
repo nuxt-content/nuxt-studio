@@ -3,7 +3,7 @@ import Slugger from 'github-slugger'
 import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comark'
 import type { SyntaxHighlightTheme } from '../../types/content'
 import { getEmojiUnicode } from '../emoji'
-import { cleanSpanProps, normalizeProps } from './props'
+import { buildAttrs, cleanSpanProps, normalizeProps } from './props'
 import type { EditorState } from '@tiptap/pm/state'
 import { highlightCodeBlocks } from 'comark/plugins/highlight'
 
@@ -318,48 +318,30 @@ function createCodeBlockElement(node: JSONContent): ComarkElement {
   return [tag, { ...attrs as object, code, language, filename }, codeChild] as ComarkElement
 }
 
+// Boolean video attrs that comark serializes with a `:` prefix (e.g. `:controls: 'true'`).
+const VIDEO_BOOLEAN_ATTRS = new Set(['controls', 'autoplay', 'loop', 'muted'])
+
 function createImageElement(node: JSONContent): ComarkElement {
-  const props = node.attrs?.props || {}
-  const imageProps: Record<string, string | number> = {}
-
-  const src = props.src || node.attrs?.src
-  if (src) imageProps.src = src
-
-  const alt = props.alt || node.attrs?.alt
-  if (alt) imageProps.alt = alt
-
-  if (props.title) imageProps.title = props.title
-  if (props.width) imageProps.width = props.width
-  if (props.height) imageProps.height = props.height
-  if (props.class) imageProps.class = props.class
-
-  // Handle nuxt image components
+  // Preserve the attr order TipTap stored
+  const imageProps = buildAttrs(node.attrs?.props, {
+    fallbacks: { src: node.attrs?.src, alt: node.attrs?.alt },
+  })
   if (['nuxt-img', 'nuxt-picture'].includes(node.attrs?.tag)) {
     return createElement(node, node.attrs?.tag, { props: imageProps }) as ComarkElement
   }
-  else {
-    return createElement(node, 'img', { props: imageProps }) as ComarkElement
-  }
+  return createElement(node, 'img', { props: imageProps }) as ComarkElement
 }
 
 function createVideoElement(node: JSONContent): ComarkElement {
-  const props = node.attrs?.props || {}
-  const videoProps: Record<string, string | boolean | number> = {}
-
-  if (props.src || node.attrs?.src) {
-    videoProps.src = props.src || node.attrs?.src
-  }
-
-  if (props.poster) videoProps.poster = props.poster
-  if (props.width) videoProps.width = props.width
-  if (props.height) videoProps.height = props.height
-  if (props.class) videoProps.class = props.class
-
-  // comark uses colon-prefix for boolean attrs (e.g., :controls: 'true') so they serialize as boolean shorthands
-  if (props['controls'] || props[':controls']) videoProps[':controls'] = 'true'
-  if (props['autoplay'] || props[':autoplay']) videoProps[':autoplay'] = 'true'
-  if (props['loop'] || props[':loop']) videoProps[':loop'] = 'true'
-  if (props['muted'] || props[':muted']) videoProps[':muted'] = 'true'
+  // Preserve the attr order TipTap stored
+  const videoProps = buildAttrs(node.attrs?.props, {
+    transform: (key, value) => {
+      if (key.startsWith(':')) return [key, value]
+      if (VIDEO_BOOLEAN_ATTRS.has(key)) return value ? [`:${key}`, 'true'] : null
+      return [key, value]
+    },
+    fallbacks: { src: node.attrs?.src },
+  })
 
   const children = comarkNodesFromTiptap(node.content || [])
   return ['video', videoProps, ...children] as ComarkElement
@@ -408,13 +390,14 @@ function createTableCellElement(node: JSONContent, tag: 'th' | 'td'): ComarkElem
 }
 
 function createLinkElement(node: JSONContent): ComarkElement {
-  const { href, target, rel, class: className, ...otherAttrs } = node.attrs || {}
-  const linkProps: Record<string, string> = {}
-  if (href) linkProps.href = href
-  if (target) linkProps.target = target
-  if (rel) linkProps.rel = rel
-  if (className) linkProps.class = className
-  Object.assign(linkProps, otherAttrs)
+  // Preserve the attr order TipTap stored
+  const linkProps = buildAttrs(node.attrs, {
+    transform: (key, value) => {
+      if (!value) return null
+      if (key === 'className') return ['class', value]
+      return [key, value]
+    },
+  })
   const children = (node.children || []) as ComarkNode[]
   return ['a', linkProps, ...children] as ComarkElement
 }
@@ -455,14 +438,17 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
   const res = node.marks!.reduce((acc: ComarkNode, mark: Record<string, unknown>) => {
     const markAttrs = (mark.attrs as Record<string, unknown>) || {}
     if (mark.type === 'link') {
-      const linkAttrs: Record<string, string> = {}
-      if (markAttrs.href) linkAttrs.href = String(markAttrs.href)
+      // Preserve the attr order the link mark was authored in. TipTap auto-injects
       const href = String(markAttrs.href || '')
       const isExternal = href.startsWith('http://') || href.startsWith('https://')
-      // Strip target and rel for external links (added by TipTap automatically, not user-authored)
-      if (markAttrs.target && !isExternal) linkAttrs.target = String(markAttrs.target)
-      // rel is intentionally never included — it's auto-added by TipTap, not user-authored
-      if (markAttrs.class) linkAttrs.class = String(markAttrs.class)
+      const linkAttrs = buildAttrs(markAttrs, {
+        transform: (key, value) => {
+          if (!value) return null
+          if (key === 'rel') return null
+          if (key === 'target' && isExternal) return null
+          return [key, String(value)]
+        },
+      })
       return ['a', linkAttrs, acc] as ComarkElement
     }
     const markTag = markToTag[mark.type as string]
@@ -540,7 +526,7 @@ function wrapImageInParagraph(content: JSONContent[]): JSONContent[] {
 }
 
 /**
- * Unwrap single paragraph child (MDC auto-unwrap feature)
+ * Unwrap single paragraph child (Comark auto-unwrap feature)
  */
 function unwrapParagraph(content: JSONContent[]): JSONContent[] {
   if (content.length === 1 && content[0]?.type === 'paragraph') {

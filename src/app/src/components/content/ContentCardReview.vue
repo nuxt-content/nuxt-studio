@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DraftItem, DatabaseItem, DatabasePageItem } from '../../types'
+import type { DraftItem, DatabasePageItem } from '../../types'
 import type { PropType } from 'vue'
 import { ref, computed, nextTick, watch } from 'vue'
 import { DraftStatus, ContentFileExtension } from '../../types'
@@ -8,7 +8,6 @@ import { useMonacoDiff } from '../../composables/useMonacoDiff'
 import { useMonaco } from '../../composables/useMonaco'
 import { useStudio } from '../../composables/useStudio'
 import { fromBase64ToUTF8 } from '../../utils/string'
-import { areContentEqual } from '../../utils/content'
 
 const { ui, host } = useStudio()
 
@@ -23,7 +22,6 @@ const diffEditorRef = ref<HTMLDivElement>()
 const editorRef = ref<HTMLDivElement>()
 const isLoadingContent = ref(false)
 const isOpen = ref(false)
-const isAutomaticFormattingDetected = ref(false)
 
 const language = computed(() => {
   const ext = getFileExtension(props.draftItem.fsPath)
@@ -50,15 +48,12 @@ async function initializeEditor() {
   isLoadingContent.value = true
 
   const generateContentFromDocument = host.document.generate.contentFromDocument
-  const localOriginal = props.draftItem.original ? await generateContentFromDocument(props.draftItem.original as DatabaseItem) : null
   const remoteOriginal = props.draftItem.remoteFile?.content
     ? (props.draftItem.remoteFile.encoding === 'base64'
         ? fromBase64ToUTF8(props.draftItem.remoteFile.content)
         : props.draftItem.remoteFile.content)
     : null
   const modified = props.draftItem.modified ? await generateContentFromDocument(props.draftItem.modified as DatabasePageItem) : null
-
-  isAutomaticFormattingDetected.value = !areContentEqual(localOriginal, remoteOriginal)
 
   // Wait for DOM to update before initializing Monaco
   await nextTick()
@@ -117,14 +112,9 @@ async function initializeEditor() {
         />
         <div
           v-else
-          class="relative w-full h-full"
-        >
-          <MDCFormattingBanner v-if="isAutomaticFormattingDetected" />
-          <div
-            ref="diffEditorRef"
-            class="w-full h-full"
-          />
-        </div>
+          ref="diffEditorRef"
+          class="w-full h-full"
+        />
       </ResizableElement>
     </template>
   </ItemCardReview>

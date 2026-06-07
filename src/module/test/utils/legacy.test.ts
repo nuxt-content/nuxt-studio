@@ -96,6 +96,416 @@ describe('mdc → comark slot translation', () => {
   })
 })
 
+describe('mdc → comark autoUnwrap compensation', () => {
+  it('re-wraps a bare inline child sitting next to a template slot in <p>', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'code-preview',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'code',
+            props: {},
+            children: [{ type: 'text', value: 'inline code' }],
+          },
+          {
+            type: 'element',
+            tag: 'template',
+            props: { 'v-slot:code': '' },
+            children: [{
+              type: 'element',
+              tag: 'pre',
+              props: { language: 'mdc', code: '`inline code`\n' },
+              children: [{
+                type: 'element',
+                tag: 'code',
+                props: {},
+                children: [{ type: 'text', value: '`inline code`\n' }],
+              }],
+            }],
+          },
+        ],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['code-preview', {},
+        ['p', {}, ['code', {}, 'inline code']],
+        ['template', { name: 'code' }, ['pre', { language: 'mdc' }, ['code', {}, '`inline code`\n']]],
+      ],
+    ])
+  })
+
+  it('renders the wrapped tree with a paragraph boundary before #code', async () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'code-preview',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'code',
+            props: {},
+            children: [{ type: 'text', value: 'inline code' }],
+          },
+          {
+            type: 'element',
+            tag: 'template',
+            props: { 'v-slot:code': '' },
+            children: [{ type: 'text', value: 'slot body' }],
+          },
+        ],
+      }],
+    }))!
+
+    const md = await renderMarkdown(tree)
+    expect(md).toContain('`inline code`\n\n#code')
+    expect(md).not.toContain('`inline code`#code')
+  })
+
+  it('leaves pure-inline children alone (single text/inline child, no wrap)', () => {
+    // ::u-button{.x}\nMy button\n:: already works through the bridge — adding the
+    // normalization must not regress this single-flow case.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'u-button',
+        props: { className: ['any-class'] },
+        children: [{ type: 'text', value: 'My button' }],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['u-button', { class: 'any-class' }, 'My button'],
+    ])
+  })
+
+  it('leaves pure-block children alone (no spurious p insertion)', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'code-preview',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: { language: 'ts' },
+            children: [{ type: 'text', value: 'const x = 1' }],
+          },
+          {
+            type: 'element',
+            tag: 'template',
+            props: { 'v-slot:code': '' },
+            children: [{ type: 'text', value: 'slot' }],
+          },
+        ],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['code-preview', {},
+        ['pre', { language: 'ts' }, 'const x = 1'],
+        ['template', { name: 'code' }, 'slot'],
+      ],
+    ])
+  })
+})
+
+describe('mdc → comark closing-marker artifact repair', () => {
+  it('drops the spurious paragraph and strips wrapping indent from <pre>', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs-item',
+        props: { label: 'Code' },
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: {
+              code: '  ::accordion\n    :::accordion-item{label="A"}\n    body\n    :::\n  ::\n',
+              language: 'mdc',
+            },
+            children: [{
+              type: 'element',
+              tag: 'code',
+              props: {},
+              children: [{ type: 'text', value: '  ::accordion\n  ::\n' }],
+            }],
+          },
+          {
+            type: 'element',
+            tag: 'p',
+            props: {},
+            children: [{ type: 'text', value: ':::\n::' }],
+          },
+        ],
+      }],
+    }))!
+
+    const tabsItem = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    // Only one child remains (the pre), spurious p was dropped
+    expect(tabsItem.length).toBe(3)
+    const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[0]).toBe('pre')
+    // Wrapping 2-space indent stripped from each line of code
+    expect(pre[1].code).toBe('::accordion\n  :::accordion-item{label="A"}\n  body\n  :::\n::\n')
+  })
+
+  it('round-trips through render preserving the original indent', async () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'tabs-item',
+          props: { label: 'Code' },
+          children: [
+            {
+              type: 'element',
+              tag: 'pre',
+              props: {
+                code: '  ::accordion\n  ::\n',
+                language: 'mdc',
+              },
+              children: [],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: ':::\n::' }],
+            },
+          ],
+        }],
+      }],
+    }))!
+
+    const md = await renderMarkdown(tree)
+    // The rendered output should not contain the spurious markers
+    expect(md).not.toMatch(/```[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*:::[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*::[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*:::/)
+    // Code content should be wrapped exactly once (2 spaces from tabs-item),
+    // not doubled (would be 4 spaces)
+    expect(md).toContain('  ::accordion')
+    expect(md).not.toContain('    ::accordion')
+  })
+
+  it('leaves a <p> alone if it contains non-marker text', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs-item',
+        props: { label: 'Code' },
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: { code: '  foo\n', language: 'ts' },
+            children: [],
+          },
+          {
+            type: 'element',
+            tag: 'p',
+            props: {},
+            children: [{ type: 'text', value: 'This is real content.' }],
+          },
+        ],
+      }],
+    }))!
+
+    const tabsItem = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    // Both children preserved (the p is real content, not a marker artifact)
+    expect(tabsItem.length).toBe(4)
+    // And since no artifact was detected, the pre's code prop is left as-is
+    const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[1].code).toBe('  foo\n')
+  })
+
+  it('matches multi-line closing markers (`:::` followed by `::`)', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'outer',
+        props: {},
+        children: [
+          {
+            type: 'element',
+            tag: 'pre',
+            props: { code: '  body\n', language: 'mdc' },
+            children: [],
+          },
+          {
+            type: 'element',
+            tag: 'p',
+            props: {},
+            children: [{ type: 'text', value: ':::\n::' }],
+          },
+        ],
+      }],
+    }))!
+
+    const outer = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    expect(outer.length).toBe(3) // only pre remains
+    const pre = outer[2] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[1].code).toBe('body\n')
+  })
+
+  // A `<p>` at the document root level whose text happens to be just `:::`/`::`
+  // markers is NOT a parser artifact — it's literal content (e.g. the rendered
+  // text of a previously-stripped artifact written back to disk by an earlier
+  // round-trip, or the user genuinely writing `:::` as text). Removing it would
+  // silently diverge the bridge render from what's on disk, breaking the
+  // `localContent === remoteContent` fallback in `checkConflict`.
+  it('preserves colon-only <p> at document root (no false positive)', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [{ type: 'text', value: 'Some real content.' }],
+        },
+        {
+          type: 'element',
+          tag: 'p',
+          props: {},
+          children: [{ type: 'text', value: ':::\n::' }],
+        },
+        {
+          type: 'element',
+          tag: 'h3',
+          props: { id: 'next' },
+          children: [{ type: 'text', value: 'Next section' }],
+        },
+      ],
+    }))!
+
+    // All three top-level paragraphs/headings preserved.
+    expect(tree.nodes).toMatchObject([
+      ['p', {}, 'Some real content.'],
+      ['p', {}, ':::\n::'],
+      ['h3', { id: 'next' }, 'Next section'],
+    ])
+  })
+
+  // When the @nuxtjs/mdc parser fails to close a deeply-nested container, it
+  // not only injects the spurious `<p>` — it captures EVERY subsequent
+  // top-level sibling as a child of the broken container. The artifact's text
+  // (`:::\n::`) tells us how many ancestor containers should also close. The
+  // bridge promotes the captured siblings back up through that many levels.
+  it('promotes captured siblings out of the broken container (single-level close)', () => {
+    // artifact says only THIS container closes — leak stays at parent's level.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'tabs-item',
+          props: { label: 'Code' },
+          children: [
+            {
+              type: 'element',
+              tag: 'pre',
+              props: { code: '  body\n', language: 'mdc' },
+              children: [],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: ':::' }], // ONLY one close
+            },
+            {
+              type: 'element',
+              tag: 'h3',
+              props: { id: 'leaked' },
+              children: [{ type: 'text', value: 'Should escape one level' }],
+            },
+          ],
+        }],
+      }],
+    }))!
+
+    // Expected: tabs > [tabs-item with [pre], h3] — h3 is now a sibling of tabs-item
+    expect(tree.nodes).toMatchObject([
+      ['tabs', {},
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }]],
+        ['h3', { id: 'leaked' }, 'Should escape one level'],
+      ],
+    ])
+  })
+
+  it('promotes captured siblings out across two ancestor containers (`:::\\n::`)', () => {
+    // artifact says THIS container AND parent close — leak escapes to grandparent's level.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'tabs',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'tabs-item',
+          props: { label: 'Code' },
+          children: [
+            {
+              type: 'element',
+              tag: 'pre',
+              props: { code: '  body\n', language: 'mdc' },
+              children: [],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: ':::\n::' }], // TWO closes
+            },
+            {
+              type: 'element',
+              tag: 'h3',
+              props: { id: 'leaked' },
+              children: [{ type: 'text', value: 'Should escape two levels' }],
+            },
+            {
+              type: 'element',
+              tag: 'p',
+              props: {},
+              children: [{ type: 'text', value: 'Body text' }],
+            },
+          ],
+        }],
+      }],
+    }))!
+
+    // Expected: tabs only contains tabs-item with [pre]. h3 + p are siblings of tabs.
+    expect(tree.nodes).toMatchObject([
+      ['tabs', {},
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }]],
+      ],
+      ['h3', { id: 'leaked' }, 'Should escape two levels'],
+      ['p', {}, 'Body text'],
+    ])
+  })
+})
+
 describe('mdc → comark className translation', () => {
   it('joins `className: string[]` into `class: "a b"`', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
@@ -145,7 +555,8 @@ describe('mdc → comark className translation', () => {
 })
 
 describe('mdc → comark attribute ordering', () => {
-  it('emits attrs in alphabetical order on a single element', () => {
+  // Preserves the upstream attribute order
+  it('preserves the input attribute order on a single element', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{
@@ -164,15 +575,15 @@ describe('mdc → comark attribute ordering', () => {
 
     const button = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
     expect(Object.keys(button[1])).toEqual([
+      'to',
+      'variant',
       'size',
       'target',
-      'to',
       'trailing-icon',
-      'variant',
     ])
   })
 
-  it('sorts attrs deeply on nested elements', () => {
+  it('preserves attribute order on nested elements', () => {
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{
@@ -189,14 +600,14 @@ describe('mdc → comark attribute ordering', () => {
     }))!
 
     const outer = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
-    expect(Object.keys(outer[1])).toEqual(['a', 'z'])
+    expect(Object.keys(outer[1])).toEqual(['z', 'a'])
     const inner = outer[2] as [string, Record<string, unknown>, ...unknown[]]
-    expect(Object.keys(inner[1])).toEqual(['b', 'y'])
+    expect(Object.keys(inner[1])).toEqual(['y', 'b'])
   })
 
-  it('sorts attrs after a slot name has been hoisted out of `v-slot:name`', () => {
-    // The `name` derived from `v-slot:title` must participate in the final
-    // sort, not stay at whatever position the source-shaped translation left it.
+  it('hoists slot `name` to the front when translating `v-slot:name`', () => {
+    // `v-slot:title` → `{ name: 'title' }` lands first
+    // Any sibling attrs that were already present keep their relative order behind it.
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{

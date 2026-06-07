@@ -35,4 +35,11 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    * Content conflict detection
    */
   conflict?: ContentConflict
+  /**
+   * Marks the draft as "the user explicitly accepted the comark
+   * formatting for this file." Even if there is no manual updates from the editor.
+   *
+   * Set by `useDraftDocuments.applyFormatting(fsPath)`, cleared by `revert`.
+   */
+  formattingApplied?: boolean
 }

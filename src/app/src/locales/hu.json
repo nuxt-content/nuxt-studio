@@ -10,7 +10,8 @@
       "publish": "Közzététel",
       "back": "Vissza",
       "backToEdition": "Vissza a szerkesztéshez",
-      "seeChanges": "Változtatások megtekintése"
+      "seeChanges": "Változtatások megtekintése",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Mappák",
@@ -69,7 +70,8 @@
       "debugMode": "Hibakeresési mód"
     },
     "alert": {
-      "mdcFormatting": "Formázás alkalmazva az MDC szintaxis szabványnak megfelelően."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Ütközés észlelve",
