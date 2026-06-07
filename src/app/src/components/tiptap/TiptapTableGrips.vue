@@ -187,13 +187,11 @@ function rowMenuItems(index: number): DropdownMenuItem[][] {
 }
 
 onMounted(() => {
-  props.editor.on('selectionUpdate', recomputePositions)
   props.editor.on('transaction', recomputePositions)
   recomputePositions()
 })
 
 onBeforeUnmount(() => {
-  props.editor.off('selectionUpdate', recomputePositions)
   props.editor.off('transaction', recomputePositions)
   if (rafId) cancelAnimationFrame(rafId)
 })
