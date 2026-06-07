@@ -230,7 +230,17 @@
         "insert": "Insert",
         "image": "Image",
         "video": "Video",
-        "horizontalRule": "Horizontal Rule"
+        "horizontalRule": "Horizontal Rule",
+        "table": "Table"
+      },
+      "table": {
+        "insertLeft": "Insert left",
+        "insertRight": "Insert right",
+        "insertAbove": "Insert above",
+        "insertBelow": "Insert below",
+        "deleteRow": "Delete row",
+        "deleteColumn": "Delete column",
+        "deleteTable": "Delete table"
       },
       "drag": {
         "turnInto": "Turn into",

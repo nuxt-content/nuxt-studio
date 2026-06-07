@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import "./tiptap.css";
 @plugin "@tailwindcss/typography";
 
 @source "../../**";
