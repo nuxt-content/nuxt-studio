@@ -43,8 +43,6 @@ const comarkToTiptapMap: ComarkToTipTapMap = {
   hr: node => createTipTapNode(node, 'horizontalRule'),
   br: () => ({ type: 'hardBreak' }),
   table: node => createTableNode(node),
-  thead: node => createTableSectionNode(node),
-  tbody: node => createTableSectionNode(node),
   tr: node => createTableRowNode(node),
   th: node => createTableCellNode(node, 'tableHeader'),
   td: node => createTableCellNode(node, 'tableCell'),
@@ -458,10 +456,6 @@ function createTableNode(node: ComarkElement): JSONContent {
     }
   }
   return { type: 'table', content: rows }
-}
-
-function createTableSectionNode(node: ComarkElement): JSONContent {
-  return { type: 'doc', content: getChildren(node).flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[] }
 }
 
 function createTableRowNode(node: ComarkElement): JSONContent {
