@@ -230,7 +230,17 @@
         "insert": "ইনসার্ট",
         "image": "ইমেজ",
         "video": "ভিডিও",
-        "horizontalRule": "হরাইজন্টাল রুল"
+        "horizontalRule": "হরাইজন্টাল রুল",
+        "table": "টেবিল"
+      },
+      "table": {
+        "insertLeft": "বাঁদিকে সন্নিবেশ করুন",
+        "insertRight": "ডানদিকে সন্নিবেশ করুন",
+        "insertAbove": "উপরে সন্নিবেশ করুন",
+        "insertBelow": "নিচে সন্নিবেশ করুন",
+        "deleteRow": "সারি মুছুন",
+        "deleteColumn": "কলাম মুছুন",
+        "deleteTable": "টেবিল মুছুন"
       },
       "drag": {
         "turnInto": "এতে রূপান্তর করুন",

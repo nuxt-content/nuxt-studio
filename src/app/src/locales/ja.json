@@ -230,7 +230,17 @@
         "insert": "挿入",
         "image": "画像",
         "video": "ビデオ",
-        "horizontalRule": "水平線"
+        "horizontalRule": "水平線",
+        "table": "テーブル"
+      },
+      "table": {
+        "insertLeft": "左に挿入",
+        "insertRight": "右に挿入",
+        "insertAbove": "上に挿入",
+        "insertBelow": "下に挿入",
+        "deleteRow": "行を削除",
+        "deleteColumn": "列を削除",
+        "deleteTable": "テーブルを削除"
       },
       "drag": {
         "turnInto": "変換",

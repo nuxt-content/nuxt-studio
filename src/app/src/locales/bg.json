@@ -230,7 +230,17 @@
         "insert": "Вмъкване",
         "image": "Изображение",
         "video": "Видео",
-        "horizontalRule": "Хоризонтална линия"
+        "horizontalRule": "Хоризонтална линия",
+        "table": "Таблица"
+      },
+      "table": {
+        "insertLeft": "Вмъкване отляво",
+        "insertRight": "Вмъкване отдясно",
+        "insertAbove": "Вмъкване отгоре",
+        "insertBelow": "Вмъкване отдолу",
+        "deleteRow": "Изтриване на ред",
+        "deleteColumn": "Изтриване на колона",
+        "deleteTable": "Изтриване на таблица"
       },
       "drag": {
         "turnInto": "Превръщане в",

@@ -230,7 +230,17 @@
         "insert": "Lisää",
         "image": "Kuva",
         "video": "Video",
-        "horizontalRule": "Vaakasuora viiva"
+        "horizontalRule": "Vaakasuora viiva",
+        "table": "Taulukko"
+      },
+      "table": {
+        "insertLeft": "Lisää vasemmalle",
+        "insertRight": "Lisää oikealle",
+        "insertAbove": "Lisää yläpuolelle",
+        "insertBelow": "Lisää alapuolelle",
+        "deleteRow": "Poista rivi",
+        "deleteColumn": "Poista sarake",
+        "deleteTable": "Poista taulukko"
       },
       "drag": {
         "turnInto": "Muuta",

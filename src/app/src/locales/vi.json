@@ -230,7 +230,17 @@
         "insert": "Chèn",
         "image": "Hình ảnh",
         "video": "Video",
-        "horizontalRule": "Đường kẻ ngang"
+        "horizontalRule": "Đường kẻ ngang",
+        "table": "Bảng"
+      },
+      "table": {
+        "insertLeft": "Chèn vào bên trái",
+        "insertRight": "Chèn vào bên phải",
+        "insertAbove": "Chèn lên trên",
+        "insertBelow": "Chèn xuống dưới",
+        "deleteRow": "Xóa hàng",
+        "deleteColumn": "Xóa cột",
+        "deleteTable": "Xóa bảng"
       },
       "drag": {
         "turnInto": "Chuyển thành",

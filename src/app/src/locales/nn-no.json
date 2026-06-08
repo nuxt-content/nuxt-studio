@@ -230,7 +230,17 @@
         "insert": "Set inn",
         "image": "Bilete",
         "video": "Video",
-        "horizontalRule": "Horisontal linje"
+        "horizontalRule": "Horisontal linje",
+        "table": "Tabell"
+      },
+      "table": {
+        "insertLeft": "Set inn til venstre",
+        "insertRight": "Set inn til høgre",
+        "insertAbove": "Set inn over",
+        "insertBelow": "Set inn under",
+        "deleteRow": "Slett rad",
+        "deleteColumn": "Slett kolonne",
+        "deleteTable": "Slett tabell"
       },
       "drag": {
         "turnInto": "Gjer om til",

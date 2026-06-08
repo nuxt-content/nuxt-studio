@@ -230,7 +230,17 @@
         "insert": "插入",
         "image": "图片",
         "video": "视频",
-        "horizontalRule": "水平线"
+        "horizontalRule": "水平线",
+        "table": "表格"
+      },
+      "table": {
+        "insertLeft": "在左侧插入",
+        "insertRight": "在右侧插入",
+        "insertAbove": "在上方插入",
+        "insertBelow": "在下方插入",
+        "deleteRow": "删除行",
+        "deleteColumn": "删除列",
+        "deleteTable": "删除表格"
       },
       "drag": {
         "turnInto": "转换为",

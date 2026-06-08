@@ -230,7 +230,17 @@
         "insert": "插入",
         "image": "圖片",
         "video": "影片",
-        "horizontalRule": "水平線"
+        "horizontalRule": "水平線",
+        "table": "表格"
+      },
+      "table": {
+        "insertLeft": "在左側插入",
+        "insertRight": "在右側插入",
+        "insertAbove": "在上方插入",
+        "insertBelow": "在下方插入",
+        "deleteRow": "刪除列",
+        "deleteColumn": "刪除欄",
+        "deleteTable": "刪除表格"
       },
       "drag": {
         "turnInto": "轉換為",

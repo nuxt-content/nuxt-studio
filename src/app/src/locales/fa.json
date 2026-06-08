@@ -230,7 +230,17 @@
         "insert": "درج",
         "image": "تصویر",
         "video": "ویدیو",
-        "horizontalRule": "خط افقی"
+        "horizontalRule": "خط افقی",
+        "table": "جدول"
+      },
+      "table": {
+        "insertLeft": "درج در چپ",
+        "insertRight": "درج در راست",
+        "insertAbove": "درج در بالا",
+        "insertBelow": "درج در پایین",
+        "deleteRow": "حذف ردیف",
+        "deleteColumn": "حذف ستون",
+        "deleteTable": "حذف جدول"
       },
       "drag": {
         "turnInto": "تبدیل به",

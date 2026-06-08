@@ -230,7 +230,17 @@
         "insert": "Insérer",
         "image": "Image",
         "video": "Vidéo",
-        "horizontalRule": "Ligne horizontale"
+        "horizontalRule": "Ligne horizontale",
+        "table": "Tableau"
+      },
+      "table": {
+        "insertLeft": "Insérer à gauche",
+        "insertRight": "Insérer à droite",
+        "insertAbove": "Insérer au-dessus",
+        "insertBelow": "Insérer en dessous",
+        "deleteRow": "Supprimer la ligne",
+        "deleteColumn": "Supprimer la colonne",
+        "deleteTable": "Supprimer le tableau"
       },
       "drag": {
         "turnInto": "Transformer en",

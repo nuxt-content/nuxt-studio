@@ -230,7 +230,17 @@
         "insert": "Einfügen",
         "image": "Bild",
         "video": "Video",
-        "horizontalRule": "Horizontale Linie"
+        "horizontalRule": "Horizontale Linie",
+        "table": "Tabelle"
+      },
+      "table": {
+        "insertLeft": "Links einfügen",
+        "insertRight": "Rechts einfügen",
+        "insertAbove": "Oben einfügen",
+        "insertBelow": "Unten einfügen",
+        "deleteRow": "Zeile löschen",
+        "deleteColumn": "Spalte löschen",
+        "deleteTable": "Tabelle löschen"
       },
       "drag": {
         "turnInto": "Umwandeln in",

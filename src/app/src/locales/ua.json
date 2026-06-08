@@ -230,7 +230,17 @@
         "insert": "Вставити",
         "image": "Зображення",
         "video": "Відео",
-        "horizontalRule": "Горизонтальна лінія"
+        "horizontalRule": "Горизонтальна лінія",
+        "table": "Таблиця"
+      },
+      "table": {
+        "insertLeft": "Вставити ліворуч",
+        "insertRight": "Вставити праворуч",
+        "insertAbove": "Вставити вище",
+        "insertBelow": "Вставити нижче",
+        "deleteRow": "Видалити рядок",
+        "deleteColumn": "Видалити стовпець",
+        "deleteTable": "Видалити таблицю"
       },
       "drag": {
         "turnInto": "Перетворити на",

@@ -230,7 +230,17 @@
         "insert": "Beszúrás",
         "image": "Kép",
         "video": "Videó",
-        "horizontalRule": "Vízszintes vonal"
+        "horizontalRule": "Vízszintes vonal",
+        "table": "Táblázat"
+      },
+      "table": {
+        "insertLeft": "Beszúrás balra",
+        "insertRight": "Beszúrás jobbra",
+        "insertAbove": "Beszúrás fölé",
+        "insertBelow": "Beszúrás alá",
+        "deleteRow": "Sor törlése",
+        "deleteColumn": "Oszlop törlése",
+        "deleteTable": "Táblázat törlése"
       },
       "drag": {
         "turnInto": "Átalakítás",
