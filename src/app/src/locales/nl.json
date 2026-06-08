@@ -230,7 +230,17 @@
         "insert": "Invoegen",
         "image": "Afbeelding",
         "video": "Video",
-        "horizontalRule": "Horizontale lijn"
+        "horizontalRule": "Horizontale lijn",
+        "table": "Tabel"
+      },
+      "table": {
+        "insertLeft": "Links invoegen",
+        "insertRight": "Rechts invoegen",
+        "insertAbove": "Boven invoegen",
+        "insertBelow": "Onder invoegen",
+        "deleteRow": "Rij verwijderen",
+        "deleteColumn": "Kolom verwijderen",
+        "deleteTable": "Tabel verwijderen"
       },
       "drag": {
         "turnInto": "Omzetten naar",

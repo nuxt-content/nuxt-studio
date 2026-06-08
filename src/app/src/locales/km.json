@@ -230,7 +230,17 @@
         "insert": "បញ្ចូល",
         "image": "រូបភាព",
         "video": "វីដេអូ",
-        "horizontalRule": "បន្ទាត់ផ្តេក"
+        "horizontalRule": "បន្ទាត់ផ្តេក",
+        "table": "តារាង"
+      },
+      "table": {
+        "insertLeft": "បញ្ចូលខាងឆ្វេង",
+        "insertRight": "បញ្ចូលខាងស្ដាំ",
+        "insertAbove": "បញ្ចូលខាងលើ",
+        "insertBelow": "បញ្ចូលខាងក្រោម",
+        "deleteRow": "លុបជួរដេក",
+        "deleteColumn": "លុបជួរឈរ",
+        "deleteTable": "លុបតារាង"
       },
       "drag": {
         "turnInto": "ផ្លាស់ប្តូរទៅជា",

@@ -230,7 +230,17 @@
         "insert": "Vložiť",
         "image": "Obrázok",
         "video": "Video",
-        "horizontalRule": "Horizontálna čiara"
+        "horizontalRule": "Horizontálna čiara",
+        "table": "Tabuľka"
+      },
+      "table": {
+        "insertLeft": "Vložiť vľavo",
+        "insertRight": "Vložiť vpravo",
+        "insertAbove": "Vložiť nad",
+        "insertBelow": "Vložiť pod",
+        "deleteRow": "Odstrániť riadok",
+        "deleteColumn": "Odstrániť stĺpec",
+        "deleteTable": "Odstrániť tabuľku"
       },
       "drag": {
         "turnInto": "Zmeniť na",

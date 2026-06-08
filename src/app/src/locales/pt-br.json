@@ -230,7 +230,17 @@
         "insert": "Inserir",
         "image": "Imagem",
         "video": "Vídeo",
-        "horizontalRule": "Regra horizontal"
+        "horizontalRule": "Regra horizontal",
+        "table": "Tabela"
+      },
+      "table": {
+        "insertLeft": "Inserir à esquerda",
+        "insertRight": "Inserir à direita",
+        "insertAbove": "Inserir acima",
+        "insertBelow": "Inserir abaixo",
+        "deleteRow": "Excluir linha",
+        "deleteColumn": "Excluir coluna",
+        "deleteTable": "Excluir tabela"
       },
       "drag": {
         "turnInto": "Transformar em",

@@ -230,7 +230,17 @@
         "insert": "Вставить",
         "image": "Изображение",
         "video": "Видео",
-        "horizontalRule": "Горизонтальная линия"
+        "horizontalRule": "Горизонтальная линия",
+        "table": "Таблица"
+      },
+      "table": {
+        "insertLeft": "Вставить слева",
+        "insertRight": "Вставить справа",
+        "insertAbove": "Вставить выше",
+        "insertBelow": "Вставить ниже",
+        "deleteRow": "Удалить строку",
+        "deleteColumn": "Удалить столбец",
+        "deleteTable": "Удалить таблицу"
       },
       "drag": {
         "turnInto": "Превратить в",

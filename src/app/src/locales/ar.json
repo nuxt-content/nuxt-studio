@@ -230,7 +230,17 @@
         "insert": "إدراج",
         "image": "صورة",
         "video": "فيديو",
-        "horizontalRule": "خط أفقي"
+        "horizontalRule": "خط أفقي",
+        "table": "جدول"
+      },
+      "table": {
+        "insertLeft": "إدراج إلى اليسار",
+        "insertRight": "إدراج إلى اليمين",
+        "insertAbove": "إدراج بالأعلى",
+        "insertBelow": "إدراج بالأسفل",
+        "deleteRow": "حذف الصف",
+        "deleteColumn": "حذف العمود",
+        "deleteTable": "حذف الجدول"
       },
       "drag": {
         "turnInto": "تحويل إلى",
