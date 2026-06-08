@@ -10,7 +10,8 @@
       "publish": "Terbitkan",
       "back": "Kembali",
       "backToEdition": "Kembali ke penyuntingan",
-      "seeChanges": "Lihat perubahan"
+      "seeChanges": "Lihat perubahan",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Direktori",
@@ -69,7 +70,8 @@
       "debugMode": "Mode Debug"
     },
     "alert": {
-      "mdcFormatting": "Pemformatan diterapkan untuk menyesuaikan dengan standar sintaksis MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Konflik Terdeteksi",
@@ -228,7 +230,17 @@
         "insert": "Sisipkan",
         "image": "Gambar",
         "video": "Video",
-        "horizontalRule": "Garis Horizontal"
+        "horizontalRule": "Garis Horizontal",
+        "table": "Tabel"
+      },
+      "table": {
+        "insertLeft": "Sisipkan ke kiri",
+        "insertRight": "Sisipkan ke kanan",
+        "insertAbove": "Sisipkan di atas",
+        "insertBelow": "Sisipkan di bawah",
+        "deleteRow": "Hapus baris",
+        "deleteColumn": "Hapus kolom",
+        "deleteTable": "Hapus tabel"
       },
       "drag": {
         "turnInto": "Ubah menjadi",

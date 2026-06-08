@@ -162,6 +162,14 @@ function buildStandardSuggestionSections(t: TFunction): CommandSectionDefinition
             icon: 'i-lucide-separator-horizontal',
           },
         },
+        {
+          key: 'table',
+          item: {
+            kind: 'table',
+            label: t('studio.tiptap.suggestion.table'),
+            icon: 'i-lucide-table',
+          },
+        },
       ],
     },
   ]
@@ -239,6 +247,7 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
     codeBlock: 'studio.tiptap.toolbar.codeBlock',
     image: 'studio.tiptap.suggestion.image',
     horizontalRule: 'studio.tiptap.suggestion.horizontalRule',
+    table: 'studio.tiptap.suggestion.table',
   }
 
   if (typeTranslationMap[type]) {
@@ -254,12 +263,12 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
       {
         label: t('studio.tiptap.drag.turnInto'),
         icon: 'i-lucide-repeat-2',
-        children: [
+        children: ([
           { kind: 'paragraph', label: t('studio.tiptap.suggestion.paragraph'), icon: 'i-lucide-type' },
           ...getHeadingItems(t),
           ...getListItems(t),
           ...getCodeBlockItem(t),
-        ],
+        ] as DropdownMenuItem[]).map(item => type === 'table' ? { ...item, kind: undefined, disabled: true } : item),
       },
       {
         kind: 'clearFormatting',

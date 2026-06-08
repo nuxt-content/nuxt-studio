@@ -42,6 +42,10 @@ const comarkToTiptapMap: ComarkToTipTapMap = {
   binding: node => createTipTapNode(node, 'binding', { attrs: { value: getAttrs(node)?.value, defaultValue: getAttrs(node)?.defaultValue } }),
   hr: node => createTipTapNode(node, 'horizontalRule'),
   br: () => ({ type: 'hardBreak' }),
+  table: node => createTableNode(node),
+  tr: node => createTableRowNode(node),
+  th: node => createTableCellNode(node, 'tableHeader'),
+  td: node => createTableCellNode(node, 'tableCell'),
 }
 
 /*
@@ -429,6 +433,51 @@ function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false)
   const tiptapType = hasNuxtUI && CALLOUT_TAGS.has(type) ? 'u-callout' : 'element'
 
   return createTipTapNode(processedNode, tiptapType, { attrs: { tag: type }, children: slotWrapped })
+}
+
+/**
+ * Flatten thead/tbody wrappers so TipTap table contains tableRow nodes directly
+ */
+function createTableNode(node: ComarkElement): JSONContent {
+  const rows: JSONContent[] = []
+  for (const child of getChildren(node)) {
+    if (!isElement(child)) continue
+    const childEl = child as ComarkElement
+    const tag = getTag(childEl)
+    if (tag === 'thead' || tag === 'tbody') {
+      for (const sectionChild of getChildren(childEl)) {
+        if (isElement(sectionChild) && getTag(sectionChild as ComarkElement) === 'tr') {
+          rows.push(createTableRowNode(sectionChild as ComarkElement))
+        }
+      }
+    }
+    else if (tag === 'tr') {
+      rows.push(createTableRowNode(childEl))
+    }
+  }
+  return { type: 'table', content: rows }
+}
+
+function createTableRowNode(node: ComarkElement): JSONContent {
+  return { type: 'tableRow', content: getChildren(node).flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[] }
+}
+
+const INLINE_CELL_TYPES = new Set(['text', 'hardBreak', 'inline-element', 'span-style'])
+
+/**
+ * TipTap requires every cell to contain at least one block node
+ */
+function createTableCellNode(node: ComarkElement, type: 'tableHeader' | 'tableCell'): JSONContent {
+  const children = getChildren(node)
+  const content = children.flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[]
+  if (content.length === 0) {
+    return { type, content: [{ type: 'paragraph', content: [] }] }
+  }
+  const allInline = content.every(c => INLINE_CELL_TYPES.has(c.type as string))
+  if (allInline) {
+    return { type, content: [{ type: 'paragraph', content }] }
+  }
+  return { type, content }
 }
 
 /*

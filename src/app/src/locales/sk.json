@@ -10,7 +10,8 @@
       "publish": "Publikovať",
       "back": "Späť",
       "backToEdition": "Späť na úpravu",
-      "seeChanges": "Zobraziť zmeny"
+      "seeChanges": "Zobraziť zmeny",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Priečinky",
@@ -69,7 +70,8 @@
       "debugMode": "Režim ladenia"
     },
     "alert": {
-      "mdcFormatting": "Formátovanie upravené podľa štandardu syntaxe MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Zistený konflikt",
@@ -228,7 +230,17 @@
         "insert": "Vložiť",
         "image": "Obrázok",
         "video": "Video",
-        "horizontalRule": "Horizontálna čiara"
+        "horizontalRule": "Horizontálna čiara",
+        "table": "Tabuľka"
+      },
+      "table": {
+        "insertLeft": "Vložiť vľavo",
+        "insertRight": "Vložiť vpravo",
+        "insertAbove": "Vložiť nad",
+        "insertBelow": "Vložiť pod",
+        "deleteRow": "Odstrániť riadok",
+        "deleteColumn": "Odstrániť stĺpec",
+        "deleteTable": "Odstrániť tabuľku"
       },
       "drag": {
         "turnInto": "Zmeniť na",

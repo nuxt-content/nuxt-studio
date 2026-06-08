@@ -10,7 +10,8 @@
       "publish": "Опублікувати",
       "back": "Назад",
       "backToEdition": "Повернутися до редагування",
-      "seeChanges": "Подивитися зміни"
+      "seeChanges": "Подивитися зміни",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Каталоги",
@@ -69,7 +70,8 @@
       "debugMode": "Режим налагодження"
     },
     "alert": {
-      "mdcFormatting": "Форматування застосовано для відповідності стандарту синтаксису MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Виявлено конфлікт",
@@ -228,7 +230,17 @@
         "insert": "Вставити",
         "image": "Зображення",
         "video": "Відео",
-        "horizontalRule": "Горизонтальна лінія"
+        "horizontalRule": "Горизонтальна лінія",
+        "table": "Таблиця"
+      },
+      "table": {
+        "insertLeft": "Вставити ліворуч",
+        "insertRight": "Вставити праворуч",
+        "insertAbove": "Вставити вище",
+        "insertBelow": "Вставити нижче",
+        "deleteRow": "Видалити рядок",
+        "deleteColumn": "Видалити стовпець",
+        "deleteTable": "Видалити таблицю"
       },
       "drag": {
         "turnInto": "Перетворити на",

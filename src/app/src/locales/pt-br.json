@@ -10,7 +10,8 @@
       "publish": "Publicar",
       "back": "Voltar",
       "backToEdition": "Voltar à edição",
-      "seeChanges": "Ver o que mudou"
+      "seeChanges": "Ver o que mudou",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Diretórios",
@@ -69,7 +70,8 @@
       "debugMode": "Modo de depuração"
     },
     "alert": {
-      "mdcFormatting": "Formatação aplicada para alinhar ao padrão de sintaxe MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Conflito Detectado",
@@ -228,7 +230,17 @@
         "insert": "Inserir",
         "image": "Imagem",
         "video": "Vídeo",
-        "horizontalRule": "Regra horizontal"
+        "horizontalRule": "Regra horizontal",
+        "table": "Tabela"
+      },
+      "table": {
+        "insertLeft": "Inserir à esquerda",
+        "insertRight": "Inserir à direita",
+        "insertAbove": "Inserir acima",
+        "insertBelow": "Inserir abaixo",
+        "deleteRow": "Excluir linha",
+        "deleteColumn": "Excluir coluna",
+        "deleteTable": "Excluir tabela"
       },
       "drag": {
         "turnInto": "Transformar em",

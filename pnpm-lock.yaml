@@ -33,8 +33,8 @@ importers:
         specifier: ^6.0.168
         version: 6.0.168(zod@4.3.6)
       comark:
-        specifier: https://pkg.pr.new/comark@f5f073b
-        version: https://pkg.pr.new/comark@f5f073b(shiki@4.0.2)
+        specifier: https://pkg.pr.new/comark@83a427d
+        version: https://pkg.pr.new/comark@83a427d(shiki@4.0.2)
       defu:
         specifier: ^6.1.7
         version: 6.1.7
@@ -96,6 +96,9 @@ importers:
       '@tiptap/extension-emoji':
         specifier: ^3.22.4
         version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/suggestion@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(emojibase@17.0.0)
+      '@tiptap/extension-table':
+        specifier: 3.22.4
+        version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -3465,6 +3468,12 @@ packages:
     peerDependencies:
       '@tiptap/core': 3.22.4
 
+  '@tiptap/extension-table@3.22.4':
+    resolution: {integrity: sha512-kjvLv3Z4JI+1tLDqZKa+bKU8VcxY+ZOyMCKWQA7wYmy8nKWkLJ60W+xy8AcXXpHB2goCIgSFLhsTyswx0GXH4w==}
+    peerDependencies:
+      '@tiptap/core': 3.22.4
+      '@tiptap/pm': 3.22.4
+
   '@tiptap/extension-text@3.22.1':
     resolution: {integrity: sha512-wFCNCATSTTFhvA9wOPkAgzPVyG3RM6+jOlDeRhHUCHsFWFWj0w9ZPwA/nP+Qi5hEW7kGG9V8o62RjBdHNvK2PQ==}
     peerDependencies:
@@ -4505,8 +4514,8 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@https://pkg.pr.new/comark@f5f073b:
-    resolution: {integrity: sha512-NudrVhIhtDhgzIeIX2261/O39wMU2i2e2pB+ZF0WAx7+n7QTvE7YiZnQ6bvkU6nII4c3Psxf5FFeMMzgaCMi2w==, tarball: https://pkg.pr.new/comark@f5f073b}
+  comark@https://pkg.pr.new/comark@83a427d:
+    resolution: {integrity: sha512-0TomeebOQ3O99dKr36LmJ/3VI5D8JNXJoYlTRAhbDRDZCIJ8pUsh5dy1YjxcRDVXrBZY5Fv/YSkg3oNqeAtiQw==, tarball: https://pkg.pr.new/comark@83a427d}
     version: 0.3.2
     peerDependencies:
       beautiful-mermaid: ^1.1.3
@@ -12856,6 +12865,11 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
 
+  '@tiptap/extension-table@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+    dependencies:
+      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/pm': 3.22.4
+
   '@tiptap/extension-text@3.22.1(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
     dependencies:
       '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
@@ -13969,7 +13983,7 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@https://pkg.pr.new/comark@f5f073b(shiki@4.0.2):
+  comark@https://pkg.pr.new/comark@83a427d(shiki@4.0.2):
     dependencies:
       entities: 8.0.0
       htmlparser2: 12.0.0

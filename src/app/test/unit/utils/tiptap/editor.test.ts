@@ -49,6 +49,7 @@ describe('editor', () => {
           'image',
           'video',
           'horizontalRule',
+          'table',
         ],
       ])
     })
@@ -60,12 +61,13 @@ describe('editor', () => {
           'image',
           'video',
           'horizontalRule',
+          'table',
         ],
       ])
     })
 
     it('filters individual commands and drops empty sections', () => {
-      expect(serializeSuggestionSections(['paragraph', 'image', 'video', 'horizontalRule'])).toEqual([
+      expect(serializeSuggestionSections(['paragraph', 'image', 'video', 'horizontalRule', 'table'])).toEqual([
         [
           'studio.tiptap.suggestion.style',
           'heading1',

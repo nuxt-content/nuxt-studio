@@ -118,6 +118,7 @@ function initDevelopmentMode() {
         const document = await host.document.db.get(fsPath)
         item.modified = document
         item.original = document
+        item.formattingApplied = false
         item.status = await context.activeTree.value.draft.getStatus(document as DatabaseItem, item.original as DatabaseItem)
         item.version = item.version ? item.version + 1 : 1
       }

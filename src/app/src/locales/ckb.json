@@ -10,7 +10,8 @@
       "publish": "بڵاوکردنەوە",
       "back": "گەڕانەوە",
       "backToEdition": "گەڕانەوە بۆ دەستکاریکردن",
-      "seeChanges": "بینینی گۆڕانکارییەکان"
+      "seeChanges": "بینینی گۆڕانکارییەکان",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "بوخچەکان",
@@ -69,7 +70,8 @@
       "debugMode": "دۆخی دیباگ (Debug Mode)"
     },
     "alert": {
-      "mdcFormatting": "فۆرماتکردن جێبەجێ کرا بۆ گونجاندن لەگەڵ ستانداردی سینتاکسی MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "بەریەككەوتن (Conflict) دۆزرایەوە",
@@ -228,7 +230,17 @@
         "insert": "تێخستن",
         "image": "وێنە",
         "video": "ڤیدیۆ",
-        "horizontalRule": "هێڵی ئاسۆیی"
+        "horizontalRule": "هێڵی ئاسۆیی",
+        "table": "خشتە"
+      },
+      "table": {
+        "insertLeft": "دانانی چەپ",
+        "insertRight": "دانانی ڕاست",
+        "insertAbove": "دانانی سەرەوە",
+        "insertBelow": "دانانی خوارەوە",
+        "deleteRow": "سڕینەوەی ڕیز",
+        "deleteColumn": "سڕینەوەی ستوون",
+        "deleteTable": "سڕینەوەی خشتە"
       },
       "drag": {
         "turnInto": "گۆڕین بۆ",
