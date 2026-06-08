@@ -546,7 +546,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Studio runtime config
     nuxt.options.runtimeConfig.studio = {
       ai: {
-        apiKey: options.ai?.apiKey,
+        apiKey: options.ai?.apiKey ?? '',
         context: options.ai?.context as never,
         experimental: options.ai?.experimental,
       },

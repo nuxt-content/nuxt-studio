@@ -77,6 +77,14 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
     return useContent().queryCollection(collection)
   }
 
+  function getCollectionForDocument(document: Pick<DatabaseItem, 'id' | 'fsPath'>) {
+    if (document.fsPath) {
+      return getCollectionByFilePath(document.fsPath, useContentCollections())
+    }
+
+    return getCollectionById(document.id, useContentCollections())
+  }
+
   const studioConfig = useRuntimeConfig().public.studio
   const aiConfig = studioConfig.ai
   const mediaConfig = studioConfig.media
@@ -285,7 +293,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         areEqual: async (document1: DatabaseItem, document2: DatabaseItem) => areDocumentsEqual(document1, document2),
         isMatchingContent: async (content: string, document: DatabaseItem) => isDocumentMatchingContent(content, document),
         pickReservedKeys: (document: DatabaseItem) => pickReservedKeysFromDocument(document),
-        cleanDataKeys: (document: DatabaseItem) => cleanDataKeys(document),
+        cleanDataKeys: (document: DatabaseItem) => cleanDataKeys(document, getCollectionForDocument(document)),
         detectActives: () => {
           // TODO: introduce a new convention to detect data contents [data-content-id!]
           const wrappers = document.querySelectorAll('[data-content-id]')
@@ -313,7 +321,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           const generateOptions = { collectionType: collection.type, compress: true }
           return await documentFromContent(id, content, generateOptions)
         },
-        contentFromDocument: async (document: DatabaseItem) => contentFromDocument(document),
+        contentFromDocument: async (document: DatabaseItem) => contentFromDocument(document, getCollectionForDocument(document)),
       },
     },
     media: (() => {

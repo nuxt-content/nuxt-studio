@@ -1,7 +1,7 @@
 import { createSharedComposable } from './createSharedComposable'
 import { computed, ref } from 'vue'
 import {
-  StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
+  StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature, ContentFileExtension,
 } from '../types'
 import type {
   PublishBranchParams,
@@ -24,6 +24,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { findDescendantsFileItemsFromFsPath } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
+import { generateInitialContentForCollection } from '../utils/schema'
 import { consola } from 'consola'
 
 const logger = consola.withTag('useContext')
@@ -118,14 +119,28 @@ export const useContext = createSharedComposable((
       const navigationDocumentFsPath = joinURL(fsPath, '.navigation.yml')
 
       try {
-        const navigationDocument = await host.document.db.create(navigationDocumentFsPath, `title: ${folderName}`)
+        const navigationDocument = await host.document.db.create(navigationDocumentFsPath, generateInitialContentForCollection(
+          ContentFileExtension.YML,
+          '',
+          host.collection.getByFsPath(navigationDocumentFsPath),
+          {
+            fallbackData: { title: folderName },
+            title: folderName,
+          },
+        ))
         await activeTree.value.draft.create(navigationDocumentFsPath, navigationDocument)
       }
       catch (e) {
         logger.warn(`Navigation document at path ${navigationDocumentFsPath} failed to create: ${e}`)
       }
 
-      const rootDocument = await host.document.db.create(rootDocumentFsPath, `# ${upperFirst(folderName)} root file`)
+      const rootTitle = upperFirst(folderName)
+      const rootDocument = await host.document.db.create(rootDocumentFsPath, generateInitialContentForCollection(
+        ContentFileExtension.Markdown,
+        `# ${rootTitle} root file`,
+        host.collection.getByFsPath(rootDocumentFsPath),
+        { title: rootTitle },
+      ))
       const rootDocumentDraftItem = await activeTree.value.draft.create(rootDocumentFsPath, rootDocument)
 
       unsetActionInProgress()
