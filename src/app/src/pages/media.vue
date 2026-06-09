@@ -2,8 +2,9 @@
 import { computed, ref } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { StudioItemActionId, StudioFeature } from '../types'
+import { isAllowedType } from '../utils/file'
 
-const { context, mediaTree } = useStudio()
+const { context, mediaTree, host } = useStudio()
 const isUploading = ref(false)
 
 const folderTree = computed(() => (mediaTree.current.value || []).filter(f => f.type === 'directory'))
@@ -34,10 +35,15 @@ async function onFileDrop(event: DragEvent) {
 
   if (event.dataTransfer?.files) {
     isUploading.value = true
-    await context.itemActionHandler[StudioItemActionId.UploadMedia]({
-      parentFsPath: currentTreeItem.value.fsPath,
-      files: Array.from(event.dataTransfer.files),
-    })
+    const allowedTypes = host.meta.media?.allowedTypes
+    const files = Array.from(event.dataTransfer.files).filter(file => isAllowedType(file, allowedTypes))
+
+    if (files.length > 0) {
+      await context.itemActionHandler[StudioItemActionId.UploadMedia]({
+        parentFsPath: currentTreeItem.value.fsPath,
+        files,
+      })
+    }
     isUploading.value = false
   }
 }

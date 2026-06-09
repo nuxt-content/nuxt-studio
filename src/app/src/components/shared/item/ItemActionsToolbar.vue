@@ -4,11 +4,11 @@ import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
 import type { StudioAction } from '../../../types'
 import { StudioItemActionId, TreeStatus } from '../../../types'
-import { MEDIA_EXTENSIONS } from '../../../utils/file'
+import { MEDIA_EXTENSIONS, isAllowedType } from '../../../utils/file'
 import type { DropdownMenuItem } from '@nuxt/ui/runtime/components/DropdownMenu.vue.d.ts'
 import { useI18n } from 'vue-i18n'
 
-const { context, gitProvider } = useStudio()
+const { context, gitProvider, host } = useStudio()
 const { preferences, updatePreference } = useStudioState()
 const { t } = useI18n()
 
@@ -75,10 +75,15 @@ const handleFileSelection = (event: Event) => {
   const target = event.target as HTMLInputElement
 
   if (target.files && target.files.length > 0) {
-    context.itemActionHandler[StudioItemActionId.UploadMedia]({
-      parentFsPath: item.value.fsPath,
-      files: Array.from(target.files),
-    })
+    const allowedTypes = host.meta.media?.allowedTypes
+    const files = Array.from(target.files).filter(file => isAllowedType(file, allowedTypes))
+
+    if (files.length > 0) {
+      context.itemActionHandler[StudioItemActionId.UploadMedia]({
+        parentFsPath: item.value.fsPath,
+        files,
+      })
+    }
 
     target.value = ''
   }
@@ -113,7 +118,7 @@ onUnmounted(() => {
       ref="fileInputRef"
       type="file"
       multiple
-      :accept="MEDIA_EXTENSIONS.map(ext => `.${ext}`).join(', ')"
+      :accept="host.meta.media?.allowedTypes?.join(', ') || MEDIA_EXTENSIONS.map(ext => `.${ext}`).join(', ')"
       class="hidden"
       @change="handleFileSelection"
     >

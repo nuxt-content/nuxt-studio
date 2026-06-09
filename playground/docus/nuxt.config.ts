@@ -34,5 +34,8 @@ export default defineNuxtConfig({
         exclude: ['blockquote'],
       },
     },
+    media: {
+      allowedTypes: ['.jpg', '.jpeg'],
+    },
   },
 })

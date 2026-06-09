@@ -62,6 +62,7 @@
     "js-yaml": "^4.1.1",
     "minimatch": "^10.2.5",
     "nuxt-component-meta": "^0.17.2",
+    "sharp": "^0.34.5",
     "shiki": "^4.0.2",
     "unstorage": "1.17.5",
     "zod": "^4.3.6",
