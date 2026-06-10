@@ -43,10 +43,10 @@ export default eventHandler(async (event: H3Event) => {
    */
   const studioConfig = useRuntimeConfig(event).studio
   const config = mergeConfig<SSOServerConfig>(studioConfig?.auth?.sso, {
-    serverUrl: process.env.STUDIO_SSO_URL,
-    clientId: process.env.STUDIO_SSO_CLIENT_ID,
-    clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
-    redirectURL: process.env.STUDIO_SSO_REDIRECT_URL,
+    serverUrl: studioConfig?.auth?.sso?.serverUrl,
+    clientId: studioConfig?.auth?.sso?.clientId,
+    clientSecret: studioConfig?.auth?.sso?.clientSecret,
+    redirectURL: studioConfig?.auth?.sso?.redirectUrl,
   })
 
   const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
@@ -155,10 +155,10 @@ export default eventHandler(async (event: H3Event) => {
   }
   // Fall back to environment variable
   else if (provider === 'github') {
-    repositoryToken = process.env.STUDIO_GITHUB_TOKEN
+    repositoryToken = studioConfig?.git?.githubToken
   }
   else if (provider === 'gitlab') {
-    repositoryToken = process.env.STUDIO_GITLAB_TOKEN
+    repositoryToken = studioConfig?.git?.gitlabToken
   }
 
   // Validate that we have a token
