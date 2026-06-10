@@ -29,7 +29,8 @@
       "backToContent": "Back to content",
       "disableAICompletion": "Disable AI completion",
       "enableAICompletion": "Enable AI completion",
-      "regenerateAIContext": "Regenerate AI context"
+      "regenerateAIContext": "Regenerate AI context",
+      "suggestCommitMessage": "Suggest commit message"
     },
     "notifications": {
       "error": {
