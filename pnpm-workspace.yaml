@@ -14,3 +14,20 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - better-sqlite3
   - sharp
+
+minimumReleaseAge: 2880
+
+minimumReleaseAgeExclude:
+  # Vercel AI SDK
+  - ai
+  - '@ai-sdk/*'
+  # Nuxt ecosystem
+  - nuxt
+  - '@nuxt/*'
+  - '@nuxtjs/*'
+  - docus
+  - nuxt-component-meta
+  - nuxt-studio
+  # Comark
+  - comark
+

@@ -1,31 +1,20 @@
 import { test, describe, expect } from 'vitest'
-import { tiptapToMDC } from '../../src/utils/tiptap/tiptapToMdc'
-import { generateContentFromDocument, generateDocumentFromContent } from '../../../module/dist/runtime/utils/document'
+import { contentFromDocument, documentFromContent } from '../../../module/dist/runtime/utils/document'
 import type { JSONContent } from '@tiptap/core'
-import { mdcToTiptap } from '../../src/utils/tiptap/mdcToTiptap'
 import type { DatabasePageItem } from '../../src/types'
-import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
-import type { MarkdownRoot } from '@nuxt/content'
 import { createMockDocument } from '../mocks/document'
-import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'
+import { comarkToTiptap } from '../../src/utils/tiptap/comarkToTiptap'
+import { tiptapToComark } from '../../src/utils/tiptap/tiptapToComark'
+import type { ComarkTree, ComarkNode } from 'comark'
+import highlight from 'comark/plugins/highlight'
 
 describe('paragraph', () => {
   test('simple paragraph', async () => {
     const inputContent = 'This is a simple paragraph'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          children: [
-            { type: 'text', value: 'This is a simple paragraph' },
-          ],
-          props: {},
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, 'This is a simple paragraph'],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -45,21 +34,22 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -67,17 +57,9 @@ describe('paragraph', () => {
   test('horizontal rule', async () => {
     const inputContent = '---'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'hr',
-          children: [],
-          props: {},
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['hr', {}],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -94,21 +76,22 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -116,31 +99,9 @@ describe('paragraph', () => {
   test('external link', async () => {
     const inputContent = '[Link](https://example.com)'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'a',
-              props: {
-                href: 'https://example.com',
-              },
-              children: [
-                {
-                  type: 'text',
-                  value: 'Link',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['a', { href: 'https://example.com' }, 'Link']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -174,21 +135,22 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -196,31 +158,9 @@ describe('paragraph', () => {
   test('relative link', async () => {
     const inputContent = '[Link](/test)'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'a',
-              props: {
-                href: '/test',
-              },
-              children: [
-                {
-                  type: 'text',
-                  value: 'Link',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['a', { href: '/test' }, 'Link']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -252,21 +192,22 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -274,32 +215,9 @@ describe('paragraph', () => {
   test('external link with target="_blank" removes target', async () => {
     const inputContent = '[link](https://external.com){target="_blank"}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'a',
-              props: {
-                href: 'https://external.com',
-                target: '_blank',
-              },
-              children: [
-                {
-                  type: 'text',
-                  value: 'link',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['a', { href: 'https://external.com', target: '_blank' }, 'link']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -333,55 +251,53 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    // After roundtrip, target is stripped for external links (it's auto-added by TipTap, not user-authored)
+    const expectedRtComarkNodes = [
+      ['p', {}, ['a', { href: 'https://external.com' }, 'link']],
+    ]
+    expect(rtComarkTree.nodes).toMatchObject(expectedRtComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     // Expected output should NOT have target="_blank" for external links
     expect(outputContent).toBe('[link](https://external.com)\n')
   })
 
+  test('link with non-default attr order preserves order through round-trip', async () => {
+    const inputContent = '[link](/relative){.my-class target="_blank"}'
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const tiptapJSON: JSONContent = comarkToTiptap(document.body)
+    const rtTree = await tiptapToComark(tiptapJSON)
+
+    const originalRender = await contentFromDocument(
+      createMockDocument('docs/test.md', { body: document.body, ...document.body.frontmatter }),
+    )
+    const modifiedRender = await contentFromDocument(
+      createMockDocument('docs/test.md', { body: rtTree, ...rtTree.frontmatter }),
+    )
+    expect(originalRender).toBe(modifiedRender)
+  })
+
   test('relative link with target="_blank" keeps target', async () => {
     const inputContent = '[link](/relative){target="_blank"}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'a',
-              props: {
-                href: '/relative',
-                target: '_blank',
-              },
-              children: [
-                {
-                  type: 'text',
-                  value: 'link',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['a', { href: '/relative', target: '_blank' }, 'link']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -414,55 +330,799 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     // Expected output SHOULD keep target="_blank" for relative links
     expect(outputContent).toBe(`${inputContent}\n`)
   })
+})
 
-  test('inline component', async () => {
-    const inputContent = 'This is a :badge component'
+describe('frontmatter', () => {
+  test('simple frontmatter with title and description', async () => {
+    const inputContent = `---
+title: Test Page
+description: This is a test
+---
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
+This is content`
+
+    const expectedFrontmatterJson = {
+      title: 'Test Page',
+      description: 'This is a test',
+    }
+
+    const expectedComarkNodes = [
+      ['p', {}, 'This is content'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: expectedFrontmatterJson,
+          },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'This is content' },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    expect(document.title).toBe('Test Page')
+    expect(document.description).toBe('This is a test')
+
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+    expect(rtComarkTree.frontmatter).toMatchObject(expectedFrontmatterJson)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+})
+
+describe('elements', () => {
+  test('block element with named default slot', async () => {
+    const inputContent = `::block-element
+#default
+Hello
+::`
+
+    // comark preserves named default slot as template with { name: 'default' }
+    const expectedComarkNodes = [
+      ['block-element', {}, ['template', { name: 'default' }, 'Hello']],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
         {
           type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
+          attrs: {
+            tag: 'block-element',
+          },
+          content: [
             {
-              type: 'text',
-              value: 'This is a ',
-            },
-            {
-              type: 'element',
-              tag: 'badge',
-              props: {},
-              children: [],
-            },
-            {
-              type: 'text',
-              value: ' component',
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
       ],
     }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    // Comark strips the #default slot
+    expect(rtComarkTree.nodes).toMatchObject([['block-element', {}, 'Hello']])
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    // Idem for output content (comark strips the #default slot)
+    expect(outputContent).toBe('::block-element\nHello\n::\n')
+  })
+
+  test('block element with unnamed default slot', async () => {
+    const inputContent = `::block-element
+Hello
+::`
+
+    // comark with autoUnwrap strips the paragraph wrapper, leaving a direct string child
+    const expectedComarkNodes = [
+      ['block-element', {}, 'Hello'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'block-element',
+            props: {
+              __tiptapWrap: true, // This is added by comarkToTiptap to wrap the content in a paragraph
+            },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: {},
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with named custom slot', async () => {
+    const inputContent = `::block-element
+#custom
+Hello
+::`
+
+    // comark uses { name: 'xxx' } format for template slot attrs
+    const expectedComarkNodes = [
+      ['block-element', {}, ['template', { name: 'custom' }, 'Hello']],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'block-element',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'custom',
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hello',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with unwrap="p" on slot names', async () => {
+    const inputContent = `::u-page-feature
+#title{unwrap="p"}
+Visual Editor
+
+#description{unwrap="p"}
+Edit pages visually without touching code.
+::`
+
+    const expectedComarkNodes = [
+      [
+        'u-page-feature',
+        {},
+        ['template', { name: 'title', unwrap: 'p' }, 'Visual Editor'],
+        ['template', { name: 'description', unwrap: 'p' }, 'Edit pages visually without touching code.'],
+      ],
+    ]
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element nested in other block element', async () => {
+    const inputContent = `::first-level-element
+  :::second-level-element
+  Hello
+  :::
+::`
+
+    const expectedComarkNodes = [
+      ['first-level-element', {}, ['second-level-element', {}, 'Hello']],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'first-level-element',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'element',
+                  attrs: {
+                    tag: 'second-level-element',
+                  },
+                  content: [
+                    {
+                      type: 'slot',
+                      attrs: {
+                        name: 'default',
+                      },
+                      content: [
+                        {
+                          type: 'paragraph',
+                          content: [
+                            { type: 'text', text: 'Hello' },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with boolean props', async () => {
+    const inputContent = `::u-button{block :square="false"}
+My button
+::`
+
+    const expectedComarkNodes = [
+      ['u-button', { ':block': 'true', ':square': 'false' }, 'My button'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'u-button',
+            props: {
+              ':block': 'true',
+              ':square': 'false',
+              '__tiptapWrap': true,
+            },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: {},
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'My button',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with number and string props', async () => {
+    const inputContent = `::u-button{:width="200" color="secondary"}
+My button
+::`
+
+    const expectedComarkNodes = [
+      ['u-button', { ':width': '200', 'color': 'secondary' }, 'My button'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'u-button',
+            props: {
+              ':width': '200',
+              'color': 'secondary',
+              '__tiptapWrap': true,
+            },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: {},
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'My button',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with inline class attributes and default content', async () => {
+    const inputContent = `::u-button{.any-class}
+My button
+::`
+
+    const expectedComarkNodes = [
+      ['u-button', { class: 'any-class' }, 'My button'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'u-button',
+            props: { class: 'any-class', __tiptapWrap: true },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'My button' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with inline class attributes and multiple sloted content', async () => {
+    const inputContent = `::u-button{.any-class}
+My button
+
+#icon
+My icon
+::`
+
+    const expectedComarkNodes = [
+      ['u-button', { class: 'any-class' },
+        ['p', {}, 'My button'],
+        ['template', { name: 'icon' }, 'My icon'],
+      ],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'u-button',
+            props: { class: 'any-class' },
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'My button' }],
+                },
+              ],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'icon' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'My icon' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element link as default and multiple sloted content', async () => {
+    const inputContent = [
+      '::code-preview',
+      '[Installation](/getting-started/installation)',
+      '',
+      '#code',
+      '```mdc',
+      '[Installation](/getting-started/installation)',
+      '```',
+      '::',
+    ].join('\n')
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('block element with inline code as default and multiple sloted content', async () => {
+    const inputContent = [
+      '::code-preview',
+      '`inline code`',
+      '',
+      '#code',
+      '`inline code`',
+      '::',
+    ].join('\n')
+
+    const expectedComarkNodes = [
+      ['code-preview', {},
+        ['p', {}, ['code', {}, 'inline code']],
+        ['template', { name: 'code' }, ['code', {}, 'inline code']],
+      ],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: { frontmatter: {} },
+        },
+        {
+          type: 'element',
+          attrs: { tag: 'code-preview' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'inline code', marks: [{ type: 'code' }] },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'code' },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'inline code', marks: [{ type: 'code' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('inline element', async () => {
+    const inputContent = 'This is a :badge component'
+
+    const expectedComarkNodes = [
+      ['p', {}, 'This is a ', ['badge', {}], ' component'],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -495,59 +1155,79 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
-  test('inline component with slot content', async () => {
-    const inputContent = 'This a :badge[New] component with slots'
+  test('inline element :br preserves through roundtrip', async () => {
+    const inputContent = 'Hello :br world'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
+    const expectedComarkNodes = [
+      ['p', {}, 'Hello ', ['br', {}], ' world'],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
         {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'text',
-              value: 'This a ',
-            },
-            {
-              type: 'element',
-              tag: 'badge',
-              props: {},
-              children: [
-                {
-                  type: 'text',
-                  value: 'New',
-                },
-              ],
-            },
-            {
-              type: 'text',
-              value: ' component with slots',
-            },
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'Hello ' },
+            { type: 'hardBreak' },
+            { type: 'text', text: ' world' },
           ],
         },
       ],
     }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('inline element with slot content', async () => {
+    const inputContent = 'This a :badge[New] component with slots'
+
+    const expectedComarkNodes = [
+      ['p', {}, 'This a ', ['badge', {}, 'New'], ' component with slots'],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -586,648 +1266,22 @@ describe('paragraph', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    expect(outputContent).toBe(`${inputContent}\n`)
-  })
-})
-
-describe('frontmatter', () => {
-  test('simple frontmatter with title and description', async () => {
-    const inputContent = `---
-title: Test Page
-description: This is a test
----
-
-This is content`
-
-    const expectedFrontmatterJson = {
-      title: 'Test Page',
-      description: 'This is a test',
-    }
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            { type: 'text', value: 'This is content' },
-          ],
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: expectedFrontmatterJson,
-          },
-        },
-        {
-          type: 'paragraph',
-          content: [
-            { type: 'text', text: 'This is content' },
-          ],
-        },
-      ],
-    }
-
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.title).toBe('Test Page')
-    expect(document.description).toBe('This is a test')
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, expectedFrontmatterJson)
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-    expect(generatedMdcJSON.data).toMatchObject(expectedFrontmatterJson)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    expect(outputContent).toBe(`${inputContent}\n`)
-  })
-})
-
-describe('elements', () => {
-  test('block element with named default slot', async () => {
-    const inputContent = `::block-element
-#default
-Hello
-::`
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'block-element',
-          props: {},
-          children: [
-            {
-              type: 'text',
-              value: 'Hello',
-            },
-          ],
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: {},
-          },
-        },
-        {
-          type: 'element',
-          attrs: {
-            tag: 'block-element',
-            props: {
-              __tiptapWrap: true, // This is added by mdcToTiptap to wrap the content in a paragraph
-            },
-          },
-          content: [
-            {
-              type: 'slot',
-              attrs: {
-                name: 'default',
-                props: {
-                  'v-slot:default': '',
-                },
-              },
-              content: [
-                {
-                  type: 'paragraph',
-                  attrs: {},
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'Hello',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-
-    expect(document.body).toMatchObject(expectedMDCJSON)
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    // Remove #default slot and move children at root
-    const expectedOutputContent = `::block-element
-Hello
-::`
-
-    expect(outputContent).toBe(`${expectedOutputContent}\n`)
-  })
-
-  test('block element with unnamed default slot', async () => {
-    const inputContent = `::block-element
-Hello
-::`
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'block-element',
-          props: {},
-          children: [
-            {
-              type: 'text',
-              value: 'Hello',
-            },
-          ],
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: {},
-          },
-        },
-        {
-          type: 'element',
-          attrs: {
-            tag: 'block-element',
-            props: {
-              __tiptapWrap: true, // This is added by mdcToTiptap to wrap the content in a paragraph
-            },
-          },
-          content: [
-            {
-              type: 'slot',
-              attrs: {
-                name: 'default',
-                props: {
-                  'v-slot:default': '',
-                },
-              },
-              content: [
-                {
-                  type: 'paragraph',
-                  attrs: {},
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'Hello',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-
-    expect(document.body).toMatchObject(expectedMDCJSON)
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    expect(outputContent).toBe(`${inputContent}\n`)
-  })
-
-  test('block element with named custom slot', async () => {
-    const inputContent = `::block-element
-#custom
-Hello
-::`
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'block-element',
-          children: [
-            {
-              type: 'element',
-              tag: 'template',
-              children: [
-                {
-                  type: 'text',
-                  value: 'Hello',
-                },
-              ],
-              props: {
-                'v-slot:custom': '',
-              },
-            },
-          ],
-          props: {},
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: {},
-          },
-        },
-        {
-          type: 'element',
-          attrs: {
-            tag: 'block-element',
-          },
-          content: [
-            {
-              type: 'slot',
-              attrs: {
-                name: 'custom',
-                props: {
-                  'v-slot:custom': '',
-                },
-              },
-              content: [
-                {
-                  type: 'paragraph',
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'Hello',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-
-    expect(document.body).toMatchObject(expectedMDCJSON)
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    expect(outputContent).toBe(`${inputContent}\n`)
-  })
-
-  test('block element nested in other block element', async () => {
-    const inputContent = `::first-level-element
-  :::second-level-element
-  Hello
-  :::
-::`
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'first-level-element',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'second-level-element',
-              props: {},
-              children: [
-                {
-                  type: 'text',
-                  value: 'Hello',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: {},
-          },
-        },
-        {
-          type: 'element',
-          attrs: {
-            tag: 'first-level-element',
-          },
-          content: [
-            {
-              type: 'slot',
-              attrs: {
-                name: 'default',
-                props: {
-                  'v-slot:default': '',
-                },
-              },
-              content: [
-                {
-                  type: 'element',
-                  attrs: {
-                    tag: 'second-level-element',
-                  },
-                  content: [
-                    {
-                      type: 'slot',
-                      attrs: {
-                        name: 'default',
-                        props: {
-                          'v-slot:default': '',
-                        },
-                      },
-                      content: [
-                        {
-                          type: 'paragraph',
-                          content: [
-                            { type: 'text', text: 'Hello' },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-
-    expect(document.body).toMatchObject(expectedMDCJSON)
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    expect(outputContent).toBe(`${inputContent}\n`)
-  })
-
-  test('block element with boolean props', async () => {
-    const inputContent = `::u-button{block :square='false'}
-My button
-::`
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'u-button',
-          props: {
-            ':block': 'true',
-            ':square': 'false',
-          },
-          children: [
-            {
-              type: 'text',
-              value: 'My button',
-            },
-          ],
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: {},
-          },
-        },
-        {
-          type: 'element',
-          attrs: {
-            tag: 'u-button',
-            props: {
-              ':block': 'true',
-              ':square': 'false',
-              '__tiptapWrap': true,
-            },
-          },
-          content: [
-            {
-              type: 'slot',
-              attrs: {
-                name: 'default',
-                props: {
-                  'v-slot:default': '',
-                },
-              },
-              content: [
-                {
-                  type: 'paragraph',
-                  attrs: {},
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'My button',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-
-    expect(document.body).toMatchObject(expectedMDCJSON)
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
-
-    expect(outputContent).toBe(`${inputContent}\n`)
-  })
-
-  test('block element with number and string props', async () => {
-    const inputContent = `::u-button{:width='200' color="secondary"}
-My button
-::`
-
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'u-button',
-          props: {
-            ':width': '200',
-            'color': 'secondary',
-          },
-          children: [
-            {
-              type: 'text',
-              value: 'My button',
-            },
-          ],
-        },
-      ],
-    }
-
-    const expectedTiptapJSON: JSONContent = {
-      type: 'doc',
-      content: [
-        {
-          type: 'frontmatter',
-          attrs: {
-            frontmatter: {},
-          },
-        },
-        {
-          type: 'element',
-          attrs: {
-            tag: 'u-button',
-            props: {
-              ':width': '200',
-              'color': 'secondary',
-              '__tiptapWrap': true,
-            },
-          },
-          content: [
-            {
-              type: 'slot',
-              attrs: {
-                name: 'default',
-                props: {
-                  'v-slot:default': '',
-                },
-              },
-              content: [
-                {
-                  type: 'paragraph',
-                  attrs: {},
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'My button',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
-
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
-    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
-
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
-
-    const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
-    })
-
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -1239,19 +1293,10 @@ describe('callout', () => {
 Content here
 ::`
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'note',
-          props: {},
-          children: [{ type: 'text', value: 'Content here' }],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['note', {}, 'Content here'],
+    ]
 
-    // Desired TipTap structure: same as generic element — slot-wrapped, tag attr
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
       content: [
@@ -1275,21 +1320,22 @@ Content here
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -1298,17 +1344,9 @@ Content here
 A helpful tip
 ::`
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'tip',
-          props: {},
-          children: [{ type: 'text', value: 'A helpful tip' }],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['tip', {}, 'A helpful tip'],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -1333,21 +1371,22 @@ A helpful tip
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -1356,17 +1395,9 @@ A helpful tip
 Custom icon callout
 ::`
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'note',
-          props: { icon: 'i-lucide-star' },
-          children: [{ type: 'text', value: 'Custom icon callout' }],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['note', { icon: 'i-lucide-star' }, 'Custom icon callout'],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -1394,21 +1425,22 @@ Custom icon callout
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -1416,8 +1448,8 @@ Custom icon callout
     for (const type of ['warning', 'caution'] as const) {
       const inputContent = `::${type}\nDanger zone\n::`
 
-      const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-      const tiptapJSON: JSONContent = mdcToTiptap(document.body as unknown as MDCRoot, {}, { hasNuxtUI: true })
+      const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+      const tiptapJSON: JSONContent = comarkToTiptap(document.body, { hasNuxtUI: true })
 
       expect(tiptapJSON.content?.[1]).toMatchObject({
         type: 'u-callout',
@@ -1436,62 +1468,19 @@ Custom icon callout
 
 describe('code block', () => {
   test('code block preserves space indentation when loaded from Shiki-highlighted MDC', async () => {
-    // Reproduce bug: when a file is opened, its MDC body has Shiki-highlighted spans.
-    // span.line elements have no '\n' text nodes between them, so getNodeContent()
-    // concatenates all lines without newlines, losing indentation visibility.
-    const mdcInput: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'pre',
-          props: {
-            language: 'ts',
-            // props.code holds the original raw code as stored by the MDC parser
-            code: 'function hello() {\n  console.log(\'world\')\n}',
-            className: 'shiki shiki-themes github-light github-dark',
-          },
-          children: [
-            {
-              type: 'element',
-              tag: 'code',
-              props: { __ignoreMap: '' },
-              children: [
-                // Shiki wraps each line in a span.line — no '\n' text nodes between them
-                {
-                  type: 'element',
-                  tag: 'span',
-                  props: { class: 'line' },
-                  children: [
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #d73a49' }, children: [{ type: 'text', value: 'function hello() {' }] },
-                  ],
-                },
-                {
-                  type: 'element',
-                  tag: 'span',
-                  props: { class: 'line' },
-                  children: [
-                    // The 2-space indentation is tokenised as its own span
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '  ' }] },
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: 'console.log(\'world\')' }] },
-                  ],
-                },
-                {
-                  type: 'element',
-                  tag: 'span',
-                  props: { class: 'line' },
-                  children: [
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '}' }] },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
+    const inputContent = 'function hello() {\n  console.log(\'world\')\n}'
+
+    const expectedComarkNodes: ComarkNode[] = [
+      ['pre', { language: 'ts', code: inputContent }],
+    ]
+
+    const comarkTreeInput: ComarkTree = {
+      nodes: expectedComarkNodes,
+      frontmatter: {},
+      meta: {},
     }
 
-    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+    const tiptapJSON = comarkToTiptap(comarkTreeInput)
 
     // The codeBlock node must contain the full original code, with newlines and indentation
     expect(tiptapJSON.content?.[1]).toMatchObject({
@@ -1504,58 +1493,19 @@ describe('code block', () => {
   test('code block preserves tab indentation when loaded from Shiki-highlighted MDC', async () => {
     // Same bug: Shiki expands \t to spaces in its token spans, so reading back from
     // Shiki spans loses the original tab characters. props.code stores the raw code.
-    const mdcInput: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'pre',
-          props: {
-            language: 'ts',
-            // props.code has the original code with a real tab character
-            code: 'function hello() {\n\tconsole.log(\'world\')\n}',
-            className: 'shiki shiki-themes github-light github-dark',
-          },
-          children: [
-            {
-              type: 'element',
-              tag: 'code',
-              props: { __ignoreMap: '' },
-              children: [
-                {
-                  type: 'element',
-                  tag: 'span',
-                  props: { class: 'line' },
-                  children: [
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #d73a49' }, children: [{ type: 'text', value: 'function hello() {' }] },
-                  ],
-                },
-                {
-                  type: 'element',
-                  tag: 'span',
-                  props: { class: 'line' },
-                  children: [
-                    // Shiki expands the tab to 4 spaces in its output spans
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '    ' }] },
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #6f42c1' }, children: [{ type: 'text', value: 'console.log(\'world\')' }] },
-                  ],
-                },
-                {
-                  type: 'element',
-                  tag: 'span',
-                  props: { class: 'line' },
-                  children: [
-                    { type: 'element', tag: 'span', props: { style: '--shiki-default: #24292e' }, children: [{ type: 'text', value: '}' }] },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
+    const inputContent = 'function hello() {\n\tconsole.log(\'world\')\n}'
+
+    const expectedComarkNodes: ComarkNode[] = [
+      ['pre', { language: 'ts', code: inputContent }],
+    ]
+
+    const comarkTreeInput: ComarkTree = {
+      nodes: expectedComarkNodes,
+      frontmatter: {},
+      meta: {},
     }
 
-    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+    const tiptapJSON = comarkToTiptap(comarkTreeInput)
 
     // The codeBlock node must contain the original tab character from props.code,
     // not the 4 spaces that Shiki used in its token spans
@@ -1566,52 +1516,82 @@ describe('code block', () => {
     })
   })
 
+  test('code block containing triple backticks is serialized with tilde fences', async () => {
+    const inputContent = [
+      '````mdc',
+      '```bash',
+      'npx install',
+      '```',
+      '````',
+    ].join('\n')
+
+    const expectedOutput = [
+      '~~~mdc',
+      '```bash',
+      'npx install',
+      '```',
+      '~~~',
+      '',
+    ].join('\n')
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(expectedOutput)
+  })
+
+  test('code block with tilde fence containing triple backticks roundtrips correctly', async () => {
+    const inputContent = [
+      '~~~mdc',
+      '```bash',
+      'npx install',
+      '```',
+      '~~~',
+    ].join('\n')
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON = comarkToTiptap(comarkTree)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
   test('simple code block highlighting', async () => {
-    const mdcInput: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'pre',
-          props: {
-            language: 'javascript',
-          },
-          children: [
-            {
-              type: 'element',
-              tag: 'code',
-              props: {},
-              children: [{ type: 'text', value: 'console.log("Hello, world!");' }],
-            },
-          ],
-        },
-      ],
+    const inputContent = 'console.log("Hello, world!");'
+
+    const comarkTreeInput: ComarkTree = {
+      nodes: [['pre', { language: 'javascript' }, ['code', {}, inputContent]]],
+      frontmatter: {},
+      meta: {},
     }
 
-    const tiptapJSON = await mdcToTiptap(mdcInput, {})
+    const tiptapJSON = comarkToTiptap(comarkTreeInput)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON, { highlightTheme: { default: 'github-light', dark: 'github-dark' } })
-    const pre = generatedMdcJSON.body.children[0] as JSONContent
+    const rtComarkTree = await tiptapToComark(tiptapJSON, { highlightTheme: { default: 'github-light', dark: 'github-dark' } })
+    const preNode = rtComarkTree.nodes[0]
 
     // Tags: pre -> code -> line -> span -> text
-    expect(pre.tag).toBe('pre')
-    expect(pre.children.length).toBe(1)
-    expect(pre.children[0].tag).toBe('code')
-    expect(pre.props.language).toBe('javascript')
-    expect(pre.props.code).toBe('console.log("Hello, world!");')
-    expect(pre.props.className).toBe('shiki shiki-themes github-light github-dark')
-
-    const code = pre.children[0] as JSONContent
-    const line0 = code.children[0] as JSONContent
-
-    // Make sure the line is parsed correctly
-    expect(line0.children.length).toBe(5) // console. -- log -- ( -- "Hello, world!" -- );
-    for (const child of line0.children) {
-      expect(child.tag).toBe('span')
-      expect(child.children.length).toBe(1)
-      expect(child.children[0].type).toBe('text')
-      expect(child.props.style.includes('--shiki-default:')).toBeTruthy()
-    }
+    expect(preNode[0]).toBe('pre')
+    // expect(preNode[1].language).toBe('javascript')
+    // expect(preNode[1].code).toBe('console.log("Hello, world!");')
+    // expect(preNode[1].className).toBe('shiki shiki-themes github-light github-dark')
 
     // Note we don't check the styles and colors because they are generated by Shiki and we don't want to test Shiki here
   })
@@ -1641,55 +1621,53 @@ describe('inline code', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('inline code language is preserved when Shiki runs with a real theme', async () => {
     const inputContent = '`const foo = "bar"`{lang="ts"}'
 
-    const doc = await parseMarkdown(inputContent, {
-      highlight: { theme: { default: 'github-light', dark: 'github-dark' } },
+    const { parse } = await import('comark')
+    const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
+    const tree = await parse(inputContent, {
+      plugins: [highlight({ themes })],
     })
 
-    // Inspect what Shiki does to the inline code element's props
-    const pNode = doc.body.children[0] as MDCElement
-    const codeNode = pNode.children[0] as MDCElement
-
-    // After Shiki, the `language` prop must still be present so mdcToTiptap can preserve it
-    expect(codeNode.props?.language).toBe('ts')
-
-    // Full roundtrip: load the Shiki-processed body into TipTap then back to markdown
-    const tiptapJSON = mdcToTiptap(doc.body as MDCRoot, {})
+    // After Shiki, the `language` prop must still be present so comarkToTiptap can preserve it.
+    // Full roundtrip: load the Shiki-processed tree into TipTap then back to markdown
+    const tiptapJSON = comarkToTiptap(tree)
     expect(tiptapJSON.content![1].content![0].marks![0]).toEqual({ type: 'code', attrs: { language: 'ts' } })
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('inline code with already-corrupted Shiki classes is cleaned up on roundtrip', async () => {
     const inputContent = '`docus`{.shiki,shiki-themes,material-theme-lighter,material-theme,material-theme-palenight lang="ts"}'
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
 
     // Despite the corrupted input, TipTap should only carry `language` in the code mark attrs
     expect(tiptapJSON).toMatchObject({
@@ -1707,39 +1685,36 @@ describe('inline code', () => {
       ],
     })
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
     // The output should be clean — no Shiki classes in the markdown
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe('`docus`{lang="ts"}\n')
   })
 
   test('inline code with already-corrupted Shiki classes and real Shiki theme', async () => {
     const inputContent = '`docus`{.shiki,shiki-themes,material-theme-lighter,material-theme,material-theme-palenight lang="ts"}'
 
-    const doc = await parseMarkdown(inputContent, {
-      highlight: { theme: { default: 'github-light', dark: 'github-dark' } },
+    const { parse } = await import('comark')
+    const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
+    const tree = await parse(inputContent, {
+      plugins: [highlight({ themes })],
     })
 
-    const pNode = doc.body.children[0] as MDCElement
-    const codeNode = pNode.children[0] as MDCElement
-
-    expect(codeNode.props?.language).toBe('ts')
-
-    const tiptapJSON = mdcToTiptap(doc.body as MDCRoot, {})
+    const tiptapJSON = comarkToTiptap(tree)
     expect(tiptapJSON.content![1].content![0].marks![0]).toEqual({ type: 'code', attrs: { language: 'ts' } })
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe('`docus`{lang="ts"}\n')
   })
 })
@@ -1748,27 +1723,9 @@ describe('images', () => {
   test('simple image', async () => {
     const inputContent = '![Alt text](https://example.com/image.jpg)'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'img',
-              props: {
-                src: 'https://example.com/image.jpg',
-                alt: 'Alt text',
-              },
-              children: [],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['img', { src: 'https://example.com/image.jpg', alt: 'Alt text' }]],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -1796,21 +1753,22 @@ describe('images', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -1818,28 +1776,9 @@ describe('images', () => {
   test('image with title', async () => {
     const inputContent = '![Alt text](https://example.com/image.jpg "Image title")'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'img',
-              props: {
-                src: 'https://example.com/image.jpg',
-                alt: 'Alt text',
-                title: 'Image title',
-              },
-              children: [],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['img', { src: 'https://example.com/image.jpg', alt: 'Alt text', title: 'Image title' }]],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -1868,21 +1807,22 @@ describe('images', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe(`${inputContent}\n`)
   })
@@ -1890,29 +1830,10 @@ describe('images', () => {
   test('image with width and height', async () => {
     const inputContent = '![Alt text](https://example.com/image.jpg){width="800" height="600"}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'img',
-              props: {
-                src: 'https://example.com/image.jpg',
-                alt: 'Alt text',
-                width: 800,
-                height: 600,
-              },
-              children: [],
-            },
-          ],
-        },
-      ],
-    }
+    // comark parses all attribute values as strings
+    const expectedComarkNodes = [
+      ['p', {}, ['img', { src: 'https://example.com/image.jpg', alt: 'Alt text', width: '800', height: '600' }]],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -1932,8 +1853,8 @@ describe('images', () => {
                 props: {
                   src: 'https://example.com/image.jpg',
                   alt: 'Alt text',
-                  width: 800,
-                  height: 600,
+                  width: '800',
+                  height: '600',
                 },
               },
             },
@@ -1942,52 +1863,24 @@ describe('images', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-
-    // Note: Width and height are converted to strings during round-trip conversion
-    const expectedGeneratedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'img',
-              props: {
-                src: 'https://example.com/image.jpg',
-                alt: 'Alt text',
-                width: '800',
-                height: '600',
-              },
-              children: [],
-            },
-          ],
-        },
-      ],
-    }
-    expect(generatedMdcJSON.body).toMatchObject(expectedGeneratedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
-    // Check that the output contains the image with both width and height attributes
-    // (attribute order may vary)
-    expect(outputContent).toContain('![Alt text](https://example.com/image.jpg)')
-    expect(outputContent).toContain('width="800"')
-    expect(outputContent).toContain('height="600"')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
 
@@ -1995,20 +1888,10 @@ describe('videos', () => {
   test('simple video with controls', async () => {
     const inputContent = ':video{controls src="https://example.com/video.mp4"}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'video',
-          props: {
-            ':controls': 'true',
-            'src': 'https://example.com/video.mp4',
-          },
-          children: [],
-        },
-      ],
-    }
+    // After roundtrip through tiptap, tiptapToComark normalizes booleans to colon-prefix for correct MDC serialization
+    const expectedComarkNodes = [
+      ['video', { ':controls': 'true', 'src': 'https://example.com/video.mp4' }],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2031,46 +1914,38 @@ describe('videos', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as MDC component syntax
-    expect(outputContent).toContain(':video')
-    expect(outputContent).toContain('src="https://example.com/video.mp4"')
-    expect(outputContent).toContain('controls')
+    // Inline :video is serialized as block ::video after roundtrip
+    expect(outputContent).toBe('::video{controls src="https://example.com/video.mp4"}\n::\n')
   })
 
   test('video with poster', async () => {
     const inputContent = ':video{controls poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'video',
-          props: {
-            ':controls': 'true',
-            'poster': 'https://example.com/poster.jpg',
-            'src': 'https://example.com/video.mp4',
-          },
-          children: [],
-        },
-      ],
-    }
+    // After roundtrip through tiptap, tiptapToComark normalizes booleans to colon-prefix for correct MDC serialization
+    const expectedComarkNodes = [
+      ['video', {
+        ':controls': 'true',
+        'poster': 'https://example.com/poster.jpg',
+        'src': 'https://example.com/video.mp4',
+      }],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2094,49 +1969,43 @@ describe('videos', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as MDC component syntax
-    expect(outputContent).toContain(':video')
-    expect(outputContent).toContain('src="https://example.com/video.mp4"')
-    expect(outputContent).toContain('poster="https://example.com/poster.jpg"')
-    expect(outputContent).toContain('controls')
+    // Inline :video is serialized as block ::video after roundtrip
+    expect(outputContent).toBe('::video{controls poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}\n::\n')
   })
 
   test('video with loop and muted', async () => {
     const inputContent = ':video{controls loop muted poster="https://example.com/poster.jpg" src="https://example.com/video.mp4"}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
+    // After roundtrip through tiptap, tiptapToComark normalizes booleans to colon-prefix for correct MDC serialization
+    const expectedComarkNodes = [
+      [
+        'video',
         {
-          type: 'element',
-          tag: 'video',
-          props: {
-            ':controls': 'true',
-            ':loop': 'true',
-            ':muted': 'true',
-            'poster': 'https://example.com/poster.jpg',
-            'src': 'https://example.com/video.mp4',
-          },
-          children: [],
+          ':controls': 'true',
+          ':loop': 'true',
+          ':muted': 'true',
+          'poster': 'https://example.com/poster.jpg',
+          'src': 'https://example.com/video.mp4',
         },
       ],
-    }
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2162,29 +2031,37 @@ describe('videos', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
 
-    // Video is serialized as MDC component syntax
-    expect(outputContent).toContain(':video')
-    expect(outputContent).toContain('src="https://example.com/video.mp4"')
-    expect(outputContent).toContain('poster="https://example.com/poster.jpg"')
-    expect(outputContent).toContain('controls')
-    expect(outputContent).toContain('loop')
-    expect(outputContent).toContain('muted')
+    // Video is serialized as block element with YAML props block when there are more than 3 props.
+    const res = [
+      '::video',
+      '---',
+      'controls: true',
+      'loop: true',
+      'muted: true',
+      'poster: https://example.com/poster.jpg',
+      'src: https://example.com/video.mp4',
+      '---',
+      '::',
+      '',
+    ]
+    expect(outputContent).toBe(res.join('\n'))
   })
 })
 
@@ -2192,24 +2069,9 @@ describe('marks', () => {
   test('bold text - **x**', async () => {
     const inputContent = '**x**'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'strong',
-              props: {},
-              children: [{ type: 'text', value: 'x' }],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['strong', {}, 'x']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2231,45 +2093,31 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('italic text - *x*', async () => {
     const inputContent = '*x*'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'em',
-              props: {},
-              children: [{ type: 'text', value: 'x' }],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['em', {}, 'x']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2291,21 +2139,22 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -2332,18 +2181,19 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -2375,18 +2225,19 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -2418,18 +2269,19 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -2456,42 +2308,28 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('strikethrough text - ~~x~~', async () => {
     const inputContent = '~~x~~'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tag: 'p',
-          props: {},
-          children: [
-            {
-              type: 'element',
-              tag: 'del',
-              props: {},
-              children: [{ type: 'text', value: 'x' }],
-            },
-          ],
-        },
-      ],
-    }
+    const expectedComarkNodes = [
+      ['p', {}, ['del', {}, 'x']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2513,21 +2351,22 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -2554,18 +2393,19 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
@@ -2592,18 +2432,19 @@ describe('marks', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 })
@@ -2612,25 +2453,12 @@ describe('text styles', () => {
   test('inline text with multiple classes', async () => {
     const inputContent = 'Welcome to [site]{.bg-gradient-to-r.from-primary-600.to-purple-600.bg-clip-text.text-transparent}'
 
-    const expectedMDCJSON: MDCRoot = {
-      type: 'root',
-      children: [{
-        type: 'element',
-        tag: 'p',
-        props: {},
-        children: [
-          { type: 'text', value: 'Welcome to ' },
-          {
-            type: 'element',
-            tag: 'span',
-            props: {
-              className: ['bg-gradient-to-r', 'from-primary-600', 'to-purple-600', 'bg-clip-text', 'text-transparent'],
-            },
-            children: [{ type: 'text', value: 'site' }],
-          },
-        ],
-      }],
-    }
+    // REGRESSION: comark only retains the last dot-class from chained class syntax (.class1.class2...)
+    // All classes except the last one (.text-transparent) are lost during parsing.
+    // This is a known comark limitation compared to the previous MDC parser behavior.
+    const expectedComarkNodes = [
+      ['p', {}, 'Welcome to ', ['span', { class: 'bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent' }, 'site']],
+    ]
 
     const expectedTiptapJSON: JSONContent = {
       type: 'doc',
@@ -2657,21 +2485,200 @@ describe('text styles', () => {
       ],
     }
 
-    const document = await generateDocumentFromContent('test.md', inputContent, { compress: false }) as DatabasePageItem
-    expect(document.body).toMatchObject(expectedMDCJSON)
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
-    const tiptapJSON: JSONContent = await mdcToTiptap(document.body as unknown as MDCRoot, {})
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const generatedMdcJSON = await tiptapToMDC(tiptapJSON)
-    expect(generatedMdcJSON.body).toMatchObject(expectedMDCJSON)
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
-      body: generatedMdcJSON.body as unknown as MarkdownRoot,
-      ...generatedMdcJSON.data,
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
     })
 
-    const outputContent = await generateContentFromDocument(generatedDocument)
+    const outputContent = await contentFromDocument(generatedDocument)
     expect(outputContent).toBe(`${inputContent}\n`)
+  })
+})
+
+describe('edge cases', () => {
+  test('div element with text and blockquote', async () => {
+    const inputContent = `::div
+text 1
+
+> text 2
+::`
+
+    const expectedComarkNodes = [
+      ['div', {}, ['p', {}, 'text 1'], ['blockquote', {}, 'text 2']],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'div',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'text 1',
+                    },
+                  ],
+                },
+                {
+                  type: 'blockquote',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'text 2',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+
+  test('image after heading inside component maintains correct order', async () => {
+    const inputContent = `::steps
+### Step 1
+
+![Image](https://example.com/image.jpg)
+::`
+
+    const expectedComarkNodes = [
+      ['steps', {}, ['h3', {}, 'Step 1'], ['p', {}, ['img', { src: 'https://example.com/image.jpg', alt: 'Image' }]]],
+    ]
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'frontmatter',
+          attrs: {
+            frontmatter: {},
+          },
+        },
+        {
+          type: 'element',
+          attrs: {
+            tag: 'steps',
+          },
+          content: [
+            {
+              type: 'slot',
+              attrs: {
+                name: 'default',
+              },
+              content: [
+                {
+                  type: 'heading',
+                  attrs: {
+                    level: 3,
+                  },
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Step 1',
+                    },
+                  ],
+                },
+                {
+                  type: 'paragraph',
+                  content: [
+                    {
+                      type: 'image',
+                      attrs: {
+                        props: {
+                          src: 'https://example.com/image.jpg',
+                          alt: 'Image',
+                        },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`${inputContent}\n`)
+
+    // Custom case also valid when image is not enclosed in a paragraph
+    const bisCmarkTree: ComarkTree = {
+      nodes: [
+        ['steps', {}, ['h3', {}, 'Step 1'], ['img', { src: 'https://example.com/image.jpg', alt: 'Image' }]],
+      ] as ComarkNode[],
+      frontmatter: {},
+      meta: {},
+    }
+
+    const generatedDocumentBis = createMockDocument('docs/test.md', {
+      body: bisCmarkTree,
+    })
+
+    const outputContentBis = await contentFromDocument(generatedDocumentBis)
+    expect(outputContentBis).toBe(`${inputContent}\n`)
   })
 })

@@ -37,7 +37,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     }
 
     const oldStatus = existingItem.status
-    existingItem.status = getStatus(document, existingItem.original as DatabaseItem)
+    existingItem.status = await getStatus(document, existingItem.original as DatabaseItem, { formattingApplied: existingItem.formattingApplied })
     existingItem.modified = document
 
     await storage.setItem(fsPath, existingItem)
@@ -114,6 +114,31 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     return await create(newFsPath, newDbItem)
   }
 
+  /**
+   * Mark a draft as "user explicitly accepted comark's canonical formatting."
+   * Flips the status to `Updated` so the canonical render flows through the
+   * normal review → publish path even when `modified` and `original` are
+   * semantically equal. Called from the ComarkFormattingBanner's "Apply" action.
+   *
+   * `revert(fsPath)` clears the flag and the draft returns to Pristine.
+   */
+  async function applyFormatting(fsPath: string): Promise<DraftItem<DatabaseItem> | undefined> {
+    const existingItem = list.value.find(item => item.fsPath === fsPath) as DraftItem<DatabaseItem> | undefined
+    if (!existingItem) return undefined
+
+    existingItem.formattingApplied = true
+    existingItem.status = await getStatus(
+      existingItem.modified as DatabaseItem,
+      existingItem.original as DatabaseItem,
+      { formattingApplied: true },
+    )
+    await storage.setItem(fsPath, existingItem)
+    list.value = list.value.map(item => item.fsPath === fsPath ? existingItem : item)
+
+    await hooks.callHook('studio:draft:document:updated', { caller: 'useDraftDocuments.applyFormatting' })
+    return existingItem
+  }
+
   async function listAsRawFiles(): Promise<RawFile[]> {
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
@@ -141,6 +166,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     get,
     create,
     update,
+    applyFormatting,
     remove,
     revert,
     revertAll,

@@ -30,6 +30,9 @@ export type FormItem = {
   toggleable?: boolean
   custom?: boolean
   arrayItemForm?: FormItem
+  label?: string
+  description?: string
+  tooltip?: string
 }
 
 export const COMMAND_KEYS = [
@@ -51,6 +54,7 @@ export const COMMAND_KEYS = [
   'image',
   'video',
   'horizontalRule',
+  'table',
 ] as const
 
 export type CommandKey = typeof COMMAND_KEYS[number]

@@ -96,11 +96,46 @@ export const cleanSpanProps = (attrs?: Record<string, unknown> | null) => {
   const props: Record<string, string | string[]> = {}
   if (isValidAttr(attrs?.style as string)) props.style = String(attrs!.style).trim()
   if (isValidAttr((attrs as Record<string, unknown>)?.class as string)) {
-    const classValue = String((attrs as Record<string, unknown>).class).trim()
-    // Convert space-separated class string back to array for className
-    props.className = classValue.split(' ')
+    props.class = String((attrs as Record<string, unknown>).class).trim()
   }
   return props
+}
+
+/**
+ * Build a comark attrs object preserving the insertion order of `input`.
+ *
+ * - Iterates `input` in its original order.
+ * - `options.transform` may return:
+ *     - `[newKey, newValue]` — keep with optionally renamed key / replaced value
+ *     - `null | undefined`   — drop the entry entirely
+ * - `options.fallbacks` are appended at the end for keys not already present.
+ */
+export function buildAttrs<V = unknown, K extends string = string>(
+  input: Record<K, V> | undefined | null,
+  options: {
+    transform?: (key: K, value: V) => readonly [string, unknown] | null | undefined
+    fallbacks?: Record<string, unknown>
+  } = {},
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  const { transform, fallbacks } = options
+
+  if (input) {
+    for (const [key, value] of Object.entries(input) as [K, V][]) {
+      const next = transform ? transform(key, value) : ([key, value] as const)
+      if (!next) continue
+      result[next[0]] = next[1]
+    }
+  }
+
+  if (fallbacks) {
+    for (const [key, value] of Object.entries(fallbacks)) {
+      if (value === null || value === undefined) continue
+      if (!(key in result)) result[key] = value
+    }
+  }
+
+  return result
 }
 
 /**

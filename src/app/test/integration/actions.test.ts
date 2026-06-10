@@ -128,10 +128,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value[0]
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(documentFsPath, updatedDocument as DatabaseItem)
 
@@ -212,10 +209,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value[0]
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(documentFsPath, updatedDocument)
 
@@ -292,10 +286,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value[0]
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(documentFsPath, updatedDocument)
 
@@ -429,10 +420,7 @@ describe('Document - Action Chains Integration Tests', () => {
     const currentDraft = context.activeTree.value.draft.list.value.find(item => item.fsPath === newFsPath)!
     const updatedDocument = {
       ...currentDraft.modified!,
-      body: {
-        type: 'minimark',
-        value: ['Updated content'],
-      },
+      body: { nodes: [['p', {}, 'Updated content']], frontmatter: {}, meta: {} },
     } as DatabaseItem
     await context.activeTree.value.draft.update(newFsPath, updatedDocument)
 
@@ -630,6 +618,81 @@ describe('Document - Action Chains Integration Tests', () => {
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.load')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
+  })
+
+  it('Select > ApplyFormatting > Revert', async () => {
+    // Verifies the ComarkFormattingBanner's "Apply formatting" flow:
+    //   Pristine + drift  →  click Apply  →  Updated  →  Revert  →  Pristine
+    const consoleInfoSpy = vi.spyOn(console, 'info')
+
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    /* STEP 1: SELECT — draft starts Pristine, formattingApplied undefined */
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    expect(context.activeTree.value.draft.list.value).toHaveLength(1)
+    const selected = context.activeTree.value.draft.list.value[0]
+    expect(selected.status).toEqual(DraftStatus.Pristine)
+    expect(selected.formattingApplied).toBeUndefined()
+
+    /* STEP 2: APPLY FORMATTING — flag set, status flips to Updated */
+    await context.activeTree.value.draft.applyFormatting!(documentFsPath)
+
+    const appliedStored = JSON.parse(mockStorageDraft.get(normalizeKey(documentFsPath))!)
+    expect(appliedStored.status).toEqual(DraftStatus.Updated)
+    expect(appliedStored.formattingApplied).toBe(true)
+
+    const appliedMem = context.activeTree.value.draft.list.value[0]
+    expect(appliedMem.status).toEqual(DraftStatus.Updated)
+    expect(appliedMem.formattingApplied).toBe(true)
+    // modified is untouched — it's still semantically equal to original
+    expect(appliedMem.modified).toBe(appliedMem.original)
+
+    // Tree reflects the new status
+    expect(context.activeTree.value.root.value[0].status).toEqual('updated')
+
+    /* STEP 3: REVERT — flag cleared, status back to Pristine */
+    await context.itemActionHandler[StudioItemActionId.RevertItem](context.activeTree.value.currentItem.value)
+
+    const revertedStored = JSON.parse(mockStorageDraft.get(normalizeKey(documentFsPath))!)
+    expect(revertedStored.status).toEqual(DraftStatus.Pristine)
+    expect(revertedStored.formattingApplied).toBe(false)
+
+    const revertedMem = context.activeTree.value.draft.list.value[0]
+    expect(revertedMem.status).toEqual(DraftStatus.Pristine)
+    expect(revertedMem.formattingApplied).toBe(false)
+
+    // Hooks
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.applyFormatting')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftBase.revert')
+  })
+
+  it('Select > ApplyFormatting > Update preserves formattingApplied flag', async () => {
+    // After clicking Apply, the user might still edit. The subsequent update
+    // must preserve the flag so the canonical form continues to be published
+    // alongside the new edits.
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    /* STEP 1: APPLY */
+    await context.activeTree.value.draft.applyFormatting!(documentFsPath)
+    expect(context.activeTree.value.draft.list.value[0].formattingApplied).toBe(true)
+
+    /* STEP 2: UPDATE */
+    const currentDraft = context.activeTree.value.draft.list.value[0]
+    const updatedDocument = {
+      ...currentDraft.modified!,
+      body: { nodes: [['p', {}, 'Post-apply edit']], frontmatter: {}, meta: {} },
+    } as DatabaseItem
+    await context.activeTree.value.draft.update(documentFsPath, updatedDocument)
+
+    // Flag survives — applyFormatting and the edit coexist in the same draft
+    const after = context.activeTree.value.draft.list.value[0]
+    expect(after.status).toEqual(DraftStatus.Updated)
+    expect(after.formattingApplied).toBe(true)
   })
 })
 

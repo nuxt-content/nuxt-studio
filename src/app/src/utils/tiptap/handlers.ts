@@ -49,3 +49,12 @@ export function componentHandler(kind: string): Handler {
     isDisabled: undefined,
   }
 }
+
+export function tableHandler(): Handler {
+  return {
+    canExecute: (editor: Editor) => editor.can().insertTable({ rows: 2, cols: 2, withHeaderRow: true }),
+    execute: (editor: Editor) => editor.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }),
+    isActive: (editor: Editor) => editor.isActive('table'),
+    isDisabled: undefined,
+  }
+}

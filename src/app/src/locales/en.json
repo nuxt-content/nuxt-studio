@@ -10,7 +10,8 @@
       "publish": "Publish",
       "back": "Back",
       "backToEdition": "Back to edition",
-      "seeChanges": "See what's changed"
+      "seeChanges": "See what's changed",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Directories",
@@ -69,7 +70,8 @@
       "debugMode": "Debug Mode"
     },
     "alert": {
-      "mdcFormatting": "Formatting applied to align with MDC syntax standard."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Conflict Detected",
@@ -228,7 +230,17 @@
         "insert": "Insert",
         "image": "Image",
         "video": "Video",
-        "horizontalRule": "Horizontal Rule"
+        "horizontalRule": "Horizontal Rule",
+        "table": "Table"
+      },
+      "table": {
+        "insertLeft": "Insert left",
+        "insertRight": "Insert right",
+        "insertAbove": "Insert above",
+        "insertBelow": "Insert below",
+        "deleteRow": "Delete row",
+        "deleteColumn": "Delete column",
+        "deleteTable": "Delete table"
       },
       "drag": {
         "turnInto": "Turn into",

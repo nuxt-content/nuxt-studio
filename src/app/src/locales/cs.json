@@ -10,7 +10,8 @@
       "publish": "Publikovat",
       "back": "Zpět",
       "backToEdition": "Zpět k úpravám",
-      "seeChanges": "Zobrazit změny"
+      "seeChanges": "Zobrazit změny",
+      "applyFormatting": "Apply formatting"
     },
     "headings": {
       "directories": "Adresáře",
@@ -69,7 +70,8 @@
       "debugMode": "Režim ladění"
     },
     "alert": {
-      "mdcFormatting": "Bylo použito formátování pro uvedení do souladu se standardem syntaxe MDC."
+      "comarkFormatting": "Comark formatting available",
+      "comarkFormattingDescription": "This file doesn't match standard {comark} syntax. Editing will apply canonical formatting by default. Click Apply to convert it now and make it ready for publish."
     },
     "conflict": {
       "title": "Detekován konflikt",
@@ -228,7 +230,17 @@
         "insert": "Vložit",
         "image": "Obrázek",
         "video": "Video",
-        "horizontalRule": "Vodorovná čára"
+        "horizontalRule": "Vodorovná čára",
+        "table": "Tabulka"
+      },
+      "table": {
+        "insertLeft": "Vložit vlevo",
+        "insertRight": "Vložit vpravo",
+        "insertAbove": "Vložit nad",
+        "insertBelow": "Vložit pod",
+        "deleteRow": "Smazat řádek",
+        "deleteColumn": "Smazat sloupec",
+        "deleteTable": "Smazat tabulku"
       },
       "drag": {
         "turnInto": "Převést na",

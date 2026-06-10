@@ -123,49 +123,13 @@ export function useTiptapEditorAI(document: Ref<DatabasePageItem | undefined>) {
   }
 
   /**
-   * Trims selection to exclude structural elements (lists, code blocks, MDC components).
+   * Trims selection to exclude structural elements (lists, code blocks, Comark components).
    * Keeps inline formatting (bold, italic, links) but stops at structural boundaries.
    */
   function trimSelectionToTextOnly(editor: Editor) {
     const { from, to } = editor.state.selection
 
     return { from, to }
-    // const { doc } = editor.state
-
-    // let trimmedTo = to
-    // let currentPos = from
-
-    // // Structural elements to exclude (lists, code blocks, MDC components, etc.)
-    // const structuralNodeTypes = [
-    //   'bulletList',
-    //   'orderedList',
-    //   'listItem',
-    //   'codeBlock',
-    //   'element', // MDC components
-    //   'slot', // MDC component slots
-    //   'blockquote',
-    //   'heading',
-    // ]
-
-    // // Traverse through the selection
-    // doc.nodesBetween(from, to, (node, pos) => {
-    //   // If we haven't reached the position yet, skip
-    //   if (pos < currentPos) return true
-
-    //   // Check if this node is a structural element we want to exclude
-    //   const isStructural = structuralNodeTypes.includes(node.type.name)
-
-    //   if (isStructural && pos > from) {
-    //     // Found a structural element, trim selection to before it
-    //     trimmedTo = pos
-    //     return false // Stop traversal
-    //   }
-
-    //   currentPos = pos + node.nodeSize
-    //   return true
-    // })
-
-    // return { from, to: trimmedTo }
   }
 
   /**
