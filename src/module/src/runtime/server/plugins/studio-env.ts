@@ -1,4 +1,5 @@
-import { defineNitroPlugin, useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from '#imports'
+import { defineNitroPlugin } from 'nitropack/runtime'
 import { createHash } from 'node:crypto'
 
 export default defineNitroPlugin(() => {
