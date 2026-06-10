@@ -80,9 +80,9 @@ export default eventHandler(async (event: H3Event) => {
   const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com')
   const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
   const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
-    clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
-    clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
-    redirectURL: process.env.STUDIO_GITHUB_REDIRECT_URL,
+    clientId: studioConfig?.auth?.github?.clientId,
+    clientSecret: studioConfig?.auth?.github?.clientSecret,
+    redirectURL: studioConfig?.auth?.github?.redirectUrl,
     instanceUrl,
     authorizationURL: `${instanceUrl}/login/oauth/authorize`,
     tokenURL: `${instanceUrl}/login/oauth/access_token`,
@@ -198,7 +198,7 @@ export default eventHandler(async (event: H3Event) => {
     user.email = primaryEmail.email
   }
 
-  const moderators = process.env.STUDIO_GITHUB_MODERATORS?.split(',') || []
+  const moderators = studioConfig?.auth?.github?.moderators?.split(',').filter(Boolean) || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,
