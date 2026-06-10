@@ -395,12 +395,12 @@ export default defineNuxtModule<ModuleOptions>({
       github: {
         clientId: undefined,
         clientSecret: undefined,
-        instanceUrl: undefined,
+        instanceUrl: 'https://github.com',
       },
       gitlab: {
         applicationId: undefined,
         applicationSecret: undefined,
-        instanceUrl: undefined,
+        instanceUrl: 'https://gitlab.com',
       },
       google: {
         clientId: undefined,
@@ -483,7 +483,9 @@ export default defineNuxtModule<ModuleOptions>({
       validateAuthConfig(options)
     }
 
-    await setAIFeature(options, nuxt, runtime)
+    if (options.ai?.apiKey) {
+      await setAIFeature(options, nuxt, runtime)
+    }
 
     // Enable checkoutOutdatedBuildInterval to detect new deployments
     nuxt.options.experimental = nuxt.options.experimental || {}
@@ -513,7 +515,7 @@ export default defineNuxtModule<ModuleOptions>({
         server: process.env.STUDIO_DEV_SERVER,
       },
       ai: {
-        enabled: false,
+        enabled: Boolean(options.ai?.apiKey),
         context: {
           collectionName: options.ai?.context?.collection?.name as string,
           contentFolder: options.ai?.context?.collection?.folder as string,
