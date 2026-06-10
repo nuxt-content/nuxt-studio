@@ -24,6 +24,7 @@ export function useAI(host: StudioHost) {
       improve: emptyPromise,
       simplify: emptyPromise,
       translate: emptyPromise,
+      commitMessage: emptyPromise,
       analyze: emptyPromise,
     }
   }
@@ -87,6 +88,34 @@ export function useAI(host: StudioHost) {
     return generate({ prompt: text, mode: 'translate', language, fsPath, collectionName })
   }
 
+  async function commitMessage(changes: string): Promise<string> {
+    const response = await fetch('/__nuxt_studio/ai/commit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ changes }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const reader = response.body?.getReader()
+    const decoder = new TextDecoder()
+
+    if (!reader) {
+      throw new Error('No response body')
+    }
+
+    let result = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      result += decoder.decode(value)
+    }
+
+    return result
+  }
+
   async function analyze(collection: CollectionInfo): Promise<string> {
     const response = await fetch('/__nuxt_studio/ai/analyze', {
       method: 'POST',
@@ -134,6 +163,7 @@ export function useAI(host: StudioHost) {
     improve,
     simplify,
     translate,
+    commitMessage,
     analyze,
   }
 }
