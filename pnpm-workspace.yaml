@@ -3,6 +3,9 @@ packages:
   - ./playground/*
   - ./docs
 
+shamefullyHoist: true
+strictPeerDependencies: false
+
 ignoredBuiltDependencies:
   - '@parcel/watcher'
   - '@tailwindcss/oxide'
