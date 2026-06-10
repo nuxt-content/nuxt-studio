@@ -91,8 +91,6 @@ export default eventHandler(async (event: H3Event) => {
   const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.gitlab?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://gitlab.com')
 
   const config = mergeConfig<OAuthGitLabConfig>(studioConfig?.auth?.gitlab, {
-    applicationId: studioConfig?.auth?.gitlab?.applicationId,
-    applicationSecret: studioConfig?.auth?.gitlab?.applicationSecret,
     redirectURL: studioConfig?.auth?.gitlab?.redirectUrl,
     instanceUrl,
     authorizationURL: `${instanceUrl}/oauth/authorize`,

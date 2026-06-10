@@ -80,8 +80,6 @@ export default eventHandler(async (event: H3Event) => {
   const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com')
   const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
   const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
-    clientId: studioConfig?.auth?.github?.clientId,
-    clientSecret: studioConfig?.auth?.github?.clientSecret,
     redirectURL: studioConfig?.auth?.github?.redirectUrl,
     instanceUrl,
     authorizationURL: `${instanceUrl}/login/oauth/authorize`,

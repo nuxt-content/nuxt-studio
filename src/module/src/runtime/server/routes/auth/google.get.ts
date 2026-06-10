@@ -79,8 +79,6 @@ export default eventHandler(async (event: H3Event) => {
    */
   const studioConfig = useRuntimeConfig(event).studio
   const config = mergeConfig<OAuthGoogleConfig>(studioConfig?.auth?.google, {
-    clientId: studioConfig?.auth?.google?.clientId,
-    clientSecret: studioConfig?.auth?.google?.clientSecret,
     redirectURL: studioConfig?.auth?.google?.redirectUrl,
     authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
     tokenURL: 'https://oauth2.googleapis.com/token',

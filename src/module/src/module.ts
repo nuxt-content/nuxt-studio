@@ -547,14 +547,14 @@ export default defineNuxtModule<ModuleOptions>({
         github: {
           clientId: options.auth?.github?.clientId || '',
           clientSecret: options.auth?.github?.clientSecret || '',
-          instanceUrl: options.auth?.github?.instanceUrl || 'https://github.com',
+          instanceUrl: options.auth?.github?.instanceUrl!,
           redirectUrl: '',
           moderators: '',
         },
         gitlab: {
           applicationId: options.auth?.gitlab?.applicationId || '',
           applicationSecret: options.auth?.gitlab?.applicationSecret || '',
-          instanceUrl: options.auth?.gitlab?.instanceUrl || 'https://gitlab.com',
+          instanceUrl: options.auth?.gitlab?.instanceUrl!,
           redirectUrl: '',
           moderators: '',
         },
