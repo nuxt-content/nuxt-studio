@@ -287,8 +287,7 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
       })
 
       const markAttrs = (block.mark.attrs && Object.keys(block.mark.attrs).length > 0) ? (block.mark.attrs as Record<string, unknown>) : {}
-      // Wrap in an array so the outer .flat() treats this as one ComarkNode entry
-      // (not spreading the ComarkElement's own children into the sibling list).
+      // Wrap so .flat() downstream treats this as one sibling, not a spread.
       return [[markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement]
     }
 
