@@ -20,21 +20,22 @@ describe('tiptapToComark', () => {
       const tiptap = comarkToTiptap(input)
       const output = await tiptapToComark(tiptap)
 
-      // The paragraph should contain a single strong element wrapping the text
-      // and the link — NOT three separate strong siblings.
+      // All content merges into a single strong — NOT three separate strong siblings
+      // (which would render as ****).
       const paragraph = output.nodes[0] as ComarkElement
       expect(paragraph[0]).toBe('p')
 
       const strong = paragraph[2] as ComarkElement
       expect(strong[0]).toBe('strong')
 
-      // All content is inside one strong: 'that contain it ', a link, '.'
+      // Single strong: 'that contain it', ' ', a link, '.'
       const strongChildren = strong.slice(2)
-      expect(strongChildren).toHaveLength(3)
-      expect(strongChildren[0]).toBe('that contain it ')
-      expect(Array.isArray(strongChildren[1])).toBe(true)
-      expect((strongChildren[1] as ComarkElement)[0]).toBe('a')
-      expect(strongChildren[2]).toBe('.')
+      expect(strongChildren).toHaveLength(4)
+      expect(strongChildren[0]).toBe('that contain it')
+      expect(strongChildren[1]).toBe(' ')
+      expect(Array.isArray(strongChildren[2])).toBe(true)
+      expect((strongChildren[2] as ComarkElement)[0]).toBe('a')
+      expect(strongChildren[3]).toBe('.')
     })
 
     test('bold text with link renders to markdown without extra stars', async () => {

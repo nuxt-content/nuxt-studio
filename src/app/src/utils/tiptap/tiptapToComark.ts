@@ -223,14 +223,8 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
 
   const getMarkInfo = (child: JSONContent): { type: string, attrs?: Record<string, unknown> } | null => {
-    if (child.type === 'text' && child.marks?.length) {
-      // Keep only marks that participate in block grouping (i.e. those in markToTag).
-      // This lets a text node carrying both a structural mark (bold) and an inline
-      // mark (link) stay grouped with its surrounding block instead of being split off.
-      const structural = child.marks.filter(mark => mark.type in markToTag)
-      if (structural.length === 1) {
-        return structural[0] as { type: string, attrs?: Record<string, unknown> }
-      }
+    if (child.type === 'text' && child.marks?.length === 1 && child.marks?.[0]?.type) {
+      return child.marks[0] as { type: string, attrs?: Record<string, unknown> }
     }
 
     if (
@@ -275,11 +269,9 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
   const children = blocks.map((block) => {
     // If the block has more than one child and a mark
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
-      // Remove only the block mark — preserve inline marks such as link so they
-      // survive as child elements (e.g. bold+link text renders as **[text](url)**).
       block.content.forEach((child: JSONContent) => {
         if (child.type === 'text') {
-          child.marks = child.marks?.filter(mark => mark.type !== block.mark!.type) || undefined
+          delete child.marks
         }
         else if (child.type === 'link-element') {
           delete child.content![0].marks
@@ -559,6 +551,21 @@ function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
  */
 function mergeSiblingsWithSameTag(children: ComarkNode[], allowedTags: string[]): ComarkNode[] {
   if (!Array.isArray(children)) return children
+
+  const isEl = (n: ComarkNode) => Array.isArray(n) && n[0] !== null
+  const elTag = (n: ComarkNode) => (n as ComarkElement)[0] as string
+  const elAttrs = (n: ComarkNode) => (n as ComarkElement)[1] as Record<string, unknown>
+  const elChildren = (n: ComarkNode) => (n as ComarkElement).slice(2) as ComarkNode[]
+  const sameTag = (a: ComarkNode, b: ComarkNode) =>
+    isEl(a) && isEl(b)
+    && elTag(a) === elTag(b)
+    && allowedTags.includes(elTag(a))
+    && JSON.stringify(elAttrs(a) || {}) === JSON.stringify(elAttrs(b) || {})
+
+  // Spread the children of a sibling element into an accumulator (preserves existing behavior).
+  const absorb = (acc: ComarkElement, sibling: ComarkElement): ComarkElement =>
+    [elTag(acc), elAttrs(acc), ...elChildren(acc), ...elChildren(sibling)] as ComarkElement
+
   const merged: ComarkNode[] = []
   let i = 0
   while (i < children.length) {
@@ -566,27 +573,36 @@ function mergeSiblingsWithSameTag(children: ComarkNode[], allowedTags: string[])
     const next = children[i + 1]
     const afterNext = children[i + 2]
 
-    const isEl = (n: ComarkNode) => Array.isArray(n) && n[0] !== null
-    const elTag = (n: ComarkNode) => (n as ComarkElement)[0] as string
-    const elAttrs = (n: ComarkNode) => (n as ComarkElement)[1] as Record<string, unknown>
-    const elChildren = (n: ComarkNode) => (n as ComarkElement).slice(2) as ComarkNode[]
-
     if (
       current && afterNext
-      && isEl(current) && isEl(afterNext)
-      && elTag(current) === elTag(afterNext)
-      && allowedTags.includes(elTag(current))
-      && JSON.stringify(elAttrs(current) || {}) === JSON.stringify(elAttrs(afterNext) || {})
+      && sameTag(current, afterNext)
       && next && typeof next === 'string' && next === ' '
     ) {
-      merged.push([
+      // Merge two same-tag elements separated by a single space, then continue
+      // absorbing any further adjacent same-tag elements that follow immediately.
+      let acc: ComarkElement = [
         elTag(current),
         elAttrs(current),
         ...elChildren(current),
         ' ' as ComarkNode,
-        ...elChildren(afterNext),
-      ] as ComarkElement)
+        ...elChildren(afterNext as ComarkElement),
+      ] as ComarkElement
       i += 3
+      while (i < children.length && sameTag(acc, children[i])) {
+        acc = absorb(acc, children[i] as ComarkElement)
+        i++
+      }
+      merged.push(acc)
+    }
+    else if (isEl(current) && allowedTags.includes(elTag(current))) {
+      // Merge consecutive adjacent same-tag elements (fixes **a****b****c** → **a**b**c**)
+      let acc = current as ComarkElement
+      while (i + 1 < children.length && sameTag(acc, children[i + 1])) {
+        acc = absorb(acc, children[i + 1] as ComarkElement)
+        i++
+      }
+      merged.push(acc)
+      i++
     }
     else {
       merged.push(current)
