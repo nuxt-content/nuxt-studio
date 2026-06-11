@@ -47,6 +47,9 @@ overrides:
   "@tiptap/extension-underline": "3.26.0"
   "@tiptap/y-tiptap": "3.0.4"
   "prosemirror-model": "1.25.7"
+  "vite-plugin-inspect": "11.4.1"
+  "vite-dev-rpc": "2.0.0"
+  "vite-plugin-vue-tracer": "1.4.0"
 
 shamefullyHoist: true
 strictPeerDependencies: false
