@@ -8,15 +8,15 @@ describe('tiptapToComark', () => {
     // Regression: **text **[link](url)**.** used to produce extra ** markers on
     // each save cycle because the bold mark accumulated on the link text node,
     // causing three separate <strong> siblings instead of one.
-    test('bold paragraph containing a link round-trips without star accumulation', async () => {
-      const input: ComarkTree = {
-        frontmatter: {},
-        meta: {},
-        nodes: [
-          ['p', {}, ['strong', {}, 'that contain it ', ['strong', {}, ['a', { href: '/url' }, 'here']], '.']],
-        ],
-      }
+    const input: ComarkTree = {
+      frontmatter: {},
+      meta: {},
+      nodes: [
+        ['p', {}, ['strong', {}, 'that contain it ', ['strong', {}, ['a', { href: '/url' }, 'here']], '.']],
+      ],
+    }
 
+    test('bold paragraph containing a link round-trips without star accumulation', async () => {
       const tiptap = comarkToTiptap(input)
       const output = await tiptapToComark(tiptap)
 
@@ -39,14 +39,6 @@ describe('tiptapToComark', () => {
 
     test('bold text with link renders to markdown without extra stars', async () => {
       const { renderMarkdown } = await import('comark/render')
-
-      const input: ComarkTree = {
-        frontmatter: {},
-        meta: {},
-        nodes: [
-          ['p', {}, ['strong', {}, 'that contain it ', ['strong', {}, ['a', { href: '/url' }, 'here']], '.']],
-        ],
-      }
 
       const tiptap = comarkToTiptap(input)
       const output = await tiptapToComark(tiptap)

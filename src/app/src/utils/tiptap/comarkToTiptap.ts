@@ -151,10 +151,9 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
 
   // Deduplicate: nested elements of the same mark type (e.g. strong > strong)
   // should not produce two bold marks on the same text node.
-  const alreadyPresent = accumulatedMarks.some(
-    m => m.type === mark && JSON.stringify(m.attrs || {}) === JSON.stringify(attrs),
-  )
-  const marks = alreadyPresent ? [...accumulatedMarks] : [...accumulatedMarks, { type: mark, attrs }]
+  const marks = accumulatedMarks.some(m => m.type === mark)
+    ? [...accumulatedMarks]
+    : [...accumulatedMarks, { type: mark, attrs }]
 
   function getNodeContent(n: ComarkNode): string {
     if (typeof n === 'string') return n
