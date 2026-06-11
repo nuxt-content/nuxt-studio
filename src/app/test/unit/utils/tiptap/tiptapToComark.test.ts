@@ -44,9 +44,7 @@ describe('tiptapToComark', () => {
       const output = await tiptapToComark(tiptap)
       const md = (await renderMarkdown(output, { blockAttributesStyle: 'frontmatter' })).trim()
 
-      // Should not contain **** (four stars) — a sign of adjacent bold elements
-      expect(md).not.toContain('****')
-      expect(md).toContain('[here](/url)')
+      expect(md).toBe('**that contain it [here](/url).**')
     })
   })
 })
