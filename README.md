@@ -8,7 +8,7 @@ Visual edition in production for your [Nuxt Content](https://content.nuxt.com) w
 
 Originally offered as a standalone premium platform, Studio has evolved into a free, open-source, and self-hostable Nuxt module. Enable your entire team to edit website content right in production.
 
-https://github.com/user-attachments/assets/39bf4250-e72b-45aa-bf6d-9441a38cb2d5
+![Nuxt Studio demo](https://raw.githubusercontent.com/nuxt-content/nuxt-studio/main/docs/public/preview.gif)
 
 **Current Features**
 
