@@ -223,8 +223,16 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
 
   const getMarkInfo = (child: JSONContent): { type: string, attrs?: Record<string, unknown> } | null => {
-    if (child.type === 'text' && child.marks?.length === 1 && child.marks?.[0]?.type) {
-      return child.marks[0] as { type: string, attrs?: Record<string, unknown> }
+    if (child.type === 'text' && child.marks?.length) {
+      if (child.marks.length === 1) {
+        return child.marks[0] as { type: string, attrs?: Record<string, unknown> }
+      }
+      // For text with multiple marks (e.g. bold + link), return the sole structural
+      // (non-link) mark so the node stays grouped with its surrounding bold/italic block.
+      const structural = child.marks.filter(m => m.type !== 'link')
+      if (structural.length === 1) {
+        return structural[0] as { type: string, attrs?: Record<string, unknown> }
+      }
     }
 
     if (
@@ -269,10 +277,12 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
   const children = blocks.map((block) => {
     // If the block has more than one child and a mark
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
-      // Remove all marks from children
+      // Remove only the block mark — preserve inline marks such as link so they
+      // survive as child elements (e.g. bold+link text renders as **[text](url)**).
       block.content.forEach((child: JSONContent) => {
         if (child.type === 'text') {
-          delete child.marks
+          child.marks = child.marks?.filter(m => m.type !== block.mark!.type)
+          if (!child.marks?.length) delete child.marks
         }
         else if (child.type === 'link-element') {
           delete child.content![0].marks
@@ -280,7 +290,9 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
       })
 
       const markAttrs = (block.mark.attrs && Object.keys(block.mark.attrs).length > 0) ? (block.mark.attrs as Record<string, unknown>) : {}
-      return [markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement
+      // Wrap in an array so the outer .flat() treats this as one ComarkNode entry
+      // (not spreading the ComarkElement's own children into the sibling list).
+      return [[markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement]
     }
 
     return comarkNodesFromTiptap(block.content)
