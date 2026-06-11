@@ -501,10 +501,8 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    if (!options.media!.publicUrl) {
-      options.media!.publicUrl = isExternalMediaEnabled
-        ? ''
-        : resolve(nuxt.options.rootDir, 'public')
+    if (!isExternalMediaEnabled && !options.media!.publicUrl) {
+      options.media!.publicUrl = resolve(nuxt.options.rootDir, 'public')
     }
 
     // Public runtime config
@@ -547,14 +545,14 @@ export default defineNuxtModule<ModuleOptions>({
         github: {
           clientId: options.auth?.github?.clientId || '',
           clientSecret: options.auth?.github?.clientSecret || '',
-          instanceUrl: options.auth?.github?.instanceUrl!,
+          instanceUrl: options.auth!.github!.instanceUrl!,
           redirectUrl: '',
           moderators: '',
         },
         gitlab: {
           applicationId: options.auth?.gitlab?.applicationId || '',
           applicationSecret: options.auth?.gitlab?.applicationSecret || '',
-          instanceUrl: options.auth?.gitlab?.instanceUrl!,
+          instanceUrl: options.auth!.gitlab!.instanceUrl!,
           redirectUrl: '',
           moderators: '',
         },
