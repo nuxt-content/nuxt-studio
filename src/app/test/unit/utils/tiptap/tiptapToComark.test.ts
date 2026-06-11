@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { tiptapToComark } from '../../../../src/utils/tiptap/tiptapToComark'
 import { comarkToTiptap } from '../../../../src/utils/tiptap/comarkToTiptap'
-import type { ComarkTree } from 'comark'
+import type { ComarkTree, ComarkElement } from 'comark'
 
 describe('tiptapToComark', () => {
   describe('bold + link round-trip', () => {
@@ -22,10 +22,10 @@ describe('tiptapToComark', () => {
 
       // The paragraph should contain a single strong element wrapping the text
       // and the link — NOT three separate strong siblings.
-      const paragraph = output.nodes[0] as any[]
+      const paragraph = output.nodes[0] as ComarkElement
       expect(paragraph[0]).toBe('p')
 
-      const strong = paragraph[2] as any[]
+      const strong = paragraph[2] as ComarkElement
       expect(strong[0]).toBe('strong')
 
       // All content is inside one strong: 'that contain it ', a link, '.'
@@ -33,7 +33,7 @@ describe('tiptapToComark', () => {
       expect(strongChildren).toHaveLength(3)
       expect(strongChildren[0]).toBe('that contain it ')
       expect(Array.isArray(strongChildren[1])).toBe(true)
-      expect((strongChildren[1] as any[])[0]).toBe('a')
+      expect((strongChildren[1] as ComarkElement)[0]).toBe('a')
       expect(strongChildren[2]).toBe('.')
     })
 
