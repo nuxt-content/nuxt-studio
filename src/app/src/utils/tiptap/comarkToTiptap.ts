@@ -151,7 +151,7 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
 
   // Deduplicate: nested elements of the same mark type (e.g. strong > strong)
   // should not produce two bold marks on the same text node.
-  const marks = accumulatedMarks.some(m => m.type === mark)
+  const marks = accumulatedMarks.some(existing => existing.type === mark)
     ? [...accumulatedMarks]
     : [...accumulatedMarks, { type: mark, attrs }]
 

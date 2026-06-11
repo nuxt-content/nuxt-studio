@@ -227,7 +227,7 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
       // Keep only marks that participate in block grouping (i.e. those in markToTag).
       // This lets a text node carrying both a structural mark (bold) and an inline
       // mark (link) stay grouped with its surrounding block instead of being split off.
-      const structural = child.marks.filter(m => m.type in markToTag)
+      const structural = child.marks.filter(mark => mark.type in markToTag)
       if (structural.length === 1) {
         return structural[0] as { type: string, attrs?: Record<string, unknown> }
       }
@@ -279,7 +279,7 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
       // survive as child elements (e.g. bold+link text renders as **[text](url)**).
       block.content.forEach((child: JSONContent) => {
         if (child.type === 'text') {
-          child.marks = child.marks?.filter(m => m.type !== block.mark!.type) || undefined
+          child.marks = child.marks?.filter(mark => mark.type !== block.mark!.type) || undefined
         }
         else if (child.type === 'link-element') {
           delete child.content![0].marks
