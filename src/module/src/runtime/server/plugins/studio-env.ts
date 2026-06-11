@@ -8,55 +8,61 @@ export default defineNitroPlugin(() => {
   const studio = config.studio
   if (!studio) return
 
+  // GitHub auth
   if (studio.auth?.github) {
-    Object.assign(studio.auth.github, defu(studio.auth.github, {
+    studio.auth.github = defu(studio.auth.github, {
       clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
       clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
       instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL,
       redirectUrl: process.env.STUDIO_GITHUB_REDIRECT_URL,
       moderators: process.env.STUDIO_GITHUB_MODERATORS,
-    }))
+    })
   }
 
+  // GitLab auth
   if (studio.auth?.gitlab) {
-    Object.assign(studio.auth.gitlab, defu(studio.auth.gitlab, {
+    studio.auth.gitlab = defu(studio.auth.gitlab, {
       applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,
       applicationSecret: process.env.STUDIO_GITLAB_APPLICATION_SECRET,
       instanceUrl: process.env.STUDIO_GITLAB_INSTANCE_URL,
       redirectUrl: process.env.STUDIO_GITLAB_REDIRECT_URL,
       moderators: process.env.STUDIO_GITLAB_MODERATORS,
-    }))
+    })
   }
 
+  // Google auth
   if (studio.auth?.google) {
-    Object.assign(studio.auth.google, defu(studio.auth.google, {
+    studio.auth.google = defu(studio.auth.google, {
       clientId: process.env.STUDIO_GOOGLE_CLIENT_ID,
       clientSecret: process.env.STUDIO_GOOGLE_CLIENT_SECRET,
       redirectUrl: process.env.STUDIO_GOOGLE_REDIRECT_URL,
       moderators: process.env.STUDIO_GOOGLE_MODERATORS,
-    }))
+    })
   }
 
+  // SSO auth
   if (studio.auth?.sso) {
-    Object.assign(studio.auth.sso, defu(studio.auth.sso, {
+    studio.auth.sso = defu(studio.auth.sso, {
       serverUrl: process.env.STUDIO_SSO_URL,
       clientId: process.env.STUDIO_SSO_CLIENT_ID,
       clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
       redirectUrl: process.env.STUDIO_SSO_REDIRECT_URL,
-    }))
+    })
   }
 
+  // Git tokens
   if (studio.git) {
-    Object.assign(studio.git, defu(studio.git, {
+    studio.git = defu(studio.git, {
       githubToken: process.env.STUDIO_GITHUB_TOKEN,
       gitlabToken: process.env.STUDIO_GITLAB_TOKEN,
-    }))
+    })
   }
 
+  // Media
   if (studio.media) {
-    Object.assign(studio.media, defu(studio.media, {
+    studio.media = defu(studio.media, {
       publicUrl: process.env.S3_PUBLIC_URL,
-    }))
+    })
   }
 
   // Recompute session secret from the now-populated credential values
