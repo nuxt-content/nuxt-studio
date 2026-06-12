@@ -10,44 +10,6 @@ overrides:
   minimark: ^0.2.0
   unimport: 5.6.0
   remark-mdc: ^3.11.0
-  '@tiptap/core': 3.26.0
-  '@tiptap/pm': 3.26.0
-  '@tiptap/vue-3': 3.26.0
-  '@tiptap/starter-kit': 3.26.0
-  '@tiptap/extensions': 3.26.0
-  '@tiptap/markdown': 3.26.0
-  '@tiptap/suggestion': 3.26.0
-  '@tiptap/extension-blockquote': 3.26.0
-  '@tiptap/extension-bold': 3.26.0
-  '@tiptap/extension-bubble-menu': 3.26.0
-  '@tiptap/extension-bullet-list': 3.26.0
-  '@tiptap/extension-code': 3.26.0
-  '@tiptap/extension-code-block': 3.26.0
-  '@tiptap/extension-collaboration': 3.26.0
-  '@tiptap/extension-document': 3.26.0
-  '@tiptap/extension-drag-handle': 3.26.0
-  '@tiptap/extension-drag-handle-vue-3': 3.26.0
-  '@tiptap/extension-dropcursor': 3.26.0
-  '@tiptap/extension-floating-menu': 3.26.0
-  '@tiptap/extension-gapcursor': 3.26.0
-  '@tiptap/extension-hard-break': 3.26.0
-  '@tiptap/extension-heading': 3.26.0
-  '@tiptap/extension-horizontal-rule': 3.26.0
-  '@tiptap/extension-image': 3.26.0
-  '@tiptap/extension-italic': 3.26.0
-  '@tiptap/extension-link': 3.26.0
-  '@tiptap/extension-list': 3.26.0
-  '@tiptap/extension-mention': 3.26.0
-  '@tiptap/extension-node-range': 3.26.0
-  '@tiptap/extension-ordered-list': 3.26.0
-  '@tiptap/extension-paragraph': 3.26.0
-  '@tiptap/extension-placeholder': 3.26.0
-  '@tiptap/extension-strike': 3.26.0
-  '@tiptap/extension-table': 3.26.0
-  '@tiptap/extension-text': 3.26.0
-  '@tiptap/extension-underline': 3.26.0
-  '@tiptap/y-tiptap': 3.0.4
-  prosemirror-model: 1.25.7
   vite-plugin-inspect: 11.4.1
   vite-dev-rpc: 2.0.0
   vite-plugin-vue-tracer: 1.4.0
@@ -4472,7 +4434,7 @@ packages:
     peerDependencies:
       '@tiptap/core': 3.26.0
       '@tiptap/pm': 3.26.0
-      '@tiptap/y-tiptap': 3.0.4
+      '@tiptap/y-tiptap': ^3.0.4
       yjs: ^13
 
   '@tiptap/extension-document@3.26.0':
@@ -4495,7 +4457,7 @@ packages:
       '@tiptap/extension-collaboration': 3.26.0
       '@tiptap/extension-node-range': 3.26.0
       '@tiptap/pm': 3.26.0
-      '@tiptap/y-tiptap': 3.0.4
+      '@tiptap/y-tiptap': ^3.0.2
 
   '@tiptap/extension-dropcursor@3.26.0':
     resolution: {integrity: sha512-rhAtp5J/YVDUCUIc5T7b0XY9dLeuI72JgOr53w0QQc0VA0uwbfTn7sx0LI9PDCE9uwmDH8H3snVRZRnAvlM8oA==}
@@ -4654,7 +4616,7 @@ packages:
     resolution: {integrity: sha512-I7NnntIPR9PgCuBEjZ0hco+eeLvTpMDnXxsyhwn8z7Se0/Ac6RIq903wn6KoMn7FRVXpTtXAfZphFtpErjabVw==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
-      prosemirror-model: 1.25.7
+      prosemirror-model: ^1.7.1
       prosemirror-state: ^1.2.3
       prosemirror-view: ^1.9.10
       y-protocols: ^1.0.1
