@@ -14,6 +14,20 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    {
+      // Vite 8 keeps a CLI-provided root (e.g. `vite src/app`) relative when
+      // plugin `config` hooks run. @nuxt/ui builds its `#build/*` alias map from
+      // that root, producing relative alias targets that @tailwindcss/vite's
+      // resolver rejects — silently dropping every Nuxt UI theme class from the
+      // generated CSS. Resolving the root first keeps the alias map absolute.
+      name: 'nuxt-studio:absolute-root',
+      enforce: 'pre' as const,
+      config(config: { root?: string }) {
+        if (config.root && !path.isAbsolute(config.root)) {
+          config.root = path.resolve(config.root)
+        }
+      },
+    },
     vue(),
     ui({
       theme: {
