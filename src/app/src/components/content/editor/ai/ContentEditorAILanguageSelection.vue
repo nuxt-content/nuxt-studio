@@ -116,6 +116,9 @@ onUnmounted(() => {
         </p>
       </div>
 
+      <!-- TODO: vue-tsc 3.3.4 compiles the two @keydown modifiers below into an
+           object literal with duplicate onKeydown keys, failing typecheck with
+           TS1117. Remove this note once a fixed vue-tsc release is in. -->
       <UInput
         ref="inputRef"
         v-model="targetLanguage"
