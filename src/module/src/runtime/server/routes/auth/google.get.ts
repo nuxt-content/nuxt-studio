@@ -79,9 +79,7 @@ export default eventHandler(async (event: H3Event) => {
    */
   const studioConfig = useRuntimeConfig(event).studio
   const config = mergeConfig<OAuthGoogleConfig>(studioConfig?.auth?.google, {
-    clientId: process.env.STUDIO_GOOGLE_CLIENT_ID,
-    clientSecret: process.env.STUDIO_GOOGLE_CLIENT_SECRET,
-    redirectURL: process.env.STUDIO_GOOGLE_REDIRECT_URL,
+    redirectURL: studioConfig?.auth?.google?.redirectUrl,
     authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
     tokenURL: 'https://oauth2.googleapis.com/token',
     userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
@@ -137,22 +135,22 @@ export default eventHandler(async (event: H3Event) => {
    * Git provider token validation
    */
   const provider = studioConfig?.repository.provider
-  if (provider === 'github' && !process.env.STUDIO_GITHUB_TOKEN) {
+  const repositoryToken = provider === 'github'
+    ? studioConfig?.git?.githubToken
+    : studioConfig?.git?.gitlabToken
+
+  if (provider === 'github' && !repositoryToken) {
     throw createError({
       statusCode: 500,
       message: '`STUDIO_GITHUB_TOKEN` is not set. Google authenticated users cannot push changes to the repository without a valid GitHub token.',
     })
   }
-  if (provider === 'gitlab' && !process.env.STUDIO_GITLAB_TOKEN) {
+  if (provider === 'gitlab' && !repositoryToken) {
     throw createError({
       statusCode: 500,
       message: '`STUDIO_GITLAB_TOKEN` is not set. Google authenticated users cannot push changes to the repository without a valid GitLab token.',
     })
   }
-
-  const repositoryToken = provider === 'github'
-    ? process.env.STUDIO_GITHUB_TOKEN
-    : process.env.STUDIO_GITLAB_TOKEN
 
   const token = await requestAccessToken(config.tokenURL as string, {
     body: {
@@ -191,7 +189,7 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = process.env.STUDIO_GOOGLE_MODERATORS?.split(',') || []
+  const moderators = studioConfig?.auth?.google?.moderators?.split(',').filter(Boolean) || []
 
   if (!moderators.includes(user.email)) {
     if (import.meta.dev && moderators.length === 0) {
