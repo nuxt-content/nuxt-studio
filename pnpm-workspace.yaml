@@ -3,9 +3,23 @@ packages:
   - ./playground/*
   - ./docs
 
+overrides:
+  "@nuxt/content": "^3.14.0"
+  "@unhead/vue": "2.1.12"
+  "minimark": "^0.2.0"
+  "unimport": "5.6.0"
+  "remark-mdc": "^3.11.0"
+  "vite-plugin-inspect": "11.4.1"
+  "vite-dev-rpc": "2.0.0"
+  "vite-plugin-vue-tracer": "1.4.0"
+  "nuxtseo-shared": "5.2.5"
+
+shamefullyHoist: true
+strictPeerDependencies: false
+
 ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - '@tailwindcss/oxide'
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
   - esbuild
   - leveldown
   - unrs-resolver
@@ -20,14 +34,21 @@ minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   # Vercel AI SDK
   - ai
-  - '@ai-sdk/*'
+  - "@ai-sdk/*"
   # Nuxt ecosystem
   - nuxt
-  - '@nuxt/*'
-  - '@nuxtjs/*'
+  - "@nuxt/*"
+  - "@nuxtjs/*"
   - docus
   - nuxt-component-meta
   - nuxt-studio
   # Comark
   - comark
 
+allowBuilds:
+  "@parcel/watcher": false
+  better-sqlite3: true
+  esbuild: false
+  sharp: true
+  unrs-resolver: false
+  vue-demi: false
