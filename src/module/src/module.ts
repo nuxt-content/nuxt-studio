@@ -125,6 +125,13 @@ interface RepositoryOptions {
    * @default true
    */
   private?: boolean
+  /**
+   * Controls where Studio commits content changes.
+   * - `'direct'`: commit directly to the configured branch (default behaviour)
+   * - `'feature-branch'`: create a new `studio/YYYY-MM-DD-HH-MM-SS` branch for every publish action
+   * @default 'direct'
+   */
+  branchStrategy?: 'direct' | 'feature-branch'
 }
 
 interface GitHubRepositoryOptions extends RepositoryOptions {
