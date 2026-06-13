@@ -12,13 +12,14 @@ overrides:
   "vite-plugin-inspect": "11.4.1"
   "vite-dev-rpc": "2.0.0"
   "vite-plugin-vue-tracer": "1.4.0"
+  "nuxtseo-shared": "5.2.5"
 
 shamefullyHoist: true
 strictPeerDependencies: false
 
 ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - '@tailwindcss/oxide'
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
   - esbuild
   - leveldown
   - unrs-resolver
@@ -33,11 +34,11 @@ minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   # Vercel AI SDK
   - ai
-  - '@ai-sdk/*'
+  - "@ai-sdk/*"
   # Nuxt ecosystem
   - nuxt
-  - '@nuxt/*'
-  - '@nuxtjs/*'
+  - "@nuxt/*"
+  - "@nuxtjs/*"
   - docus
   - nuxt-component-meta
   - nuxt-studio
@@ -45,7 +46,7 @@ minimumReleaseAgeExclude:
   - comark
 
 allowBuilds:
-  '@parcel/watcher': false
+  "@parcel/watcher": false
   better-sqlite3: true
   esbuild: false
   sharp: true
