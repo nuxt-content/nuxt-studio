@@ -781,6 +781,59 @@ describe('comark → mdc reverse helpers (used at DB write boundary)', () => {
     expect(slot[1]).toEqual({ name: 'title' })
   })
 
+  it('unwraps @nuxtjs/mdc binding-syntax props (:key + JSON string) to real JS values', () => {
+    // @nuxtjs/mdc serialises array-of-objects YAML block props as:
+    //   { ":authorsOne": "[{\"name\":\"John\"}]" }
+    // propsMDCToComark must unwrap these back to { authorsOne: [{name:'John'}] }
+    const mdcBody: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'authors',
+          props: {
+            ':authorsOne': '[{"name":"John Doe","role":"contributor"}]',
+            ':authorsTwo': '[{"name":"Jane Doe","role":"maintainer"}]',
+          },
+          children: [],
+        } as unknown,
+      ],
+    } as MDCRoot
+
+    const tree = comarkTreeFromLegacyDocument(legacyDocument(mdcBody))!
+    const [, attrs] = tree.nodes[0] as [string, Record<string, unknown>]
+
+    expect(attrs.authorsOne).toEqual([{ name: 'John Doe', role: 'contributor' }])
+    expect(attrs.authorsTwo).toEqual([{ name: 'Jane Doe', role: 'maintainer' }])
+    expect(':authorsOne' in attrs).toBe(false)
+    expect(':authorsTwo' in attrs).toBe(false)
+  })
+
+  it('round-trips array-of-objects props through the legacy bridge and renders YAML block', async () => {
+    const mdcBody: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'authors',
+          props: {
+            ':authorsOne': '[{"name":"John Doe","role":"contributor"}]',
+          },
+          children: [],
+        } as unknown,
+      ],
+    } as MDCRoot
+
+    const tree = comarkTreeFromLegacyDocument(legacyDocument(mdcBody))!
+    const markdown = await renderMarkdown(tree, { blockAttributesStyle: 'frontmatter' })
+
+    // Must use YAML block format, not inline JSON binding syntax
+    expect(markdown).toContain('authorsOne:')
+    expect(markdown).toContain('- name: John Doe')
+    expect(markdown).not.toContain(':authorsOne=')
+    expect(markdown).not.toContain('[object Object]')
+  })
+
   it('writes back `class` strings as `className` arrays', () => {
     const tree: ComarkTree = {
       nodes: [['span', { class: 'text-primary font-bold' }, 'Nuxt']],

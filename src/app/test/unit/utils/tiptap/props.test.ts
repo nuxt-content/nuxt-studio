@@ -2,7 +2,7 @@ import { expect, test, describe } from 'vitest'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { PropertyMeta } from 'vue-component-meta'
-import { buildAttrs, buildFormTreeFromProps, convertStringToArray, convertStringToValue } from '../../../../src/utils/tiptap/props'
+import { buildAttrs, buildFormTreeFromProps, convertStringToArray, convertStringToValue, normalizeProps } from '../../../../src/utils/tiptap/props'
 import { buttonPropsSchema, iconPropsSchema } from '../../../mocks/props'
 import type { ComponentMeta } from '../../../../src/types/component'
 
@@ -1397,6 +1397,55 @@ describe('props', () => {
     //     },
     //   })
     // })
+  })
+
+  describe('normalizeProps', () => {
+    test('passes array-of-objects values through unchanged', () => {
+      const authors = [
+        { name: 'John Doe', role: 'contributor', avatar: 'https://placehold.co/150' },
+        { name: 'Jane Doe', role: 'creator', avatar: 'https://placehold.co/150' },
+      ]
+      expect(normalizeProps({ authorsOne: authors }, {})).toEqual({ authorsOne: authors })
+    })
+
+    test('passes plain object values through unchanged', () => {
+      const config = { key1: 'value1', key2: 'value2' }
+      expect(normalizeProps({ objectAttr: config }, {})).toEqual({ objectAttr: config })
+    })
+
+    test('passes array-of-primitives through unchanged', () => {
+      const tags = ['important', 'archived', 'urgent']
+      expect(normalizeProps({ tags }, {})).toEqual({ tags })
+    })
+
+    test('passes null through unchanged', () => {
+      expect(normalizeProps({ optional: null }, {})).toEqual({ optional: null })
+    })
+
+    test('passes primitive values through unchanged (no stringification)', () => {
+      // Values are already the correct type from comark parse — no coercion wanted
+      expect(normalizeProps({ title: 'Hello', count: 42, enabled: true }, {})).toEqual({
+        title: 'Hello',
+        count: 42,
+        enabled: true,
+      })
+    })
+
+    test('passes className array through unchanged', () => {
+      expect(normalizeProps({ className: ['foo', 'bar'] }, {})).toEqual({ className: ['foo', 'bar'] })
+    })
+
+    test('trims whitespace from keys', () => {
+      expect(normalizeProps({ '  title  ': 'Hello' }, {})).toEqual({ title: 'Hello' })
+    })
+
+    test('drops empty and whitespace-only keys', () => {
+      expect(normalizeProps({ '': 'a', '   ': 'b', valid: 'c' }, {})).toEqual({ valid: 'c' })
+    })
+
+    test('merges nodeProps and extraProps, extraProps wins on collision', () => {
+      expect(normalizeProps({ a: 1, b: 2 }, { b: 99, c: 3 })).toEqual({ a: 1, b: 99, c: 3 })
+    })
   })
 
   describe('buildAttrs', () => {
