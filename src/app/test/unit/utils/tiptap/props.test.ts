@@ -1440,7 +1440,7 @@ describe('props', () => {
     })
 
     test('drops empty and whitespace-only keys', () => {
-      expect(normalizeProps({ '': 'a', '   ': 'b', valid: 'c' }, {})).toEqual({ valid: 'c' })
+      expect(normalizeProps({ '': 'a', '   ': 'b', 'valid': 'c' }, {})).toEqual({ valid: 'c' })
     })
 
     test('merges nodeProps and extraProps, extraProps wins on collision', () => {
