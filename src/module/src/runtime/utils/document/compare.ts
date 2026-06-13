@@ -4,6 +4,7 @@ import { ContentFileExtension } from '../../types/content'
 import { doObjectsMatch } from '../object'
 import { renderMarkdown } from 'comark/render'
 import { documentFromContent } from './generate'
+import { cleanDataKeys } from './schema'
 
 /**
  * Sort and normalize every element's attributes alphabetically.
@@ -42,7 +43,13 @@ export async function isDocumentMatchingContent(content: string, document: Datab
       return false
     }
 
-    return doObjectsMatch(generatedDocumentData, documentData)
+    // @nuxt/content may store unknown frontmatter fields in `meta` rather than as top-level
+    // columns depending on the collection schema. cleanDataKeys expands meta to root and strips
+    // nulls/defaults, matching the normalization used by contentFromMarkdownDocument.
+    return doObjectsMatch(
+      cleanDataKeys(generatedDocument) as Record<string, unknown>,
+      cleanDataKeys(document) as Record<string, unknown>,
+    )
   }
 
   return doObjectsMatch(generatedDocument, document)

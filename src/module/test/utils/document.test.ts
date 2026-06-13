@@ -462,6 +462,39 @@ Description`
     const result = await isDocumentMatchingContent(jsonContent, document)
     expect(result).toBe(true)
   })
+
+  it('should be true when frontmatter fields are stored in meta by @nuxt/content instead of top-level', async () => {
+    // @nuxt/content may store unknown frontmatter keys (not in collection schema) inside `meta`
+    // rather than as top-level columns. isDocumentMatchingContent must handle this the same
+    // way contentFromMarkdownDocument does (via cleanDataKeys meta expansion).
+    const markdownContent = `---
+title: Test Page
+navigation: hidden
+sitemap:
+  loc: /test
+  images: []
+  videos: []
+---
+
+Hello world
+`
+
+    const document = {
+      id: 'content:pages/test.md',
+      extension: ContentFileExtension.Markdown,
+      stem: 'pages/test',
+      title: 'Test Page',
+      // @nuxt/content stored navigation and sitemap in meta because they weren't schema columns
+      meta: {
+        navigation: 'hidden',
+        sitemap: { loc: '/test', images: [], videos: [] },
+      },
+      body: { nodes: [['p', {}, 'Hello world']], frontmatter: {}, meta: {} },
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(true)
+  })
 })
 
 describe('sanitizeDocumentTree', () => {
