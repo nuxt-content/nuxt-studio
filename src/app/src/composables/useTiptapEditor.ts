@@ -13,7 +13,7 @@ import {
   standardNuxtUIComponents,
   computeStandardDragActions,
 } from '../utils/tiptap/editor'
-import { imageHandler, videoHandler, calloutHandler, componentHandler, tableHandler, CALLOUT_TYPES } from '../utils/tiptap/handlers'
+import { imageHandler, videoHandler, calloutHandler, componentHandler, tableHandler, CALLOUT_TYPES, pickInitialSlot } from '../utils/tiptap/handlers'
 import { useStudio } from './useStudio'
 
 const NATIVE_OVERRIDE_COMPONENTS = new Set(['table'])
@@ -50,10 +50,14 @@ export function useTiptapEditor() {
     video: videoHandler(),
     table: tableHandler(),
     ...Object.fromEntries(
-      componentItems.value.map(item => [
-        item.kind,
-        CALLOUT_TYPES.has(item.kind) ? calloutHandler(item.kind) : componentHandler(item.kind),
-      ]),
+      host.meta.editor.components.get()
+        .filter(component => !NATIVE_OVERRIDE_COMPONENTS.has(component.name))
+        .map(component => [
+          component.name,
+          CALLOUT_TYPES.has(component.name)
+            ? calloutHandler(component.name)
+            : componentHandler(component.name, pickInitialSlot(component.meta.slots)),
+        ]),
     ),
   }) satisfies EditorCustomHandlers)
 
