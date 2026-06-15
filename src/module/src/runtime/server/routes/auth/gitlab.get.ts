@@ -91,9 +91,7 @@ export default eventHandler(async (event: H3Event) => {
   const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.gitlab?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://gitlab.com')
 
   const config = mergeConfig<OAuthGitLabConfig>(studioConfig?.auth?.gitlab, {
-    applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,
-    applicationSecret: process.env.STUDIO_GITLAB_APPLICATION_SECRET,
-    redirectURL: process.env.STUDIO_GITLAB_REDIRECT_URL,
+    redirectURL: studioConfig?.auth?.gitlab?.redirectUrl,
     instanceUrl,
     authorizationURL: `${instanceUrl}/oauth/authorize`,
     tokenURL: `${instanceUrl}/oauth/token`,
@@ -194,7 +192,7 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = process.env.STUDIO_GITLAB_MODERATORS?.split(',') || []
+  const moderators = studioConfig?.auth?.gitlab?.moderators?.split(',').filter(Boolean) || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,

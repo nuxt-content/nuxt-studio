@@ -1,5 +1,4 @@
 import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
-import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
@@ -159,9 +158,13 @@ export interface ModuleOptions {
    */
   ai?: {
     /**
-     * The Vercel API Gateway key for AI features.
+     * The Vercel AI Gateway key for AI features.
      * When set, AI-powered content generation will be enabled.
-     * @default process.env.AI_GATEWAY_API_KEY
+     *
+     * Resolution order (highest to lowest priority):
+     * 1. This option in nuxt.config.ts
+     * 2. `NUXT_STUDIO_AI_API_KEY` environment variable (Nuxt runtime override)
+     * 3. `AI_GATEWAY_API_KEY` environment variable (legacy, resolved at runtime)
      */
     apiKey?: string
     /**
@@ -390,27 +393,27 @@ export default defineNuxtModule<ModuleOptions>({
       branch: undefined,
       rootDir: '',
       private: true,
-      instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || process.env.STUDIO_GITLAB_INSTANCE_URL,
+      instanceUrl: undefined,
     },
     auth: {
       github: {
-        clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
-        clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
-        instanceUrl: process.env.STUDIO_GITHUB_INSTANCE_URL || 'https://github.com',
+        clientId: undefined,
+        clientSecret: undefined,
+        instanceUrl: 'https://github.com',
       },
       gitlab: {
-        applicationId: process.env.STUDIO_GITLAB_APPLICATION_ID,
-        applicationSecret: process.env.STUDIO_GITLAB_APPLICATION_SECRET,
-        instanceUrl: process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://gitlab.com',
+        applicationId: undefined,
+        applicationSecret: undefined,
+        instanceUrl: 'https://gitlab.com',
       },
       google: {
-        clientId: process.env.STUDIO_GOOGLE_CLIENT_ID,
-        clientSecret: process.env.STUDIO_GOOGLE_CLIENT_SECRET,
+        clientId: undefined,
+        clientSecret: undefined,
       },
       sso: {
-        serverUrl: process.env.STUDIO_SSO_URL,
-        clientId: process.env.STUDIO_SSO_CLIENT_ID,
-        clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
+        serverUrl: undefined,
+        clientId: undefined,
+        clientSecret: undefined,
       },
     },
     i18n: {
@@ -434,7 +437,7 @@ export default defineNuxtModule<ModuleOptions>({
     },
     media: {
       external: false,
-      publicUrl: process.env.S3_PUBLIC_URL,
+      publicUrl: undefined,
       maxFileSize: 10 * 1024 * 1024,
       allowedTypes: ['image/*', 'video/*', 'audio/*'],
       prefix: 'studio',
@@ -460,38 +463,27 @@ export default defineNuxtModule<ModuleOptions>({
       options.dev = false
     }
 
-    // Fill in missing repository options from CI environment variables
     const isProdBuild = nuxt.options.dev === false && nuxt.options._prepare === false
-    if (isProdBuild) {
-      const detectedRepo = detectRepositoryFromCI()
-      if (detectedRepo) {
-        // Do not override provider with CI detection
-        // For other fields CI detection values take precedence over user-configured values
-        const { provider: detectedProvider, ...detectedWithoutProvider } = detectedRepo
-        options.repository = defu(detectedWithoutProvider, options.repository) as GitHubRepositoryOptions | GitLabRepositoryOptions
-        if (!options.repository.provider) {
-          (options.repository as GitHubRepositoryOptions | GitLabRepositoryOptions).provider = detectedProvider as 'github' | 'gitlab'
-        }
-      }
-      logger.info(`Using repository: ${options.repository?.provider}:${options.repository?.owner}/${options.repository?.repo}#${options.repository?.branch}`)
+
+    if (isProdBuild && options.repository?.owner && options.repository?.repo) {
+      logger.info(`Using repository (build-time config): ${options.repository?.provider}:${options.repository?.owner}/${options.repository?.repo}#${options.repository?.branch}`)
     }
 
     if (isProdBuild && !options.repository?.owner && !options.repository?.repo) {
-      throw new Error('Repository owner and repository name are required')
+      logger.warn([
+        'Repository owner and repository name are not configured at build time.',
+        'They can be supplied at runtime via:',
+        '  - NUXT_PUBLIC_STUDIO_REPOSITORY_OWNER / NUXT_PUBLIC_STUDIO_REPOSITORY_REPO / NUXT_PUBLIC_STUDIO_REPOSITORY_BRANCH',
+        '  - CI platform env vars: VERCEL_GIT_* or Netlify REPOSITORY_URL / BRANCH (resolved at server runtime)',
+        'Note: GITHUB_ACTIONS / GITLAB_CI env vars are build-time only; use NUXT_PUBLIC_STUDIO_REPOSITORY_* for those deployments.',
+      ].join('\n'))
     }
 
     if (isProdBuild) {
       validateAuthConfig(options)
     }
 
-    // Read AI API key from environment if not provided in options
-    if (!options.ai?.apiKey && process.env.AI_GATEWAY_API_KEY) {
-      options.ai = options.ai || {}
-      options.ai.apiKey = process.env.AI_GATEWAY_API_KEY
-    }
-
-    const isAIEnabled = Boolean(options.ai?.apiKey)
-    if (isAIEnabled) {
+    if (options.ai) {
       await setAIFeature(options, nuxt, runtime)
     }
 
@@ -509,10 +501,8 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    if (!options.media!.publicUrl) {
-      options.media!.publicUrl = isExternalMediaEnabled
-        ? process.env.S3_PUBLIC_URL
-        : resolve(nuxt.options.rootDir, 'public')
+    if (!isExternalMediaEnabled && !options.media!.publicUrl) {
+      options.media!.publicUrl = resolve(nuxt.options.rootDir, 'public')
     }
 
     // Public runtime config
@@ -523,6 +513,8 @@ export default defineNuxtModule<ModuleOptions>({
         server: process.env.STUDIO_DEV_SERVER,
       },
       ai: {
+        // Honest build-time baseline; the studio-env middleware recomputes this at runtime
+        // once the AI_GATEWAY_API_KEY / NUXT_STUDIO_AI_API_KEY is resolved.
         enabled: Boolean(options.ai?.apiKey),
         context: {
           collectionName: options.ai?.context?.collection?.name as string,
@@ -546,32 +538,43 @@ export default defineNuxtModule<ModuleOptions>({
     // Studio runtime config
     nuxt.options.runtimeConfig.studio = {
       ai: {
-        apiKey: options.ai?.apiKey,
+        apiKey: options.ai?.apiKey || '',
         context: options.ai?.context as never,
         experimental: options.ai?.experimental,
       },
       auth: {
-        sessionSecret: createHash('md5').update([
-          options.auth?.github?.clientId,
-          options.auth?.github?.clientSecret,
-          options.auth?.gitlab?.applicationId,
-          options.auth?.gitlab?.applicationSecret,
-          options.auth?.google?.clientId,
-          options.auth?.google?.clientSecret,
-          options.auth?.sso?.serverUrl,
-          options.auth?.sso?.clientId,
-          options.auth?.sso?.clientSecret,
-          process.env.STUDIO_GITHUB_TOKEN,
-          process.env.STUDIO_GITLAB_TOKEN,
-        ].join('')).digest('hex'),
-        // @ts-expect-error autogenerated type doesn't match with project options
-        github: options.auth?.github,
-        // @ts-expect-error autogenerated type doesn't match with project options
-        gitlab: options.auth?.gitlab,
-        // @ts-expect-error autogenerated type doesn't match with project options
-        google: options.auth?.google,
-        // @ts-expect-error autogenerated type doesn't match with project options
-        sso: options.auth?.sso,
+        sessionSecret: '',
+        github: {
+          clientId: options.auth?.github?.clientId || '',
+          clientSecret: options.auth?.github?.clientSecret || '',
+          instanceUrl: options.auth!.github!.instanceUrl!,
+          redirectUrl: '',
+          moderators: '',
+        },
+        gitlab: {
+          applicationId: options.auth?.gitlab?.applicationId || '',
+          applicationSecret: options.auth?.gitlab?.applicationSecret || '',
+          instanceUrl: options.auth!.gitlab!.instanceUrl!,
+          redirectUrl: '',
+          moderators: '',
+        },
+        google: {
+          clientId: options.auth?.google?.clientId || '',
+          clientSecret: options.auth?.google?.clientSecret || '',
+          redirectUrl: '',
+          moderators: '',
+        },
+        sso: {
+          serverUrl: options.auth?.sso?.serverUrl || '',
+          clientId: options.auth?.sso?.clientId || '',
+          clientSecret: options.auth?.sso?.clientSecret || '',
+          redirectUrl: '',
+        },
+      },
+      git: {
+        commit: { messagePrefix: options.git?.commit?.messagePrefix ?? '' },
+        githubToken: '',
+        gitlabToken: '',
       },
       // @ts-expect-error Autogenerated type does not match with options
       repository: options.repository,
@@ -579,6 +582,11 @@ export default defineNuxtModule<ModuleOptions>({
       editor: editorOptions,
       // @ts-expect-error Autogenerated type does not match with options
       markdown: nuxt.options.content?.build?.markdown || {},
+      // @ts-expect-error Autogenerated type does not match with options (optional booleans vs required)
+      media: {
+        ...options.media,
+        publicUrl: options.media?.publicUrl || '',
+      },
     }
 
     // Vite config
@@ -639,6 +647,8 @@ export default defineNuxtModule<ModuleOptions>({
     addPlugin(process.env.STUDIO_DEV_SERVER
       ? runtime('./plugins/studio.client.dev')
       : runtime('./plugins/studio.client'))
+
+    addServerHandler({ middleware: true, handler: runtime('./server/middleware/studio-env') })
 
     let publicAssetsStorage
     if (isExternalMediaEnabled) {
@@ -701,57 +711,3 @@ export default defineNuxtModule<ModuleOptions>({
     })
   },
 })
-
-/**
- * Fill in missing repository options from CI environment variables.
- * Supports Vercel, Netlify, GitHub Actions, and GitLab CI.
- */
-function detectRepositoryFromCI(): Partial<GitHubRepositoryOptions | GitLabRepositoryOptions> | undefined {
-  // Vercel
-  if (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG && ['github', 'gitlab'].includes(process.env.VERCEL_GIT_PROVIDER!)) {
-    return {
-      provider: process.env.VERCEL_GIT_PROVIDER as 'github' | 'gitlab',
-      owner: process.env.VERCEL_GIT_REPO_OWNER,
-      repo: process.env.VERCEL_GIT_REPO_SLUG,
-      branch: process.env.VERCEL_GIT_COMMIT_REF,
-    }
-  }
-
-  // Netlify
-  if (process.env.NETLIFY && process.env.REPOSITORY_URL) {
-    const match = process.env.REPOSITORY_URL.match(/(?:github\.com|gitlab\.com)[:/]([^/]+)\/([^/.]+)/)
-    if (match?.[1] && match[2]) {
-      const isGitLab = process.env.REPOSITORY_URL.includes('gitlab.com')
-      return {
-        provider: isGitLab ? 'gitlab' : 'github',
-        owner: match[1],
-        repo: match[2],
-        branch: process.env.BRANCH,
-      }
-    }
-  }
-
-  // GitHub Actions
-  if (process.env.GITHUB_ACTIONS && process.env.GITHUB_REPOSITORY?.includes('/')) {
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/') as [string, string]
-    return {
-      provider: 'github',
-      owner,
-      repo,
-      branch: process.env.GITHUB_REF_NAME,
-    }
-  }
-
-  // GitLab CI
-  if (process.env.GITLAB_CI && process.env.CI_PROJECT_NAMESPACE && process.env.CI_PROJECT_NAME) {
-    return {
-      provider: 'gitlab',
-      owner: process.env.CI_PROJECT_NAMESPACE,
-      repo: process.env.CI_PROJECT_NAME,
-      branch: process.env.CI_COMMIT_BRANCH,
-      instanceUrl: process.env.CI_SERVER_URL,
-    }
-  }
-
-  return undefined
-}

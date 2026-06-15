@@ -10,7 +10,8 @@ export const DAY_IN_SECONDS = 60 * 60 * 24
 
 const mediaConfig = useRuntimeConfig().public.studio.media
 const studioConfig = useRuntimeConfig().public.studio
-export const publicDir: string = mediaConfig.publicUrl
+const resolvedPublicUrl = mediaConfig.publicUrl || process.env.S3_PUBLIC_URL || ''
+export const publicDir: string = resolvedPublicUrl
 
 // ipx is an optional dependency (requires sharp which uses native binaries
 // unavailable on some platforms such as Cloudflare Workers). The import is
@@ -78,7 +79,7 @@ async function loadIpxModule() {
 
 export function requireAllowedDomain(id: string): string | undefined {
   if (!mediaConfig.external) return undefined
-  const configuredDomain = parseURL(mediaConfig.publicUrl).host
+  const configuredDomain = parseURL(resolvedPublicUrl).host
   const requestDomain = parseURL(id).host
   if (configuredDomain && requestDomain !== configuredDomain) {
     throw createError({ statusCode: 403, statusMessage: 'IPX_FORBIDDEN_DOMAIN' })

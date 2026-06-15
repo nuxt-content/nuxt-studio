@@ -3,7 +3,6 @@ import { createError, deleteCookie, eventHandler, getCookie, getQuery, getReques
 import { withQuery } from 'ufo'
 import { consumePKCECodeVerifier, generateCodeChallenge, generateOAuthState, generatePKCECodeVerifier, requestAccessToken, validateOAuthState } from '../../utils/auth'
 import { setInternalStudioUserSession } from '../../utils/session'
-import { mergeConfig } from '../../utils/object'
 
 export interface SSOUser {
   sub: string
@@ -42,12 +41,11 @@ export default eventHandler(async (event: H3Event) => {
    * SSO provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const config = mergeConfig<SSOServerConfig>(studioConfig?.auth?.sso, {
-    serverUrl: process.env.STUDIO_SSO_URL,
-    clientId: process.env.STUDIO_SSO_CLIENT_ID,
-    clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
-    redirectURL: process.env.STUDIO_SSO_REDIRECT_URL,
-  })
+  const sso = studioConfig?.auth?.sso
+  const config: SSOServerConfig = {
+    ...sso,
+    redirectURL: sso?.redirectUrl,
+  }
 
   const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
 
@@ -155,10 +153,10 @@ export default eventHandler(async (event: H3Event) => {
   }
   // Fall back to environment variable
   else if (provider === 'github') {
-    repositoryToken = process.env.STUDIO_GITHUB_TOKEN
+    repositoryToken = studioConfig?.git?.githubToken
   }
   else if (provider === 'gitlab') {
-    repositoryToken = process.env.STUDIO_GITLAB_TOKEN
+    repositoryToken = studioConfig?.git?.gitlabToken
   }
 
   // Validate that we have a token
