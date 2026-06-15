@@ -2682,3 +2682,59 @@ text 1
     expect(outputContentBis).toBe(`${inputContent}\n`)
   })
 })
+
+describe('YAML array-of-objects props round-trip', () => {
+  test('block element with YAML array-of-objects props round-trips correctly', async () => {
+    const inputContent = `::authors
+---
+authorsOne:
+  - name: John Doe One
+    avatar: https://placehold.co/150
+    role: contributor
+authorsTwo:
+  - name: Jane Doe Two
+    avatar: https://placehold.co/150
+    role: maintainer
+---
+::`
+
+    const expectedComarkNodes = [
+      [
+        'authors',
+        {
+          authorsOne: [{ name: 'John Doe One', avatar: 'https://placehold.co/150', role: 'contributor' }],
+          authorsTwo: [{ name: 'Jane Doe Two', avatar: 'https://placehold.co/150', role: 'maintainer' }],
+        },
+      ],
+    ]
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    // AST must contain actual objects, not JSON strings
+    expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+
+    // TipTap attrs.props must still hold actual objects (not "[object Object]")
+    const elementNode = tiptapJSON.content?.find(n => n.type === 'element')
+    expect(elementNode?.attrs?.props?.authorsOne).toEqual([
+      { name: 'John Doe One', avatar: 'https://placehold.co/150', role: 'contributor' },
+    ])
+
+    const rtComarkTree = await tiptapToComark(tiptapJSON)
+
+    // After round-trip the AST must still hold actual objects
+    expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+
+    // Output must use YAML block syntax, not inline JSON strings
+    expect(outputContent).toBe(`${inputContent}\n`)
+  })
+})

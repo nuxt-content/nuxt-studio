@@ -27,24 +27,20 @@ authorsOne:
   - name: John Doe One
     avatar: https://placehold.co/150
     role: contributor
-    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.
+    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
   - name: Jane Doe One
     avatar: https://placehold.co/150
     role: creator
-    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.
+    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 authorsTwo:
   - name: John Doe Two
     avatar: https://placehold.co/150
     role: maintainer
-    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.
+    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
   - name: Jane Doe Two
     avatar: https://placehold.co/150
     role: contributor
-    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.
+    bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ---
 ::
 

@@ -312,6 +312,25 @@ function normalizeMdcChildren(children: MDCNode[]): MDCNode[] {
 function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<string, unknown> {
   let next: Record<string, unknown> = props
 
+  // @nuxtjs/mdc serializes non-primitive YAML block props (arrays, objects) as
+  // Vue binding syntax: key ":authorsOne" + JSON-stringified value. Unwrap these
+  // back to plain keys with their real JavaScript values.
+  const unbound: Record<string, unknown> = {}
+  for (const [rawKey, value] of Object.entries(next)) {
+    if (rawKey.startsWith(':') && typeof value === 'string') {
+      try {
+        unbound[rawKey.slice(1)] = JSON.parse(value)
+      }
+      catch {
+        unbound[rawKey] = value
+      }
+    }
+    else {
+      unbound[rawKey] = value
+    }
+  }
+  next = unbound
+
   if (tag === 'template') {
     const vSlotKey = Object.keys(next).find(k => k.startsWith('v-slot:'))
     if (vSlotKey) {
