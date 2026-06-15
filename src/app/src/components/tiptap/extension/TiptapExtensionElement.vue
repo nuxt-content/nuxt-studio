@@ -9,8 +9,6 @@ import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
 
 const nodeProps = defineProps(nodeViewProps)
 
-const nodeViewContent = ref<HTMLElement>()
-
 const node = computed(() => nodeProps.node)
 
 const { host } = useStudio()
@@ -192,7 +190,7 @@ function updateComponentProps(props: Record<string, unknown>) {
       v-show="!collapsed"
       class="ml-5 mt-2"
     >
-      <NodeViewContent ref="nodeViewContent" />
+      <NodeViewContent />
     </div>
   </NodeViewWrapper>
 </template>

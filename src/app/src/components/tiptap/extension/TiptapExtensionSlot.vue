@@ -7,8 +7,6 @@ const nodeProps = defineProps(nodeViewProps)
 
 const { host } = useStudio()
 
-const nodeViewContentEl = ref<HTMLElement>()
-
 const isHovered = ref(false)
 const isEditable = ref(true) // TODO: Connect to editor state
 
@@ -92,7 +90,7 @@ function deleteSlot() {
       <div
         class="pl-5 border-l-2 border-dashed border-default"
       >
-        <NodeViewContent ref="nodeViewContentEl" />
+        <NodeViewContent />
       </div>
     </div>
   </NodeViewWrapper>
