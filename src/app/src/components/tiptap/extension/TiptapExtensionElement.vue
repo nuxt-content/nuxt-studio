@@ -9,7 +9,6 @@ import { standardNuxtUIComponents } from '../../../utils/tiptap/editor'
 
 const nodeProps = defineProps(nodeViewProps)
 
-// @ts-expect-error vue-tsc error in cli
 const nodeViewContent = ref<HTMLElement>()
 
 const node = computed(() => nodeProps.node)
