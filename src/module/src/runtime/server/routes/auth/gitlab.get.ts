@@ -11,14 +11,19 @@ import { mergeConfig } from '../../utils/object'
 export interface OAuthGitLabConfig {
   /**
    * GitLab OAuth Application ID
-   * @default process.env.STUDIO_GITLAB_APPLICATION_ID
+   * @default NUXT_STUDIO_AUTH_GITLAB_APPLICATION_ID
    */
   applicationId?: string
   /**
    * GitLab OAuth Application Secret
-   * @default process.env.STUDIO_GITLAB_APPLICATION_SECRET
+   * @default NUXT_STUDIO_AUTH_GITLAB_APPLICATION_SECRET
    */
   applicationSecret?: string
+  /**
+   * Comma-separated list of allowed email addresses.
+   * @default NUXT_STUDIO_AUTH_GITLAB_MODERATORS
+   */
+  moderators?: string
   /**
    * GitLab OAuth Scope
    * @default []
@@ -62,7 +67,7 @@ export interface OAuthGitLabConfig {
 
   /**
    * Redirect URL to allow overriding for situations like prod failing to determine public hostname
-   * Use `process.env.STUDIO_GITLAB_REDIRECT_URL` to overwrite the default redirect URL.
+   * Set via NUXT_STUDIO_AUTH_GITLAB_REDIRECT_URL environment variable.
    * @default is ${hostname}/__nuxt_studio/auth/gitlab
    */
   redirectURL?: string
@@ -91,7 +96,6 @@ export default eventHandler(async (event: H3Event) => {
   const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.gitlab?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://gitlab.com')
 
   const config = mergeConfig<OAuthGitLabConfig>(studioConfig?.auth?.gitlab, {
-    redirectURL: studioConfig?.auth?.gitlab?.redirectUrl,
     instanceUrl,
     authorizationURL: `${instanceUrl}/oauth/authorize`,
     tokenURL: `${instanceUrl}/oauth/token`,
@@ -192,7 +196,7 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = studioConfig?.auth?.gitlab?.moderators?.split(',').filter(Boolean) || []
+  const moderators = studioConfig?.auth?.gitlab?.moderators?.split(',') || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,

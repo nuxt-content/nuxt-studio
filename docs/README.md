@@ -95,8 +95,8 @@ Configure how users authenticate to access Studio. Choose from GitHub, GitLab, G
 
 ```bash
 # Example with GitHub OAuth
-STUDIO_GITHUB_CLIENT_ID=<your_client_id>
-STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
+NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID=<your_client_id>
+NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET=<your_client_secret>
 ```
 
 > [📖 Auth Providers Documentation](https://nuxt.studio/auth-providers)

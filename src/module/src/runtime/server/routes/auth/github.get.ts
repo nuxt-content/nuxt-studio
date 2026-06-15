@@ -10,14 +10,19 @@ import { mergeConfig } from '../../utils/object'
 export interface OAuthGitHubConfig {
   /**
    * GitHub OAuth Client ID
-   * @default process.env.STUDIO_GITHUB_CLIENT_ID
+   * @default NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID
    */
   clientId?: string
   /**
    * GitHub OAuth Client Secret
-   * @default process.env.STUDIO_GITHUB_CLIENT_SECRET
+   * @default NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET
    */
   clientSecret?: string
+  /**
+   * Comma-separated list of allowed email addresses.
+   * @default NUXT_STUDIO_AUTH_GITHUB_MODERATORS
+   */
+  moderators?: string
   /**
    * GitHub OAuth Scope
    * @default []
@@ -65,8 +70,8 @@ export interface OAuthGitHubConfig {
   authorizationParams?: Record<string, string>
 
   /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
-   * Use `process.env.STUDIO_GITHUB_REDIRECT_URL` to overwrite the default redirect URL.
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
+   * Set via NUXT_STUDIO_AUTH_GITHUB_REDIRECT_URL environment variable.
    * @default is ${hostname}/__nuxt_studio/auth/github
    */
   redirectURL?: string
@@ -80,7 +85,6 @@ export default eventHandler(async (event: H3Event) => {
   const instanceUrl = withoutTrailingSlash(studioConfig?.auth?.github?.instanceUrl || studioConfig?.repository?.instanceUrl || 'https://github.com')
   const isEnterprise = new URL(instanceUrl).hostname !== 'github.com'
   const config = mergeConfig<OAuthGitHubConfig>(studioConfig?.auth?.github, {
-    redirectURL: studioConfig?.auth?.github?.redirectUrl,
     instanceUrl,
     authorizationURL: `${instanceUrl}/login/oauth/authorize`,
     tokenURL: `${instanceUrl}/login/oauth/access_token`,
@@ -196,7 +200,7 @@ export default eventHandler(async (event: H3Event) => {
     user.email = primaryEmail.email
   }
 
-  const moderators = studioConfig?.auth?.github?.moderators?.split(',').filter(Boolean) || []
+  const moderators = studioConfig?.auth?.github?.moderators?.split(',') || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,

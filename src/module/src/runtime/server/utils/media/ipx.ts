@@ -10,7 +10,7 @@ export const DAY_IN_SECONDS = 60 * 60 * 24
 
 const mediaConfig = useRuntimeConfig().public.studio.media
 const studioConfig = useRuntimeConfig().public.studio
-const resolvedPublicUrl = mediaConfig.publicUrl || process.env.S3_PUBLIC_URL || ''
+const resolvedPublicUrl = mediaConfig.publicUrl || ''
 export const publicDir: string = resolvedPublicUrl
 
 // ipx is an optional dependency (requires sharp which uses native binaries

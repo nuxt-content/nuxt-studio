@@ -87,7 +87,7 @@ interface MediaUploadOptions {
   /**
    * The public CDN URL for the media files.
    * Falls back to the blob URL returned by the storage provider if not set.
-   * @default process.env.S3_PUBLIC_URL
+   * @default NUXT_PUBLIC_STUDIO_MEDIA_PUBLIC_URL
    */
   publicUrl?: string
 
@@ -161,10 +161,7 @@ export interface ModuleOptions {
      * The Vercel AI Gateway key for AI features.
      * When set, AI-powered content generation will be enabled.
      *
-     * Resolution order (highest to lowest priority):
-     * 1. This option in nuxt.config.ts
-     * 2. `NUXT_STUDIO_AI_API_KEY` environment variable (Nuxt runtime override)
-     * 3. `AI_GATEWAY_API_KEY` environment variable (legacy, resolved at runtime)
+     * Set via `NUXT_STUDIO_AI_API_KEY` environment variable at runtime.
      */
     apiKey?: string
     /**
@@ -229,12 +226,12 @@ export interface ModuleOptions {
     github?: {
       /**
        * The GitHub OAuth client ID.
-       * @default process.env.STUDIO_GITHUB_CLIENT_ID
+       * @default NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID
        */
       clientId?: string
       /**
        * The GitHub OAuth client secret.
-       * @default process.env.STUDIO_GITHUB_CLIENT_SECRET
+       * @default NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET
        */
       clientSecret?: string
       /**
@@ -244,6 +241,11 @@ export interface ModuleOptions {
        * @default 'https://github.com'
        */
       instanceUrl?: string
+      /**
+       * Comma-separated list of allowed email addresses.
+       * @default NUXT_STUDIO_AUTH_GITHUB_MODERATORS
+       */
+      moderators?: string
     }
     /**
      * The GitLab OAuth credentials.
@@ -251,12 +253,12 @@ export interface ModuleOptions {
     gitlab?: {
       /**
        * The GitLab OAuth application ID.
-       * @default process.env.STUDIO_GITLAB_APPLICATION_ID
+       * @default NUXT_STUDIO_AUTH_GITLAB_APPLICATION_ID
        */
       applicationId?: string
       /**
        * The GitLab OAuth application secret.
-       * @default process.env.STUDIO_GITLAB_APPLICATION_SECRET
+       * @default NUXT_STUDIO_AUTH_GITLAB_APPLICATION_SECRET
        */
       applicationSecret?: string
       /**
@@ -264,45 +266,56 @@ export interface ModuleOptions {
        * @default 'https://gitlab.com'
        */
       instanceUrl?: string
+      /**
+       * Comma-separated list of allowed email addresses.
+       * @default NUXT_STUDIO_AUTH_GITLAB_MODERATORS
+       */
+      moderators?: string
     }
     /**
      * The Google OAuth credentials.
-     * Note: When using Google OAuth, you must set STUDIO_GOOGLE_MODERATORS to a comma-separated
-     * list of authorized email addresses, and either STUDIO_GITHUB_TOKEN or STUDIO_GITLAB_TOKEN
+     * Note: When using Google OAuth, you must set NUXT_STUDIO_AUTH_GOOGLE_MODERATORS to a comma-separated
+     * list of authorized email addresses, and either NUXT_STUDIO_GIT_GITHUB_TOKEN or NUXT_STUDIO_GIT_GITLAB_TOKEN
      * to push changes to your repository.
      */
     google?: {
       /**
        * The Google OAuth client ID.
-       * @default process.env.STUDIO_GOOGLE_CLIENT_ID
+       * @default NUXT_STUDIO_AUTH_GOOGLE_CLIENT_ID
        */
       clientId?: string
       /**
        * The Google OAuth client secret.
-       * @default process.env.STUDIO_GOOGLE_CLIENT_SECRET
+       * @default NUXT_STUDIO_AUTH_GOOGLE_CLIENT_SECRET
        */
       clientSecret?: string
+      /**
+       * Comma-separated list of authorized email addresses.
+       * Required when using Google OAuth.
+       * @default NUXT_STUDIO_AUTH_GOOGLE_MODERATORS
+       */
+      moderators?: string
     }
     /**
      * SSO server credentials for Single Sign-On across multiple Nuxt Studio sites.
      * This enables authentication via a centralized SSO server (like nuxt-studio-sso).
      * When users authenticate with GitHub on the SSO server, their GitHub token is
-     * automatically passed through, eliminating the need for STUDIO_GITHUB_TOKEN.
+     * automatically passed through, eliminating the need for NUXT_STUDIO_GIT_GITHUB_TOKEN.
      */
     sso?: {
       /**
        * The SSO server URL (e.g., 'https://auth.example.com').
-       * @default process.env.STUDIO_SSO_URL
+       * @default NUXT_STUDIO_AUTH_SSO_SERVER_URL
        */
       serverUrl?: string
       /**
        * The SSO client ID.
-       * @default process.env.STUDIO_SSO_CLIENT_ID
+       * @default NUXT_STUDIO_AUTH_SSO_CLIENT_ID
        */
       clientId?: string
       /**
        * The SSO client secret.
-       * @default process.env.STUDIO_SSO_CLIENT_SECRET
+       * @default NUXT_STUDIO_AUTH_SSO_CLIENT_SECRET
        */
       clientSecret?: string
     }
@@ -514,7 +527,7 @@ export default defineNuxtModule<ModuleOptions>({
       },
       ai: {
         // Honest build-time baseline; the studio-env middleware recomputes this at runtime
-        // once the AI_GATEWAY_API_KEY / NUXT_STUDIO_AI_API_KEY is resolved.
+        // once NUXT_STUDIO_AI_API_KEY is resolved.
         enabled: Boolean(options.ai?.apiKey),
         context: {
           collectionName: options.ai?.context?.collection?.name as string,

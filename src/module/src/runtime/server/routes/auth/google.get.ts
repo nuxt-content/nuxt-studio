@@ -20,12 +20,12 @@ export interface GoogleUser {
 export interface OAuthGoogleConfig {
   /**
    * Google OAuth Client ID
-   * @default process.env.STUDIO_GOOGLE_CLIENT_ID
+   * @default NUXT_STUDIO_AUTH_GOOGLE_CLIENT_ID
    */
   clientId?: string
   /**
    * Google OAuth Client Secret
-   * @default process.env.STUDIO_GOOGLE_CLIENT_SECRET
+   * @default NUXT_STUDIO_AUTH_GOOGLE_CLIENT_SECRET
    */
   clientSecret?: string
   /**
@@ -66,8 +66,8 @@ export interface OAuthGoogleConfig {
   authorizationParams?: Record<string, string>
 
   /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
-   * Use `process.env.STUDIO_GOOGLE_REDIRECT_URL` to overwrite the default redirect URL.
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
+   * Set via NUXT_STUDIO_AUTH_GOOGLE_REDIRECT_URL environment variable.
    * @default is ${hostname}/__nuxt_studio/auth/google
    */
   redirectURL?: string
@@ -79,7 +79,6 @@ export default eventHandler(async (event: H3Event) => {
    */
   const studioConfig = useRuntimeConfig(event).studio
   const config = mergeConfig<OAuthGoogleConfig>(studioConfig?.auth?.google, {
-    redirectURL: studioConfig?.auth?.google?.redirectUrl,
     authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
     tokenURL: 'https://oauth2.googleapis.com/token',
     userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
@@ -138,17 +137,16 @@ export default eventHandler(async (event: H3Event) => {
   const repositoryToken = provider === 'github'
     ? studioConfig?.git?.githubToken
     : studioConfig?.git?.gitlabToken
-
   if (provider === 'github' && !repositoryToken) {
     throw createError({
       statusCode: 500,
-      message: '`STUDIO_GITHUB_TOKEN` is not set. Google authenticated users cannot push changes to the repository without a valid GitHub token.',
+      message: '`NUXT_STUDIO_GIT_GITHUB_TOKEN` is not set. Google authenticated users cannot push changes to the repository without a valid GitHub token.',
     })
   }
   if (provider === 'gitlab' && !repositoryToken) {
     throw createError({
       statusCode: 500,
-      message: '`STUDIO_GITLAB_TOKEN` is not set. Google authenticated users cannot push changes to the repository without a valid GitLab token.',
+      message: '`NUXT_STUDIO_GIT_GITLAB_TOKEN` is not set. Google authenticated users cannot push changes to the repository without a valid GitLab token.',
     })
   }
 
@@ -189,13 +187,13 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = studioConfig?.auth?.google?.moderators?.split(',').filter(Boolean) || []
+  const moderators = studioConfig?.auth?.google?.moderators?.split(',') || []
 
   if (!moderators.includes(user.email)) {
     if (import.meta.dev && moderators.length === 0) {
       logger.warn([
         'No moderators defined. Moderators are required for Google authentication.',
-        'Please set the `STUDIO_GOOGLE_MODERATORS` environment variable to a comma-separated list of email addresses of the moderators.',
+        'Please set the `NUXT_STUDIO_AUTH_GOOGLE_MODERATORS` environment variable to a comma-separated list of email addresses of the moderators.',
       ].join('\n'))
     }
 
