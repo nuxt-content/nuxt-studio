@@ -39,6 +39,7 @@ export function useTiptapEditor() {
         type: undefined as never,
         label: titleCase(component.name),
         icon: standardNuxtUIComponents[component.name]?.icon || 'i-lucide-box',
+        slots: component.meta.slots,
       }))
   })
 
@@ -50,14 +51,12 @@ export function useTiptapEditor() {
     video: videoHandler(),
     table: tableHandler(),
     ...Object.fromEntries(
-      host.meta.editor.components.get()
-        .filter(component => !NATIVE_OVERRIDE_COMPONENTS.has(component.name))
-        .map(component => [
-          component.name,
-          CALLOUT_TYPES.has(component.name)
-            ? calloutHandler(component.name)
-            : componentHandler(component.name, pickInitialSlot(component.meta.slots)),
-        ]),
+      componentItems.value.map(item => [
+        item.kind,
+        CALLOUT_TYPES.has(item.kind)
+          ? calloutHandler(item.kind)
+          : componentHandler(item.kind, pickInitialSlot(item.slots)),
+      ]),
     ),
   }) satisfies EditorCustomHandlers)
 
