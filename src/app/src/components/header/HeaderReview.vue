@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 import { StudioBranchActionId } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
 import { useI18n } from 'vue-i18n'
+import { ConflictAbortError } from '../../utils/errors'
 
 const router = useRouter()
 const { location } = useStudioState()
@@ -77,6 +78,12 @@ async function publishChanges() {
     await router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
   }
   catch (error) {
+    if (error instanceof ConflictAbortError) {
+      // A concurrent remote edit was detected — route back to content so the user
+      // can resolve the conflict via the conflict editor.
+      await router.push('/content')
+      return
+    }
     const err = error as Error
     await router.push({
       path: '/error',

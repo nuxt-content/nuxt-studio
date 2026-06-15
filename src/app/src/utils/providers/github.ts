@@ -188,6 +188,8 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
           type: 'blob',
           sha: null,
         })
+        // Invalidate the in-memory cache for this path so the next open re-fetches
+        Reflect.deleteProperty(gitFiles, file.path)
       }
       else {
         // For new/modified files, create blob and use its sha
@@ -204,6 +206,19 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
           type: 'blob',
           sha: blobData.sha,
         })
+        // Update the in-memory cache with the just-committed content so that any
+        // subsequent fetchFile({ cached: true }) call returns the committed bytes,
+        // not the stale pre-edit snapshot.
+        gitFiles[file.path] = {
+          name: file.path.split('/').pop() || file.path,
+          path: file.path,
+          sha: blobData.sha,
+          size: file.content?.length || 0,
+          url: '',
+          content: file.content!,
+          encoding: (file.encoding || 'utf-8') as 'utf-8' | 'base64',
+          provider: 'github' as const,
+        }
       }
     }
 

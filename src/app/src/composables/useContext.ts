@@ -25,6 +25,7 @@ import { findDescendantsFileItemsFromFsPath } from '../utils/tree'
 import { joinURL } from 'ufo'
 import { upperFirst } from 'scule'
 import { consola } from 'consola'
+import { ConflictAbortError } from '../utils/errors'
 
 const logger = consola.withTag('useContext')
 
@@ -57,7 +58,10 @@ export const useContext = createSharedComposable((
   /**
    * Drafts
    */
-  const allDrafts = computed(() => [...documentTree.draft.list.value, ...mediaTree.draft.list.value].filter(draft => draft.status !== DraftStatus.Pristine))
+  const allDrafts = computed(() =>
+    [...documentTree.draft.list.value, ...mediaTree.draft.list.value]
+      .filter(draft => draft.status !== DraftStatus.Pristine && !draft.published),
+  )
   const isDraftInProgress = computed(() => allDrafts.value.some(draft => draft.status !== DraftStatus.Pristine))
   const draftCount = computed(() => allDrafts.value.length)
 
@@ -232,12 +236,29 @@ export const useContext = createSharedComposable((
       const { commitMessage } = params
       const prefix = host.meta.git?.commit?.messagePrefix
       const finalMessage = prefix ? `${prefix} ${commitMessage.trim()}`.trim() : commitMessage.trim()
+
+      // Pre-publish conflict check: re-fetch remote HEAD (bypassing cache) for every
+      // changed draft. If any file was concurrently edited on the remote, surface the
+      // conflict editor instead of silently overwriting.
+      const documentConflict = await documentTree.draft.checkAndRefreshConflicts()
+      const mediaConflict = await mediaTree.draft.checkAndRefreshConflicts()
+      if (documentConflict || mediaConflict) {
+        throw new ConflictAbortError('One or more files were changed on the remote since you started editing. Please resolve the conflicts before publishing.')
+      }
+
       const documentFiles = await documentTree.draft.listAsRawFiles()
       const mediaFiles = await mediaTree.draft.listAsRawFiles()
       await gitProvider.api.commitFiles([...documentFiles, ...mediaFiles], finalMessage)
 
-      // @ts-expect-error params is null
-      await itemActionHandler[StudioItemActionId.RevertAllItems]()
+      // After a successful commit, transition drafts to "published" state.
+      // The draft becomes a self-healing overlay: it keeps the committed content
+      // visible during the deploy lag and self-removes once the deployed dump
+      // catches up (handled in useDraftBase.load).
+      await documentTree.draft.markPublished()
+      await mediaTree.draft.markPublished()
+      if (aiContextTree) {
+        await aiContextTree.draft.markPublished()
+      }
 
       await router.push('/content')
     },

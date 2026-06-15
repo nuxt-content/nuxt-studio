@@ -185,6 +185,109 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     }
   }
 
+  /**
+   * Re-fetches the remote file for each non-Pristine draft (bypassing the local
+   * in-memory cache) and runs conflict detection against the current remote HEAD.
+   * If any conflict is found the affected draft's `conflict` field is set in
+   * memory and persisted to IndexedDB so the conflict editor can render it.
+   *
+   * Returns true when at least one conflict was detected (publish should abort).
+   * Returns false when all drafts are safe to commit.
+   *
+   * Call this BEFORE `commitFiles` so concurrent remote edits are surfaced instead
+   * of silently overwritten.
+   */
+  async function checkAndRefreshConflicts(): Promise<boolean> {
+    let hasConflict = false
+
+    const nonPristineDrafts = list.value.filter(d => d.status !== DraftStatus.Pristine)
+
+    for (const draftItem of nonPristineDrafts) {
+      // Re-fetch the remote bypassing the in-memory cache
+      const freshRemote = await gitProvider.api.fetchFile(
+        joinURL(remotePathPrefix, draftItem.fsPath),
+        { cached: false },
+      )
+
+      // Build a temporary view with the fresh remote for checkConflict
+      const checkItem = { ...draftItem, remoteFile: freshRemote ?? undefined }
+      const conflict = await checkConflict(host, checkItem)
+
+      if (conflict) {
+        // Update the draft in place: fresh remote baseline + detected conflict
+        draftItem.remoteFile = freshRemote ?? draftItem.remoteFile
+        draftItem.conflict = conflict
+        await storage.setItem(draftItem.fsPath, draftItem as DraftItem<T>)
+        hasConflict = true
+      }
+    }
+
+    return hasConflict
+  }
+
+  /**
+   * Transition all non-Pristine drafts to "published" state after a successful
+   * Git commit. The draft becomes a self-healing overlay that keeps the committed
+   * content visible during the deploy lag (i.e. while the SQLite dump is stale).
+   *
+   * - Updated / Created → status becomes Pristine; `original` is set to `modified`
+   *   (committed tree is the new baseline); `remoteFile` is updated to reflect the
+   *   committed content; `conflict` and `formattingApplied` are cleared;
+   *   `published` is set to true. The DB already holds `modified` from the editing
+   *   session so no upsert is required here.
+   * - Deleted → `published` is set to true and the draft is persisted as-is (the
+   *   DB delete was already applied; the draft keeps overlaying the deletion until
+   *   the deploy drops the file).
+   * - Pristine → unchanged (nothing was committed).
+   * - No-op in dev mode (drafts are always Pristine there).
+   */
+  async function markPublished() {
+    if (devMode.value) return
+
+    const generateContentFromDocument = type === 'document'
+      ? host.document.generate.contentFromDocument
+      : null
+
+    const itemsToPublish = [...list.value]
+
+    for (const draftItem of itemsToPublish) {
+      if (draftItem.status === DraftStatus.Pristine) continue
+
+      if (draftItem.status === DraftStatus.Deleted) {
+        draftItem.published = true
+        await storage.setItem(draftItem.fsPath, draftItem as DraftItem<T>)
+        continue
+      }
+
+      // Updated / Created: advance the baseline to what was committed
+      const committedContent = generateContentFromDocument
+        ? await generateContentFromDocument(draftItem.modified as DatabaseItem) as string
+        : null
+
+      draftItem.original = draftItem.modified
+      draftItem.remoteFile = committedContent !== null
+        ? {
+            name: draftItem.fsPath.split('/').pop() || draftItem.fsPath,
+            path: draftItem.fsPath,
+            sha: '',
+            size: committedContent.length,
+            url: '',
+            content: committedContent,
+            encoding: 'utf-8' as const,
+            provider: draftItem.remoteFile?.provider || 'github' as const,
+          }
+        : draftItem.remoteFile
+      delete draftItem.conflict
+      draftItem.formattingApplied = false
+      draftItem.published = true
+      draftItem.status = DraftStatus.Pristine
+
+      await storage.setItem(draftItem.fsPath, draftItem as DraftItem<T>)
+    }
+
+    // No hook — published items are invisible to the review/draft-count views
+  }
+
   async function unselect() {
     current.value = null
   }
@@ -214,9 +317,51 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   }
 
   async function load() {
+    const generateContentFromDocument = type === 'document'
+      ? host.document.generate.contentFromDocument
+      : null
+
     const storedList = await storage.getKeys().then(async (keys) => {
       return Promise.all(keys.map(async (key) => {
         const item = await storage.getItem(key) as DraftItem
+
+        // Self-heal for published drafts: purge once the deployed dump has caught up.
+        if (item.published) {
+          if (item.status === DraftStatus.Deleted) {
+            // Caught up when the file is no longer in the DB (deployment dropped it).
+            const dbItem = await hostDb.get(item.fsPath)
+            if (!dbItem) {
+              await storage.removeItem(key)
+              return null
+            }
+          }
+          else if (item.status === DraftStatus.Pristine) {
+            // Caught up when the DB content matches the committed content stored in remoteFile.
+            const dbItem = await hostDb.get(item.fsPath)
+            if (dbItem && item.remoteFile?.content) {
+              const isMatchingContent = host.document.utils.isMatchingContent
+              const committedContent = item.remoteFile.content
+              const isCaughtUp = await isMatchingContent(committedContent, dbItem as DatabaseItem)
+              if (isCaughtUp) {
+                await storage.removeItem(key)
+                return null
+              }
+            }
+            else if (!dbItem) {
+              // DB item gone entirely — the deploy likely removed it; treat as caught up.
+              await storage.removeItem(key)
+              return null
+            }
+            // Deploy not yet complete: keep the overlay alive (fall through to upsert below).
+            // Re-compute content from remoteFile so the editor shows the committed version
+            // even after a full-page reload (the DB was reset by revert before the reload).
+            if (generateContentFromDocument && item.modified) {
+              // The modified is already the committed content; keep it as-is.
+            }
+          }
+          return item
+        }
+
         if (item.status === DraftStatus.Pristine) {
           await storage.removeItem(key)
           return null
@@ -295,6 +440,8 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     remove,
     revert,
     revertAll,
+    checkAndRefreshConflicts,
+    markPublished,
     selectByFsPath,
     unselect,
     load,

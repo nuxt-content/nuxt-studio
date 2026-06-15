@@ -42,4 +42,18 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    * Set by `useDraftDocuments.applyFormatting(fsPath)`, cleared by `revert`.
    */
   formattingApplied?: boolean
+
+  /**
+   * Marks the draft as having been successfully committed to Git but not yet
+   * reflected in the deployed content database.
+   *
+   * A published draft bridges the gap between a successful commit and the
+   * deployment that rebuilds the SQLite dump. It overlays the committed content
+   * on top of the stale dump and self-removes once `load()` detects the dump has
+   * caught up.
+   *
+   * Set by `useDraftBase.markPublished()` after a successful commit.
+   * Cleared automatically in `load()` when the deployed dump matches the committed content.
+   */
+  published?: boolean
 }

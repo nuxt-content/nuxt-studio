@@ -164,6 +164,26 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
       },
     })
 
+    // Update the in-memory cache so subsequent fetchFile({ cached: true }) calls
+    // return committed content, not the stale pre-edit snapshot.
+    for (const file of files) {
+      if (file.status === DraftStatus.Deleted) {
+        Reflect.deleteProperty(gitFiles, file.path)
+      }
+      else {
+        gitFiles[file.path] = {
+          name: file.path.split('/').pop() || file.path,
+          path: file.path,
+          sha: '',
+          size: file.content?.length || 0,
+          url: '',
+          content: file.content!,
+          encoding: (file.encoding || 'utf-8') as 'utf-8' | 'base64',
+          provider: 'gitlab' as const,
+        }
+      }
+    }
+
     return {
       success: true,
       commitSha: commitData.id,
