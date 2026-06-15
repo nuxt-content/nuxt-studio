@@ -28,6 +28,7 @@ import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-place
 import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
+import type { RuleContext } from '@tiptap/extension-drag-handle'
 
 const props = defineProps({
   draftItem: {
@@ -51,6 +52,27 @@ const {
   dragHandleItems,
   setSelectedNode,
 } = useTiptapEditor()
+
+const nestedDragHandle = {
+  rules: [{
+    id: 'excludeSlotNode',
+    evaluate: ({ node }: RuleContext) => node.type.name === 'slot' ? 1000 : 0,
+  }],
+}
+
+// mainAxis: 0 places the handle flush against the block's left edge, eliminating
+// the 8px gap that causes the handle to vanish before the cursor reaches it when
+// hovering over nested blocks inside slots.
+const dragHandleOptions = {
+  offset: ({ rects }: { rects: { reference: { height: number }, floating: { height: number } } }) => {
+    const blockHeight = rects.reference.height
+    const handleHeight = rects.floating.height
+    return {
+      mainAxis: 0,
+      alignmentAxis: blockHeight > 40 ? 0 : (blockHeight - handleHeight) / 2,
+    }
+  },
+}
 
 const {
   MAX_AI_SELECTION_LENGTH,
@@ -216,6 +238,8 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
       <UEditorDragHandle
         v-slot="{ ui }"
         :editor="editor"
+        :nested="nestedDragHandle"
+        :options="dragHandleOptions"
         @node-change="setSelectedNode"
       >
         <UDropdownMenu
