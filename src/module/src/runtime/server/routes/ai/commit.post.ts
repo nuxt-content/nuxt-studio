@@ -27,11 +27,13 @@ export default eventHandler(async (event) => {
     })
   }
 
+  const messagePrefix = config.public.studio?.git?.commit?.messagePrefix || undefined
+
   const gateway = createGateway({ apiKey })
 
   return streamText({
     model: gateway.languageModel('anthropic/claude-haiku-4.5'),
-    system: getCommitSystem(),
+    system: getCommitSystem(messagePrefix),
     prompt: changes,
     maxOutputTokens: 60,
     temperature: 0.3,
