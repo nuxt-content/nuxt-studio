@@ -28,7 +28,7 @@ import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-place
 import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
-import type { RuleContext } from '@tiptap/extension-drag-handle'
+import type { NestedOptions, RuleContext } from '@tiptap/extension-drag-handle'
 
 const props = defineProps({
   draftItem: {
@@ -53,25 +53,36 @@ const {
   setSelectedNode,
 } = useTiptapEditor()
 
-const nestedDragHandle = {
-  rules: [{
-    id: 'excludeSlotNode',
-    evaluate: ({ node }: RuleContext) => node.type.name === 'slot' ? 1000 : 0,
-  }],
-}
-
-// mainAxis: 0 places the handle flush against the block's left edge, eliminating
-// the 8px gap that causes the handle to vanish before the cursor reaches it when
-// hovering over nested blocks inside slots.
-const dragHandleOptions = {
-  offset: ({ rects }: { rects: { reference: { height: number }, floating: { height: number } } }) => {
-    const blockHeight = rects.reference.height
-    const handleHeight = rects.floating.height
-    return {
-      mainAxis: 0,
-      alignmentAxis: blockHeight > 40 ? 0 : (blockHeight - handleHeight) / 2,
-    }
-  },
+const nestedDragHandle: NestedOptions = {
+  // edgeDetection: 'none' keeps the deepest block as the drag target even when the
+  // cursor is near its left edge. With the default ('left') edge detection, a block
+  // nested in a slot (depth ~3) gets a strength*depth = 500*3 penalty the moment the
+  // cursor enters the 12px edge zone where the handle sits — exceeding the 1000 base
+  // score, so the block is excluded and the handle jumps to the parent component,
+  // leaving the nested handle permanently unreachable.
+  edgeDetection: 'none',
+  rules: [
+    {
+      // The slot node is structural (selectable: false) and is never itself a drag target.
+      id: 'excludeSlotNode',
+      evaluate: (ctx: RuleContext) => ctx.node.type.name === 'slot' ? 1000 : 0,
+    },
+    {
+      // Keep the parent component (`element`) from becoming the target while the cursor
+      // is inside one of its slots. When the cursor drifts left of a nested block into
+      // the slot's padding, `posAtCoords` resolves to slot level; with the slot already
+      // excluded, the component would win and the handle would jump to it. Excluding the
+      // component here too leaves NO valid candidate — and the drag-handle plugin then
+      // early-returns (`if (!nodeData.resultElement) return`), leaving the handle parked
+      // on the last block instead of moving it. That's what makes the handle reachable:
+      // drifting into the gutter no longer steals the target.
+      id: 'excludeElementFromOwnSlot',
+      evaluate: ({ node, depth, $pos }: RuleContext) =>
+        node.type.name === 'element' && $pos.depth > depth && $pos.node(depth + 1)?.type.name === 'slot'
+          ? 1000
+          : 0,
+    },
+  ],
 }
 
 const {
@@ -239,7 +250,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         v-slot="{ ui }"
         :editor="editor"
         :nested="nestedDragHandle"
-        :options="dragHandleOptions"
+        :options="{ strategy: 'fixed' }"
         @node-change="setSelectedNode"
       >
         <UDropdownMenu
