@@ -70,7 +70,13 @@ export const Element = Node.create<ElementOptions>({
           const value: Content = {
             type: 'element',
             attrs: { tag },
-            ...(slot ? { content: [{ type: 'slot', attrs: { name: slot }, content: [{ type: 'paragraph', content: [] }] }] } : {}),
+          }
+          if (slot) {
+            value.content = [{
+              type: 'slot',
+              attrs: { name: slot },
+              content: [{ type: 'paragraph', content: [] }],
+            }]
           }
 
           const command = chain().deleteRange(range).insertContentAt(range.from, value)
@@ -93,7 +99,13 @@ export const Element = Node.create<ElementOptions>({
         const value: Content = {
           type: 'element',
           attrs: { tag },
-          ...(slot ? { content: [{ type: 'slot', attrs: { name: slot }, content: [{ type: 'paragraph', content: [] }] }] } : {}),
+        }
+        if (slot) {
+          value.content = [{
+            type: 'slot',
+            attrs: { name: slot },
+            content: [{ type: 'paragraph', content: [] }],
+          }]
         }
 
         const command = chain().insertContentAt(from, value)
