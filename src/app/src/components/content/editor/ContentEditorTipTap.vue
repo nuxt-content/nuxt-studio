@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Emoji } from '@tiptap/extension-emoji'
 import type { PropType } from 'vue'
 import type { JSONContent } from '@tiptap/vue-3'
 import type { ComarkTree } from 'comark'
@@ -10,22 +9,9 @@ import { useStudioState } from '../../../composables/useStudioState'
 import { comarkToTiptap } from '../../../utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../../utils/tiptap/tiptapToComark'
 import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
-import { Element } from '../../../utils/tiptap/extensions/element'
 import { pickInitialSlot } from '../../../utils/tiptap/handlers'
-import { Image } from '../../../utils/tiptap/extensions/image'
-import { ImagePicker } from '../../../utils/tiptap/extensions/image-picker'
-import { VideoPicker } from '../../../utils/tiptap/extensions/video-picker'
-import { Video } from '../../../utils/tiptap/extensions/video'
-import { Slot } from '../../../utils/tiptap/extensions/slot'
-import { Frontmatter } from '../../../utils/tiptap/extensions/frontmatter'
-import { CodeBlock } from '../../../utils/tiptap/extensions/code-block'
-import { InlineElement } from '../../../utils/tiptap/extensions/inline-element'
-import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
+import { studioStarterKitOptions, createStudioExtensions } from '../../../utils/tiptap/studio-extensions'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
-import { Binding } from '../../../utils/tiptap/extensions/binding'
-import { Callout } from '../../../utils/tiptap/extensions/callout'
-import { Table, TableRow, TableCell, TableHeader } from '../../../utils/tiptap/extensions/table'
-import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
 import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
@@ -147,39 +133,13 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
       content-type="json"
       :handlers="customHandlers"
       :image="false"
-      :starter-kit="{
-        codeBlock: false,
-        link: {
-          HTMLAttributes: {
-            target: null,
-          },
-        },
-      }"
-      :extensions="[
-        CustomPlaceholder.configure({
-          placeholder: $t('studio.tiptap.editor.placeholder'),
-        }),
-        Frontmatter,
-        Image,
-        ImagePicker,
-        VideoPicker,
-        Video,
-        ...(hasNuxtUI ? [Callout] : []),
-        Element.configure({
-          resolveInitialSlot: tag => pickInitialSlot(host.meta.editor.components.get().find(c => c.name === tag)?.meta.slots),
-        }),
-        InlineElement,
-        SpanStyle,
-        Slot,
-        CodeBlock,
-        Emoji,
-        Binding,
-        Table,
-        TableRow,
-        TableCell,
-        TableHeader,
-        ...aiExtensions,
-      ]"
+      :starter-kit="studioStarterKitOptions"
+      :extensions="createStudioExtensions({
+        placeholder: $t('studio.tiptap.editor.placeholder'),
+        hasNuxtUI: hasNuxtUI,
+        resolveInitialSlot: tag => pickInitialSlot(host.meta.editor.components.get().find(c => c.name === tag)?.meta.slots),
+        additionalExtensions: aiExtensions,
+      })"
     >
       <UEditorToolbar
         :editor="editor"

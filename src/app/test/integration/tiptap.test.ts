@@ -7,6 +7,7 @@ import { comarkToTiptap } from '../../src/utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../src/utils/tiptap/tiptapToComark'
 import type { ComarkTree, ComarkNode } from 'comark'
 import highlight from 'comark/plugins/highlight'
+import { roundTripThroughEditor } from '../utils/editor'
 
 describe('paragraph', () => {
   test('simple paragraph', async () => {
@@ -41,7 +42,8 @@ describe('paragraph', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -83,7 +85,8 @@ describe('paragraph', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -142,7 +145,8 @@ describe('paragraph', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -199,7 +203,8 @@ describe('paragraph', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -258,7 +263,8 @@ describe('paragraph', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     // After roundtrip, target is stripped for external links (it's auto-added by TipTap, not user-authored)
     const expectedRtComarkNodes = [
       ['p', {}, ['a', { href: 'https://external.com' }, 'link']],
@@ -337,7 +343,8 @@ describe('paragraph', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -398,7 +405,8 @@ This is content`
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
     expect(rtComarkTree.frontmatter).toMatchObject(expectedFrontmatterJson)
 
@@ -469,7 +477,8 @@ Hello
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     // Comark strips the #default slot
     expect(rtComarkTree.nodes).toMatchObject([['block-element', {}, 'Hello']])
@@ -543,7 +552,8 @@ Hello
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -611,7 +621,8 @@ Hello
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -647,7 +658,8 @@ Edit pages visually without touching code.
     expect(comarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -727,7 +739,8 @@ Edit pages visually without touching code.
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -799,7 +812,8 @@ My button
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -871,7 +885,8 @@ My button
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -929,7 +944,8 @@ My button
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1002,7 +1018,8 @@ My icon
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1030,7 +1047,8 @@ My icon
     const comarkTree = document.body
 
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -1105,7 +1123,8 @@ My icon
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1162,7 +1181,8 @@ My icon
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1209,7 +1229,8 @@ My icon
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1273,7 +1294,8 @@ My icon
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1327,7 +1349,8 @@ Content here
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1378,7 +1401,8 @@ A helpful tip
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1432,7 +1456,8 @@ Custom icon callout
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree, { hasNuxtUI: true })
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1538,7 +1563,8 @@ describe('code block', () => {
     const comarkTree = document.body
 
     const tiptapJSON = comarkToTiptap(comarkTree)
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -1562,7 +1588,8 @@ describe('code block', () => {
     const comarkTree = document.body
 
     const tiptapJSON = comarkToTiptap(comarkTree)
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -1584,7 +1611,8 @@ describe('code block', () => {
 
     const tiptapJSON = comarkToTiptap(comarkTreeInput)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON, { highlightTheme: { default: 'github-light', dark: 'github-dark' } })
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON, { highlightTheme: { default: 'github-light', dark: 'github-dark' } })
     const preNode = rtComarkTree.nodes[0]
 
     // Tags: pre -> code -> line -> span -> text
@@ -1760,7 +1788,8 @@ describe('images', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1814,7 +1843,8 @@ describe('images', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1870,7 +1900,8 @@ describe('images', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1921,7 +1952,8 @@ describe('videos', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -1976,7 +2008,8 @@ describe('videos', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2038,7 +2071,8 @@ describe('videos', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2100,7 +2134,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2146,7 +2181,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2186,7 +2222,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -2230,7 +2267,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -2274,7 +2312,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -2358,7 +2397,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2398,7 +2438,8 @@ describe('marks', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     const generatedDocument = createMockDocument('docs/test.md', {
       body: rtComarkTree,
@@ -2492,7 +2533,8 @@ describe('text styles', () => {
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2570,7 +2612,8 @@ text 1
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2654,7 +2697,8 @@ text 1
     const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
     expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
 
     const generatedDocument = createMockDocument('docs/test.md', {
@@ -2722,7 +2766,8 @@ authorsTwo:
       { name: 'John Doe One', avatar: 'https://placehold.co/150', role: 'contributor' },
     ])
 
-    const rtComarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
 
     // After round-trip the AST must still hold actual objects
     expect(rtComarkTree.nodes).toMatchObject(expectedComarkNodes)
