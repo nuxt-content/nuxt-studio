@@ -307,6 +307,11 @@ function createTemplateNode(node: ComarkElement): JSONContent {
   if (children.length > 0 && isInlineFirstChild) {
     children = [['p', {}, ...children] as ComarkElement]
   }
+  else if (children.length === 0) {
+    // TipTap slot requires block+ content; an empty slot would be schema-invalid
+    // and crash setNodeMarkup on any later updateAttributes (e.g. renaming the slot).
+    children = [['p', {}] as ComarkElement]
+  }
 
   const processedNode: ComarkElement = [getTag(node), cleanAttrs, ...children]
   return createTipTapNode(processedNode, 'slot', { attrs: { name } })
