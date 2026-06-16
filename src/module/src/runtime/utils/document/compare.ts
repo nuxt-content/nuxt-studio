@@ -4,6 +4,7 @@ import { ContentFileExtension } from '../../types/content'
 import { doObjectsMatch } from '../object'
 import { renderMarkdown } from 'comark/render'
 import { documentFromContent } from './generate'
+import { cleanDataKeys } from './schema'
 
 /**
  * Sort and normalize every element's attributes alphabetically.
@@ -30,19 +31,20 @@ export async function isDocumentMatchingContent(content: string, document: Datab
   const generatedDocument = await documentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
-    const { body: generatedBody, ...generatedDocumentData } = generatedDocument
-    const { body: documentBody, ...documentData } = document
-
     // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below).
-    const generatedNormalized = normalizeAttrsDeep({ ...(generatedBody as ComarkTree), frontmatter: {} })
-    const documentNormalized = normalizeAttrsDeep({ ...(documentBody as ComarkTree), frontmatter: {} })
+    const generatedNormalized = normalizeAttrsDeep({ ...(generatedDocument.body as ComarkTree), frontmatter: {} })
+    const documentNormalized = normalizeAttrsDeep({ ...(document.body as ComarkTree), frontmatter: {} })
     const generatedBodyStringified = (await renderMarkdown(generatedNormalized)).replace(/\n/g, '')
     const documentBodyStringified = (await renderMarkdown(documentNormalized)).replace(/\n/g, '')
     if (generatedBodyStringified !== documentBodyStringified) {
       return false
     }
 
-    return doObjectsMatch(generatedDocumentData, documentData)
+    // @nuxt/content may store unknown frontmatter fields in `meta` instead of top-level columns.
+    return doObjectsMatch(
+      cleanDataKeys(generatedDocument) as Record<string, unknown>,
+      cleanDataKeys(document) as Record<string, unknown>,
+    )
   }
 
   return doObjectsMatch(generatedDocument, document)
