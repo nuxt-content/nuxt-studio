@@ -8,6 +8,7 @@ import { Element } from './extensions/element'
 import { Frontmatter } from './extensions/frontmatter'
 import { Image } from './extensions/image'
 import { ImagePicker } from './extensions/image-picker'
+import { InlineCode } from './extensions/inline-code'
 import { InlineElement } from './extensions/inline-element'
 import { Slot } from './extensions/slot'
 import { SpanStyle } from './extensions/span-style'
@@ -17,6 +18,7 @@ import { VideoPicker } from './extensions/video-picker'
 
 export const studioStarterKitOptions = {
   codeBlock: false,
+  code: false,
   link: {
     HTMLAttributes: { target: null },
   },
@@ -36,6 +38,7 @@ export function createStudioExtensions({
   additionalExtensions = [],
 }: CreateStudioExtensionsOptions = {}): AnyExtension[] {
   return [
+    InlineCode,
     CustomPlaceholder.configure({ placeholder }),
     Frontmatter,
     Image,
