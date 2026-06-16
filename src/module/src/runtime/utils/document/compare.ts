@@ -43,9 +43,7 @@ export async function isDocumentMatchingContent(content: string, document: Datab
       return false
     }
 
-    // @nuxt/content may store unknown frontmatter fields in `meta` rather than as top-level
-    // columns depending on the collection schema. cleanDataKeys expands meta to root and strips
-    // nulls/defaults, matching the normalization used by contentFromMarkdownDocument.
+    // @nuxt/content may store unknown frontmatter fields in `meta` instead of top-level columns.
     return doObjectsMatch(
       cleanDataKeys(generatedDocument) as Record<string, unknown>,
       cleanDataKeys(document) as Record<string, unknown>,
