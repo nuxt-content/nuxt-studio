@@ -31,8 +31,8 @@ export async function isDocumentMatchingContent(content: string, document: Datab
   const generatedDocument = await documentFromContent(document.id, content, { compress: true, preserveLinkAttributes: true }) as DatabaseItem
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
-    const { body: generatedBody, ...generatedDocumentData } = generatedDocument
-    const { body: documentBody, ...documentData } = document
+    const { body: generatedBody } = generatedDocument
+    const { body: documentBody } = document
 
     // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below).
     const generatedNormalized = normalizeAttrsDeep({ ...(generatedBody as ComarkTree), frontmatter: {} })
