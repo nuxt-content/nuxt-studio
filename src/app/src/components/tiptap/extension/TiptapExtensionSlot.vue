@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { useStudio } from '../../../composables/useStudio'
 
 const nodeProps = defineProps(nodeViewProps)
@@ -29,7 +30,12 @@ const parent = computed(() => {
 const componentMeta = computed(() => host.meta.editor.components.get().find(c => c.name === parent.value?.attrs.tag))
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const showSlotSelection = computed(() => slots.value.length > 1)
-const availableSlots = computed(() => slots.value.map(s => s.name))
+const usedSlots = computed(() =>
+  (parent.value?.content?.content as ProseMirrorNode[] || [])
+    .map(s => s.attrs.name as string),
+)
+// All declared slots minus those already used by siblings (including this slot itself)
+const availableSlots = computed(() => slots.value.map(s => s.name).filter(n => !usedSlots.value.includes(n)))
 const isLastRemainingSlot = computed(() => parent.value?.childCount === 1)
 
 function deleteSlot() {
@@ -61,6 +67,7 @@ function deleteSlot() {
           size="xs"
           :ui="{
             base: 'font-mono text-xs text-muted hover:text-default uppercase cursor-pointer ring-0',
+            content: 'z-[9999]',
           }"
         >
           <template #leading>
