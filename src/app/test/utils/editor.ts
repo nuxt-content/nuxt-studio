@@ -18,12 +18,16 @@ const STUDIO_EDITOR_EXTENSIONS = [
   ...createStudioExtensions(),
 ]
 
-// Applies ProseMirror's mark rank-sort and dedup — the same pass the real editor runs.
-export function roundTripThroughEditor(json: JSONContent): JSONContent {
-  const editor = new Editor({
+export function createEditor(json: JSONContent): Editor {
+  return new Editor({
     extensions: STUDIO_EDITOR_EXTENSIONS,
     content: json,
   })
+}
+
+// Applies ProseMirror's mark rank-sort and dedup — the same pass the real editor runs.
+export function roundTripThroughEditor(json: JSONContent): JSONContent {
+  const editor = createEditor(json)
   const out = editor.getJSON()
   editor.destroy()
   return out
