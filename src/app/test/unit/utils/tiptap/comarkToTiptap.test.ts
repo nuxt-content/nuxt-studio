@@ -34,6 +34,30 @@ describe('marks', () => {
     }])
   })
 
+  test('createMark: nested strong containing a link - no duplicate bold marks, link preserved', () => {
+    // Reflects what comark.parse produces for **...**[here]**...** (nested strong)
+    const node: ComarkElement = ['strong', {}, ['strong', {}, ['a', { href: '/bugs' }, 'here']] as ComarkElement]
+
+    const result = createMark(node, 'bold')
+
+    // 'here' is the only text leaf — expect exactly one text node
+    expect(result).toHaveLength(1)
+    const textNode = result[0] as { type: string, text: string, marks: { type: string, attrs?: object }[] }
+    expect(textNode.type).toBe('text')
+    expect(textNode.text).toBe('here')
+
+    // Marks must include exactly one bold and one link — no duplicate bold
+    const markTypes = textNode.marks.map(m => m.type)
+    expect(markTypes).toContain('link')
+    expect(markTypes).toContain('bold')
+    expect(markTypes.filter(t => t === 'bold')).toHaveLength(1)
+    expect(textNode.marks).toHaveLength(2)
+
+    // The link mark must carry the href
+    const linkMark = textNode.marks.find(m => m.type === 'link') as { type: string, attrs: Record<string, unknown> }
+    expect(linkMark?.attrs?.href).toBe('/bugs')
+  })
+
   test('createMark: create `code` mark nodes should not handle shiki elements', () => {
     const mark = 'code'
     // A code element containing shiki-highlighted spans

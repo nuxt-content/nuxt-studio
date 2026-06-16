@@ -136,6 +136,22 @@ export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxt
 * ──────────────────────────────────────────────────────────────────────────────
 */
 
+/**
+ * Remove duplicate marks (same type + attrs) from an accumulated mark array.
+ * Nested same-tag elements (e.g. `strong > strong`) can push the same mark twice;
+ * de-duplicating before assigning to text nodes prevents `**…**` from appearing twice
+ * around a link when the bold run re-serializes.
+ */
+function dedupeMarks(marks: { type: string, attrs?: object }[]): { type: string, attrs?: object }[] {
+  const seen = new Set<string>()
+  return marks.filter((m) => {
+    const key = `${m.type}:${JSON.stringify(m.attrs ?? {})}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export function createMark(node: ComarkElement, mark: string, accumulatedMarks: { type: string, attrs?: object }[] = []): JSONContent[] {
   const attrs = { ...getAttrs(node) }
 
@@ -170,7 +186,7 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
     if (language) {
       codeAttrs.language = language
     }
-    const codeMarks = [...accumulatedMarks, { type: mark, attrs: codeAttrs }]
+    const codeMarks = dedupeMarks([...accumulatedMarks, { type: mark, attrs: codeAttrs }])
     return [{
       type: 'text',
       text: getNodeContent(node),
@@ -183,7 +199,7 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
       return {
         type: 'text',
         text: child,
-        marks: marks.slice().reverse(),
+        marks: dedupeMarks(marks).slice().reverse(),
       }
     }
     else if (isElement(child)) {

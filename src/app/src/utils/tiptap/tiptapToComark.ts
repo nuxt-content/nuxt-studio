@@ -222,22 +222,14 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
 
   const getMarkInfo = (child: JSONContent): { type: string, attrs?: Record<string, unknown> } | null => {
-    if (child.type === 'text' && child.marks?.length === 1 && child.marks?.[0]?.type) {
-      return child.marks[0] as { type: string, attrs?: Record<string, unknown> }
-    }
-
-    if (
-      child.type === 'link-element'
-      && child.content
-      && child.content.length === 1
-      && child.content[0].type === 'text'
-      && child.content[0].marks?.length === 1
-      && child.content[0].marks?.[0]?.type
-    ) {
-      return child.content[0].marks?.[0] as { type: string, attrs?: Record<string, unknown> }
-    }
-
-    return null
+    if (child.type !== 'text' || !child.marks?.length) return null
+    // Return the single groupable mark (bold/italic/strike/code), ignoring link which is
+    // not a block-level wrapper — a link-bearing text node can still participate in a
+    // bold/italic run spanning the link boundary.
+    const groupable = child.marks.filter(
+      (m: Record<string, unknown>) => m.type !== 'link' && markToTag[m.type as string],
+    )
+    return groupable.length === 1 ? groupable[0] as { type: string, attrs?: Record<string, unknown> } : null
   }
 
   const sameMark = (markA: { type: string, attrs?: Record<string, unknown> } | null, markB: { type: string, attrs?: Record<string, unknown> } | null) => {
@@ -265,27 +257,35 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
     blocks.push({ mark: currentBlockMark, content: currentBlockContent })
   }
 
-  const children = blocks.map((block) => {
-    // If the block has more than one child and a mark
+  // Build the flat children list. A block that qualifies for a mark wrapper emits a
+  // single ComarkElement (not an array of nodes), so we cannot use .flat() — that would
+  // spread the element's tag/attrs/children into the parent. Use a for-loop accumulator
+  // that pushes wrapper elements as single items and spreads leaf-node arrays.
+  const flatChildren: ComarkNode[] = []
+  for (const block of blocks) {
+    // If the block has more than one child and a groupable mark, lift that mark into a
+    // single wrapper element. Strip only the shared mark from each child so that any
+    // remaining marks (e.g. a link mark on a bold+link text node) are still serialized
+    // correctly by createTextElement inside the wrapper.
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
-      // Remove all marks from children
       block.content.forEach((child: JSONContent) => {
-        if (child.type === 'text') {
-          delete child.marks
-        }
-        else if (child.type === 'link-element') {
-          delete child.content![0].marks
+        if (child.type === 'text' && child.marks) {
+          child.marks = child.marks.filter(
+            (m: Record<string, unknown>) =>
+              !(m.type === block.mark!.type
+                && JSON.stringify((m.attrs as object) ?? {}) === JSON.stringify(block.mark!.attrs ?? {})),
+          )
+          if (child.marks.length === 0) delete child.marks
         }
       })
-
       const markAttrs = (block.mark.attrs && Object.keys(block.mark.attrs).length > 0) ? (block.mark.attrs as Record<string, unknown>) : {}
-      return [markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement
+      flatChildren.push([markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement)
     }
+    else {
+      flatChildren.push(...comarkNodesFromTiptap(block.content))
+    }
+  }
 
-    return comarkNodesFromTiptap(block.content)
-  }) as ComarkNode[][]
-
-  const flatChildren = (children as Array<ComarkElement | ComarkNode[]>).flat() as ComarkNode[]
   const mergedChildren = mergeSiblingsWithSameTag(flatChildren, Object.values(markToTag))
 
   return ['p', props, ...mergedChildren] as ComarkElement
@@ -434,7 +434,16 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
     return node.text! as ComarkNode
   }
 
-  const res = node.marks!.reduce((acc: ComarkNode, mark: Record<string, unknown>) => {
+  // Sort `code` to be processed first (innermost) — comark's code handler uses textContent()
+  // which strips nested markup, so code must always wrap the literal text directly.
+  const orderedMarks = node.marks!.slice().sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+    if (a.type === b.type) return 0
+    if (a.type === 'code') return -1
+    if (b.type === 'code') return 1
+    return 0
+  })
+
+  const res = orderedMarks.reduce((acc: ComarkNode, mark: Record<string, unknown>) => {
     const markAttrs = (mark.attrs as Record<string, unknown>) || {}
     if (mark.type === 'link') {
       // Preserve the attr order the link mark was authored in. TipTap auto-injects
