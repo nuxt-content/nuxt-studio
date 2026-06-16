@@ -8,7 +8,6 @@ const nodeProps = defineProps(nodeViewProps)
 
 const { host } = useStudio()
 
-const isHovered = ref(false)
 const isEditable = ref(true) // TODO: Connect to editor state
 
 const slotName = computed({
@@ -32,10 +31,10 @@ const slots = computed(() => componentMeta.value?.meta.slots || [])
 const showSlotSelection = computed(() => slots.value.length > 1)
 const usedSlots = computed(() =>
   (parent.value?.content?.content as ProseMirrorNode[] || [])
-    .map(s => s.attrs.name as string),
+    .map(slot => slot.attrs.name as string),
 )
 // All declared slots minus those already used by siblings (including this slot itself)
-const availableSlots = computed(() => slots.value.map(s => s.name).filter(n => !usedSlots.value.includes(n)))
+const availableSlots = computed(() => slots.value.map(slot => slot.name).filter(name => !usedSlots.value.includes(name)))
 const isLastRemainingSlot = computed(() => parent.value?.childCount === 1)
 
 function deleteSlot() {
@@ -54,9 +53,7 @@ function deleteSlot() {
     <div class="my-2">
       <div
         v-if="showSlotSelection"
-        class="flex items-center gap-2 mb-2 group"
-        @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false"
+        class="flex items-center gap-2 mb-2"
       >
         <USelectMenu
           v-model="slotName"
