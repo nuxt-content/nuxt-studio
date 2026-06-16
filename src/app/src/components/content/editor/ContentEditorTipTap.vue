@@ -54,28 +54,20 @@ const {
 } = useTiptapEditor()
 
 const nestedDragHandle: NestedOptions = {
-  // edgeDetection: 'none' keeps the deepest block as the drag target even when the
-  // cursor is near its left edge. With the default ('left') edge detection, a block
-  // nested in a slot (depth ~3) gets a strength*depth = 500*3 penalty the moment the
-  // cursor enters the 12px edge zone where the handle sits — exceeding the 1000 base
-  // score, so the block is excluded and the handle jumps to the parent component,
-  // leaving the nested handle permanently unreachable.
+  // Default edge detection penalises deeply nested blocks enough to push them below the
+  // score threshold, making their handles unreachable. Disabling it keeps the deepest
+  // block as the target regardless of cursor proximity to the edge.
   edgeDetection: 'none',
   rules: [
     {
-      // The slot node is structural (selectable: false) and is never itself a drag target.
+      // slot is structural and never itself a drag target.
       id: 'excludeSlotNode',
       evaluate: (ctx: RuleContext) => ctx.node.type.name === 'slot' ? 1000 : 0,
     },
     {
-      // Keep the parent component (`element`) from becoming the target while the cursor
-      // is inside one of its slots. When the cursor drifts left of a nested block into
-      // the slot's padding, `posAtCoords` resolves to slot level; with the slot already
-      // excluded, the component would win and the handle would jump to it. Excluding the
-      // component here too leaves NO valid candidate — and the drag-handle plugin then
-      // early-returns (`if (!nodeData.resultElement) return`), leaving the handle parked
-      // on the last block instead of moving it. That's what makes the handle reachable:
-      // drifting into the gutter no longer steals the target.
+      // Prevent the parent component from stealing the target when the cursor drifts into
+      // a slot's gutter. With the slot excluded, the component would otherwise win and the
+      // handle would jump away from the nested block.
       id: 'excludeElementFromOwnSlot',
       evaluate: ({ node, depth, $pos }: RuleContext) =>
         node.type.name === 'element' && $pos.depth > depth && $pos.node(depth + 1)?.type.name === 'slot'
