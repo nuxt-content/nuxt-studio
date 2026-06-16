@@ -6,11 +6,13 @@ import { useRouter } from 'vue-router'
 import { StudioBranchActionId } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
 import { useI18n } from 'vue-i18n'
+import { useAI } from '../../composables/useAI'
 
 const router = useRouter()
 const { location } = useStudioState()
 const { context, host } = useStudio()
 const { t } = useI18n()
+const ai = useAI(host)
 
 const commitMessagePrefix = host.meta.git?.commit?.messagePrefix ?? ''
 
@@ -24,6 +26,7 @@ onMounted(() => {
 })
 
 const isPublishing = ref(false)
+const isSuggesting = ref(false)
 const openTooltip = ref(false)
 
 type Schema = z.output<typeof schema.value>
@@ -87,6 +90,26 @@ async function publishChanges() {
   }
   finally {
     isPublishing.value = false
+  }
+}
+
+async function suggestMessage() {
+  if (isSuggesting.value || isPublishing.value) return
+
+  isSuggesting.value = true
+  try {
+    const changes = context.allDrafts.value
+      .map(draft => `- ${draft.status} ${draft.fsPath}`)
+      .join('\n')
+    const msg = await ai.commitMessage(changes)
+    state.commitMessage = msg.trim()
+    openTooltip.value = false
+  }
+  catch {
+    // Leave field empty for manual entry on error
+  }
+  finally {
+    isSuggesting.value = false
   }
 }
 
@@ -156,6 +179,23 @@ defineShortcuts({
             >
               {{ commitMessagePrefix }}
             </span>
+          </template>
+          <template
+            v-if="ai.enabled"
+            #trailing
+          >
+            <UTooltip :text="$t('studio.tooltips.suggestCommitMessage')">
+              <UButton
+                icon="i-lucide-sparkles"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                :loading="isSuggesting"
+                :disabled="isPublishing || context.draftCount.value === 0"
+                :aria-label="$t('studio.tooltips.suggestCommitMessage')"
+                @click.prevent="suggestMessage"
+              />
+            </UTooltip>
           </template>
         </UInput>
       </UFormField>
