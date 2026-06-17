@@ -12,7 +12,7 @@ export default eventHandler((event) => {
     })
   }
 
-  // Detect providers from runtimeConfig (populated at build time from env vars).
+  // Detect providers from runtimeConfig (populated at request time by the studio-env middleware).
   const { studio } = useRuntimeConfig(event)
   const auth = studio?.auth
   const hasGithub = auth?.github?.clientId && 'github'
