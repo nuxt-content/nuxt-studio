@@ -78,6 +78,7 @@
     "@octokit/types": "^16.0.0",
     "@release-it/conventional-changelog": "^11.0.1",
     "@tailwindcss/typography": "^0.5.20",
+    "@tiptap/extension-drag-handle": "3.26.0",
     "@tiptap/extension-emoji": "^3.26.0",
     "@tiptap/extension-table": "3.26.0",
     "@types/js-yaml": "^4.0.9",
