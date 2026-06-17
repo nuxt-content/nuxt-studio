@@ -233,7 +233,6 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
 
   const getMarkInfo = (child: JSONContent): MarkInfo | null => {
     if (child.type !== 'text' || !child.marks?.length) return null
-    // Link is not a block-level wrapper; ignore it so bold+link nodes still join a bold run.
     const groupable = child.marks.filter(
       mark => mark.type !== 'link' && markToTag[mark.type],
     )
