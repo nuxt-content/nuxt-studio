@@ -2451,11 +2451,7 @@ describe('marks', () => {
   })
 
   test('bold wrapping a link - ** markers do not accumulate on repeated round-trips', async () => {
-    // Fixture: adjacent ** runs around a link. comark parses this as nested strong, which
-    // previously caused duplicate ** pairs to appear on every open/save cycle.
     const inputContent = '**that contain it **[here](/miscellaneous/bugs)**.**'
-
-    // After one round-trip the output normalizes to a single bold span wrapping the link.
     const expectedCanonicalOutput = '**that contain it [here](/miscellaneous/bugs).**\n'
 
     const expectedRtComarkNodes = [

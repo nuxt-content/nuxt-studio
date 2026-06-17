@@ -255,7 +255,6 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
     blocks.push({ mark: currentBlockMark, content: currentBlockContent })
   }
 
-  // A wrapped block emits a ComarkElement (not an array), so push it as-is — .flat() would spread it.
   const flatChildren: ComarkNode[] = []
   for (const block of blocks) {
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
