@@ -15,6 +15,7 @@ import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
+import type { NestedOptions, RuleContext } from '@tiptap/extension-drag-handle'
 
 const props = defineProps({
   draftItem: {
@@ -38,6 +39,26 @@ const {
   dragHandleItems,
   setSelectedNode,
 } = useTiptapEditor()
+
+const nestedDragHandle: NestedOptions = {
+  // Default edge detection makes handles unreachable for D&D.
+  edgeDetection: 'none',
+  rules: [
+    {
+      // slot is structural and never itself a drag target.
+      id: 'excludeSlotNode',
+      evaluate: (ctx: RuleContext) => ctx.node.type.name === 'slot' ? 1000 : 0,
+    },
+    {
+      // Keeps the handler at slot level by prevent the parent component to steal the target.
+      id: 'excludeElementFromOwnSlot',
+      evaluate: ({ node, depth, $pos }: RuleContext) =>
+        node.type.name === 'element' && $pos.depth > depth && $pos.node(depth + 1)?.type.name === 'slot'
+          ? 1000
+          : 0,
+    },
+  ],
+}
 
 const {
   MAX_AI_SELECTION_LENGTH,
@@ -179,6 +200,8 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
       <UEditorDragHandle
         v-slot="{ ui }"
         :editor="editor"
+        :nested="nestedDragHandle"
+        :options="{ strategy: 'fixed' }"
         @node-change="setSelectedNode"
       >
         <UDropdownMenu
