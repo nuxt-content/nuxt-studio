@@ -1,5 +1,6 @@
 import { test, describe, expect } from 'vitest'
 import { tiptapToComark } from '../../src/utils/tiptap/tiptapToComark'
+import { roundTripThroughEditor } from '../utils/editor'
 import { contentFromDocument, documentFromContent } from '../../../module/dist/runtime/utils/document'
 import type { JSONContent } from '@tiptap/core'
 import { comarkToTiptap } from '../../src/utils/tiptap/comarkToTiptap'
@@ -30,7 +31,8 @@ describe('table', () => {
     expect(firstDataRow.type).toBe('tableRow')
     expect(firstDataRow.content?.[0]?.type).toBe('tableCell')
 
-    const comarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const comarkTree = await tiptapToComark(editorJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
       body: comarkTree,
     })
@@ -52,7 +54,8 @@ describe('table', () => {
     const tableNode = tiptapJSON.content?.find(c => c.type === 'table')
     expect(tableNode).toBeDefined()
 
-    const comarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const comarkTree = await tiptapToComark(editorJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
       body: comarkTree,
     })
@@ -79,7 +82,8 @@ describe('table', () => {
     expect(emptyCell.type).toBe('tableCell')
     expect(emptyCell.content).toEqual([{ type: 'paragraph', content: [] }])
 
-    const comarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const comarkTree = await tiptapToComark(editorJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
       body: comarkTree,
     })
@@ -109,7 +113,8 @@ describe('table', () => {
     const paragraphContent = cell.content![0].content!
     expect(paragraphContent.some(c => c.type === 'hardBreak')).toBe(true)
 
-    const comarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const comarkTree = await tiptapToComark(editorJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
       body: comarkTree,
     })
@@ -133,7 +138,8 @@ describe('table', () => {
     expect(tableNode?.content).toHaveLength(3)
     expect(tableNode?.content?.[0].content).toHaveLength(1)
 
-    const comarkTree = await tiptapToComark(tiptapJSON)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const comarkTree = await tiptapToComark(editorJSON)
     const generatedDocument = createMockDocument('docs/test.md', {
       body: comarkTree,
     })
