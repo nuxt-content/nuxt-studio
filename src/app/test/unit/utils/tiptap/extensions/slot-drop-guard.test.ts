@@ -1,6 +1,5 @@
-import type { JSONContent } from '@tiptap/core'
+import type { JSONContent, Editor } from '@tiptap/core'
 import { describe, test, expect, afterEach } from 'vitest'
-import type { Editor } from '@tiptap/core'
 import { Fragment, Slice } from '@tiptap/pm/model'
 import { createEditor } from '../../../../utils/editor'
 import { dropWouldLandInElement } from '../../../../../src/utils/tiptap/extensions/slot-drop-guard'
@@ -29,11 +28,6 @@ describe('slot-drop-guard › dropWouldLandInElement', () => {
     editor = undefined
   })
 
-  // doc
-  // ├─ element (card)
-  // │  ├─ slot (default) → paragraph "in-slot"
-  // │  └─ paragraph "loose-in-element"   (direct child of the element, like exit-slot leaves)
-  // └─ paragraph "top-level"
   function buildEditor() {
     const json: JSONContent = {
       type: 'doc',
