@@ -237,7 +237,6 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
     return groupable.length === 1 ? groupable[0] as MarkInfo : null
   }
 
-
   // Separate children into blocks based on number of marks
   node.content!.forEach((child) => {
     const mark = getMarkInfo(child)
