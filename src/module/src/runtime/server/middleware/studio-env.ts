@@ -4,17 +4,12 @@ import { createHash } from 'node:crypto'
 import { defu } from 'defu'
 import { detectRepositoryFromCI } from '../utils/repository'
 
-// Detect repository from CI / platform env vars once at server startup.
-// VERCEL_GIT_* and Netlify vars are available at runtime; GitHub Actions / GitLab CI
-// vars are typically build-time only — use explicit nuxt.config or NUXT_PUBLIC_STUDIO_REPOSITORY_*
-// for those deployments.
 const ciRepository = detectRepositoryFromCI()
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event)
   if (!config.studio) return
 
-  // Backfill from legacy STUDIO_* / AI_GATEWAY_API_KEY for deployments not yet on NUXT_STUDIO_*.
   if (config.studio.ai) {
     config.studio.ai.apiKey = config.studio.ai.apiKey || process.env.AI_GATEWAY_API_KEY || ''
   }
@@ -62,13 +57,10 @@ export default defineEventHandler((event) => {
     config.studio.media.publicUrl = process.env.S3_PUBLIC_URL || ''
   }
 
-  // Reflect actual runtime AI availability in the public config so the editor UI is accurate
   if (config.public?.studio?.ai) {
     config.public.studio.ai.enabled = Boolean(config.studio.ai?.apiKey)
   }
 
-  // Repository — CI detection wins for non-provider fields; provider only set if unset.
-  // Mirrors the original build-time precedence, now resolved at runtime.
   if (ciRepository && config.public?.studio?.repository !== undefined) {
     const { provider: detectedProvider, ...detectedWithoutProvider } = ciRepository
     config.public.studio.repository = defu(detectedWithoutProvider, config.public.studio.repository)
@@ -81,7 +73,6 @@ export default defineEventHandler((event) => {
     }
   }
 
-  // Derive session secret from resolved credentials when none is explicitly set
   if (!config.studio.auth.sessionSecret) {
     const credValues = [
       config.studio.auth.github?.clientId,
