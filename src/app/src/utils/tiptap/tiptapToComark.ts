@@ -235,11 +235,10 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
     if (child.type !== 'text' || !child.marks?.length) return null
     // Link is not a block-level wrapper; ignore it so bold+link nodes still join a bold run.
     const groupable = child.marks.filter(
-      (mark: Record<string, unknown>) => mark.type !== 'link' && markToTag[mark.type as string],
+      mark => mark.type !== 'link' && markToTag[mark.type],
     )
     return groupable.length === 1 ? groupable[0] as MarkInfo : null
   }
-
 
 
   // Separate children into blocks based on number of marks
@@ -267,9 +266,7 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
       const blockMark = block.mark
       block.content.forEach((child: JSONContent) => {
         if (child.type === 'text' && child.marks) {
-          child.marks = child.marks.filter(
-            (mark: Record<string, unknown>) => !sameMark(mark as { type: string, attrs?: Record<string, unknown> }, blockMark),
-          )
+          child.marks = child.marks.filter(mark => !sameMark(mark as MarkInfo, blockMark))
           if (child.marks.length === 0) delete child.marks
         }
       })
