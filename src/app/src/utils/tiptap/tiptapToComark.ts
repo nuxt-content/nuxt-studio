@@ -180,6 +180,16 @@ export async function tiptapSliceToComark(
   return await tiptapToComark(cleanedJSON, {})
 }
 
+// ─── Shared mark helpers ──────────────────────────────────────────────────────
+
+export type MarkInfo = { type: string, attrs?: Record<string, unknown> }
+
+export function sameMark(markA: MarkInfo | null, markB: MarkInfo | null): boolean {
+  if (!markA && !markB) return true
+  if (!markA || !markB) return false
+  return markA.type === markB.type && JSON.stringify(markA.attrs || {}) === JSON.stringify(markB.attrs || {})
+}
+
 // ─── Element creation helpers ─────────────────────────────────────────────────
 
 function createElement(node: JSONContent, tag?: string, extra: unknown = {}): ComarkElement {
@@ -217,24 +227,20 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
 }
 
 function createParagraphElement(node: JSONContent, props: ComarkElementAttributes, _rest: object = {}): ComarkElement {
-  const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
+  const blocks: Array<{ mark: MarkInfo | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
-  let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
+  let currentBlockMark: MarkInfo | null = null
 
-  const getMarkInfo = (child: JSONContent): { type: string, attrs?: Record<string, unknown> } | null => {
+  const getMarkInfo = (child: JSONContent): MarkInfo | null => {
     if (child.type !== 'text' || !child.marks?.length) return null
     // Link is not a block-level wrapper; ignore it so bold+link nodes still join a bold run.
     const groupable = child.marks.filter(
       (mark: Record<string, unknown>) => mark.type !== 'link' && markToTag[mark.type as string],
     )
-    return groupable.length === 1 ? groupable[0] as { type: string, attrs?: Record<string, unknown> } : null
+    return groupable.length === 1 ? groupable[0] as MarkInfo : null
   }
 
-  const sameMark = (markA: { type: string, attrs?: Record<string, unknown> } | null, markB: { type: string, attrs?: Record<string, unknown> } | null) => {
-    if (!markA && !markB) return true
-    if (!markA || !markB) return false
-    return markA.type === markB.type && JSON.stringify(markA.attrs || {}) === JSON.stringify(markB.attrs || {})
-  }
+
 
   // Separate children into blocks based on number of marks
   node.content!.forEach((child) => {

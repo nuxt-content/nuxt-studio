@@ -4,6 +4,7 @@ import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comar
 import { EMOJI_REGEXP, getEmojiUnicode } from '../emoji'
 import { isValidAttr } from './props'
 import { isElement, isComment, getTag, getAttrs, getChildren } from '../comark'
+import { sameMark } from './tiptapToComark'
 
 type ComarkToTipTapMap = Record<string, (node: ComarkElement) => JSONContent | JSONContent[]>
 
@@ -137,13 +138,9 @@ export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxt
 */
 
 function dedupeMarks(marks: { type: string, attrs?: object }[]): { type: string, attrs?: object }[] {
-  const seen = new Set<string>()
-  return marks.filter((mark) => {
-    const key = `${mark.type}:${JSON.stringify(mark.attrs ?? {})}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  return marks.filter((mark, index) =>
+    marks.findIndex(m => sameMark(m as { type: string, attrs?: Record<string, unknown> }, mark as { type: string, attrs?: Record<string, unknown> })) === index,
+  )
 }
 
 export function createMark(node: ComarkElement, mark: string, accumulatedMarks: { type: string, attrs?: object }[] = []): JSONContent[] {
