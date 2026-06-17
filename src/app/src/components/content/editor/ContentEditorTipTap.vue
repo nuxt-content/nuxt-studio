@@ -136,7 +136,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
       :starter-kit="studioStarterKitOptions"
       :extensions="createStudioExtensions({
         placeholder: $t('studio.tiptap.editor.placeholder'),
-        hasNuxtUI: hasNuxtUI,
+        hasNuxtUI,
         resolveInitialSlot: tag => pickInitialSlot(host.meta.editor.components.get().find(c => c.name === tag)?.meta.slots),
         additionalExtensions: aiExtensions,
       })"
