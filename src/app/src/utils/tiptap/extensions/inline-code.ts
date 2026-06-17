@@ -1,7 +1,6 @@
 import Code from '@tiptap/extension-code'
 
-// Base Code has no attributes, so ProseMirror drops `language` on every round-trip.
-// excludes: 'code' prevents self-nesting while still combining with bold/italic/etc.
+// Base `Code` has no attrs, so `language` is lost on every round-trip.
 export const InlineCode = Code.extend({
   excludes: 'code',
 
