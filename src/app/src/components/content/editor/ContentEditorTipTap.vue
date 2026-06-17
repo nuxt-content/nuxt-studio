@@ -63,9 +63,7 @@ const nestedDragHandle: NestedOptions = {
       evaluate: (ctx: RuleContext) => ctx.node.type.name === 'slot' ? 1000 : 0,
     },
     {
-      // Prevent the parent component from stealing the target when the cursor drifts into
-      // a slot's gutter. With the slot excluded, the component would otherwise win and the
-      // handle would jump away from the nested block.
+      // Keeps the handler at slot level by prevent the parent component to steal the target.
       id: 'excludeElementFromOwnSlot',
       evaluate: ({ node, depth, $pos }: RuleContext) =>
         node.type.name === 'element' && $pos.depth > depth && $pos.node(depth + 1)?.type.name === 'slot'
