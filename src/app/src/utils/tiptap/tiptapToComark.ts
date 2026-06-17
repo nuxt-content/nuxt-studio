@@ -258,18 +258,17 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
   const flatChildren: ComarkNode[] = []
   for (const block of blocks) {
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
+      const blockMark = block.mark
       block.content.forEach((child: JSONContent) => {
         if (child.type === 'text' && child.marks) {
           child.marks = child.marks.filter(
-            (mark: Record<string, unknown>) =>
-              !(mark.type === block.mark!.type
-                && JSON.stringify((mark.attrs as object) ?? {}) === JSON.stringify(block.mark!.attrs ?? {})),
+            (mark: Record<string, unknown>) => !sameMark(mark as { type: string, attrs?: Record<string, unknown> }, blockMark),
           )
           if (child.marks.length === 0) delete child.marks
         }
       })
-      const markAttrs = (block.mark.attrs && Object.keys(block.mark.attrs).length > 0) ? (block.mark.attrs as Record<string, unknown>) : {}
-      flatChildren.push([markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement)
+      const markAttrs = blockMark.attrs && Object.keys(blockMark.attrs).length > 0 ? blockMark.attrs : {}
+      flatChildren.push([markToTag[blockMark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement)
     }
     else {
       flatChildren.push(...comarkNodesFromTiptap(block.content))
