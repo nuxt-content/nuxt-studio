@@ -54,9 +54,7 @@ const {
 } = useTiptapEditor()
 
 const nestedDragHandle: NestedOptions = {
-  // Default edge detection penalises deeply nested blocks enough to push them below the
-  // score threshold, making their handles unreachable. Disabling it keeps the deepest
-  // block as the target regardless of cursor proximity to the edge.
+  // Default edge detection makes handles unreachable for D&D.
   edgeDetection: 'none',
   rules: [
     {
