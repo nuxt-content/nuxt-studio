@@ -1,6 +1,6 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import Slugger from 'github-slugger'
-import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comark'
+import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment, ComarkElementAttributes } from 'comark'
 import type { SyntaxHighlightTheme } from '../../types/content'
 import { getEmojiUnicode } from '../emoji'
 import { buildAttrs, cleanSpanProps, normalizeProps } from './props'
@@ -51,6 +51,10 @@ const tiptapToComarkMap: TiptapToComarkMap = {
   },
   'hardBreak': (node: JSONContent) => createElement(node, 'br'),
   'u-callout': (node: JSONContent) => createCalloutElement(node),
+  'table': (node: JSONContent) => createTableElement(node),
+  'tableRow': (node: JSONContent) => createElement(node, 'tr'),
+  'tableHeader': (node: JSONContent) => createTableCellElement(node, 'th'),
+  'tableCell': (node: JSONContent) => createTableCellElement(node, 'td'),
 }
 
 let slugs = new Slugger()
@@ -193,27 +197,26 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
   }
 
   // Process element props
-  const propsArray = normalizeProps(node.attrs?.props || {}, props)
+  const elementProps = normalizeProps(node.attrs?.props || {}, props)
   if (node.type === 'paragraph') {
     // Empty paragraph
     if (!children || children.length === 0) {
       return ['p', {}] as ComarkElement
     }
     // Create paragraph element
-    return createParagraphElement(node, propsArray, rest)
+    return createParagraphElement(node, elementProps, rest)
   }
 
   children = unwrapDefaultSlot(children)
   children = unwrapParagraph(children)
   children = wrapImageInParagraph(children)
 
-  const elementProps = Object.fromEntries(propsArray)
   const elementChildren = (node.children || comarkNodesFromTiptap(children)) as ComarkNode[]
 
   return [tag || node.attrs?.tag, elementProps, ...elementChildren] as ComarkElement
 }
 
-function createParagraphElement(node: JSONContent, propsArray: Array<[string, string | string[]]>, _rest: object = {}): ComarkElement {
+function createParagraphElement(node: JSONContent, props: ComarkElementAttributes, _rest: object = {}): ComarkElement {
   const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
   let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
@@ -285,7 +288,7 @@ function createParagraphElement(node: JSONContent, propsArray: Array<[string, st
   const flatChildren = (children as Array<ComarkElement | ComarkNode[]>).flat() as ComarkNode[]
   const mergedChildren = mergeSiblingsWithSameTag(flatChildren, Object.values(markToTag))
 
-  return ['p', Object.fromEntries(propsArray), ...mergedChildren] as ComarkElement
+  return ['p', props, ...mergedChildren] as ComarkElement
 }
 
 function createHeadingElement(node: JSONContent): ComarkElement {
@@ -347,6 +350,42 @@ function createCalloutElement(node: JSONContent): ComarkElement {
   // Support both new 'tag' attr and legacy 'type' attr for backward compatibility
   const tag = node.attrs?.tag || node.attrs?.type || 'note'
   return createElement(node, tag) as ComarkElement
+}
+
+function createTableElement(node: JSONContent): ComarkElement {
+  const headerRows: ComarkNode[] = []
+  const bodyRows: ComarkNode[] = []
+
+  for (const row of (node.content || [])) {
+    if (row.type !== 'tableRow') continue
+    const firstCell = row.content?.[0]
+    if (firstCell?.type === 'tableHeader') {
+      headerRows.push(tiptapNodeToComark(row) as ComarkNode)
+    }
+    else {
+      bodyRows.push(tiptapNodeToComark(row) as ComarkNode)
+    }
+  }
+
+  const children: ComarkNode[] = []
+  if (headerRows.length > 0) {
+    children.push(['thead', {}, ...headerRows] as ComarkElement)
+  }
+  if (bodyRows.length > 0) {
+    children.push(['tbody', {}, ...bodyRows] as ComarkElement)
+  }
+
+  return ['table', {}, ...children] as ComarkElement
+}
+
+function createTableCellElement(node: JSONContent, tag: 'th' | 'td'): ComarkElement {
+  const content = comarkNodesFromTiptap(node.content || [])
+  // Unwrap single paragraph wrapper (reverses the wrapping done in comarkToTiptap)
+  if (content.length === 1 && Array.isArray(content[0]) && (content[0] as ComarkElement)[0] === 'p') {
+    const pChildren = (content[0] as ComarkElement).slice(2) as ComarkNode[]
+    return [tag, {}, ...pChildren] as ComarkElement
+  }
+  return [tag, {}, ...content] as ComarkElement
 }
 
 function createLinkElement(node: JSONContent): ComarkElement {

@@ -230,7 +230,17 @@
         "insert": "Wstaw",
         "image": "Obraz",
         "video": "Wideo",
-        "horizontalRule": "Linia pozioma"
+        "horizontalRule": "Linia pozioma",
+        "table": "Tabela"
+      },
+      "table": {
+        "insertLeft": "Wstaw z lewej",
+        "insertRight": "Wstaw z prawej",
+        "insertAbove": "Wstaw powyżej",
+        "insertBelow": "Wstaw poniżej",
+        "deleteRow": "Usuń wiersz",
+        "deleteColumn": "Usuń kolumnę",
+        "deleteTable": "Usuń tabelę"
       },
       "drag": {
         "turnInto": "Zmień na",

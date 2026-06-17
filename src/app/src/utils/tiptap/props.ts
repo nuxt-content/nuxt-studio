@@ -5,6 +5,7 @@ import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
 import type { ComponentMeta } from '../../types/editor'
 import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
+import type { ComarkElementAttributes } from 'comark'
 
 const HIDDEN_PROPS = [
   'ui',
@@ -139,18 +140,19 @@ export function buildAttrs<V = unknown, K extends string = string>(
 }
 
 /**
- * Process and normalize element props, preserving className as array
+ * Merge node props with extra props for a ComarkElement, trimming keys and
+ * dropping empty ones. Values are passed through untouched — comark attrs are
+ * already correctly typed (strings, arrays, objects) and comark serializes each
+ * type itself, so no stringification is needed or wanted (stringifying would
+ * collapse arrays/objects into `"[object Object]"`).
  */
-export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): Array<[string, string | string[]]> {
-  return Object.entries({ ...nodeProps, ...extraProps })
-    .map(([key, value]) => {
-      if (key === 'className') {
-        // Keep className as array if it's already an array
-        return ['className', value] as [string, string | string[]]
-      }
-      return [key.trim(), String(value).trim()] as [string, string]
-    })
-    .filter(([key]) => Boolean(String(key).trim()))
+export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: object): ComarkElementAttributes {
+  const out: ComarkElementAttributes = {}
+  for (const [rawKey, value] of Object.entries({ ...nodeProps, ...extraProps })) {
+    const key = rawKey.trim()
+    if (key) out[key] = value
+  }
+  return out
 }
 
 export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: ComponentMeta): FormTree => {

@@ -11,6 +11,7 @@ import { comarkToTiptap } from '../../../utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../../utils/tiptap/tiptapToComark'
 import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
 import { Element } from '../../../utils/tiptap/extensions/element'
+import { pickInitialSlot } from '../../../utils/tiptap/handlers'
 import { Image } from '../../../utils/tiptap/extensions/image'
 import { ImagePicker } from '../../../utils/tiptap/extensions/image-picker'
 import { VideoPicker } from '../../../utils/tiptap/extensions/video-picker'
@@ -23,7 +24,9 @@ import { SpanStyle } from '../../../utils/tiptap/extensions/span-style'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import { Binding } from '../../../utils/tiptap/extensions/binding'
 import { Callout } from '../../../utils/tiptap/extensions/callout'
+import { Table, TableRow, TableCell, TableHeader } from '../../../utils/tiptap/extensions/table'
 import { CustomPlaceholder } from '../../../utils/tiptap/extensions/custom-placeholder'
+import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
 import { useTiptapEditorAI } from '../../../composables/useTiptapEditorAI'
 
@@ -162,13 +165,19 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         VideoPicker,
         Video,
         ...(hasNuxtUI ? [Callout] : []),
-        Element,
+        Element.configure({
+          resolveInitialSlot: tag => pickInitialSlot(host.meta.editor.components.get().find(c => c.name === tag)?.meta.slots),
+        }),
         InlineElement,
         SpanStyle,
         Slot,
         CodeBlock,
         Emoji,
         Binding,
+        Table,
+        TableRow,
+        TableCell,
+        TableHeader,
         ...aiExtensions,
       ]"
     >
@@ -231,6 +240,8 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
           />
         </UDropdownMenu>
       </UEditorDragHandle>
+
+      <TiptapTableGrips :editor="editor" />
 
       <UEditorSuggestionMenu
         :editor="editor"

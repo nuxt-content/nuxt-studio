@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { useStudio } from '../../../composables/useStudio'
 
 const nodeProps = defineProps(nodeViewProps)
 
 const { host } = useStudio()
 
-// @ts-expect-error vue-tsc error in cli
-const nodeViewContentEl = ref<HTMLElement>()
-
-const isHovered = ref(false)
 const isEditable = ref(true) // TODO: Connect to editor state
 
 const slotName = computed({
@@ -32,7 +29,12 @@ const parent = computed(() => {
 const componentMeta = computed(() => host.meta.editor.components.get().find(c => c.name === parent.value?.attrs.tag))
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const showSlotSelection = computed(() => slots.value.length > 1)
-const availableSlots = computed(() => slots.value.map(s => s.name))
+const usedSlots = computed(() =>
+  (parent.value?.content?.content as ProseMirrorNode[] || [])
+    .map(slot => slot.attrs.name as string),
+)
+// All declared slots minus those already used by siblings (including this slot itself)
+const availableSlots = computed(() => slots.value.map(slot => slot.name).filter(name => !usedSlots.value.includes(name)))
 const isLastRemainingSlot = computed(() => parent.value?.childCount === 1)
 
 function deleteSlot() {
@@ -51,9 +53,7 @@ function deleteSlot() {
     <div class="my-2">
       <div
         v-if="showSlotSelection"
-        class="flex items-center gap-2 mb-2 group"
-        @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false"
+        class="flex items-center gap-2 mb-2"
       >
         <USelectMenu
           v-model="slotName"
@@ -64,6 +64,7 @@ function deleteSlot() {
           size="xs"
           :ui="{
             base: 'font-mono text-xs text-muted hover:text-default uppercase cursor-pointer ring-0',
+            content: 'z-[9999]',
           }"
         >
           <template #leading>
@@ -93,7 +94,7 @@ function deleteSlot() {
       <div
         class="pl-5 border-l-2 border-dashed border-default"
       >
-        <NodeViewContent ref="nodeViewContentEl" />
+        <NodeViewContent />
       </div>
     </div>
   </NodeViewWrapper>

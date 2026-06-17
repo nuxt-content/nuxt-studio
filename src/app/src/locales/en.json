@@ -29,7 +29,8 @@
       "backToContent": "Back to content",
       "disableAICompletion": "Disable AI completion",
       "enableAICompletion": "Enable AI completion",
-      "regenerateAIContext": "Regenerate AI context"
+      "regenerateAIContext": "Regenerate AI context",
+      "suggestCommitMessage": "Suggest commit message"
     },
     "notifications": {
       "error": {
@@ -230,7 +231,17 @@
         "insert": "Insert",
         "image": "Image",
         "video": "Video",
-        "horizontalRule": "Horizontal Rule"
+        "horizontalRule": "Horizontal Rule",
+        "table": "Table"
+      },
+      "table": {
+        "insertLeft": "Insert left",
+        "insertRight": "Insert right",
+        "insertAbove": "Insert above",
+        "insertBelow": "Insert below",
+        "deleteRow": "Delete row",
+        "deleteColumn": "Delete column",
+        "deleteTable": "Delete table"
       },
       "drag": {
         "turnInto": "Turn into",

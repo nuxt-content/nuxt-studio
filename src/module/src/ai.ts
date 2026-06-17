@@ -22,6 +22,12 @@ export async function setAIFeature(options: ModuleOptions, nuxt: Nuxt, runtime: 
     handler: runtime('./server/routes/ai/generate.post'),
   })
 
+  addServerHandler({
+    method: 'post',
+    route: '/__nuxt_studio/ai/commit',
+    handler: runtime('./server/routes/ai/commit.post'),
+  })
+
   // Only register analyze handler if experimental collectionContext is enabled
   if (options.ai?.experimental?.collectionContext) {
     addServerHandler({

@@ -230,7 +230,17 @@
         "insert": "Sisipkan",
         "image": "Gambar",
         "video": "Video",
-        "horizontalRule": "Garis Horizontal"
+        "horizontalRule": "Garis Horizontal",
+        "table": "Tabel"
+      },
+      "table": {
+        "insertLeft": "Sisipkan ke kiri",
+        "insertRight": "Sisipkan ke kanan",
+        "insertAbove": "Sisipkan di atas",
+        "insertBelow": "Sisipkan di bawah",
+        "deleteRow": "Hapus baris",
+        "deleteColumn": "Hapus kolom",
+        "deleteTable": "Hapus tabel"
       },
       "drag": {
         "turnInto": "Ubah menjadi",

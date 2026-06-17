@@ -230,7 +230,17 @@
         "insert": "تێخستن",
         "image": "وێنە",
         "video": "ڤیدیۆ",
-        "horizontalRule": "هێڵی ئاسۆیی"
+        "horizontalRule": "هێڵی ئاسۆیی",
+        "table": "خشتە"
+      },
+      "table": {
+        "insertLeft": "دانانی چەپ",
+        "insertRight": "دانانی ڕاست",
+        "insertAbove": "دانانی سەرەوە",
+        "insertBelow": "دانانی خوارەوە",
+        "deleteRow": "سڕینەوەی ڕیز",
+        "deleteColumn": "سڕینەوەی ستوون",
+        "deleteTable": "سڕینەوەی خشتە"
       },
       "drag": {
         "turnInto": "گۆڕین بۆ",

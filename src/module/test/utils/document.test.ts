@@ -462,6 +462,35 @@ Description`
     const result = await isDocumentMatchingContent(jsonContent, document)
     expect(result).toBe(true)
   })
+
+  it('should be true when frontmatter fields are stored in meta by @nuxt/content instead of top-level', async () => {
+    const markdownContent = `---
+title: Test Page
+navigation: hidden
+sitemap:
+  loc: /test
+  images: []
+  videos: []
+---
+
+Hello world
+`
+
+    const document = {
+      id: 'content:pages/test.md',
+      extension: ContentFileExtension.Markdown,
+      stem: 'pages/test',
+      title: 'Test Page',
+      meta: {
+        navigation: 'hidden',
+        sitemap: { loc: '/test', images: [], videos: [] },
+      },
+      body: { nodes: [['p', {}, 'Hello world']], frontmatter: {}, meta: {} },
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(true)
+  })
 })
 
 describe('sanitizeDocumentTree', () => {

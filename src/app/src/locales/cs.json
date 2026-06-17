@@ -230,7 +230,17 @@
         "insert": "Vložit",
         "image": "Obrázek",
         "video": "Video",
-        "horizontalRule": "Vodorovná čára"
+        "horizontalRule": "Vodorovná čára",
+        "table": "Tabulka"
+      },
+      "table": {
+        "insertLeft": "Vložit vlevo",
+        "insertRight": "Vložit vpravo",
+        "insertAbove": "Vložit nad",
+        "insertBelow": "Vložit pod",
+        "deleteRow": "Smazat řádek",
+        "deleteColumn": "Smazat sloupec",
+        "deleteTable": "Smazat tabulku"
       },
       "drag": {
         "turnInto": "Převést na",

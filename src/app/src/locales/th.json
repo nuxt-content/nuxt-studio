@@ -230,7 +230,17 @@
         "insert": "แทรก",
         "image": "รูป",
         "video": "วิดีโอ",
-        "horizontalRule": "เส้นคั่น"
+        "horizontalRule": "เส้นคั่น",
+        "table": "ตาราง"
+      },
+      "table": {
+        "insertLeft": "แทรกทางซ้าย",
+        "insertRight": "แทรกทางขวา",
+        "insertAbove": "แทรกด้านบน",
+        "insertBelow": "แทรกด้านล่าง",
+        "deleteRow": "ลบแถว",
+        "deleteColumn": "ลบคอลัมน์",
+        "deleteTable": "ลบตาราง"
       },
       "drag": {
         "turnInto": "เปลี่ยนเป็น",

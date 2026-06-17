@@ -5,6 +5,7 @@ import TiptapExtensionElement from '../../../components/tiptap/extension/TiptapE
 
 export interface ElementOptions {
   HTMLAttributes: Record<string, unknown>
+  resolveInitialSlot: (tag: string) => string | undefined
 }
 
 declare module '@tiptap/core' {
@@ -27,6 +28,7 @@ export const Element = Node.create<ElementOptions>({
     return {
       tag: 'div',
       HTMLAttributes: {},
+      resolveInitialSlot: () => 'default' as string | undefined,
     }
   },
 
@@ -63,23 +65,31 @@ export const Element = Node.create<ElementOptions>({
       new InputRule({
         find: /^::([a-z-]+)\s$/i,
         handler: ({ range, match, chain }) => {
+          const tag = match[1]!
+          const slot = this.options.resolveInitialSlot(tag)
           const value: Content = {
             type: 'element',
-            attrs: { tag: match[1] },
-            content: [{
+            attrs: { tag },
+          }
+          if (slot) {
+            value.content = [{
               type: 'slot',
-              attrs: { name: 'default' },
+              attrs: { name: slot },
               content: [{
                 type: 'paragraph',
                 content: [],
               }],
-            }],
+            }]
           }
 
-          chain()
-            .deleteRange(range)
-            .insertContentAt(range.from, value)
-            .run()
+          const command = chain().deleteRange(range).insertContentAt(range.from, value)
+          if (!slot) {
+            command.insertContentAt(range.from + 1, [{
+              type: 'paragraph',
+              content: [],
+            }])
+          }
+          command.run()
         },
       }),
     ]
@@ -96,7 +106,6 @@ export const Element = Node.create<ElementOptions>({
           type: 'element',
           attrs: { tag },
         }
-
         if (slot) {
           value.content = [{
             type: 'slot',
@@ -110,7 +119,10 @@ export const Element = Node.create<ElementOptions>({
 
         const command = chain().insertContentAt(from, value)
         if (!slot) {
-          command.insertContentAt(from + 1, [{ type: 'paragraph', content: [] }])
+          command.insertContentAt(from + 1, [{
+            type: 'paragraph',
+            content: [],
+          }])
         }
         return command.run()
       },
