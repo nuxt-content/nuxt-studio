@@ -180,8 +180,6 @@ export async function tiptapSliceToComark(
   return await tiptapToComark(cleanedJSON, {})
 }
 
-// ─── Shared mark helpers ──────────────────────────────────────────────────────
-
 export type MarkInfo = { type: string, attrs?: Record<string, unknown> }
 
 export function sameMark(markA: MarkInfo | null, markB: MarkInfo | null): boolean {
