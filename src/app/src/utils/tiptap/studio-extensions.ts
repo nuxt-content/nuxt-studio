@@ -10,6 +10,7 @@ import { Image } from './extensions/image'
 import { ImagePicker } from './extensions/image-picker'
 import { InlineElement } from './extensions/inline-element'
 import { Slot } from './extensions/slot'
+import { SlotDropGuard } from './extensions/slot-drop-guard'
 import { SpanStyle } from './extensions/span-style'
 import { Table, TableCell, TableHeader, TableRow } from './extensions/table'
 import { Video } from './extensions/video'
@@ -47,6 +48,7 @@ export function createStudioExtensions({
     InlineElement,
     SpanStyle,
     Slot,
+    SlotDropGuard,
     CodeBlock,
     Emoji,
     Binding,
