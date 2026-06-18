@@ -1,3 +1,4 @@
+import type { CollectionInfo } from '@nuxt/content'
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
@@ -127,35 +128,40 @@ export async function documentFromMarkdownContent(id: string, content: string, o
   return result
 }
 
-export async function contentFromDocument(document: DatabaseItem): Promise<string | null> {
+export async function contentFromDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
   const [id, _hash] = document.id.split('#')
   const extension = getFileExtension(id!)
 
   if (extension === ContentFileExtension.Markdown) {
-    return await contentFromMarkdownDocument(document as DatabasePageItem)
+    return await contentFromMarkdownDocument(document as DatabasePageItem, collection)
   }
 
   if (extension === ContentFileExtension.YAML || extension === ContentFileExtension.YML) {
-    return await contentFromYAMLDocument(document)
+    return await contentFromYAMLDocument(document, collection)
   }
 
   if (extension === ContentFileExtension.JSON) {
-    return await contentFromJSONDocument(document)
+    return await contentFromJSONDocument(document, collection)
   }
 
   return null
 }
 
-export async function contentFromYAMLDocument(document: DatabaseItem): Promise<string | null> {
-  return yaml.dump(cleanDataKeys(document), { lineWidth: -1 })
+export async function contentFromYAMLDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  return yaml.dump(cleanDataKeys(document, collection), { lineWidth: -1 })
 }
 
-export async function contentFromJSONDocument(document: DatabaseItem): Promise<string | null> {
-  return JSON.stringify(cleanDataKeys(document), null, 2)
+export async function contentFromJSONDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  return JSON.stringify(cleanDataKeys(document, collection), null, 2)
 }
 
-export async function contentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
-  const markdown = await renderMarkdown(document.body as unknown as ComarkTree, {
+export async function contentFromMarkdownDocument(document: DatabaseItem, collection?: Pick<CollectionInfo, 'name' | 'schema'>): Promise<string | null> {
+  const body = {
+    ...(document.body as unknown as ComarkTree),
+    frontmatter: cleanDataKeys(document, collection),
+  }
+
+  const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
     components: {
       br: () => ':br',
