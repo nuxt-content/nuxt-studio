@@ -2450,6 +2450,42 @@ describe('marks', () => {
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('bold wrapping a link - ** markers do not accumulate on repeated round-trips', async () => {
+    const inputContent = '**that contain it **[here](/miscellaneous/bugs)**.**'
+    const expectedCanonicalOutput = '**that contain it [here](/miscellaneous/bugs).**\n'
+
+    const expectedRtComarkNodes = [
+      ['p', {}, ['strong', {}, 'that contain it ', ['a', { href: '/miscellaneous/bugs' }, 'here'], '.']],
+    ]
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const tiptapJSON: JSONContent = comarkToTiptap(document.body)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
+
+    // Round-tripped AST: one strong wrapping text + link + text
+    expect(rtComarkTree.nodes).toMatchObject(expectedRtComarkNodes)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(expectedCanonicalOutput)
+
+    // Idempotency: a second round-trip must produce byte-identical output (no ** growth)
+    const document2 = await documentFromContent('test.md', outputContent.trimEnd()) as DatabasePageItem
+    const tiptapJSON2: JSONContent = comarkToTiptap(document2.body)
+    const editorJSON2 = roundTripThroughEditor(tiptapJSON2)
+    const rtComarkTree2 = await tiptapToComark(editorJSON2)
+    const generatedDocument2 = createMockDocument('docs/test.md', {
+      body: rtComarkTree2,
+      ...rtComarkTree2.frontmatter,
+    })
+    const outputContent2 = await contentFromDocument(generatedDocument2)
+    expect(outputContent2).toBe(expectedCanonicalOutput)
+  })
+
   test('inline code in bold and strikethrough - ~~**`x`**~~', async () => {
     const inputContent = '~~**`x`**~~'
 

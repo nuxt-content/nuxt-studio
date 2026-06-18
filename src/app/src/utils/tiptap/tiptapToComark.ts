@@ -180,6 +180,14 @@ export async function tiptapSliceToComark(
   return await tiptapToComark(cleanedJSON, {})
 }
 
+export type MarkInfo = { type: string, attrs?: Record<string, unknown> }
+
+export function sameMark(markA: MarkInfo | null, markB: MarkInfo | null): boolean {
+  if (!markA && !markB) return true
+  if (!markA || !markB) return false
+  return markA.type === markB.type && JSON.stringify(markA.attrs || {}) === JSON.stringify(markB.attrs || {})
+}
+
 // ─── Element creation helpers ─────────────────────────────────────────────────
 
 function createElement(node: JSONContent, tag?: string, extra: unknown = {}): ComarkElement {
@@ -217,33 +225,16 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
 }
 
 function createParagraphElement(node: JSONContent, props: ComarkElementAttributes, _rest: object = {}): ComarkElement {
-  const blocks: Array<{ mark: { type: string, attrs?: Record<string, unknown> } | null, content: JSONContent[] }> = []
+  const blocks: Array<{ mark: MarkInfo | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
-  let currentBlockMark: { type: string, attrs?: Record<string, unknown> } | null = null
+  let currentBlockMark: MarkInfo | null = null
 
-  const getMarkInfo = (child: JSONContent): { type: string, attrs?: Record<string, unknown> } | null => {
-    if (child.type === 'text' && child.marks?.length === 1 && child.marks?.[0]?.type) {
-      return child.marks[0] as { type: string, attrs?: Record<string, unknown> }
-    }
-
-    if (
-      child.type === 'link-element'
-      && child.content
-      && child.content.length === 1
-      && child.content[0].type === 'text'
-      && child.content[0].marks?.length === 1
-      && child.content[0].marks?.[0]?.type
-    ) {
-      return child.content[0].marks?.[0] as { type: string, attrs?: Record<string, unknown> }
-    }
-
-    return null
-  }
-
-  const sameMark = (markA: { type: string, attrs?: Record<string, unknown> } | null, markB: { type: string, attrs?: Record<string, unknown> } | null) => {
-    if (!markA && !markB) return true
-    if (!markA || !markB) return false
-    return markA.type === markB.type && JSON.stringify(markA.attrs || {}) === JSON.stringify(markB.attrs || {})
+  const getMarkInfo = (child: JSONContent): MarkInfo | null => {
+    if (child.type !== 'text' || !child.marks?.length) return null
+    const groupable = child.marks.filter(
+      mark => mark.type !== 'link' && markToTag[mark.type],
+    )
+    return groupable.length === 1 ? groupable[0] as MarkInfo : null
   }
 
   // Separate children into blocks based on number of marks
@@ -265,27 +256,24 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
     blocks.push({ mark: currentBlockMark, content: currentBlockContent })
   }
 
-  const children = blocks.map((block) => {
-    // If the block has more than one child and a mark
+  const flatChildren: ComarkNode[] = []
+  for (const block of blocks) {
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
-      // Remove all marks from children
+      const blockMark = block.mark
       block.content.forEach((child: JSONContent) => {
-        if (child.type === 'text') {
-          delete child.marks
-        }
-        else if (child.type === 'link-element') {
-          delete child.content![0].marks
+        if (child.type === 'text' && child.marks) {
+          child.marks = child.marks.filter(mark => !sameMark(mark as MarkInfo, blockMark))
+          if (child.marks.length === 0) delete child.marks
         }
       })
-
-      const markAttrs = (block.mark.attrs && Object.keys(block.mark.attrs).length > 0) ? (block.mark.attrs as Record<string, unknown>) : {}
-      return [markToTag[block.mark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement
+      const markAttrs = blockMark.attrs && Object.keys(blockMark.attrs).length > 0 ? blockMark.attrs : {}
+      flatChildren.push([markToTag[blockMark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement)
     }
+    else {
+      flatChildren.push(...comarkNodesFromTiptap(block.content))
+    }
+  }
 
-    return comarkNodesFromTiptap(block.content)
-  }) as ComarkNode[][]
-
-  const flatChildren = (children as Array<ComarkElement | ComarkNode[]>).flat() as ComarkNode[]
   const mergedChildren = mergeSiblingsWithSameTag(flatChildren, Object.values(markToTag))
 
   return ['p', props, ...mergedChildren] as ComarkElement
@@ -434,7 +422,15 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
     return node.text! as ComarkNode
   }
 
-  const res = node.marks!.reduce((acc: ComarkNode, mark: Record<string, unknown>) => {
+  // code must be innermost — comark's textContent() strips nested markup when handling it.
+  const orderedMarks = node.marks!.slice().sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+    if (a.type === b.type) return 0
+    if (a.type === 'code') return -1
+    if (b.type === 'code') return 1
+    return 0
+  })
+
+  const res = orderedMarks.reduce((acc: ComarkNode, mark: Record<string, unknown>) => {
     const markAttrs = (mark.attrs as Record<string, unknown>) || {}
     if (mark.type === 'link') {
       // Preserve the attr order the link mark was authored in. TipTap auto-injects

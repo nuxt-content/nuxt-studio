@@ -34,6 +34,20 @@ describe('marks', () => {
     }])
   })
 
+  test('createMark: nested strong containing a link - no duplicate bold marks, link preserved', () => {
+    // comark.parse produces strong > strong > a for **...**[here]**...**
+    const node: ComarkElement = ['strong', {}, ['strong', {}, ['a', { href: '/bugs' }, 'here']] as ComarkElement]
+
+    expect(createMark(node, 'bold')).toStrictEqual([{
+      type: 'text',
+      text: 'here',
+      marks: [
+        { type: 'link', attrs: { href: '/bugs' } },
+        { type: 'bold', attrs: {} },
+      ],
+    }])
+  })
+
   test('createMark: create `code` mark nodes should not handle shiki elements', () => {
     const mark = 'code'
     // A code element containing shiki-highlighted spans
