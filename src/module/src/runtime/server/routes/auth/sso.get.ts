@@ -17,17 +17,17 @@ export interface SSOUser {
 export interface SSOServerConfig {
   /**
    * SSO Server URL (e.g., 'https://auth.example.com')
-   * @default process.env.STUDIO_SSO_URL
+   * @default NUXT_STUDIO_AUTH_SSO_SERVER_URL
    */
   serverUrl?: string
   /**
    * SSO Client ID
-   * @default process.env.STUDIO_SSO_CLIENT_ID
+   * @default NUXT_STUDIO_AUTH_SSO_CLIENT_ID
    */
   clientId?: string
   /**
    * SSO Client Secret
-   * @default process.env.STUDIO_SSO_CLIENT_SECRET
+   * @default NUXT_STUDIO_AUTH_SSO_CLIENT_SECRET
    */
   clientSecret?: string
   /**
@@ -42,12 +42,7 @@ export default eventHandler(async (event: H3Event) => {
    * SSO provider validation
    */
   const studioConfig = useRuntimeConfig(event).studio
-  const config = mergeConfig<SSOServerConfig>(studioConfig?.auth?.sso, {
-    serverUrl: process.env.STUDIO_SSO_URL,
-    clientId: process.env.STUDIO_SSO_CLIENT_ID,
-    clientSecret: process.env.STUDIO_SSO_CLIENT_SECRET,
-    redirectURL: process.env.STUDIO_SSO_REDIRECT_URL,
-  })
+  const config = mergeConfig<SSOServerConfig>(studioConfig?.auth?.sso, {})
 
   const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
 
@@ -62,7 +57,7 @@ export default eventHandler(async (event: H3Event) => {
   if (!config.serverUrl || !config.clientId || !config.clientSecret) {
     throw createError({
       statusCode: 500,
-      message: 'Missing SSO server URL, client ID, or client secret. Set STUDIO_SSO_URL, STUDIO_SSO_CLIENT_ID, and STUDIO_SSO_CLIENT_SECRET environment variables.',
+      message: 'Missing SSO server URL, client ID, or client secret. Set NUXT_STUDIO_AUTH_SSO_SERVER_URL, NUXT_STUDIO_AUTH_SSO_CLIENT_ID, and NUXT_STUDIO_AUTH_SSO_CLIENT_SECRET.',
       data: config,
     })
   }
@@ -153,12 +148,12 @@ export default eventHandler(async (event: H3Event) => {
   if (provider === 'github' && user.github_token) {
     repositoryToken = user.github_token
   }
-  // Fall back to environment variable
+  // Fall back to configured git token
   else if (provider === 'github') {
-    repositoryToken = process.env.STUDIO_GITHUB_TOKEN
+    repositoryToken = studioConfig?.git?.githubToken
   }
   else if (provider === 'gitlab') {
-    repositoryToken = process.env.STUDIO_GITLAB_TOKEN
+    repositoryToken = studioConfig?.git?.gitlabToken
   }
 
   // Validate that we have a token
@@ -171,7 +166,7 @@ export default eventHandler(async (event: H3Event) => {
   if (provider === 'gitlab' && !repositoryToken) {
     throw createError({
       statusCode: 500,
-      message: '`STUDIO_GITLAB_TOKEN` is not set. SSO authenticated users cannot push changes to the repository without a valid GitLab token.',
+      message: '`NUXT_STUDIO_GIT_GITLAB_TOKEN` is not set. SSO authenticated users cannot push changes to the repository without a valid GitLab token.',
     })
   }
 

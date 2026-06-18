@@ -20,7 +20,7 @@ export default eventHandler(async (event) => {
   if (!apiKey) {
     throw createError({
       statusCode: 503,
-      statusMessage: 'AI features are not enabled. Please set AI_GATEWAY_API_KEY environment variable.',
+      statusMessage: 'AI features are not enabled. Please set NUXT_STUDIO_AI_API_KEY environment variable.',
     })
   }
 

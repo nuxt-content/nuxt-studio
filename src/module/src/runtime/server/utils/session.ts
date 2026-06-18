@@ -15,13 +15,13 @@ interface StudioUserSession {
 const requiredUserFields: Array<keyof StudioUser> = ['name', 'email']
 
 export async function setStudioUserSession(event: H3Event, userSession: StudioUserSession) {
-  const config = useRuntimeConfig().public
-  const provider = config.studio.repository.provider as GitProviderType
+  const config = useRuntimeConfig(event)
+  const provider = config.public.studio.repository.provider as GitProviderType
   const accessToken
     = provider === 'github'
-      ? process.env.STUDIO_GITHUB_TOKEN
+      ? config.studio?.git?.githubToken
       : provider === 'gitlab'
-        ? process.env.STUDIO_GITLAB_TOKEN
+        ? config.studio?.git?.gitlabToken
         : null
 
   if (!accessToken) {
