@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
+import { kebabCase } from 'scule'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { useStudio } from '../../../composables/useStudio'
 
@@ -26,7 +27,7 @@ const parent = computed(() => {
   return $pos.parent
 })
 
-const componentMeta = computed(() => host.meta.editor.components.get().find(c => c.name === parent.value?.attrs.tag))
+const componentMeta = computed(() => host.meta.editor.components.get().find(c => kebabCase(c.name) === kebabCase(parent.value?.attrs.tag)))
 const slots = computed(() => componentMeta.value?.meta.slots || [])
 const showSlotSelection = computed(() => slots.value.length > 1)
 const usedSlots = computed(() =>
