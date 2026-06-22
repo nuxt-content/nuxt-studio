@@ -9,6 +9,7 @@ import { Frontmatter } from './extensions/frontmatter'
 import { Image } from './extensions/image'
 import { ImagePicker } from './extensions/image-picker'
 import { CodeAttributes } from './extensions/code-attributes'
+import { ImageUpload } from './extensions/image-upload'
 import { InlineElement } from './extensions/inline-element'
 import { Slot } from './extensions/slot'
 import { SlotDropGuard } from './extensions/slot-drop-guard'
@@ -28,6 +29,7 @@ interface CreateStudioExtensionsOptions {
   placeholder?: string
   hasNuxtUI?: boolean
   resolveInitialSlot?: (tag: string) => string | undefined
+  uploadImage?: (file: File) => Promise<string | undefined>
   additionalExtensions?: AnyExtension[]
 }
 
@@ -35,12 +37,14 @@ export function createStudioExtensions({
   placeholder = '',
   hasNuxtUI = true,
   resolveInitialSlot,
+  uploadImage,
   additionalExtensions = [],
 }: CreateStudioExtensionsOptions = {}): AnyExtension[] {
   return [
     CodeAttributes,
     CustomPlaceholder.configure({ placeholder }),
     Frontmatter,
+    ImageUpload.configure({ uploadImage }),
     Image,
     ImagePicker,
     VideoPicker,
