@@ -312,11 +312,8 @@ function normalizeMdcChildren(children: MDCNode[]): MDCNode[] {
 function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<string, unknown> {
   let next: Record<string, unknown> = props
 
-  // @nuxtjs/mdc serializes non-primitive YAML block props (arrays, objects) as
-  // Vue binding syntax: key ":authorsOne" + JSON-stringified value. Unwrap these
-  // back to plain keys with their real JavaScript values.
-  // Booleans stay as ':key': 'true'/'false' — comarkAttributes needs the ':' prefix
-  // to emit the shorthand form (e.g. `reverse`) instead of `reverse="true"`.
+  // Unwrap @nuxtjs/mdc's ':key' + JSON-string encoding for arrays/objects to plain values.
+  // Booleans keep the ':' prefix — comarkAttributes needs it to emit `key` not `key="true"`.
   const unbound: Record<string, unknown> = {}
   for (const [rawKey, value] of Object.entries(next)) {
     if (rawKey.startsWith(':') && typeof value === 'string') {
