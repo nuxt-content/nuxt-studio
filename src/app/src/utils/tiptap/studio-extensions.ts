@@ -8,6 +8,7 @@ import { Element } from './extensions/element'
 import { Frontmatter } from './extensions/frontmatter'
 import { Image } from './extensions/image'
 import { ImagePicker } from './extensions/image-picker'
+import { CodeAttributes } from './extensions/code-attributes'
 import { InlineElement } from './extensions/inline-element'
 import { Slot } from './extensions/slot'
 import { SlotDropGuard } from './extensions/slot-drop-guard'
@@ -37,6 +38,7 @@ export function createStudioExtensions({
   additionalExtensions = [],
 }: CreateStudioExtensionsOptions = {}): AnyExtension[] {
   return [
+    CodeAttributes,
     CustomPlaceholder.configure({ placeholder }),
     Frontmatter,
     Image,
