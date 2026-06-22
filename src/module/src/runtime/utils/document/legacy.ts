@@ -315,11 +315,19 @@ function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<s
   // @nuxtjs/mdc serializes non-primitive YAML block props (arrays, objects) as
   // Vue binding syntax: key ":authorsOne" + JSON-stringified value. Unwrap these
   // back to plain keys with their real JavaScript values.
+  // Booleans stay as ':key': 'true'/'false' — comarkAttributes needs the ':' prefix
+  // to emit the shorthand form (e.g. `reverse`) instead of `reverse="true"`.
   const unbound: Record<string, unknown> = {}
   for (const [rawKey, value] of Object.entries(next)) {
     if (rawKey.startsWith(':') && typeof value === 'string') {
       try {
-        unbound[rawKey.slice(1)] = JSON.parse(value)
+        const parsed = JSON.parse(value)
+        if (typeof parsed === 'boolean') {
+          unbound[rawKey] = value
+        }
+        else {
+          unbound[rawKey.slice(1)] = parsed
+        }
       }
       catch {
         unbound[rawKey] = value
