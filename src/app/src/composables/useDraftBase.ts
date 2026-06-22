@@ -246,10 +246,6 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   }
 
   async function getStatus(modified: BaseItem, original: BaseItem, opts?: { formattingApplied?: boolean }): Promise<DraftStatus> {
-    if (devMode.value) {
-      return DraftStatus.Pristine
-    }
-
     if (!modified && !original) {
       throw new Error('Unconsistent state: both modified and original are undefined')
     }
@@ -260,6 +256,10 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
     if (!original || original.id !== modified.id) {
       return DraftStatus.Created
+    }
+
+    if (devMode.value) {
+      return DraftStatus.Pristine
     }
 
     // User explicitly accepted comark's formatting via the banner
