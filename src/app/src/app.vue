@@ -6,7 +6,7 @@ import { useStudioState } from './composables/useStudioState'
 import * as locales from '@nuxt/ui/locale'
 
 const { host, ui, isReady, context, documentTree } = useStudio()
-const { location } = useStudioState()
+const { location, preferences } = useStudioState()
 const router = useRouter()
 
 const uiLocale = computed(() => {
@@ -54,6 +54,15 @@ async function editContentFile(fsPath: string) {
 
 async function open() {
   await router.push(`/${location.value.feature}`)
+
+  if (preferences.value.syncEditorAndRoute) {
+    const selected = await documentTree.selectByRoute(window.location.pathname)
+    if (selected) {
+      ui.open()
+      return
+    }
+  }
+
   await documentTree.selectItemByFsPath(location.value.fsPath)
   ui.open()
 }
