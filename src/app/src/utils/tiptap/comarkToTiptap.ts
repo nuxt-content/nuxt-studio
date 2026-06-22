@@ -435,8 +435,17 @@ function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false)
   let processedNode = node
   const nodeChildren = getChildren(processedNode)
   if (nodeChildren.length > 0 && typeof nodeChildren[0] === 'string') {
+    const isTemplate = (child: ComarkNode): boolean =>
+      isElement(child) && getTag(child as ComarkElement) === 'template'
+    const nonTemplateChildren = nodeChildren.filter(c => !isTemplate(c))
+    const templateChildren = nodeChildren.filter(isTemplate)
     const originalAttrs = getAttrs(processedNode)
-    processedNode = [type, { ...originalAttrs, __tiptapWrap: true }, ['p', {}, ...nodeChildren] as ComarkElement] as ComarkElement
+    processedNode = [
+      type,
+      { ...originalAttrs, __tiptapWrap: true },
+      ['p', {}, ...nonTemplateChildren] as ComarkElement,
+      ...templateChildren,
+    ] as ComarkElement
   }
 
   const slotWrapped = wrapChildrenWithinSlot(getChildren(processedNode))

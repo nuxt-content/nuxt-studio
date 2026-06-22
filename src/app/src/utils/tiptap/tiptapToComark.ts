@@ -197,9 +197,9 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
   // Unwrap TipTap wrapper
   // If text was enclosed in a paragraph manually in 'comarkToTiptap' for TipTap purpose, remove it in comark
   if (node.attrs?.props?.__tiptapWrap) {
-    if (children.length === 1 && children[0]?.type === 'slot') {
-      const slot = children[0]
-      slot.content = unwrapParagraph(slot.content || [])
+    const defaultSlot = children.find(c => c?.type === 'slot' && c.attrs?.name === 'default')
+    if (defaultSlot) {
+      defaultSlot.content = unwrapParagraph(defaultSlot.content || [])
     }
     delete node.attrs.props.__tiptapWrap
   }

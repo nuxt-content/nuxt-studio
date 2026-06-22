@@ -635,6 +635,55 @@ Hello
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('block element with raw-string default content alongside a named slot', async () => {
+    // comarkToTiptap's __tiptapWrap path fires when an element's first child is a raw string
+    // (comark auto-unwrap for single-line inline content). When template siblings exist
+    // alongside that string the old code buried them all inside the wrapper <p>, losing the
+    // named slots entirely. Both createElementNode (comarkToTiptap) and the __tiptapWrap
+    // paragraph-unwrap branch (tiptapToComark) must handle the multi-slot case correctly.
+    const comarkTree: ComarkTree = {
+      nodes: [
+        ['block-element', {}, 'Hello', ['template', { name: 'custom' }, 'World']],
+      ],
+      frontmatter: {},
+    }
+
+    const expectedTiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'frontmatter', attrs: { frontmatter: {} } },
+        {
+          type: 'element',
+          attrs: { tag: 'block-element' },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello' }] }],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'custom' },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: 'World' }] }],
+            },
+          ],
+        },
+      ],
+    }
+
+    const tiptapJSON: JSONContent = comarkToTiptap(comarkTree)
+    expect(tiptapJSON).toMatchObject(expectedTiptapJSON)
+
+    // After the editor round-trip, tiptapToComark must unwrap the __tiptapWrap paragraph
+    // from the default slot even when named siblings are present — restoring the original
+    // raw-string structure.
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
+    expect(rtComarkTree.nodes).toMatchObject([
+      ['block-element', {}, 'Hello', ['template', { name: 'custom' }, 'World']],
+    ])
+  })
+
   test('block element with unwrap="p" on slot names', async () => {
     const inputContent = `::u-page-feature
 #title{unwrap="p"}
