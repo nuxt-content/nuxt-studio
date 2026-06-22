@@ -144,6 +144,14 @@ export async function getIpx(domain?: string, originUrl?: string): Promise<IpxHa
   return cachedIpx
 }
 
+// Extensions that sharp can process as raster input. Anything outside this set
+// (e.g. SVG, ICO) is served raw to avoid unwanted format conversion.
+const RASTER_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'])
+
+export function isIpxProcessable(id: string): boolean {
+  return RASTER_EXTENSIONS.has(extname(id).toLowerCase())
+}
+
 export function getContentTypeFromPath(path: string) {
   const extension = extname(path).toLowerCase()
 
