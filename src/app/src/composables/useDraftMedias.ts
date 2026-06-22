@@ -157,7 +157,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
       }
 
       const raw = draftItem.modified?.raw as string | undefined
-      const content = raw ? raw.replace(/^data:\w+\/\w+;base64,/, '') : ''
+      const content = raw ? raw.replace(/^data:[^;]+;base64,/, '') : ''
       files.push({ path: joinURL('public', draftItem.fsPath), content, status: draftItem.status, encoding: 'base64' })
     }
 
