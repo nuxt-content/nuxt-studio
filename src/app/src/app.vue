@@ -68,12 +68,9 @@ host.on.mounted(async () => {
 
   // If no location set, it means first time opening the app
   if (!location.value || location.value.active) {
-    // Ensure drafts are loaded before opening so selectByFsPath finds
-    // the IndexedDB draft rather than falling back to stale DB content.
-    if (!isReady.value) {
-      await new Promise<void>(resolve => watch(isReady, () => resolve(), { once: true }))
-    }
-    await open()
+    setTimeout(async () => {
+      await open()
+    }, 100)
   }
 })
 
