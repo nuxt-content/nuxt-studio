@@ -43,7 +43,9 @@
       "failedTitle": "Publish Failed",
       "summary": "on {branch} of {repo} repository",
       "errorTitle": "Error during {providerName} publish",
-      "failedGeneric": "Failed to publish changes"
+      "failedGeneric": "Failed to publish changes",
+      "gitlabTokenExpiredTitle": "Your GitLab session has expired",
+      "gitlabTokenExpiredDescription": "You have been logged in for a while and your connection to GitLab is no longer valid. Sign out, then sign in again to publish your changes."
     },
     "review": {
       "title": "Review changes",
