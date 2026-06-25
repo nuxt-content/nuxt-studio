@@ -70,7 +70,6 @@ const displayInfo = computed(() => {
                 <ItemBadge
                   v-if="item.status && item.status !== TreeStatus.Opened"
                   :status="item.status"
-                  size="xs"
                 />
               </h3>
             </div>
