@@ -91,9 +91,8 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     }
   }
 
-  async function selectByRoute(route: RouteLocationNormalized | string): Promise<boolean> {
-    const path = typeof route === 'string' ? route : route.path
-    const item = findItemFromRoute(tree.value, { path } as RouteLocationNormalized)
+  async function selectByRoute(route: RouteLocationNormalized): Promise<boolean> {
+    const item = findItemFromRoute(tree.value, route)
 
     if (!item || item.fsPath === currentItem.value.fsPath) return false
 

@@ -56,7 +56,7 @@ async function open() {
   await router.push(`/${location.value.feature}`)
 
   if (preferences.value.syncEditorAndRoute) {
-    const selected = await documentTree.selectByRoute(window.location.pathname)
+    const selected = await documentTree.selectByRoute(host.app.getCurrentRoute())
     if (selected) {
       ui.open()
       return
