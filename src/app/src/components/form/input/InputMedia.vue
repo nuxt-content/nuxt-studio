@@ -76,7 +76,6 @@ function selectMedia(media: TreeItem) {
         v-else
         name="i-lucide-image"
         class="text-dimmed"
-        size="xs"
       />
     </div>
 
