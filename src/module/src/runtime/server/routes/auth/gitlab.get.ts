@@ -196,7 +196,7 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = studioConfig?.auth?.gitlab?.moderators?.split(',') || []
+  const moderators = studioConfig?.auth?.gitlab?.moderators?.split(',').filter(Boolean) || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,

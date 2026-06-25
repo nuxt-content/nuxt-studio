@@ -187,7 +187,7 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = studioConfig?.auth?.google?.moderators?.split(',') || []
+  const moderators = studioConfig?.auth?.google?.moderators?.split(',').filter(Boolean) || []
 
   if (!moderators.includes(user.email)) {
     if (import.meta.dev && moderators.length === 0) {

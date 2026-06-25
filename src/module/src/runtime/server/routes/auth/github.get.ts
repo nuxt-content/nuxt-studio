@@ -200,7 +200,7 @@ export default eventHandler(async (event: H3Event) => {
     user.email = primaryEmail.email
   }
 
-  const moderators = studioConfig?.auth?.github?.moderators?.split(',') || []
+  const moderators = studioConfig?.auth?.github?.moderators?.split(',').filter(Boolean) || []
   if (moderators.length > 0 && !moderators.includes(String(user.email))) {
     throw createError({
       statusCode: 403,
