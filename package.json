@@ -76,7 +76,7 @@
     "@nuxt/eslint-config": "^1.15.2",
     "@nuxt/kit": "^4.4.8",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@6586",
+    "@nuxt/ui": "^4.9.0",
     "@octokit/types": "^16.0.0",
     "@release-it/conventional-changelog": "^11.0.1",
     "@tailwindcss/typography": "^0.5.20",

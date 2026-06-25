@@ -144,6 +144,12 @@ export async function getIpx(domain?: string, originUrl?: string): Promise<IpxHa
   return cachedIpx
 }
 
+const RASTER_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'])
+
+export function isIpxProcessable(id: string): boolean {
+  return RASTER_EXTENSIONS.has(extname(id).toLowerCase())
+}
+
 export function getContentTypeFromPath(path: string) {
   const extension = extname(path).toLowerCase()
 

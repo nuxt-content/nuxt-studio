@@ -834,6 +834,37 @@ describe('comark → mdc reverse helpers (used at DB write boundary)', () => {
     expect(markdown).not.toContain('[object Object]')
   })
 
+  it('preserves boolean binding props (:key: "true"/"false") without stripping the colon prefix', async () => {
+    const mdcBody: MDCRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tag: 'u-page-section',
+          props: {
+            'orientation': 'horizontal',
+            ':reverse': 'true',
+            ':square': 'false',
+          },
+          children: [],
+        } as unknown,
+      ],
+    } as MDCRoot
+
+    const tree = comarkTreeFromLegacyDocument(legacyDocument(mdcBody))!
+    const [, attrs] = tree.nodes[0] as [string, Record<string, unknown>]
+
+    expect(attrs[':reverse']).toBe('true')
+    expect(attrs[':square']).toBe('false')
+    expect('reverse' in attrs).toBe(false)
+    expect('square' in attrs).toBe(false)
+
+    const markdown = await renderMarkdown(tree)
+    expect(markdown).toContain('reverse')
+    expect(markdown).not.toContain('reverse="true"')
+    expect(markdown).toContain(':square="false"')
+  })
+
   it('writes back `class` strings as `className` arrays', () => {
     const tree: ComarkTree = {
       nodes: [['span', { class: 'text-primary font-bold' }, 'Nuxt']],

@@ -68,9 +68,10 @@ host.on.mounted(async () => {
 
   // If no location set, it means first time opening the app
   if (!location.value || location.value.active) {
-    setTimeout(async () => {
-      await open()
-    }, 100)
+    if (!isReady.value) {
+      await new Promise<void>(resolve => watch(isReady, () => resolve(), { once: true }))
+    }
+    await open()
   }
 })
 

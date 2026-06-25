@@ -123,13 +123,11 @@ function selectIcon(icon: string) {
       <UIcon
         v-if="model"
         :name="resolvedIconName"
-        size="xs"
       />
       <UIcon
         v-else
         name="i-lucide-shapes"
         class="text-dimmed"
-        size="xs"
       />
     </div>
 
