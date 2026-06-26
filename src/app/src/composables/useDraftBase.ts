@@ -332,10 +332,6 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   }
 
   async function load() {
-    const generateContentFromDocument = type === 'document'
-      ? host.document.generate.contentFromDocument
-      : null
-
     const storedList = await storage.getKeys().then(async (keys) => {
       return Promise.all(keys.map(async (key) => {
         const item = await storage.getItem(key) as DraftItem
@@ -374,6 +370,20 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
           await storage.removeItem(key)
           return null
         }
+
+        // Migration: drafts persisted before raw-baseline detection lack `baseRemote`.
+        // Backfill it from the remote we have and drop any conflict the old
+        // A-vs-E(B) comparison produced — under raw A-vs-A it is a false positive.
+        if (!item.baseRemote && item.remoteFile) {
+          item.baseRemote = {
+            content: item.remoteFile.content ?? '',
+            sha: item.remoteFile.sha,
+            encoding: item.remoteFile.encoding,
+          }
+          if (item.conflict) delete item.conflict
+          await storage.setItem(key, item as DraftItem<T>)
+        }
+
         return item
       }))
     })

@@ -3,7 +3,7 @@
  * A freshly opened draft must never report a conflict from formatting/parser
  * drift — only a genuine remote move (different blob SHA) is a conflict.
  */
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { generateUniqueDocumentFsPath } from '../utils'
 import { mockHost, mockStorageDraft, routeState, cleanAndSetupContext } from '../utils/context'
 import { createMockGit, createMockGithubFile } from '../mocks/git'
@@ -13,6 +13,10 @@ describe('raw A-vs-A conflict detection', () => {
   beforeEach(() => {
     routeState.name = 'content'
     clearMockHost()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('does not report a conflict on open when remote text differs only by formatting', async () => {
@@ -153,5 +157,35 @@ describe('raw A-vs-A conflict detection', () => {
 
     await draft.load()
     expect(draft.list.value.find(d => d.fsPath === fsPath)).toBeUndefined()
+  })
+
+  it('backfills baseRemote and clears stale conflicts for pre-existing drafts on load', async () => {
+    const remoteFile = createMockGithubFile({ content: 'base', sha: 'sha-base' })
+    const mockGit = createMockGit(remoteFile)
+    const context = await cleanAndSetupContext(mockHost, mockGit)
+    const fsPath = generateUniqueDocumentFsPath('article')
+
+    await mockHost.document.db.create(fsPath, 'base')
+
+    // Simulate a draft persisted by the OLD code: no baseRemote, a stale false conflict.
+    // Directly write to storage (bypassing the live draft flow) so load() re-reads it.
+    const { DraftStatus } = await import('../../src/types/draft')
+    const stale = {
+      fsPath,
+      status: DraftStatus.Updated,
+      remoteFile,
+      // OLD code: no baseRemote field
+      conflict: { remoteContent: 'x', localContent: 'y' },
+      modified: { id: `docs/${fsPath}`, fsPath, body: { nodes: [['p', {}, 'mine']] as never, frontmatter: {}, meta: {} } },
+      original: { id: `docs/${fsPath}`, fsPath, body: { nodes: [['p', {}, 'base']] as never, frontmatter: {}, meta: {} } },
+    }
+    mockStorageDraft.set(fsPath, JSON.stringify(stale))
+
+    const draft = context.activeTree.value.draft
+    await draft.load()
+
+    const healed = draft.list.value.find(d => d.fsPath === fsPath)!
+    expect(healed.baseRemote?.sha).toBe('sha-base')
+    expect(healed.conflict).toBeUndefined()
   })
 })
