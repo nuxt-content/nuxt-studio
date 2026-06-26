@@ -54,6 +54,9 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     const draftItem: DraftItem<T> = {
       fsPath,
       remoteFile,
+      baseRemote: remoteFile?.content
+        ? { content: remoteFile.content, sha: remoteFile.sha ?? '', encoding: remoteFile.encoding as 'utf-8' | 'base64' | undefined }
+        : undefined,
       status: await getStatus(item, original!),
       modified: item,
     }

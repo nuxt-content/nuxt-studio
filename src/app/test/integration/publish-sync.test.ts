@@ -217,9 +217,9 @@ describe('checkAndRefreshConflicts()', () => {
         ...mockGit.api,
         fetchFile: vi.fn()
           // First call: draft creation → old content (matches the DB)
-          .mockResolvedValueOnce(createMockGithubFile({ content: oldContent, encoding: 'utf-8' }))
+          .mockResolvedValueOnce(createMockGithubFile({ content: oldContent, sha: 'sha-original', encoding: 'utf-8' }))
           // Second call: pre-publish re-check → different content → conflict
-          .mockResolvedValue(createMockGithubFile({ content: concurrentEdit, encoding: 'utf-8' })),
+          .mockResolvedValue(createMockGithubFile({ content: concurrentEdit, sha: 'sha-concurrent', encoding: 'utf-8' })),
         commitFiles: vi.fn().mockResolvedValue({ success: true, commitSha: 'abc', url: '' }),
       },
     }
@@ -252,8 +252,8 @@ describe('checkAndRefreshConflicts()', () => {
       api: {
         ...mockGit.api,
         fetchFile: vi.fn()
-          .mockResolvedValueOnce(createMockGithubFile({ content: oldContent, encoding: 'utf-8' }))
-          .mockResolvedValue(createMockGithubFile({ content: concurrentEdit, encoding: 'utf-8' })),
+          .mockResolvedValueOnce(createMockGithubFile({ content: oldContent, sha: 'sha-original', encoding: 'utf-8' }))
+          .mockResolvedValue(createMockGithubFile({ content: concurrentEdit, sha: 'sha-concurrent', encoding: 'utf-8' })),
         commitFiles: vi.fn().mockResolvedValue({ success: true, commitSha: 'abc', url: '' }),
       },
     }

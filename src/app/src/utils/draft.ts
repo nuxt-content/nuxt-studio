@@ -5,7 +5,6 @@ import { isMediaFile } from './file'
 
 export async function checkConflict(host: StudioHost, draftItem: DraftItem<DatabaseItem | MediaItem>): Promise<ContentConflict | undefined> {
   const generateContentFromDocument = host.document.generate.contentFromDocument
-  const isDocumentMatchingContent = host.document.utils.isMatchingContent
 
   if (isMediaFile(draftItem.fsPath) || draftItem.fsPath.endsWith('.gitkeep')) {
     return
@@ -20,30 +19,45 @@ export async function checkConflict(host: StudioHost, draftItem: DraftItem<Datab
     return
   }
 
-  const remoteContent = draftItem.remoteFile?.encoding === 'base64'
-    ? fromBase64ToUTF8(draftItem.remoteFile.content!)
-    : draftItem.remoteFile!.content!
+  const remoteContent = decodeRemote(draftItem.remoteFile)!
 
-  if (draftItem.status === DraftStatus.Created && remoteContent) {
+  // A locally-created file that now exists on the remote is a genuine collision.
+  if (draftItem.status === DraftStatus.Created) {
     return {
       remoteContent,
       localContent: await generateContentFromDocument(draftItem.modified as DatabaseItem) as string,
     }
   }
 
-  if (await isDocumentMatchingContent(remoteContent, draftItem.original! as DatabaseItem)) {
+  // Updated: compare the raw baseline (state A captured at draft creation) against
+  // the current remote (state A now). Pure SHA/text — no parsing, no render.
+  // Comark formatting drift (A vs E(B)) is handled by the formatting banner, not here.
+  const baseline = draftItem.baseRemote
+  if (!baseline) {
+    // Legacy draft created before baselines existed; load() backfills it.
     return
   }
 
-  const localContent = await generateContentFromDocument(draftItem.original as DatabaseItem) as string
-  if (localContent.trim() === remoteContent.trim()) {
+  const baseSha = baseline.sha
+  const currentSha = draftItem.remoteFile.sha
+  const remoteMoved = baseSha && currentSha
+    ? baseSha !== currentSha
+    : (decodeRemote(baseline) ?? '').trim() !== remoteContent.trim()
+
+  if (!remoteMoved) {
     return
   }
 
   return {
     remoteContent,
-    localContent,
+    localContent: await generateContentFromDocument(draftItem.original as DatabaseItem) as string,
   }
+}
+
+/** Decode a GitFile-like { content, encoding } to raw UTF-8 text. */
+function decodeRemote(file?: { content?: string | null, encoding?: string }): string | null {
+  if (!file?.content) return null
+  return file.encoding === 'base64' ? fromBase64ToUTF8(file.content) : file.content
 }
 
 export function findDescendantsFromFsPath(list: DraftItem[], fsPath: string): DraftItem[] {

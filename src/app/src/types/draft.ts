@@ -56,4 +56,24 @@ export interface DraftItem<T = DatabaseItem | MediaItem> {
    * Cleared automatically in `load()` when the deployed dump matches the committed content.
    */
   published?: boolean
+
+  /**
+   * Raw remote bytes + git blob SHA this draft was based on (state A baseline).
+   * Captured at create() and advanced at markPublished(). Conflict detection
+   * compares this against the current remote — pure text/SHA, no parsing.
+   */
+  baseRemote?: {
+    content: string
+    sha: string
+    encoding?: 'utf-8' | 'base64'
+  }
+
+  /**
+   * Dump content-hash (`n`) captured at publish time. The self-heal in load()
+   * treats the overlay as caught-up once the redeployed dump item's `n` differs.
+   */
+  baseHash?: string
+
+  /** Publish timestamp (ms). Max-age safety cap for the self-heal overlay. */
+  publishedAt?: number
 }
