@@ -4,7 +4,6 @@
  * drift — only a genuine remote move (different blob SHA) is a conflict.
  */
 import { describe, it, expect, beforeEach } from 'vitest'
-import { DraftStatus } from '../../src/types'
 import { generateUniqueDocumentFsPath } from '../utils'
 import { mockHost, routeState, cleanAndSetupContext } from '../utils/context'
 import { createMockGit, createMockGithubFile } from '../mocks/git'
