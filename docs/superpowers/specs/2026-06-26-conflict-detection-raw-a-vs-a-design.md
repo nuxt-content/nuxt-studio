@@ -70,9 +70,14 @@ Add an immutable baseline captured at draft creation:
 ```ts
 /** Raw remote bytes + blob SHA this draft was based on. The conflict baseline (state A). */
 baseRemote?: { content: string, sha: string, encoding?: 'utf-8' | 'base64' }
+
+/** Dump content-hash (`n`) captured at publish time; self-heal catch-up signal. */
+baseHash?: string
+/** Publish timestamp; max-age safety cap for the self-heal overlay. */
+publishedAt?: number
 ```
 
-Kept separate from `remoteFile` (which may be refreshed) so the A-vs-A compare is unambiguous and survives refresh.
+`baseRemote` is kept separate from `remoteFile` (which may be refreshed) so the A-vs-A compare is unambiguous and survives refresh. `baseHash`/`publishedAt` only apply to published overlays (§3.6).
 
 ### 3.3 `checkConflict` rewrite (`src/app/src/utils/draft.ts`)
 
@@ -93,9 +98,17 @@ Already re-fetches fresh remote with `cached: false`. Change: compare fresh remo
 
 ### 3.6 `load()` self-heal (#338)
 
-Decision (approved): **store the committed SHA and compare SHAs.** `markPublished` records the commit/blob SHA; `load()` considers a Pristine overlay caught-up when the redeployed file's SHA matches. Fully parser-free, consistent with the A-vs-A principle.
+Decision (approved): **parser-free hash comparison.** R1 investigation resolved (see below): the deployed dump does **not** expose a git SHA, but every DB item carries `n`, a `@nuxt/content` content hash (`hostDb.get(fsPath).n`). So the self-heal uses dump-hash *change detection*:
 
-> **Open risk (R1):** this requires the deployed content (SQLite dump / `hostDb.get`) to expose a per-file SHA. If it does **not**, fall back to the *tolerant* render-based catch-up: keep `isMatchingContent` but add a max-age / redeploy-count cap so a formatting-drift overlay cannot get stuck forever. The implementation plan must verify SHA availability first and pick the path accordingly.
+- `markPublished` captures the **stale** dump hash at publish time: `baseHash = (await hostDb.get(fsPath))?.n`.
+- `load()` considers a Pristine overlay **caught up** when the current `dbItem.n !== baseHash` (the deploy rebuilt the file), and removes the overlay.
+- **Safety cap:** if `baseHash` is missing, or the published content hashes identically to the pre-publish content (pure-formatting publish → `n` never changes), fall back to a max-age cap (`publishedAt` timestamp; drop the overlay after N minutes / first successful unrelated `load`) so an overlay can never get stuck forever.
+
+This is fully parser-free, consistent with the A-vs-A principle, and removes the current "render-based catch-up can never converge under formatting drift" failure mode.
+
+> **R1 — RESOLVED:** The deployed content (`hostDb.get`) exposes no git SHA, but exposes `n` (content hash). Approach above uses `n`-change detection + a max-age cap instead of git-SHA equality.
+>
+> **R2 — RESOLVED (conflict side):** Both providers return a per-file blob SHA on fetch — GitHub `blobData.sha`, GitLab `blob_id` (mapped to `GitFile.sha`). Raw A-vs-A by git SHA is viable on both; the content-string fallback covers the post-publish synthetic baseline where no fetched SHA exists.
 
 ### 3.7 Post-publish baseline (`markPublished`)
 
@@ -123,9 +136,10 @@ This is a one-time heal of historical false conflicts.
 
 ## 6. Open risks
 
-- **R1 (self-heal SHA):** see §3.6 — verify per-file SHA availability in the deployed dump; tolerant fallback if absent.
-- **R2 (SHA semantics across providers):** GitHub blob SHA vs GitLab — confirm both providers return a stable per-file identity at fetch and at commit. If a provider lacks it, that provider uses the content-string fallback.
-- **R3 (line-ending / trailing newline):** raw compare must trim trailing whitespace/newlines (the existing fallback at `draft.ts:39` already trims) to avoid newline-only false positives, while still catching genuine edits.
+- **R1 (self-heal hash) — RESOLVED:** dump exposes no git SHA but exposes `n` (content hash); §3.6 uses `n`-change detection + max-age cap.
+- **R2 (SHA semantics across providers) — RESOLVED:** GitHub `blobData.sha`, GitLab `blob_id` both map to `GitFile.sha`. Content-string fallback covers the synthetic post-publish baseline.
+- **R3 (line-ending / trailing newline) — OPEN:** raw compare must trim trailing whitespace/newlines (the existing fallback at `draft.ts:39` already trims) to avoid newline-only false positives, while still catching genuine edits. Handled in implementation; no design change.
+- **R4 (pure-formatting publish):** a publish that changes only formatting may hash to the same `n`, so the `n`-change self-heal never fires → relies on the max-age cap (§3.6).
 
 ## 7. Deliverables
 
