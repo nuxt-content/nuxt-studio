@@ -9,6 +9,9 @@ import { useHooks } from './useHooks'
 import { ref } from 'vue'
 import { useStudioState } from './useStudioState'
 
+/** Drop a published overlay after this long even if we never observed the dump change. */
+const PUBLISHED_OVERLAY_MAX_AGE_MS = 10 * 60 * 1000 // 10 minutes
+
 export function useDraftBase<T extends DatabaseItem | MediaItem>(
   type: 'media' | 'document',
   host: StudioHost,
@@ -264,7 +267,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         continue
       }
 
-      // Updated / Created: advance the baseline to what was committed
+      // Updated / Created: advance the baseline to what was committed.
       const committedContent = generateContentFromDocument
         ? await generateContentFromDocument(draftItem.modified as DatabaseItem) as string
         : null
@@ -282,6 +285,13 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
             provider: draftItem.remoteFile?.provider || 'github' as const,
           }
         : draftItem.remoteFile
+      // New raw baseline = the committed content (no git SHA available yet → content fallback).
+      draftItem.baseRemote = committedContent !== null
+        ? { content: committedContent, sha: '', encoding: 'utf-8' }
+        : draftItem.baseRemote
+      // Capture the stale dump hash so load() can detect when the redeploy lands.
+      draftItem.baseHash = ((await hostDb.get(draftItem.fsPath)) as { n?: string } | undefined)?.n
+      draftItem.publishedAt = Date.now()
       delete draftItem.conflict
       draftItem.formattingApplied = false
       draftItem.published = true
@@ -341,28 +351,21 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
             }
           }
           else if (item.status === DraftStatus.Pristine) {
-            // Caught up when the DB content matches the committed content stored in remoteFile.
             const dbItem = await hostDb.get(item.fsPath)
-            if (dbItem && item.remoteFile?.content) {
-              const isMatchingContent = host.document.utils.isMatchingContent
-              const committedContent = item.remoteFile.content
-              const isCaughtUp = await isMatchingContent(committedContent, dbItem as DatabaseItem)
-              if (isCaughtUp) {
-                await storage.removeItem(key)
-                return null
-              }
-            }
-            else if (!dbItem) {
-              // DB item gone entirely — the deploy likely removed it; treat as caught up.
+            // DB item gone entirely — the deploy likely removed it; treat as caught up.
+            if (!dbItem) {
               await storage.removeItem(key)
               return null
             }
-            // Deploy not yet complete: keep the overlay alive (fall through to upsert below).
-            // Re-compute content from remoteFile so the editor shows the committed version
-            // even after a full-page reload (the DB was reset by revert before the reload).
-            if (generateContentFromDocument && item.modified) {
-              // The modified is already the committed content; keep it as-is.
+            const currentHash = (dbItem as { n?: string }).n
+            const hashChanged = !!item.baseHash && !!currentHash && currentHash !== item.baseHash
+            const expired = !!item.publishedAt && (Date.now() - item.publishedAt) > PUBLISHED_OVERLAY_MAX_AGE_MS
+            if (hashChanged || expired) {
+              await storage.removeItem(key)
+              return null
             }
+            // Deploy not yet complete: keep the overlay alive (modified already holds
+            // the committed content; fall through to the upsert below).
           }
           return item
         }

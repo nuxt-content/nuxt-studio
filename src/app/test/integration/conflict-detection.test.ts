@@ -5,7 +5,7 @@
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { generateUniqueDocumentFsPath } from '../utils'
-import { mockHost, routeState, cleanAndSetupContext } from '../utils/context'
+import { mockHost, mockStorageDraft, routeState, cleanAndSetupContext } from '../utils/context'
 import { createMockGit, createMockGithubFile } from '../mocks/git'
 import { clearMockHost } from '../mocks/host'
 
@@ -76,5 +76,82 @@ describe('raw A-vs-A conflict detection', () => {
 
     const hasConflict = await draft.checkAndRefreshConflicts()
     expect(hasConflict).toBe(false)
+  })
+
+  it('markPublished advances baseRemote, captures the stale dump hash, and stamps publishedAt', async () => {
+    const mockGit = createMockGit(createMockGithubFile({ content: 'base', sha: 'sha-base' }))
+    const context = await cleanAndSetupContext(mockHost, mockGit)
+    const fsPath = generateUniqueDocumentFsPath('article')
+
+    await mockHost.document.db.create(fsPath, 'base')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(fsPath)
+
+    const draft = context.activeTree.value.draft
+    const draftItem = draft.list.value.find(d => d.fsPath === fsPath)!
+    await draft.update(fsPath, { ...draftItem.modified!, body: { nodes: [['p', {}, 'committed']] as never, frontmatter: {}, meta: {} } })
+
+    await draft.markPublished()
+
+    const published = draft.list.value.find(d => d.fsPath === fsPath)!
+    expect(published.baseRemote?.content).toBeTruthy()
+    expect(published.baseRemote?.sha).toBe('')
+    expect(typeof published.publishedAt).toBe('number')
+    // baseHash is whatever the dump exposed at publish time (may be undefined if the mock has no `n`)
+    expect('baseHash' in published).toBe(true)
+  })
+
+  it('load() purges a published overlay once publishedAt exceeds the max age', async () => {
+    const mockGit = createMockGit(createMockGithubFile({ content: 'base', sha: 'sha-base' }))
+    const context = await cleanAndSetupContext(mockHost, mockGit)
+    const fsPath = generateUniqueDocumentFsPath('article')
+
+    await mockHost.document.db.create(fsPath, 'base')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(fsPath)
+
+    const draft = context.activeTree.value.draft
+    const draftItem = draft.list.value.find(d => d.fsPath === fsPath)!
+    await draft.update(fsPath, { ...draftItem.modified!, body: { nodes: [['p', {}, 'committed']] as never, frontmatter: {}, meta: {} } })
+    await draft.markPublished()
+
+    // Force the overlay to look stale by mutating in-memory AND re-persisting to storage.
+    const published = draft.list.value.find(d => d.fsPath === fsPath)!
+    published.publishedAt = 1 // far in the past
+    // Re-persist so load() sees the stale publishedAt from storage.
+    // mockStorageDraft stores the raw JSON-stringified value keyed by fsPath.
+    mockStorageDraft.set(fsPath, JSON.stringify(published))
+
+    await draft.load()
+
+    expect(draft.list.value.find(d => d.fsPath === fsPath)).toBeUndefined()
+  })
+
+  it('load() purges a published overlay when the dump content-hash has changed', async () => {
+    const mockGit = createMockGit(createMockGithubFile({ content: 'base', sha: 'sha-base' }))
+    const context = await cleanAndSetupContext(mockHost, mockGit)
+    const fsPath = generateUniqueDocumentFsPath('article')
+
+    await mockHost.document.db.create(fsPath, 'base')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(fsPath)
+
+    const draft = context.activeTree.value.draft
+    const draftItem = draft.list.value.find(d => d.fsPath === fsPath)!
+    await draft.update(fsPath, { ...draftItem.modified!, body: { nodes: [['p', {}, 'committed']] as never, frontmatter: {}, meta: {} } })
+    await draft.markPublished()
+
+    const published = draft.list.value.find(d => d.fsPath === fsPath)!
+    published.baseHash = 'stale-hash'
+    published.publishedAt = Date.now()
+    // Re-persist so load() sees the updated baseHash from storage.
+    // mockStorageDraft stores the raw JSON-stringified value keyed by fsPath.
+    mockStorageDraft.set(fsPath, JSON.stringify(published))
+
+    // Dump now reports a different hash → deploy caught up.
+    vi.spyOn(mockHost.document.db, 'get').mockResolvedValue({ id: fsPath, n: 'fresh-hash' } as never)
+
+    await draft.load()
+    expect(draft.list.value.find(d => d.fsPath === fsPath)).toBeUndefined()
   })
 })
