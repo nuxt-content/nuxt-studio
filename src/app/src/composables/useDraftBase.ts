@@ -212,7 +212,9 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         { cached: false },
       )
 
-      // Build a temporary view with the fresh remote for checkConflict
+      // A-vs-A: spread keeps draftItem.baseRemote (state A at draft creation) unchanged;
+      // only remoteFile is replaced with the fresh fetch (state A now). checkConflict
+      // then compares baseSha vs currentSha — pure SHA gate, no comark parsing.
       const checkItem = { ...draftItem, remoteFile: freshRemote ?? undefined }
       const conflict = await checkConflict(host, checkItem)
 
