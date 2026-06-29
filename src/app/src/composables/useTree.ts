@@ -66,7 +66,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     return subTree
   })
 
-  async function select(item: TreeItem) {
+  async function select(item: TreeItem, { navigate = true }: { navigate?: boolean } = {}) {
     currentItem.value = item || rootItem.value
 
     setLocation(type, currentItem.value.fsPath)
@@ -75,7 +75,8 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
       await draft.selectByFsPath(item.fsPath)
 
       if (
-        !preferences.value.syncEditorAndRoute
+        !navigate
+        || !preferences.value.syncEditorAndRoute
         || type === StudioFeature.Media
         || item.name === '.navigation'
         || !item.routePath
@@ -90,12 +91,13 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     }
   }
 
-  async function selectByRoute(route: RouteLocationNormalized) {
+  async function selectByRoute(route: RouteLocationNormalized): Promise<boolean> {
     const item = findItemFromRoute(tree.value, route)
 
-    if (!item || item.fsPath === currentItem.value.fsPath) return
+    if (!item || item.fsPath === currentItem.value.fsPath) return false
 
-    await select(item)
+    await select(item, { navigate: false })
+    return true
   }
 
   async function selectItemByFsPath(fsPath: string) {

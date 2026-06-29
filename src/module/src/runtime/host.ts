@@ -358,6 +358,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
       navigateTo: (path: string) => {
         useRouter().push(path)
       },
+      getCurrentRoute: () => useRouter().currentRoute.value,
       registerServiceWorker: () => {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register(`/sw.js?${serviceWorkerVersion}`)
