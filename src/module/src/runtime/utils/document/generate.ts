@@ -12,6 +12,7 @@ import yaml from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
+import { unbindComarkTree } from './legacy'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -155,7 +156,8 @@ export async function contentFromJSONDocument(document: DatabaseItem): Promise<s
 }
 
 export async function contentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
-  const markdown = await renderMarkdown(document.body as unknown as ComarkTree, {
+  const body = unbindComarkTree(document.body as unknown as ComarkTree)
+  const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
     components: {
       br: () => ':br',

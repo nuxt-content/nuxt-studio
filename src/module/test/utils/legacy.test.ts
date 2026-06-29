@@ -658,6 +658,29 @@ describe('mdc → comark generic array → string normalization', () => {
     const card = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
     expect(card[1]).toEqual({ items: [{ x: 1 }] })
   })
+
+  it('keeps a primitive array unwrapped from a ":" binding as an array (does not collapse to a string)', async () => {
+    // Unlike a token-list array (className, ping), a ':'-bound array is genuine
+    // data — it must stay an array so comark renders a YAML block, not `tags="a b"`.
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'card',
+        props: { ':tags': '["a","b"]' },
+        children: [],
+      }],
+    }))!
+
+    const card = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    expect(card[1]).toEqual({ tags: ['a', 'b'] })
+
+    const markdown = await renderMarkdown(tree, { blockAttributesStyle: 'frontmatter' })
+    expect(markdown).toContain('tags:')
+    expect(markdown).toContain('- a')
+    expect(markdown).toContain('- b')
+    expect(markdown).not.toContain('tags="a b"')
+  })
 })
 
 describe('mdc → comark `rel` stripping', () => {
