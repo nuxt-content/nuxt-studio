@@ -110,6 +110,7 @@ export interface StudioHost {
     getManifestId: () => Promise<string>
     requestRerender: () => void
     navigateTo: (path: string) => void
+    getCurrentRoute: () => RouteLocationNormalized
     registerServiceWorker: () => void
     unregisterServiceWorker: () => void
   }
