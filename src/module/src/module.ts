@@ -134,6 +134,12 @@ interface RepositoryOptions {
      * @example 'main'
      */
     base?: string
+    /**
+     * Title for the pull request (GitHub) or merge request (GitLab) when one is created.
+     * When omitted, the commit message is used.
+     * @example 'Content updates from Studio'
+     */
+    name?: string
   }
 }
 

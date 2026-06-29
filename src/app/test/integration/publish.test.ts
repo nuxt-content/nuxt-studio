@@ -205,6 +205,40 @@ describe('PublishBranch - Review requests', () => {
     expect(result.reviewRequestError).toBeUndefined()
   })
 
+  it('uses a custom review request title when pullRequest.name is configured', async () => {
+    const hostWithPullRequest: StudioHost = {
+      ...mockHost,
+      repository: {
+        ...mockHost.repository,
+        branch: 'staging',
+        pullRequest: { base: 'main', name: 'Content updates from Studio' },
+      },
+    }
+    const git = createMockGit()
+    ;(git.api.ensureReviewRequest as ReturnType<typeof vi.fn>).mockResolvedValue({
+      kind: 'pull-request',
+      state: 'created',
+      url: 'https://github.com/owner/repo/pull/1',
+      head: 'staging',
+      base: 'main',
+      number: 1,
+    })
+    context = await cleanAndSetupContext(hostWithPullRequest, git)
+
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: 'Update content' })
+
+    expect(git.api.ensureReviewRequest).toHaveBeenCalledWith({
+      title: 'Content updates from Studio',
+      head: 'staging',
+      base: 'main',
+      commitUrl: 'https://example.com/commit/abc123',
+    })
+  })
+
   it('reuses an existing review request when the provider returns one', async () => {
     const hostWithPullRequest: StudioHost = {
       ...mockHost,

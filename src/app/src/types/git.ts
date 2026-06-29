@@ -9,6 +9,11 @@ export interface RepositoryPullRequestOptions {
    * When set, Studio commits to `branch` then opens or reuses a review request into this base branch.
    */
   base?: string
+  /**
+   * Title for pull/merge requests created after publishing.
+   * When omitted, the commit message is used.
+   */
+  name?: string
 }
 
 export interface Repository {

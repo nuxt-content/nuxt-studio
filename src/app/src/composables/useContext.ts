@@ -244,6 +244,7 @@ export const useContext = createSharedComposable((
       }
 
       const pullRequestBase = host.repository.pullRequest?.base
+      const pullRequestName = host.repository.pullRequest?.name?.trim()
       const sourceBranch = host.repository.branch
       let reviewRequest = null
       let reviewRequestError: string | undefined
@@ -251,7 +252,7 @@ export const useContext = createSharedComposable((
       if (pullRequestBase && pullRequestBase !== sourceBranch) {
         try {
           reviewRequest = await gitProvider.api.ensureReviewRequest({
-            title: finalMessage,
+            title: pullRequestName || finalMessage,
             head: sourceBranch,
             base: pullRequestBase,
             commitUrl: commitResult.url,
