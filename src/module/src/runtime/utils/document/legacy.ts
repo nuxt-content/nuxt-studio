@@ -11,6 +11,7 @@
  *                       remove markdownRootFromComarkTree usage in db.upsert
  *      - compare.ts   → update toMarkdownRoot helper to compare ComarkTrees directly
  *      - index.ts     → remove re-exports of comarkTreeFromLegacyDocument and markdownRootFromComarkTree
+ *      - generate.ts  → remove unbindComarkTree usage in contentFromMarkdownDocument
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
@@ -310,31 +311,8 @@ function normalizeMdcChildren(children: MDCNode[]): MDCNode[] {
  *   We'll add a proper configurable surface for this later.
  */
 function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<string, unknown> {
-  let next: Record<string, unknown> = props
-
-  // Unwrap @nuxtjs/mdc's ':key' + JSON-string encoding for arrays/objects to plain values.
-  // Booleans keep the ':' prefix — comarkAttributes needs it to emit `key` not `key="true"`.
-  const unbound: Record<string, unknown> = {}
-  for (const [rawKey, value] of Object.entries(next)) {
-    if (rawKey.startsWith(':') && typeof value === 'string') {
-      try {
-        const parsed = JSON.parse(value)
-        if (typeof parsed === 'boolean') {
-          unbound[rawKey] = value
-        }
-        else {
-          unbound[rawKey.slice(1)] = parsed
-        }
-      }
-      catch {
-        unbound[rawKey] = value
-      }
-    }
-    else {
-      unbound[rawKey] = value
-    }
-  }
-  next = unbound
+  const { props: unbound, unbound: unboundKeys } = unbindMDCProps(props)
+  let next: Record<string, unknown> = unbound
 
   if (tag === 'template') {
     const vSlotKey = Object.keys(next).find(k => k.startsWith('v-slot:'))
@@ -361,16 +339,92 @@ function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<s
     next = rest
   }
 
-  // Token-list attrs (class, ping, accept, …) come out of @nuxtjs/mdc as
-  // arrays but as space-joined strings from comark's parser. Collapse any
-  // remaining arrays of primitives so the bridged body matches comark's shape.
+  // Token-list attrs (class, ping, accept, …) come from @nuxtjs/mdc as arrays but
+  // as space-joined strings from comark — collapse to match. Skip ':' bindings:
+  // those are genuine data arrays comark must render as YAML blocks, not inline.
   for (const key in next) {
+    if (unboundKeys.has(key)) continue
     const value = next[key]
     if (Array.isArray(value) && value.every(v => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) {
       next[key] = value.join(' ')
     }
   }
 
+  return next
+}
+
+/**
+ * Unwrap @nuxtjs/mdc's ':key' + JSON-string array/object bindings to plain comark
+ * values (`{ ':bar': '["baz"]' }` → `{ bar: ['baz'] }`). Booleans keep the ':' so
+ * comarkAttributes emits `key` not `key="true"`. The returned `unbound` set marks
+ * rewritten keys so the token-list collapse won't re-mangle genuine data arrays.
+ */
+function unbindMDCProps(props: Record<string, unknown>): { props: Record<string, unknown>, unbound: Set<string> } {
+  const next: Record<string, unknown> = {}
+  const unbound = new Set<string>()
+  for (const [rawKey, value] of Object.entries(props)) {
+    if (rawKey.startsWith(':') && typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value)
+        if (typeof parsed === 'boolean') {
+          next[rawKey] = value
+        }
+        else {
+          const key = rawKey.slice(1)
+          next[key] = parsed
+          unbound.add(key)
+        }
+      }
+      catch {
+        next[rawKey] = value
+      }
+    }
+    else {
+      next[rawKey] = value
+    }
+  }
+  return { props: next, unbound }
+}
+
+/**
+ * Strip @nuxtjs/mdc ':key' JSON-binding artifacts from array/object attrs in a
+ * comark-shaped body read straight from the dump (no MDC→Comark bridge). Without
+ * this, comark renders such a prop as an inline `{:bar="[...]"}` literal instead of
+ * a YAML block, producing a permanent phantom conflict. Scalar bindings are left
+ * alone — comark round-trips those itself; stripping the colon would drop them.
+ */
+export function unbindComarkTree(tree: ComarkTree): ComarkTree {
+  return { ...tree, nodes: tree.nodes.map(unbindComarkNode) }
+}
+
+function unbindComarkNode(node: ComarkNode): ComarkNode {
+  if (!Array.isArray(node)) return node
+  const [tag, attrs, ...children] = node as ComarkElement | ComarkComment
+  if (tag === null) return node // comments carry no bindable attrs
+  return [
+    tag,
+    unbindMDCBlockProps((attrs as Record<string, unknown>) || {}),
+    ...(children as ComarkNode[]).map(unbindComarkNode),
+  ] as ComarkElement
+}
+
+function unbindMDCBlockProps(props: Record<string, unknown>): Record<string, unknown> {
+  const next: Record<string, unknown> = {}
+  for (const [rawKey, value] of Object.entries(props)) {
+    if (rawKey.startsWith(':') && typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value)
+        if (parsed !== null && typeof parsed === 'object') {
+          next[rawKey.slice(1)] = parsed
+          continue
+        }
+      }
+      catch {
+        // not JSON — leave untouched
+      }
+    }
+    next[rawKey] = value
+  }
   return next
 }
 
