@@ -660,10 +660,8 @@ describe('mdc → comark generic array → string normalization', () => {
   })
 
   it('keeps a primitive array unwrapped from a ":" binding as an array (does not collapse to a string)', async () => {
-    // A YAML-block array-of-primitives prop is serialised by @nuxtjs/mdc as a
-    // ':key' + JSON string. Unlike a bare token-list array (className, ping),
-    // it is genuine data and must survive as an array so comark renders it as a
-    // YAML block — collapsing it to `tags="a b"` would diverge from the repo.
+    // Unlike a token-list array (className, ping), a ':'-bound array is genuine
+    // data — it must stay an array so comark renders a YAML block, not `tags="a b"`.
     const tree = comarkTreeFromLegacyDocument(legacyDocument({
       type: 'root',
       children: [{

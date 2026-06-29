@@ -12,7 +12,6 @@
  *      - compare.ts   → update toMarkdownRoot helper to compare ComarkTrees directly
  *      - index.ts     → remove re-exports of comarkTreeFromLegacyDocument and markdownRootFromComarkTree
  *      - generate.ts  → remove unbindComarkTree usage in contentFromMarkdownDocument
- *                       (a comark-native body has no ':key' JSON bindings to strip)
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
@@ -340,12 +339,9 @@ function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<s
     next = rest
   }
 
-  // Token-list attrs (class, ping, accept, …) come out of @nuxtjs/mdc as
-  // arrays but as space-joined strings from comark's parser. Collapse any
-  // remaining arrays of primitives so the bridged body matches comark's shape.
-  // Skip keys that were unwrapped from a ':' binding — those are genuine data
-  // arrays (e.g. `:tags='["a","b"]'`) that must stay arrays so comark renders
-  // them as a YAML block, not a space-joined inline string.
+  // Token-list attrs (class, ping, accept, …) come from @nuxtjs/mdc as arrays but
+  // as space-joined strings from comark — collapse to match. Skip ':' bindings:
+  // those are genuine data arrays comark must render as YAML blocks, not inline.
   for (const key in next) {
     if (unboundKeys.has(key)) continue
     const value = next[key]
@@ -358,13 +354,10 @@ function propsMDCToComark(tag: string, props: Record<string, unknown>): Record<s
 }
 
 /**
- * Unwrap @nuxtjs/mdc's ':key' + JSON-string encoding for arrays/objects to plain
- * comark values, e.g. `{ ':bar': '["baz"]' }` → `{ bar: ['baz'] }`.
- *
- * Booleans keep the ':' prefix — comarkAttributes needs it to emit `key` not
- * `key="true"`. Returns the rewritten props alongside the set of keys that were
- * unwrapped from a binding, so callers can avoid further mangling them (the
- * token-list collapse in `propsMDCToComark` must not touch genuine data arrays).
+ * Unwrap @nuxtjs/mdc's ':key' + JSON-string array/object bindings to plain comark
+ * values (`{ ':bar': '["baz"]' }` → `{ bar: ['baz'] }`). Booleans keep the ':' so
+ * comarkAttributes emits `key` not `key="true"`. The returned `unbound` set marks
+ * rewritten keys so the token-list collapse won't re-mangle genuine data arrays.
  */
 function unbindMDCProps(props: Record<string, unknown>): { props: Record<string, unknown>, unbound: Set<string> } {
   const next: Record<string, unknown> = {}
@@ -394,21 +387,11 @@ function unbindMDCProps(props: Record<string, unknown>): { props: Record<string,
 }
 
 /**
- * Recursively unwrap @nuxtjs/mdc ':key' JSON-binding artifacts for array/object
- * props in a ComarkTree's element attrs, turning them into real comark values.
- *
- * Needed at the render boundary: a body already in comark shape (read straight
- * from the dump without passing through the MDC→Comark bridge) can carry an
- * array/object prop authored as a YAML block but encoded by @nuxtjs/mdc as a
- * ':key' + JSON string. comark's renderer would otherwise emit it as an inline
- * string literal (`::foo{:bar="[...]"}`) instead of a YAML block — producing a
- * permanent phantom conflict against the repo.
- *
- * Only array/object bindings are touched. Scalar bindings (`:width="200"`,
- * `:reverse="true"`) are genuine comark inline bindings that comark round-trips
- * faithfully on its own — stripping their colon would drop the binding. A
- * properly bridged or comark-native body has no array/object ':key' artifacts,
- * so this is a no-op there.
+ * Strip @nuxtjs/mdc ':key' JSON-binding artifacts from array/object attrs in a
+ * comark-shaped body read straight from the dump (no MDC→Comark bridge). Without
+ * this, comark renders such a prop as an inline `{:bar="[...]"}` literal instead of
+ * a YAML block, producing a permanent phantom conflict. Scalar bindings are left
+ * alone — comark round-trips those itself; stripping the colon would drop them.
  */
 export function unbindComarkTree(tree: ComarkTree): ComarkTree {
   return { ...tree, nodes: tree.nodes.map(unbindComarkNode) }
@@ -417,8 +400,7 @@ export function unbindComarkTree(tree: ComarkTree): ComarkTree {
 function unbindComarkNode(node: ComarkNode): ComarkNode {
   if (!Array.isArray(node)) return node
   const [tag, attrs, ...children] = node as ComarkElement | ComarkComment
-  // Comments ([null, {}, value]) carry no bindable attrs.
-  if (tag === null) return node
+  if (tag === null) return node // comments carry no bindable attrs
   return [
     tag,
     unbindMDCBlockProps((attrs as Record<string, unknown>) || {}),
@@ -438,7 +420,7 @@ function unbindMDCBlockProps(props: Record<string, unknown>): Record<string, unk
         }
       }
       catch {
-        // fall through — leave the prop untouched
+        // not JSON — leave untouched
       }
     }
     next[rawKey] = value
