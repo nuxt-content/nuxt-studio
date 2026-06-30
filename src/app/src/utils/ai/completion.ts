@@ -236,7 +236,7 @@ export async function tiptapSliceToMarkdown(
  */
 export async function markdownSliceToTiptap(markdown: string): Promise<JSONContent[]> {
   // Parse markdown to ComarkTree
-  const tree = await parse(markdown)
+  const tree = await parse(markdown, { linkify: false })
 
   // Convert ComarkTree directly to TipTap JSON
   const tiptapDoc = comarkToTiptap(tree)
