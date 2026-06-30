@@ -93,7 +93,10 @@ function preMdcToComarkNode(el: MDCElement): ComarkElement {
   const { code, ...rest } = (el.props as Record<string, unknown>) || {}
   const attrs = propsMDCToComark('pre', rest)
   if (typeof code === 'string') {
-    return ['pre', attrs, ['code', { __ignoreMap: '' }, code]] as ComarkElement
+    // mdc keeps the fence's trailing newline in `code`; comark's canonical code
+    // child omits it. Strip one so the editor doesn't show an extra blank line.
+    const canonicalCode = code.endsWith('\n') ? code.slice(0, -1) : code
+    return ['pre', attrs, ['code', { __ignoreMap: '' }, canonicalCode]] as ComarkElement
   }
   const children = normalizeMdcChildren(el.children || [])
   return ['pre', attrs, ...children.map(mdcNodeToComarkNode)] as ComarkElement
