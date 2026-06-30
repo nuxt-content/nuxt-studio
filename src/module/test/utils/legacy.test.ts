@@ -134,7 +134,7 @@ describe('mdc → comark autoUnwrap compensation', () => {
     expect(tree.nodes).toMatchObject([
       ['code-preview', {},
         ['p', {}, ['code', {}, 'inline code']],
-        ['template', { name: 'code' }, ['pre', { language: 'mdc' }, ['code', {}, '`inline code`\n']]],
+        ['template', { name: 'code' }, ['pre', { language: 'mdc' }, ['code', {}, '`inline code`']]],
       ],
     ])
   })
@@ -259,7 +259,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     expect(pre[0]).toBe('pre')
     expect(pre[1].code).toBeUndefined()
     // Wrapping 2-space indent stripped from each line of code
-    expect((pre[2] as [string, object, string])[2]).toBe('::accordion\n  :::accordion-item{label="A"}\n  body\n  :::\n::\n')
+    expect((pre[2] as [string, object, string])[2]).toBe('::accordion\n  :::accordion-item{label="A"}\n  body\n  :::\n::')
   })
 
   it('round-trips through render preserving the original indent', async () => {
@@ -333,7 +333,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     // And since no artifact was detected, the code content is left as-is
     const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
     expect(pre[1].code).toBeUndefined()
-    expect((pre[2] as [string, object, string])[2]).toBe('  foo\n')
+    expect((pre[2] as [string, object, string])[2]).toBe('  foo')
   })
 
   it('matches multi-line closing markers (`:::` followed by `::`)', () => {
@@ -364,7 +364,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     expect(outer.length).toBe(3) // only pre remains
     const pre = outer[2] as [string, Record<string, unknown>, ...unknown[]]
     expect(pre[1].code).toBeUndefined()
-    expect((pre[2] as [string, object, string])[2]).toBe('body\n')
+    expect((pre[2] as [string, object, string])[2]).toBe('body')
   })
 
   // A `<p>` at the document root level whose text happens to be just `:::`/`::`
@@ -450,7 +450,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     // Expected: tabs > [tabs-item with [pre], h3] — h3 is now a sibling of tabs-item
     expect(tree.nodes).toMatchObject([
       ['tabs', {},
-        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body\n']]],
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body']]],
         ['h3', { id: 'leaked' }, 'Should escape one level'],
       ],
     ])
@@ -501,7 +501,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     // Expected: tabs only contains tabs-item with [pre]. h3 + p are siblings of tabs.
     expect(tree.nodes).toMatchObject([
       ['tabs', {},
-        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body\n']]],
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body']]],
       ],
       ['h3', { id: 'leaked' }, 'Should escape two levels'],
       ['p', {}, 'Body text'],
@@ -926,10 +926,30 @@ describe('mdc → comark code block', () => {
 
     const pre = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
     expect(pre[1].code).toBeUndefined()
-    expect((pre[2] as [string, object, string])[2]).toBe('npx docus init docs\n')
+    expect((pre[2] as [string, object, string])[2]).toBe('npx docus init docs')
 
     const markdown = await renderMarkdown(tree)
     expect(markdown).not.toContain('::pre')
     expect(markdown).toContain('```bash [Terminal]\nnpx docus init docs\n```')
+  })
+
+  it('strips the single trailing newline mdc adds to `code`, matching comark canonical form', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'pre',
+        props: { code: 'const a = 1\nconsole.log(a)\n', language: 'js' },
+        children: [{
+          type: 'element',
+          tag: 'code',
+          props: { className: ['language-js'] },
+          children: [{ type: 'text', value: 'const a = 1\nconsole.log(a)\n' }],
+        }],
+      }],
+    }))!
+
+    const pre = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    expect((pre[2] as [string, object, string])[2]).toBe('const a = 1\nconsole.log(a)')
   })
 })
