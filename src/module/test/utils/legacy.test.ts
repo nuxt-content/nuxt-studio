@@ -257,8 +257,9 @@ describe('mdc → comark closing-marker artifact repair', () => {
     expect(tabsItem.length).toBe(3)
     const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
     expect(pre[0]).toBe('pre')
+    expect(pre[1].code).toBeUndefined()
     // Wrapping 2-space indent stripped from each line of code
-    expect(pre[1].code).toBe('::accordion\n  :::accordion-item{label="A"}\n  body\n  :::\n::\n')
+    expect((pre[2] as [string, object, string])[2]).toBe('::accordion\n  :::accordion-item{label="A"}\n  body\n  :::\n::\n')
   })
 
   it('round-trips through render preserving the original indent', async () => {
@@ -329,9 +330,10 @@ describe('mdc → comark closing-marker artifact repair', () => {
     const tabsItem = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
     // Both children preserved (the p is real content, not a marker artifact)
     expect(tabsItem.length).toBe(4)
-    // And since no artifact was detected, the pre's code prop is left as-is
+    // And since no artifact was detected, the code content is left as-is
     const pre = tabsItem[2] as [string, Record<string, unknown>, ...unknown[]]
-    expect(pre[1].code).toBe('  foo\n')
+    expect(pre[1].code).toBeUndefined()
+    expect((pre[2] as [string, object, string])[2]).toBe('  foo\n')
   })
 
   it('matches multi-line closing markers (`:::` followed by `::`)', () => {
@@ -361,7 +363,8 @@ describe('mdc → comark closing-marker artifact repair', () => {
     const outer = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
     expect(outer.length).toBe(3) // only pre remains
     const pre = outer[2] as [string, Record<string, unknown>, ...unknown[]]
-    expect(pre[1].code).toBe('body\n')
+    expect(pre[1].code).toBeUndefined()
+    expect((pre[2] as [string, object, string])[2]).toBe('body\n')
   })
 
   // A `<p>` at the document root level whose text happens to be just `:::`/`::`
@@ -447,7 +450,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     // Expected: tabs > [tabs-item with [pre], h3] — h3 is now a sibling of tabs-item
     expect(tree.nodes).toMatchObject([
       ['tabs', {},
-        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }]],
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body\n']]],
         ['h3', { id: 'leaked' }, 'Should escape one level'],
       ],
     ])
@@ -498,7 +501,7 @@ describe('mdc → comark closing-marker artifact repair', () => {
     // Expected: tabs only contains tabs-item with [pre]. h3 + p are siblings of tabs.
     expect(tree.nodes).toMatchObject([
       ['tabs', {},
-        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }]],
+        ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body\n']]],
       ],
       ['h3', { id: 'leaked' }, 'Should escape two levels'],
       ['p', {}, 'Body text'],
@@ -901,5 +904,32 @@ describe('comark → mdc reverse helpers (used at DB write boundary)', () => {
     // After full roundtrip back through MDC compression and our forward
     // translation, the span should expose the comark-shape (`class` string).
     expect(span[1]).toEqual({ class: 'text-primary font-bold' })
+  })
+})
+
+describe('mdc → comark code block', () => {
+  it('drops the `code` attr so a fenced block renders as a plain fence, not a `::pre{code}` wrapper', async () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'pre',
+        props: { code: 'npx docus init docs\n', language: 'bash', filename: 'Terminal' },
+        children: [{
+          type: 'element',
+          tag: 'code',
+          props: { className: ['language-bash'] },
+          children: [{ type: 'text', value: 'npx docus init docs\n' }],
+        }],
+      }],
+    }))!
+
+    const pre = tree.nodes[0] as [string, Record<string, unknown>, ...unknown[]]
+    expect(pre[1].code).toBeUndefined()
+    expect((pre[2] as [string, object, string])[2]).toBe('npx docus init docs\n')
+
+    const markdown = await renderMarkdown(tree)
+    expect(markdown).not.toContain('::pre')
+    expect(markdown).toContain('```bash [Terminal]\nnpx docus init docs\n```')
   })
 })

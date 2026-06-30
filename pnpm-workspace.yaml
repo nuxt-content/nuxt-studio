@@ -5,6 +5,7 @@ packages:
 
 overrides:
   "@nuxt/content": "^3.14.0"
+  "comark": "https://pkg.pr.new/comark@10ca6d9"
   "@unhead/vue": "2.1.12"
   "minimark": "^0.2.0"
   "unimport": "5.6.0"
@@ -16,6 +17,7 @@ overrides:
 
 shamefullyHoist: true
 strictPeerDependencies: false
+blockExoticSubdeps: false
 
 ignoredBuiltDependencies:
   - "@parcel/watcher"
