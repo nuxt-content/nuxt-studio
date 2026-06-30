@@ -73,6 +73,7 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
 
   if (node.type === 'element') {
     const el = node as MDCElement
+    if (el.tag === 'pre') return preMdcToComarkNode(el)
     const children = normalizeMdcChildren(el.children || [])
     return [
       el.tag!,
@@ -82,6 +83,20 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
   }
 
   return ''
+}
+
+/**
+ * A leftover `pre` attr serializes as a `::pre{…}` wrapper; comark renders the fence
+ * from the `code` child. mdc's repair can empty that child, so move `props.code` into it.
+ */
+function preMdcToComarkNode(el: MDCElement): ComarkElement {
+  const { code, ...rest } = (el.props as Record<string, unknown>) || {}
+  const attrs = propsMDCToComark('pre', rest)
+  if (typeof code === 'string') {
+    return ['pre', attrs, ['code', { __ignoreMap: '' }, code]] as ComarkElement
+  }
+  const children = normalizeMdcChildren(el.children || [])
+  return ['pre', attrs, ...children.map(mdcNodeToComarkNode)] as ComarkElement
 }
 
 /**
