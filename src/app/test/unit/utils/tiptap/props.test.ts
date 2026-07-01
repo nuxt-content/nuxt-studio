@@ -1493,4 +1493,188 @@ describe('props', () => {
       expect(out.src).toBe('authored.mp4')
     })
   })
+
+  describe('studio annotations (defineStudioMeta)', () => {
+    const stringProp = (name: string, overrides: Partial<PropertyMeta> = {}): PropertyMeta => ({
+      name,
+      global: false,
+      description: '',
+      tags: [],
+      required: false,
+      type: 'string | undefined',
+      schema: {
+        kind: 'enum',
+        type: 'string | undefined',
+        schema: ['undefined', 'string'],
+      },
+      declarations: [],
+      getDeclarations: () => [],
+      getTypeObject: {} as never,
+      ...overrides,
+    })
+
+    const createStudioComponentMeta = (
+      props: PropertyMeta[],
+      studio: NonNullable<ComponentMeta['meta']['studio']>,
+      options: { nuxtUI?: boolean } = {},
+    ): ComponentMeta => ({
+      name: 'AuthorCard',
+      path: '/path/to/AuthorCard.vue',
+      nuxtUI: options.nuxtUI ?? false,
+      meta: {
+        props,
+        slots: [],
+        events: [],
+        studio,
+      },
+    })
+
+    const createNode = (props: Record<string, unknown> = {}): ProseMirrorNode => ({
+      type: { name: 'element' },
+      attrs: { tag: 'AuthorCard', props },
+    } as unknown as ProseMirrorNode)
+
+    test('input override beats heuristics and keeps a plain key for string-like inputs', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('cover'), stringProp('bio'), stringProp('publishedAt')],
+        {
+          props: {
+            cover: { input: 'media' },
+            bio: { input: 'textarea' },
+            publishedAt: { input: 'date' },
+          },
+        },
+      )
+
+      const tree = buildFormTreeFromProps(createNode({ cover: '/img/cover.png' }), meta)
+
+      expect(tree.cover).toMatchObject({ key: 'cover', type: 'media', value: '/img/cover.png' })
+      expect(tree.bio).toMatchObject({ key: 'bio', type: 'textarea' })
+      expect(tree.publishedAt).toMatchObject({ key: 'publishedAt', type: 'date' })
+    })
+
+    test('icon input picks up iconLibraries as options', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('symbol')],
+        { props: { symbol: { input: 'icon', iconLibraries: ['lucide', 'simple-icons'] } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.symbol).toMatchObject({ type: 'icon', options: ['lucide', 'simple-icons'] })
+    })
+
+    test('explicit options override enum extraction', () => {
+      const enumProp = stringProp('variant', {
+        type: '"primary" | "secondary" | undefined',
+        schema: {
+          kind: 'enum',
+          type: '"primary" | "secondary" | undefined',
+          schema: ['undefined', 'primary', 'secondary'],
+        },
+      })
+      const meta = createStudioComponentMeta(
+        [enumProp],
+        { props: { variant: { options: ['primary', 'secondary', 'ghost'] } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.variant!.options).toEqual(['primary', 'secondary', 'ghost'])
+    })
+
+    test('label, description and tooltip land on the form item', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('cover')],
+        { props: { cover: { label: 'Cover image', description: 'Shown on top', tooltip: 'Use landscape' } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.cover).toMatchObject({ label: 'Cover image', description: 'Shown on top', tooltip: 'Use landscape' })
+    })
+
+    test('hidden: true hides a prop, hidden: false un-hides a HIDDEN_PROPS entry', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('internal'), stringProp('disabled')],
+        {
+          props: {
+            internal: { hidden: true },
+            disabled: { hidden: false },
+          },
+        },
+        { nuxtUI: true },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.internal!.hidden).toBe(true)
+      // `disabled` is in HIDDEN_PROPS and would be hidden on a Nuxt UI component
+      expect(tree.disabled!.hidden).toBeUndefined()
+    })
+
+    test('single reference keeps a plain key, stores a string and carries picker options', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('authorId')],
+        { props: { authorId: { input: 'reference', collection: 'authors', field: 'stem' } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode({ authorId: 'authors/john-doe' }), meta)
+
+      expect(tree.authorId).toMatchObject({
+        key: 'authorId',
+        type: 'reference',
+        value: 'authors/john-doe',
+        collection: 'authors',
+        field: 'stem',
+      })
+    })
+
+    test('multiple reference uses an interpreted key, stores an array and defaults to []', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('related'), stringProp('tags')],
+        {
+          props: {
+            related: { input: 'reference', collection: 'articles', multiple: true },
+            tags: { input: 'reference', collection: 'tags', multiple: true },
+          },
+        },
+      )
+
+      const tree = buildFormTreeFromProps(
+        createNode({ ':related': ['articles/one', 'articles/two'] }),
+        meta,
+      )
+
+      expect(tree[':related']).toMatchObject({
+        key: ':related',
+        type: 'reference',
+        value: ['articles/one', 'articles/two'],
+        collection: 'articles',
+        multiple: true,
+      })
+      expect(tree[':tags']).toMatchObject({ key: ':tags', value: [], default: [] })
+    })
+
+    test('multiple reference parses a JSON string node value', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('related')],
+        { props: { related: { input: 'reference', collection: 'articles', multiple: true } } },
+      )
+
+      const tree = buildFormTreeFromProps(
+        createNode({ ':related': '["articles/one"]' }),
+        meta,
+      )
+
+      expect(tree[':related']!.value).toEqual(['articles/one'])
+    })
+
+    test('convertStringToValue handles the studio input types', () => {
+      expect(convertStringToValue('/img/a.png', 'media')).toEqual('/img/a.png')
+      expect(convertStringToValue('"quoted"', 'textarea')).toEqual('quoted')
+      expect(convertStringToValue('2026-07-01', 'date')).toEqual('2026-07-01')
+      expect(convertStringToValue('authors/john', 'reference')).toEqual('authors/john')
+    })
+  })
 })

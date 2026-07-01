@@ -1093,3 +1093,73 @@ describe('getUpdatedTreeItem', () => {
     expect(getUpdatedTreeItem(farnabazFormTree, farnabazFormTree)).toBeNull()
   })
 })
+
+describe('studio editor annotations', () => {
+  const wrapSchema = (properties: Record<string, unknown>): Draft07 => ({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    $ref: '#/definitions/posts',
+    definitions: {
+      posts: {
+        type: 'object',
+        properties,
+        additionalProperties: false,
+        required: [],
+      },
+    },
+  } as unknown as Draft07)
+
+  test('reference editor input carries collection and field', () => {
+    const schema = wrapSchema({
+      author: {
+        type: 'string',
+        $content: { editor: { input: 'reference', collection: 'authors', field: 'stem' } },
+      },
+    })
+
+    const tree = buildFormTreeFromSchema('posts', schema)
+
+    expect(tree.posts!.children!.author).toMatchObject({
+      type: 'reference',
+      collection: 'authors',
+      field: 'stem',
+    })
+  })
+
+  test('reference editor input on an array renders a multiple reference, not an array form', () => {
+    const schema = wrapSchema({
+      related: {
+        type: 'array',
+        items: { type: 'string' },
+        $content: { editor: { input: 'reference', collection: 'articles', multiple: true } },
+      },
+    })
+
+    const tree = buildFormTreeFromSchema('posts', schema)
+
+    expect(tree.posts!.children!.related).toMatchObject({
+      type: 'reference',
+      collection: 'articles',
+      multiple: true,
+    })
+    expect(tree.posts!.children!.related!.arrayItemForm).toBeUndefined()
+  })
+
+  test('explicit editor options override enum values', () => {
+    const schema = wrapSchema({
+      variant: {
+        type: 'string',
+        enum: ['x', 'y'],
+        $content: { editor: { options: ['primary', 'secondary'] } },
+      },
+      plain: {
+        type: 'string',
+        $content: { editor: { options: ['a', 'b'] } },
+      },
+    })
+
+    const tree = buildFormTreeFromSchema('posts', schema)
+
+    expect(tree.posts!.children!.variant!.options).toEqual(['primary', 'secondary'])
+    expect(tree.posts!.children!.plain!.options).toEqual(['a', 'b'])
+  })
+})
