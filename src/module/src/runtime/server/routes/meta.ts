@@ -5,7 +5,7 @@ import components from '#nuxt-component-meta/nitro'
 import type { ComponentMeta as VueComponentMeta } from 'vue-component-meta'
 // @ts-expect-error import does exist
 import { highlight } from '#mdc-imports'
-import type { ComponentMeta } from 'nuxt-studio/app'
+import type { ComponentMeta, StudioComponentMeta } from 'nuxt-studio/app'
 import { filterComponents } from '../utils/meta'
 import { requireStudioAuth } from '../utils/auth'
 
@@ -30,6 +30,7 @@ export default eventHandler(async (event) => {
           props: meta.props,
           slots: meta.slots,
           events: meta.events,
+          studio: (meta as VueComponentMeta & { studio?: StudioComponentMeta }).studio,
         },
       }
     })
