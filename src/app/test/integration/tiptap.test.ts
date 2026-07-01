@@ -1195,7 +1195,7 @@ My icon
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
-  test('inline element :br preserves through roundtrip', async () => {
+  test('hard break serializes as a markdown hard break through roundtrip', async () => {
     const inputContent = 'Hello :br world'
 
     const expectedComarkNodes = [
@@ -1240,7 +1240,7 @@ My icon
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    expect(outputContent).toBe(`${inputContent}\n`)
+    expect(outputContent).toBe('Hello   \n world\n')
   })
 
   test('inline element with slot content', async () => {

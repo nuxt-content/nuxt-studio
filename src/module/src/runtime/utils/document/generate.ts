@@ -162,9 +162,6 @@ export async function contentFromMarkdownDocument(document: DatabaseItem): Promi
   const body = unbindComarkTree(tree)
   const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
-    components: {
-      br: () => ':br',
-    },
   })
   return markdown.replace(/&#x2A;/g, '*') + '\n'
 }

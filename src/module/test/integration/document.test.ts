@@ -12,6 +12,22 @@ async function legacyBodyOf(id: string, content: string): Promise<{ comark: Data
 }
 
 describe('Document - Markdown roundtrip Integration Tests', () => {
+  describe('hard breaks', () => {
+    it('serializes a hard break as a markdown hard break, not :br', async () => {
+      const document = await documentFromMarkdownContent('content:test.md', 'Line one  \nLine two')
+
+      await expect(contentFromMarkdownDocument(document)).resolves.toBe('Line one  \nLine two\n')
+    })
+
+    it('round-trips a hard break idempotently (no blank-line accumulation)', async () => {
+      const first = await documentFromMarkdownContent('content:test.md', 'Line one  \nLine two')
+      const rendered = await contentFromMarkdownDocument(first)
+      const second = await documentFromMarkdownContent('content:test.md', rendered!)
+
+      await expect(contentFromMarkdownDocument(second)).resolves.toBe('Line one  \nLine two\n')
+    })
+  })
+
   describe('code block with component inside named slot', () => {
     it('preserves a code block inside an MDC component #code slot', async () => {
       const content = `::component
