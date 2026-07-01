@@ -13,6 +13,7 @@ import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
 import { unbindComarkTree } from './legacy'
+import { normalizeMarkdownHardBreaks } from './hard-breaks'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -157,11 +158,11 @@ export async function contentFromJSONDocument(document: DatabaseItem): Promise<s
 }
 
 export async function contentFromMarkdownDocument(document: DatabaseItem): Promise<string | null> {
-  const body = unbindComarkTree(document.body as unknown as ComarkTree)
+  const body = normalizeMarkdownHardBreaks(unbindComarkTree(document.body as unknown as ComarkTree))
   const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
     components: {
-      br: () => ':br',
+      br: () => '  \n',
     },
   })
   return markdown.replace(/&#x2A;/g, '*') + '\n'
