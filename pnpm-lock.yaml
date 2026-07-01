@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@nuxt/content': ^3.14.0
-  comark: https://pkg.pr.new/comark@10ca6d9
+  comark: https://pkg.pr.new/comark@aba6281
   '@unhead/vue': 2.1.12
   minimark: ^0.2.0
   unimport: 5.6.0
@@ -36,8 +36,8 @@ importers:
         specifier: ^6.0.198
         version: 6.0.199(zod@4.4.3)
       comark:
-        specifier: https://pkg.pr.new/comark@10ca6d9
-        version: https://pkg.pr.new/comark@10ca6d9(shiki@4.2.0)
+        specifier: https://pkg.pr.new/comark@aba6281
+        version: https://pkg.pr.new/comark@aba6281(shiki@4.2.0)
       defu:
         specifier: ^6.1.7
         version: 6.1.7
@@ -4841,8 +4841,8 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@https://pkg.pr.new/comark@10ca6d9:
-    resolution: {integrity: sha512-SN6SzW/oEO2SCglYIkTIxjRuZ/CwMHBwYZdNuPxkY2NIR8lNpCX+x3XsKys8nT7Fq7Iklro5nkBDPC2piM9DUg==, tarball: https://pkg.pr.new/comark@10ca6d9}
+  comark@https://pkg.pr.new/comark@aba6281:
+    resolution: {integrity: sha512-bwSghoe5oPA8JEm7DzbGhGyb7aAKvo2gnYTrWMpI6yozYh/ixNYhleyRS85eYxEkingUhG3vzr3Or61DnPlFnA==, tarball: https://pkg.pr.new/comark@aba6281}
     version: 0.4.0
     peerDependencies:
       beautiful-mermaid: ^1.1.3
@@ -9590,7 +9590,7 @@ snapshots:
 
   '@comark/vue@0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))':
     dependencies:
-      comark: https://pkg.pr.new/comark@10ca6d9(shiki@4.2.0)
+      comark: https://pkg.pr.new/comark@aba6281(shiki@4.2.0)
       vue: 3.5.35(typescript@5.9.3)
     optionalDependencies:
       shiki: 4.2.0
@@ -14008,7 +14008,7 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@https://pkg.pr.new/comark@10ca6d9(shiki@4.2.0):
+  comark@https://pkg.pr.new/comark@aba6281(shiki@4.2.0):
     dependencies:
       entities: 8.0.0
       htmlparser2: 12.0.0
