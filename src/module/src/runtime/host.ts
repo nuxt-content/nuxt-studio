@@ -3,7 +3,7 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema, isDocumentMatchingContent, documentFromContent, contentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree, comarkTreeFromLegacyDocument, markdownRootFromComarkTree, isComarkTree } from './utils/document'
+import { applyCollectionSchema, isDocumentMatchingContent, documentFromContent, contentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree, markdownRootFromComarkTree, isComarkTree, ensureComarkBody } from './utils/document'
 import { getHostStyles, getSidebarWidth, adjustFixedElements } from './utils/sidebar'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -18,14 +18,6 @@ import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
 const serviceWorkerVersion = 'v0.0.5'
-
-function toComarkBody(document: DatabaseItem): DatabaseItem {
-  if (document.extension !== 'md' || !document.body) return document
-  if (isComarkTree(document.body)) return document
-  const comarkTree = comarkTreeFromLegacyDocument(document)
-  if (!comarkTree) return document
-  return { ...document, body: comarkTree as unknown }
-}
 
 function getLocalColorMode(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
@@ -214,7 +206,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
             return undefined
           }
 
-          return toComarkBody(sanitizeDocumentTree({ ...item, fsPath }, collectionInfo))
+          return ensureComarkBody(sanitizeDocumentTree({ ...item, fsPath }, collectionInfo))
         },
         list: async (): Promise<DatabaseItem[]> => {
           const collections = Object.values(useContentCollections()).filter(collection => collection.name !== 'info')
@@ -225,7 +217,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
               const source = getCollectionSourceById(document.id, collection.source)
               const fsPath = generateFsPathFromId(document.id, source!)
 
-              return toComarkBody(sanitizeDocumentTree({ ...document, fsPath }, collection))
+              return ensureComarkBody(sanitizeDocumentTree({ ...document, fsPath }, collection))
             })
           }))
 
@@ -249,7 +241,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           await host.document.db.upsert(fsPath, normalizedDocument)
 
-          return toComarkBody(sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo))
+          return ensureComarkBody(sanitizeDocumentTree({ ...normalizedDocument, fsPath }, collectionInfo))
         },
         upsert: async (fsPath: string, document: CollectionItemBase) => {
           const collectionInfo = getCollectionByFilePath(fsPath, useContentCollections())
@@ -286,6 +278,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         isMatchingContent: async (content: string, document: DatabaseItem) => isDocumentMatchingContent(content, document),
         pickReservedKeys: (document: DatabaseItem) => pickReservedKeysFromDocument(document),
         cleanDataKeys: (document: DatabaseItem) => cleanDataKeys(document),
+        ensureComarkBody: (document: DatabaseItem) => ensureComarkBody(document),
         detectActives: () => {
           // TODO: introduce a new convention to detect data contents [data-content-id!]
           const wrappers = document.querySelectorAll('[data-content-id]')

@@ -86,6 +86,8 @@ export interface StudioHost {
       isMatchingContent: (content: string, document: DatabaseItem) => Promise<boolean>
       pickReservedKeys: (document: DatabaseItem) => DatabaseItem
       cleanDataKeys: (document: DatabaseItem) => DatabaseItem
+      // Legacy compat — delete when @nuxt/content returns ComarkTree natively.
+      ensureComarkBody: (document: DatabaseItem) => DatabaseItem
       detectActives: () => Array<{ fsPath: string, title: string }>
     }
     generate: {

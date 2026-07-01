@@ -39,6 +39,18 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
     return name as 'studio:draft:document:updated' | 'studio:draft:ai:updated' | 'studio:draft:media:updated'
   }
 
+  // Older Studio builds persisted legacy bodies (MarkdownRoot/minimark) in IndexedDB;
+  // upgrade on load so the app only sees comark.
+  function upgradeLegacyBodies(item: DraftItem): DraftItem {
+    if (type !== 'document') return item
+    const ensureComarkBody = host.document.utils.ensureComarkBody
+    return {
+      ...item,
+      modified: item.modified ? ensureComarkBody(item.modified as DatabaseItem) : item.modified,
+      original: item.original ? ensureComarkBody(item.original as DatabaseItem) : item.original,
+    }
+  }
+
   async function get(fsPath: string): Promise<DraftItem<T> | undefined> {
     return list.value.find(item => item.fsPath === fsPath) as DraftItem<T>
   }
@@ -221,7 +233,7 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
           await storage.removeItem(key)
           return null
         }
-        return item
+        return upgradeLegacyBodies(item)
       }))
     })
 
