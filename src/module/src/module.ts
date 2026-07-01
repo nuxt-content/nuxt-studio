@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, addTypeTemplate, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
@@ -460,6 +460,29 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
     const editorOptions = options.editor ?? options.meta
+
+    // Register the `defineStudioMeta` compiler macro on nuxt-component-meta
+    // (installed by @nuxt/content). defu array-merge keeps the module's
+    // built-in `extendComponentMeta` default alongside ours.
+    const nuxtOptions = nuxt.options as typeof nuxt.options & {
+      componentMeta?: { extendMetaFunctions?: Array<{ name: string, transform?: (extracted: Record<string, unknown>) => Record<string, unknown> }> }
+    }
+    nuxtOptions.componentMeta = defu(nuxtOptions.componentMeta, {
+      extendMetaFunctions: [
+        { name: 'defineStudioMeta', transform: (extracted: Record<string, unknown>) => ({ studio: extracted }) },
+      ],
+    })
+
+    addTypeTemplate({
+      filename: 'types/studio-macros.d.ts',
+      getContents: () => [
+        'declare global {',
+        '  function defineStudioMeta(meta: import(\'nuxt-studio/app\').StudioComponentMeta): void',
+        '}',
+        'export {}',
+        '',
+      ].join('\n'),
+    })
 
     addServerImports([
       {

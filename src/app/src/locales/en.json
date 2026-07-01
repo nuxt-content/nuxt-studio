@@ -407,6 +407,12 @@
       },
       "number": {
         "placeholder": "0"
+      },
+      "reference": {
+        "placeholder": "Select an item...",
+        "searchPlaceholder": "Search items...",
+        "noItemsFound": "No items found",
+        "emptyCollection": "No items in the {collection} collection"
       }
     },
     "ai": {

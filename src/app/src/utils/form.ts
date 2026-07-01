@@ -1,5 +1,5 @@
-import type { Draft07, Draft07DefinitionProperty, Draft07DefinitionPropertyAnyOf, Draft07DefinitionPropertyAllOf, Draft07DefinitionPropertyOneOf, EditorOptions } from '@nuxt/content'
-import type { FormTree, FormItem } from '../types'
+import type { Draft07, Draft07DefinitionProperty, Draft07DefinitionPropertyAnyOf, Draft07DefinitionPropertyAllOf, Draft07DefinitionPropertyOneOf } from '@nuxt/content'
+import type { FormTree, FormItem, ResolvedStudioPropMeta } from '../types'
 import { upperFirst, titleCase } from 'scule'
 import { omit } from './object'
 
@@ -18,7 +18,7 @@ export function formItemInputLabel(formItem: FormItem): string {
 function editorDisplayFromContent(
   content: Draft07DefinitionProperty['$content'],
 ): Partial<Pick<FormItem, 'label' | 'description' | 'tooltip'>> {
-  const editor = content?.editor as EditorOptions | undefined
+  const editor = content?.editor as ResolvedStudioPropMeta | undefined
   if (!editor) {
     return {}
   }
@@ -38,6 +38,29 @@ function editorDisplayFromContent(
   return result
 }
 
+/**
+ * Reference picker options from `$content.editor` (input: 'reference')
+ */
+function referenceFromEditor(editor: ResolvedStudioPropMeta | undefined): Partial<Pick<FormItem, 'collection' | 'multiple' | 'field'>> {
+  if (editor?.input !== 'reference') {
+    return {}
+  }
+
+  const result: Partial<Pick<FormItem, 'collection' | 'multiple' | 'field'>> = {}
+
+  if (editor.collection !== undefined) {
+    result.collection = editor.collection
+  }
+  if (editor.multiple !== undefined) {
+    result.multiple = editor.multiple
+  }
+  if (editor.field !== undefined) {
+    result.field = editor.field
+  }
+
+  return result
+}
+
 export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormTree => {
   if (!schema || !schema.definitions || !schema.definitions[treeKey]) {
     return {}
@@ -48,7 +71,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
     const itemKey = paths.pop()!.replace('#', '')
     const level = paths.length
 
-    const editor = def.$content?.editor
+    const editor = def.$content?.editor as ResolvedStudioPropMeta | undefined
     if (editor?.hidden) {
       return null
     }
@@ -125,8 +148,8 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         return item
       }
 
-      // Array form
-      if (def.type === 'array' && def.items) {
+      // Array form (an explicit editor input takes over, e.g. a multiple reference)
+      if (def.type === 'array' && def.items && !editor?.input) {
         return {
           id,
           title: upperFirst(itemKey),
@@ -145,9 +168,13 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         title: upperFirst(itemKey),
         type: editorType ?? type,
         ...editorDisplayFromContent(def.$content),
+        ...referenceFromEditor(editor),
       }
 
-      if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
+      if (editor?.options && Array.isArray(editor.options) && editor.options.length > 0) {
+        item.options = editor.options
+      }
+      else if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
         item.options = def.enum as string[]
       }
       else if (editor?.iconLibraries && Array.isArray(editor.iconLibraries)) {
@@ -166,13 +193,17 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
       title: upperFirst(itemKey),
       type: editorType ?? type as never,
       ...editorDisplayFromContent(def.$content),
+      ...referenceFromEditor(editor),
     }
 
     if (type === 'array' && def.items) {
       item.arrayItemForm = buildFormTreeItem(def.items, `#${itemKey}/items`)!
     }
 
-    if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
+    if (editor?.options && Array.isArray(editor.options) && editor.options.length > 0) {
+      item.options = editor.options
+    }
+    else if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
       item.options = def.enum as string[]
     }
     // Pass iconLibraries from editor options for icon inputs
