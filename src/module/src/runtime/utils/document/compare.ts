@@ -5,6 +5,14 @@ import { doObjectsMatch } from '../object'
 import { renderMarkdown } from 'comark/render'
 import { documentFromContent } from './generate'
 import { cleanDataKeys } from './schema'
+import { comarkTreeFromLegacyDocument } from './legacy'
+
+const EMPTY_TREE: ComarkTree = { nodes: [], frontmatter: {}, meta: {} }
+
+// Legacy bodies (MarkdownRoot/minimark, no `.nodes`) make renderMarkdown throw unless upgraded.
+function comarkBody(document: Record<string, unknown>): ComarkTree {
+  return comarkTreeFromLegacyDocument(document as DatabaseItem) ?? EMPTY_TREE
+}
 
 /**
  * Sort and normalize every element's attributes alphabetically.
@@ -33,7 +41,7 @@ export async function isDocumentMatchingContent(content: string, document: Datab
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
     // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below).
     const generatedNormalized = normalizeAttrsDeep({ ...(generatedDocument.body as ComarkTree), frontmatter: {} })
-    const documentNormalized = normalizeAttrsDeep({ ...(document.body as ComarkTree), frontmatter: {} })
+    const documentNormalized = normalizeAttrsDeep({ ...comarkBody(document), frontmatter: {} })
     const generatedBodyStringified = (await renderMarkdown(generatedNormalized)).replace(/\n/g, '')
     const documentBodyStringified = (await renderMarkdown(documentNormalized)).replace(/\n/g, '')
     if (generatedBodyStringified !== documentBodyStringified) {
@@ -56,7 +64,7 @@ export async function areDocumentsEqual(document1: Record<string, unknown>, docu
 
   // Compare body first
   if (document1.extension === ContentFileExtension.Markdown) {
-    if (await renderMarkdown(body1 as ComarkTree) !== await renderMarkdown(body2 as ComarkTree)) {
+    if (await renderMarkdown(comarkBody(document1)) !== await renderMarkdown(comarkBody(document2))) {
       return false
     }
   }

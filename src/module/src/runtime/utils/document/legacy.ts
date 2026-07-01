@@ -7,11 +7,12 @@
  * When @nuxt/content releases native ComarkTree body support:
  *   1. Delete this file
  *   2. Fix TypeScript errors at call sites:
- *      - host.ts      → remove toComarkBody helper + all db.get/list/create calls to it,
+ *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
  *                       remove markdownRootFromComarkTree usage in db.upsert
- *      - compare.ts   → update toMarkdownRoot helper to compare ComarkTrees directly
- *      - index.ts     → remove re-exports of comarkTreeFromLegacyDocument and markdownRootFromComarkTree
+ *      - compare.ts   → drop the comarkBody helper and compare ComarkTrees directly
  *      - generate.ts  → remove unbindComarkTree usage in contentFromMarkdownDocument
+ *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument and markdownRootFromComarkTree
+ *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
@@ -484,6 +485,15 @@ export function comarkTreeFromLegacyDocument(document: DatabaseItem): ComarkTree
     ? decompressTree(document.body as never)
     : (document.body as MDCRoot)
   return mdcToComark(body, cleanDataKeys(document) as Record<string, unknown>)
+}
+
+// Legacy body (MarkdownRoot/minimark) → ComarkTree, applied at read boundaries so consumers only see comark.
+export function ensureComarkBody(document: DatabaseItem): DatabaseItem {
+  if (document.extension !== 'md' || !document.body) return document
+  if (isComarkTree(document.body)) return document
+  const comarkTree = comarkTreeFromLegacyDocument(document)
+  if (!comarkTree) return document
+  return { ...document, body: comarkTree as unknown }
 }
 
 /**

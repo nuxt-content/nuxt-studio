@@ -27,6 +27,7 @@ export {
 
 // Legacy compatibility — delete this section when @nuxt/content natively returns ComarkTree bodies
 export {
+  ensureComarkBody,
   comarkTreeFromLegacyDocument,
   markdownRootFromComarkTree,
 } from './legacy'
