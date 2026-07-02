@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { withLeadingSlash } from 'ufo'
 import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
@@ -318,13 +319,17 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
           return await getStorage().getItem(generateMediaIdFromFsPath(fsPath)) as MediaItem
         },
         list: async (): Promise<MediaItem[]> => {
-          const storage = getStorage()
-          const items = await Promise.all(
-            await storage.getKeys().then((keys: string[]) =>
-              keys.map((key: string) => storage.getItem(key)),
-            ),
-          )
-          return items.filter(Boolean) as MediaItem[]
+          const keys = await getStorage().getKeys()
+          return keys.map((key: string): MediaItem => {
+            const fsPath = withLeadingSlash(key.replace(/:/g, '/'))
+            return {
+              id: generateMediaIdFromFsPath(fsPath),
+              extension: key.split('.').pop() || '',
+              stem: key.split('.').join('.'),
+              path: fsPath,
+              fsPath,
+            }
+          })
         },
         upsert: async (fsPath: string, media: MediaItem) => {
           const id = generateMediaIdFromFsPath(fsPath)
