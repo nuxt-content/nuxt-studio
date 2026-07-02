@@ -4,13 +4,16 @@ import type { JSONContent } from '@tiptap/vue-3'
 import type { ComarkTree } from 'comark'
 import type { DraftItem, DatabasePageItem } from '../../../types'
 import { ref, watch, computed } from 'vue'
+import { withLeadingSlash } from 'ufo'
 import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
+import { useDraftMedias } from '../../../composables/useDraftMedias'
 import { comarkToTiptap } from '../../../utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../../utils/tiptap/tiptapToComark'
 import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
 import { pickInitialSlot } from '../../../utils/tiptap/handlers'
 import { studioStarterKitOptions, createStudioExtensions } from '../../../utils/tiptap/studio-extensions'
+import { getFileExtension, slugifyFileName } from '../../../utils/file'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
 import TiptapTableGrips from '../../tiptap/TiptapTableGrips.vue'
 import { useTiptapEditor } from '../../../composables/useTiptapEditor'
@@ -26,10 +29,28 @@ const props = defineProps({
 
 const document = defineModel<DatabasePageItem>()
 
-const { host } = useStudio()
+const { host, gitProvider } = useStudio()
 const { preferences } = useStudioState()
 
 const hasNuxtUI = host.meta.editor.components.hasNuxtUI
+
+// Upload pipeline for images pasted/dropped directly into the editor body.
+// Reuses the media draft store (base64 → IndexedDB → committed on Publish); the
+// service worker serves the draft media so the preview works immediately.
+const draftMedias = useDraftMedias(host, gitProvider)
+
+async function uploadImage(file: File): Promise<string | undefined> {
+  // Clipboard images often arrive without a usable name; derive the extension from
+  // the MIME type and give every upload a unique, collision-proof name.
+  const mimeExt = (file.type.split('/')[1] || 'png').replace('svg+xml', 'svg').replace('jpeg', 'jpg')
+  const extension = file.name.includes('.') ? getFileExtension(file.name) : mimeExt
+  const uniqueName = `${crypto.randomUUID()}.${extension}`
+
+  const renamed = new File([file], uniqueName, { type: file.type })
+  await draftMedias.upload('/', renamed)
+
+  return withLeadingSlash(slugifyFileName(uniqueName))
+}
 
 const {
   customHandlers,
@@ -159,6 +180,7 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         placeholder: $t('studio.tiptap.editor.placeholder'),
         hasNuxtUI,
         resolveInitialSlot: tag => pickInitialSlot(host.meta.editor.components.get().find(c => c.name === tag)?.meta.slots),
+        uploadImage,
         additionalExtensions: aiExtensions,
       })"
     >
