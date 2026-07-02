@@ -5,6 +5,7 @@ import {
 } from '../types'
 import type {
   PublishBranchParams,
+  PublishBranchResult,
   RenameFileParams,
   TreeItem,
   UploadMediaParams,
@@ -227,19 +228,57 @@ export const useContext = createSharedComposable((
     }))
   })
 
-  const branchActionHandler: { [K in StudioBranchActionId]: (args: ActionHandlerParams[K]) => Promise<void> } = {
-    [StudioBranchActionId.PublishBranch]: async (params: PublishBranchParams) => {
+  const branchActionHandler: {
+    [StudioBranchActionId.PublishBranch]: (params: PublishBranchParams) => Promise<PublishBranchResult>
+  } = {
+    [StudioBranchActionId.PublishBranch]: async (params: PublishBranchParams): Promise<PublishBranchResult> => {
       const { commitMessage } = params
       const prefix = host.meta.git?.commit?.messagePrefix
       const finalMessage = prefix ? `${prefix} ${commitMessage.trim()}`.trim() : commitMessage.trim()
       const documentFiles = await documentTree.draft.listAsRawFiles()
       const mediaFiles = await mediaTree.draft.listAsRawFiles()
-      await gitProvider.api.commitFiles([...documentFiles, ...mediaFiles], finalMessage)
+      const commitResult = await gitProvider.api.commitFiles([...documentFiles, ...mediaFiles], finalMessage)
+
+      if (!commitResult?.success) {
+        throw new Error('Failed to publish changes')
+      }
+
+      const pullRequestBase = host.repository.pullRequest?.base
+      const pullRequestName = host.repository.pullRequest?.name?.trim()
+      const sourceBranch = host.repository.branch
+      let reviewRequest = null
+      let reviewRequestError: string | undefined
+
+      if (pullRequestBase && pullRequestBase !== sourceBranch) {
+        try {
+          reviewRequest = await gitProvider.api.ensureReviewRequest({
+            title: pullRequestName || finalMessage,
+            head: sourceBranch,
+            base: pullRequestBase,
+            commitUrl: commitResult.url,
+          })
+
+          if (!reviewRequest) {
+            reviewRequestError = 'Failed to create review request'
+          }
+        }
+        catch (error) {
+          reviewRequestError = error instanceof Error ? error.message : 'Failed to create review request'
+          logger.warn('Review request creation failed after successful commit', error)
+        }
+      }
+      else if (pullRequestBase && pullRequestBase === sourceBranch) {
+        logger.warn('repository.pullRequest.base matches repository.branch; skipping review request creation')
+      }
 
       // @ts-expect-error params is null
       await itemActionHandler[StudioItemActionId.RevertAllItems]()
 
-      await router.push('/content')
+      return {
+        commit: commitResult,
+        reviewRequest,
+        reviewRequestError,
+      }
     },
   }
 

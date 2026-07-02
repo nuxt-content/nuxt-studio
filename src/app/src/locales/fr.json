@@ -57,7 +57,21 @@
       "alertTitleWaiting": "En attente de déploiement...",
       "alertTitleComplete": "Déploiement terminé",
       "alertDescWaiting": "Le site web doit être déployé pour que les changements soient visibles dans le Studio.",
-      "alertDescComplete": "Une nouvelle version de votre site a été déployée. Veuillez rafraîchir l'application pour voir les changements dans le Studio."
+      "alertDescComplete": "Une nouvelle version de votre site a été déployée. Veuillez rafraîchir l'application pour voir les changements dans le Studio.",
+      "reviewRequest": {
+        "openPullRequest": "Ouvrir la pull request",
+        "openMergeRequest": "Ouvrir la merge request",
+        "openCommit": "Voir le commit publié",
+        "failedTitle": "Impossible de créer la demande de revue",
+        "pullRequest": {
+          "created": "Pull request créée",
+          "existing": "Pull request existante mise à jour"
+        },
+        "mergeRequest": {
+          "created": "Merge request créée",
+          "existing": "Merge request existante mise à jour"
+        }
+      }
     },
     "newVersionBanner": {
       "title": "Nouvelle version du site détectée",
