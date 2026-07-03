@@ -1277,6 +1277,64 @@ describe('props', () => {
       })
     })
 
+    test('binds a camelCase meta prop to its differently-cased stored attr instead of duplicating it (issue #529)', () => {
+      const props: PropertyMeta[] = [
+        {
+          name: 'fooBar',
+          global: false,
+          description: '',
+          tags: [],
+          required: false,
+          type: 'string | undefined',
+          schema: 'string | undefined',
+          declarations: [],
+        },
+        {
+          name: 'bazQux',
+          global: false,
+          description: '',
+          tags: [],
+          required: false,
+          type: 'string | undefined',
+          schema: 'string | undefined',
+          declarations: [],
+        },
+        {
+          name: 'quuxCorge',
+          global: false,
+          description: '',
+          tags: [],
+          required: false,
+          type: 'string | undefined',
+          schema: 'string | undefined',
+          declarations: [],
+        },
+      ]
+
+      const node = {
+        type: {
+          name: 'element',
+        },
+        attrs: {
+          tag: 'Unicorn',
+          props: {
+            'foo-bar': 'foo bar value', // kebab-case, as produced by the MDC parser
+            'baz_qux': 'baz qux value', // snake_case
+            'QuuxCorge': 'quux corge value', // PascalCase
+          },
+        },
+      } as unknown as ProseMirrorNode
+
+      const formTree = buildFormTreeFromProps(node, createComponentMeta(props))
+
+      // One field per declared prop, bound to the stored value — no empty meta field
+      // plus a duplicate "custom" field for the differently-cased key.
+      expect(Object.keys(formTree)).toEqual(['fooBar', 'bazQux', 'quuxCorge'])
+      expect(formTree.fooBar).toMatchObject({ key: 'fooBar', value: 'foo bar value', custom: false })
+      expect(formTree.bazQux).toMatchObject({ key: 'bazQux', value: 'baz qux value', custom: false })
+      expect(formTree.quuxCorge).toMatchObject({ key: 'quuxCorge', value: 'quux corge value', custom: false })
+    })
+
     // test('generate props for video component', () => {
     //   const props: PropertyMeta[] = []
 
