@@ -155,7 +155,7 @@ export const useTree = (type: StudioFeature, host: StudioHost, draft: ReturnType
     if (selectItem) {
       const item = findItemFromFsPath(tree.value, currentItem.value.fsPath)
       if (item) {
-        select(item)
+        await select(item)
       }
       else if (currentItem.value.type !== 'root') {
         await selectParentByFsPath(currentItem.value.fsPath)
