@@ -2,7 +2,7 @@ import type { JSONContent } from '@tiptap/vue-3'
 import { isEmpty } from '../../utils/object'
 import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comark'
 import { EMOJI_REGEXP, getEmojiUnicode } from '../emoji'
-import { isValidAttr } from './props'
+import { isValidAttr, stripBindingPrefix } from './props'
 import { isElement, isComment, getTag, getAttrs, getChildren } from '../comark'
 import { sameMark, type MarkInfo } from './tiptapToComark'
 
@@ -265,8 +265,7 @@ function createVideoTipTapNode(node: ComarkElement): JSONContent {
 
   // Normalize boolean properties from string "true"/"false" to actual booleans
   const normalizedProps = Object.entries(props).reduce((acc, [key, value]) => {
-    // Remove ':' prefix if present
-    const cleanKey = key.startsWith(':') ? key.substring(1) : key
+    const cleanKey = stripBindingPrefix(key)
 
     if (booleanProps.includes(cleanKey)) {
       if (value === 'true' || value === true) {

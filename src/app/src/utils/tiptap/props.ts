@@ -1,4 +1,4 @@
-import { flatCase, pascalCase, titleCase, upperFirst } from 'scule'
+import { flatCase, kebabCase, pascalCase, titleCase, upperFirst } from 'scule'
 import { hasProtocol, isRelative } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
@@ -155,6 +155,18 @@ export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: o
   return out
 }
 
+export const stripBindingPrefix = (key: string): string => (key.startsWith(':') ? key.slice(1) : key)
+
+// Stored attrs may be kebab-cased while meta declares props in camelCase (e.g. `foo-bar` vs `fooBar`)
+const resolveNodePropValue = (nodeProps: Record<string, unknown>, key: string): unknown => {
+  if (key in nodeProps) return nodeProps[key]
+  if (`:${key}` in nodeProps) return nodeProps[`:${key}`]
+
+  const normalizedKey = kebabCase(key)
+  const rawKey = Object.keys(nodeProps).find(k => kebabCase(stripBindingPrefix(k)) === normalizedKey)
+  return rawKey ? nodeProps[rawKey] : undefined
+}
+
 export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: ComponentMeta): FormTree => {
   const isNuxtUIComponent = componentMeta.nuxtUI ?? false
   const props = componentMeta.meta.props
@@ -181,9 +193,10 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
   }
 
   // Add custom props added manually by user
+  const existingKeys = new Set(Object.keys(formTree).map(k => kebabCase(stripBindingPrefix(k))))
+  const isKnownProp = (key: string): boolean => existingKeys.has(kebabCase(stripBindingPrefix(key)))
   for (const key in nodeProps) {
-    // Skip props already added from meta
-    if (formTree[key] || formTree[`:${key}`]) {
+    if (isKnownProp(key)) {
       continue
     }
 
@@ -260,10 +273,9 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
     ? `${parent?.id}/${formattedKey}`
     : `${componentId}/${formattedKey}`
 
-  // Get node value: from parent object, direct prop, or interpreted prop (`:key`)
   const nodeValue = (parent?.type === 'object' && parent?.value)
     ? (parent.value as Record<string, unknown>)[key]
-    : nodeProps[key] ?? nodeProps[`:${key}`]
+    : resolveNodePropValue(nodeProps, key)
 
   // Resolve default value
   const resolvedDefault = defaultValue !== undefined && defaultValue !== null
