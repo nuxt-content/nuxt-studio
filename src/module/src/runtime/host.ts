@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { withLeadingSlash } from 'ufo'
 import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
@@ -14,7 +13,8 @@ import { collections } from '#content/preview'
 import { publicAssetsStorage, externalAssetsStorage } from '#build/studio-assets'
 import { useHostMeta } from './composables/useMeta'
 import { assignComponentsToGroups } from './utils/componentGroups'
-import { generateIdFromFsPath as generateMediaIdFromFsPath } from './utils/media'
+import { generateIdFromFsPath as generateMediaIdFromFsPath, mediaItemFieldsFromKey } from './utils/media'
+import { VIRTUAL_MEDIA_COLLECTION_NAME } from './utils/constants'
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
 
@@ -321,14 +321,9 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         list: async (): Promise<MediaItem[]> => {
           const keys = await getStorage().getKeys()
           return keys.map((key: string): MediaItem => {
-            const fsPath = withLeadingSlash(key.replace(/:/g, '/'))
-            return {
-              id: generateMediaIdFromFsPath(fsPath),
-              extension: key.split('.').pop() || '',
-              stem: key.split('.').join('.'),
-              path: fsPath,
-              fsPath,
-            }
+            // production's pre-baked storage keys carry the collection prefix; dev/external keys don't
+            const rawKey = key.replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`), '')
+            return mediaItemFieldsFromKey(rawKey)
           })
         },
         upsert: async (fsPath: string, media: MediaItem) => {

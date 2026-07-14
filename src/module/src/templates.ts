@@ -1,6 +1,5 @@
 import type { Storage } from 'unstorage'
-import { withLeadingSlash } from 'ufo'
-import { VIRTUAL_MEDIA_COLLECTION_NAME } from './utils/constants'
+import { mediaItemFieldsFromKey } from './runtime/utils/media'
 
 export async function getAssetsDefaultStorageDevTemplate() {
   return [
@@ -20,14 +19,7 @@ export async function getAssetsDefaultStorageTemplate(assetsStorage: Storage) {
     'const storage = createStorage({})',
     '',
     ...keys.map((key) => {
-      const path = withLeadingSlash(key.replace(/:/g, '/'))
-      const value = {
-        id: `${VIRTUAL_MEDIA_COLLECTION_NAME}/${key.replace(/:/g, '/')}`,
-        extension: key.split('.').pop(),
-        stem: key.split('.').join('.'),
-        path,
-        fsPath: path,
-      }
+      const value = mediaItemFieldsFromKey(key)
       return `storage.setItem('${value.id}', ${JSON.stringify(value)})`
     }),
     '',
