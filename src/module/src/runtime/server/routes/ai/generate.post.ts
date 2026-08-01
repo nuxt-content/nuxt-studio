@@ -18,7 +18,6 @@ export default eventHandler(async (event) => {
 
   const aiConfig = config.studio?.ai
 
-
   const { prompt, previousContext, nextContext, mode, language, selectionLength, fsPath, collectionName, hintOptions } = await readBody<AIGenerateOptions>(event)
 
   // For continue mode, require previousContext. For other modes, use prompt.

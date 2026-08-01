@@ -58,7 +58,6 @@ export default eventHandler(async (event) => {
     })
   }
 
-
   // Build project context
   const projectContext = aiConfig?.context
   const projectInfo = buildProjectInfoContext(projectContext)

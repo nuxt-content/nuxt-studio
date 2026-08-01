@@ -54,7 +54,6 @@ TreeItem[] {
     return dbItems
   }
 
-
   function addDeletedDraftItemsInDbItems(dbItems: BaseItem[], deletedItems: DraftItem[]) {
     dbItems = [...dbItems]
     for (const deletedItem of deletedItems) {

@@ -75,26 +75,6 @@ interface MediaUploadOptions {
   /** Select the external media provider. Defaults to NuxtHub Blob. */
   provider?: 'nuxthub' | 'cloudinary'
 
-  /** The maximum file size for media uploads. @default 10MB */
-  maxFileSize?: number
-
-  /** The allowed types for media uploads. */
-  allowedTypes?: string[]
-
-  /** The public CDN URL for the media files. */
-  publicUrl?: string
-
-  /** The prefix used for files stored in external storage. @default 'studio' */
-  prefix?: string
-
-  /** Cloudinary credentials and optional upload folder. Keep these server-only. */
-  cloudinary?: {
-    cloudName?: string
-    apiKey?: string
-    apiSecret?: string
-    folder?: string
-  }
-
   /**
    * The maximum file size for media uploads.
    * @default 10 * 1024 * 1024 (10MB)
@@ -120,7 +100,14 @@ interface MediaUploadOptions {
    * @default 'studio'
    */
   prefix?: string
->>>>>>> upstream/main
+
+  /** Cloudinary credentials and optional upload folder. Keep these server-only. */
+  cloudinary?: {
+    cloudName?: string
+    apiKey?: string
+    apiSecret?: string
+    folder?: string
+  }
 }
 
 interface RepositoryOptions {
@@ -233,6 +220,7 @@ export interface ModuleOptions {
      * @default 'gemini-2.0-flash-lite'
      */
     geminiFastModel?: string
+    /**
      * Contextual information to guide AI content generation.
      */
     context?: {
