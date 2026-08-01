@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useStudio } from '../composables/useStudio'
 import { StudioItemActionId, StudioFeature } from '../types'
 
 const { context, mediaTree } = useStudio()
-const isUploading = ref(false)
+// Exposed by useDraftMedias for both drag & drop and toolbar uploads.
+const isUploading = computed(() => (mediaTree.draft as { isUploading?: { value: boolean } }).isUploading?.value ?? false)
 
 const folderTree = computed(() => (mediaTree.current.value || []).filter(f => f.type === 'directory'))
 const fileTree = computed(() => (mediaTree.current.value || []).filter(f => f.type === 'file' && !f.fsPath.endsWith('.gitkeep')))
@@ -33,12 +34,10 @@ async function onFileDrop(event: DragEvent) {
   }
 
   if (event.dataTransfer?.files) {
-    isUploading.value = true
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
       parentFsPath: currentTreeItem.value.fsPath,
       files: Array.from(event.dataTransfer.files),
     })
-    isUploading.value = false
   }
 }
 </script>
@@ -59,6 +58,19 @@ async function onFileDrop(event: DragEvent) {
         v-if="mediaTree.draft.isLoading.value"
         class="absolute inset-0 bg-primary/3 animate-pulse pointer-events-none"
       />
+
+      <div
+        v-if="isUploading"
+        class="absolute inset-0 z-20 flex items-center justify-center bg-default/70 backdrop-blur-sm"
+      >
+        <div class="flex flex-col items-center gap-2 rounded-lg border border-default bg-default px-6 py-4 shadow-lg">
+          <UIcon
+            name="i-lucide-loader-circle"
+            class="size-6 animate-spin text-primary"
+          />
+          <span class="text-sm font-medium text-foreground">{{ $t('studio.actions.loading.uploading') }}</span>
+        </div>
+      </div>
 
       <template v-else>
         <MediaEditor

@@ -94,20 +94,25 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
   async function remove(fsPaths: string[], { rerender = true }: { rerender?: boolean } = {}) {
     for (const fsPath of fsPaths) {
       const existingDraftItem = list.value.find(item => item.fsPath === fsPath) as DraftItem<T> | undefined
-      const originalDbItem = await hostDb.get(fsPath) as T
+      // For external providers the get may fail (e.g. resource already removed or
+      // public_id mismatch); deletion should still proceed.
+      const originalDbItem = await hostDb.get(fsPath).catch(() => undefined) as T
 
       await storage.removeItem(fsPath)
       await hostDb.delete(fsPath)
 
+      if (existingDraftItem) {
+        if (existingDraftItem.status === DraftStatus.Deleted) return
+
+        if (existingDraftItem.status === DraftStatus.Created || isExternalMedia) {
+          list.value = list.value.filter(item => item.fsPath !== fsPath)
+        }
+      }
+
       if (!devMode.value && !isExternalMedia) {
         let deleteDraftItem: DraftItem<T> | null = null
         if (existingDraftItem) {
-          if (existingDraftItem.status === DraftStatus.Deleted) return
-
-          if (existingDraftItem.status === DraftStatus.Created) {
-            list.value = list.value.filter(item => item.fsPath !== fsPath)
-          }
-          else {
+          if (existingDraftItem.status !== DraftStatus.Created) {
             // TODO: check if remote file has been updated
             const remoteFile = await gitProvider.api.fetchFile(joinURL('content', fsPath), { cached: true }) as GitFile
 
@@ -142,6 +147,10 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
       if (rerender) {
         await hooks.callHook(hookName(fsPath), { caller: 'useDraftBase.remove' })
+      }
+
+      if (isExternalMedia) {
+        host.app.requestRerender()
       }
     }
   }

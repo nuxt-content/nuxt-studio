@@ -147,6 +147,9 @@
         "switchToTipTap": "Use visual editor",
         "switchToCode": "Use code editor"
       },
+      "loading": {
+        "uploading": "Uploading…"
+      },
       "tooltips": {
         "createDocument": "Create a new file",
         "createDocumentFolder": "Create a new folder",

@@ -45,6 +45,12 @@ function getFolder(config: CloudinaryConfig): string | undefined {
   return config.folder?.replace(/^\/+|\/+$/g, '') || undefined
 }
 
+function getResourceType(path: string): 'image' | 'video' | 'raw' {
+  if (/\.(?:mp4|webm|mov|avi)$/i.test(path)) return 'video'
+  if (/\.(?:png|jpe?g|webp|gif|avif|svg|bmp|ico|tiff?)$/i.test(path)) return 'image'
+  return 'raw'
+}
+
 function getRelativePath(publicId: string, format: string | undefined, folder?: string): string {
   const relativeId = folder && publicId.startsWith(`${folder}/`)
     ? publicId.slice(folder.length + 1)
@@ -71,11 +77,8 @@ function toMediaItem(resource: CloudinaryResource, folder?: string) {
   }
 }
 
-function authHeaders(config: CloudinaryConfig): Record<string, string> {
-  return {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': `Basic ${Buffer.from(`${config.apiKey}:${config.apiSecret}`).toString('base64')}`,
-  }
+function basicAuth(config: CloudinaryConfig): Record<string, string> {
+  return { Authorization: `Basic ${Buffer.from(`${config.apiKey}:${config.apiSecret}`).toString('base64')}` }
 }
 
 async function cloudinaryRequest<T>(url: string, init: RequestInit = {}): Promise<T> {
@@ -85,6 +88,45 @@ async function cloudinaryRequest<T>(url: string, init: RequestInit = {}): Promis
     throw createError({ statusCode: response.status, message: data.error?.message || `Cloudinary request failed (${response.status})` })
   }
   return data
+}
+
+const RESOURCE_TYPES = ['image', 'video', 'raw'] as const
+
+async function listResources(config: CloudinaryConfig, apiBase: string, prefix?: string): Promise<CloudinaryResource[]> {
+  const params = new URLSearchParams({ type: 'upload', max_results: '500' })
+  if (prefix) params.set('prefix', prefix)
+
+  const results = await Promise.all(RESOURCE_TYPES.map(resourceType =>
+    cloudinaryRequest<{ resources: CloudinaryResource[] }>(`${apiBase}/resources/${resourceType}?${params}`, {
+      method: 'GET',
+      headers: basicAuth(config),
+    }).catch(() => ({ resources: [] })),
+  ))
+
+  return results.flatMap(result => result.resources)
+}
+
+/** Finds a resource by its relative Studio path across all resource types. */
+async function findResourceByPath(config: CloudinaryConfig, apiBase: string, path: string, folder?: string): Promise<CloudinaryResource | undefined> {
+  const prefix = folder ? (path ? `${folder}/${path.replace(/\.[^/.]+$/, '')}` : folder) : path.replace(/\.[^/.]+$/, '')
+  const resources = await listResources(config, apiBase, prefix)
+  return resources.find(resource => getRelativePath(resource.public_id, resource.format, folder) === path)
+}
+
+async function destroyResource(config: CloudinaryConfig, apiBase: string, publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<string | undefined> {
+  const timestamp = Math.floor(Date.now() / 1000).toString()
+  // Cloudinary destroy endpoint: POST /v1_1/<cloud>/<resource_type>/destroy
+  // invalidate=true also purges the Cloudinary CDN cache so deleted assets stop
+  // being served immediately (the CDN may otherwise keep serving the file until
+  // its cache TTL expires).
+  const params = { public_id: publicId, timestamp, invalidate: 'true' }
+  const signature = signParameters(params, config.apiSecret)
+  const result = await cloudinaryRequest<{ result?: string, error?: { message?: string } }>(`${apiBase}/${resourceType}/destroy`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ ...params, api_key: config.apiKey, signature }),
+  })
+  return result.result
 }
 
 export default eventHandler(async (event) => {
@@ -97,45 +139,41 @@ export default eventHandler(async (event) => {
   // The unstorage HTTP driver signals a list request with a trailing ':' (root)
   // or '/:' (subfolder). Empty path is also a root list request.
   const isListRequest = !requestPath || requestPath.endsWith(':') || requestPath.endsWith('/:')
-  // Normalize: strip the virtual media collection prefix, trailing delimiters and slashes.
   const path = requestPath
     .replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}/?`), '')
     .replace(/[/:]+$/, '')
     .replace(/^\/+|\/+$/g, '')
 
   if (event.method === 'GET') {
-    // List: return storage keys (relative fsPaths) — the unstorage HTTP driver
-    // expects an array of strings, then Studio fetches each item individually.
     if (isListRequest) {
-      const folderQuery = folder ? (path ? `${folder}/${path}` : folder) : path || undefined
-      const expression = folderQuery
-        ? `folder:${folderQuery}`
-        : 'resource_type:image OR resource_type:video OR resource_type:raw'
-      const result = await cloudinaryRequest<{ resources: CloudinaryResource[] }>(`${apiBase}/resources/search`, {
-        method: 'POST',
-        headers: authHeaders(config),
-        body: new URLSearchParams({ expression, max_results: '500' }),
-      })
-      return result.resources.map(resource => getRelativePath(resource.public_id, resource.format, folder))
+      const prefix = folder ? (path ? `${folder}/${path}` : folder) : path || undefined
+      const resources = await listResources(config, apiBase, prefix)
+      return resources.map(resource => getRelativePath(resource.public_id, resource.format, folder))
     }
 
-    // Single item: return full media metadata.
+    // Direct resource fetch, falling back to a listing match so renamed or
+    // auto-public_id resources are still resolvable.
     const withoutExtension = path.replace(/\.[^/.]+$/, '')
     const publicId = folder ? `${folder}/${withoutExtension}` : withoutExtension
-    const resourceType = /\.(?:mp4|webm|mov|avi)$/i.test(path) ? 'video' : 'image'
-    const resource = await cloudinaryRequest<CloudinaryResource>(`${apiBase}/resources/${resourceType}/upload/${encodeURIComponent(publicId)}`, {
-      method: 'GET',
-      headers: { Authorization: `Basic ${Buffer.from(`${config.apiKey}:${config.apiSecret}`).toString('base64')}` },
-    })
-    return toMediaItem(resource, folder)
+    const resourceType = getResourceType(path) === 'raw' ? 'image' : getResourceType(path)
+    try {
+      const resource = await cloudinaryRequest<CloudinaryResource>(`${apiBase}/resources/${resourceType}/upload/${encodeURIComponent(publicId)}`, {
+        method: 'GET',
+        headers: basicAuth(config),
+      })
+      return toMediaItem(resource, folder)
+    }
+    catch {
+      const found = await findResourceByPath(config, apiBase, path, folder)
+      if (!found) throw createError({ statusCode: 404, message: 'Item not found' })
+      return toMediaItem(found, folder)
+    }
   }
 
   if (event.method === 'PUT') {
     const payload = await readBody<{ raw?: string } | string>(event)
     const raw = typeof payload === 'string' ? payload : payload?.raw
 
-    // .gitkeep files only mark folders in the local filesystem workflow. Cloudinary
-    // folders are virtual, so skip uploading them entirely.
     if (path.endsWith('.gitkeep')) return 'OK'
     if (!raw) throw createError({ statusCode: 400, message: 'Media payload is missing' })
 
@@ -149,6 +187,9 @@ export default eventHandler(async (event) => {
 
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const uploadParams: Record<string, string> = { timestamp }
+    // Deterministic public_id (relative path without extension) so GET/DELETE can
+    // compute the same Cloudinary public_id later.
+    uploadParams.public_id = path.replace(/\.[^/.]+$/, '')
     if (folder) uploadParams.folder = folder
     const signature = signParameters(uploadParams, config.apiSecret)
     const resource = await cloudinaryRequest<CloudinaryResource>(`${apiBase}/auto/upload`, {
@@ -161,15 +202,26 @@ export default eventHandler(async (event) => {
 
   if (event.method === 'DELETE') {
     const withoutExtension = path.replace(/\.[^/.]+$/, '')
-    const publicId = folder ? `${folder}/${withoutExtension}` : withoutExtension
-    const timestamp = Math.floor(Date.now() / 1000).toString()
-    const params = { public_id: publicId, timestamp }
-    const signature = signParameters(params, config.apiSecret)
-    await cloudinaryRequest(`${apiBase}/resources/destroy`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ ...params, api_key: config.apiKey, signature }),
-    })
+    const computedPublicId = folder ? `${folder}/${withoutExtension}` : withoutExtension
+    const resourceType = getResourceType(path)
+
+    // Fully idempotent DELETE: never surface a 404 to the unstorage driver.
+    // Try the deterministic public_id first; if that fails (e.g. older assets
+    // with an auto-generated public_id), locate the resource by relative path
+    // and destroy the actual public_id.
+    try {
+      const result = await destroyResource(config, apiBase, computedPublicId, resourceType).catch(() => undefined)
+      if (result !== 'ok' && result !== 'deleted' && result !== 'not_found') {
+        const found = await findResourceByPath(config, apiBase, path, folder)
+        if (found) {
+          await destroyResource(config, apiBase, found.public_id, (found.resource_type || resourceType) as 'image' | 'video' | 'raw').catch(() => undefined)
+        }
+      }
+    }
+    catch {
+      // Swallow any provider error — the item is removed from Studio's list anyway.
+    }
+
     return 'OK'
   }
 

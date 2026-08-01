@@ -15,5 +15,3 @@ Use **Open Studio** in the header to upload an image, then verify it in Cloudina
 - Confirm the asset appears in the configured Cloudinary folder.
 - Open the [media picker](/media-picker) and select the uploaded asset.
 - Delete the asset and confirm it is removed from Cloudinary.
-
-Contoh nya adalah ini harusnya bisa menggunakan `Gemini AI` di `Nuxt Studio`
