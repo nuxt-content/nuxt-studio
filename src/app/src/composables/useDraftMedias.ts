@@ -37,7 +37,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   // Shared uploading indicator so both drag & drop and the toolbar upload
   // trigger the same overlay.
   const isUploading = ref(false)
-
   async function createFolder(parentFsPath: string): Promise<string | undefined> {
     try {
       const gitkeepFsPath = joinURL(parentFsPath, '.gitkeep')
@@ -182,7 +181,6 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
     if (isExternalMedia) {
       return []
     }
-
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
       if (draftItem.status === DraftStatus.Pristine) {

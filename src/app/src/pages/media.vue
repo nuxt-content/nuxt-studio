@@ -34,10 +34,12 @@ async function onFileDrop(event: DragEvent) {
   }
 
   if (event.dataTransfer?.files) {
+
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
       parentFsPath: currentTreeItem.value.fsPath,
       files: Array.from(event.dataTransfer.files),
     })
+
   }
 }
 </script>
@@ -72,7 +74,7 @@ async function onFileDrop(event: DragEvent) {
         </div>
       </div>
 
-      <template v-else>
+      <template v-if="!mediaTree.draft.isLoading.value">
         <MediaEditor
           v-if="currentTreeItem.type === 'file' && currentDraftItem"
           :media-item="currentDraftItem.modified || currentDraftItem.original!"

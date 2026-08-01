@@ -23,12 +23,15 @@ importers:
       '@ai-sdk/gateway':
         specifier: ^3.0.126
         version: 3.0.127(zod@4.4.3)
+<<<<<<< HEAD
       '@ai-sdk/google':
         specifier: ^3.0.0
         version: 3.0.103(zod@4.4.3)
       '@ai-sdk/groq':
         specifier: ^3.0.0
         version: 3.0.55(zod@4.4.3)
+=======
+>>>>>>> upstream/main
       '@ai-sdk/vue':
         specifier: ^3.0.198
         version: 3.0.199(vue@3.5.35(typescript@5.9.3))(zod@4.4.3)
@@ -123,9 +126,12 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@8.0.16(@types/node@25.5.0)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.0))(vue@3.5.35(typescript@5.9.3))
+<<<<<<< HEAD
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
+=======
+>>>>>>> upstream/main
       eslint:
         specifier: ^10.4.1
         version: 10.4.1(jiti@2.7.0)
@@ -206,6 +212,7 @@ importers:
         specifier: workspace:*
         version: link:..
 
+<<<<<<< HEAD
   playground/cloudinary:
     dependencies:
       '@nuxt/content':
@@ -221,6 +228,8 @@ importers:
         specifier: workspace:*
         version: link:../..
 
+=======
+>>>>>>> upstream/main
   playground/docus:
     dependencies:
       better-sqlite3:
@@ -262,6 +271,7 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+<<<<<<< HEAD
   '@ai-sdk/google@3.0.103':
     resolution: {integrity: sha512-i/I92bfAeRPBvAwrW052NmPTkc+ZgVYs3vZjGhHgReE04cV37xJtbhZgr6U3CZKDArIAN0NhL0GoLpZ7FYV+dA==}
     engines: {node: '>=18'}
@@ -274,6 +284,8 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+=======
+>>>>>>> upstream/main
   '@ai-sdk/mcp@1.0.52':
     resolution: {integrity: sha512-yudE3Mdl8fsbzjMepOPbikA6nIRWOez+5e/IvOv1jK6XMAtsZ4+Xz8vjRQHI77VMv2TdiaMfsKKFoW6dlZRT3g==}
     engines: {node: '>=18'}
@@ -292,20 +304,26 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+<<<<<<< HEAD
   '@ai-sdk/provider-utils@4.0.41':
     resolution: {integrity: sha512-I7hhjfw01yEI8NkuAsT8Mv6xbWFr/lqLXMdaJQ2zWfXEpxog1eT7skDcv1+RY29/+5btzH8wD+vVvy48bk9oNQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+=======
+>>>>>>> upstream/main
   '@ai-sdk/provider@3.0.10':
     resolution: {integrity: sha512-Q3BZ27qfpYqnCYGvE3vt+Qi6LGOF9R5Nmzn+9JoM1lCRsD9mYaIhfJLkSunN48nfGXJ6n+XNV0J/XVpqGQl7Dw==}
     engines: {node: '>=18'}
 
+<<<<<<< HEAD
   '@ai-sdk/provider@3.0.14':
     resolution: {integrity: sha512-5X1k57JBJ4H7H1QjX7CnJYAB1I19r/trVZTMcSms7/kLNZ8RaU4Nt2agcwZzv82Hfx6Q7/TOLU7agAKeFfc8cA==}
     engines: {node: '>=18'}
 
+=======
+>>>>>>> upstream/main
   '@ai-sdk/vue@3.0.199':
     resolution: {integrity: sha512-BwFvbV5ORA04oYe0Zz0SrXUc/qUkBRvu8dyWTFk32yQ3ygiZcaRWCxOhHtg+LiCwegO10ybwCg2ezug1DVNS8A==}
     engines: {node: '>=18'}
@@ -1079,6 +1097,7 @@ packages:
   '@fastify/accept-negotiator@2.0.1':
     resolution: {integrity: sha512-/c/TW2bO/v9JeEgoD/g1G5GxGeCF1Hafdf79WPmUlgYiBXummY0oX3VVq4yFkKKVBKDNlaDUYoab7g38RpPqCQ==}
 
+<<<<<<< HEAD
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
@@ -1106,6 +1125,31 @@ packages:
     resolution: {integrity: sha512-d/SiJdxijc+aH5ZBQOw83XLxNSXqsBZNm5k3nPu1EHxGxK0fajXmxdMl0/vNXbKRggnIquFCxURkrQSEzfjqxQ==}
     engines: {node: '>=18.20.0'}
 
+=======
+  '@fingerprintjs/botd@2.0.0':
+    resolution: {integrity: sha512-yhuz23NKEcBDTHmGz/ULrXlGnbHenO+xZmVwuBkuqHUkqvaZ5TAA0kAgcRy4Wyo5dIBdkIf57UXX8/c9UlMLJg==}
+
+  '@floating-ui/core@1.7.5':
+    resolution: {integrity: sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==}
+
+  '@floating-ui/dom@1.7.6':
+    resolution: {integrity: sha512-9gZSAI5XM36880PPMm//9dfiEngYoC6Am2izES1FF406YFsjvyBMmeJ2g4SAju3xWwtuynNRFL2s9hgxpLI5SQ==}
+
+  '@floating-ui/utils@0.2.11':
+    resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@floating-ui/vue@1.1.11':
+    resolution: {integrity: sha512-HzHKCNVxnGS35r9fCHBc3+uCnjw9IWIlCPL683cGgM9Kgj2BiAl8x1mS7vtvP6F9S/e/q4O6MApwSHj8hNLGfw==}
+
+  '@gitbeaker/core@43.8.0':
+    resolution: {integrity: sha512-H+LfKuf4dExBinb79c+CXViRBvTVQNf5BYLNSizm2SiqdED5JruhKX88payefleY0szp7G/mySlFSXPyGRH1dQ==}
+    engines: {node: '>=18.20.0'}
+
+  '@gitbeaker/requester-utils@43.8.0':
+    resolution: {integrity: sha512-d/SiJdxijc+aH5ZBQOw83XLxNSXqsBZNm5k3nPu1EHxGxK0fajXmxdMl0/vNXbKRggnIquFCxURkrQSEzfjqxQ==}
+    engines: {node: '>=18.20.0'}
+
+>>>>>>> upstream/main
   '@hono/node-server@1.19.12':
     resolution: {integrity: sha512-txsUW4SQ1iilgE0l9/e9VQWmELXifEFvmdA1j6WFh/aFPj99hIntrSsq/if0UWyGVkmrRPKA1wCeP+UCr1B9Uw==}
     engines: {node: '>=18.14.1'}
@@ -5037,11 +5081,14 @@ packages:
     resolution: {integrity: sha512-ixNtAJndqh173VQ4KodSdJEI6nuioBWI0V1ITNKhZZsO0pEMoDxz539T4FTTbSZ/xIOSuDnzxLVRqBVSvPNE2g==}
     engines: {node: '>=18.0'}
 
+<<<<<<< HEAD
   cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
     engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
     hasBin: true
 
+=======
+>>>>>>> upstream/main
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -8625,6 +8672,7 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
+<<<<<<< HEAD
   undici@5.29.0:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
@@ -8633,6 +8681,12 @@ packages:
     resolution: {integrity: sha512-sC+b0tB1whOCzbtlx20fx3WgCXwkW627p4EA9uM+/tNNPkSS+eSEld6pAs9nDv7WbY1UUljBMYPtu9BCOrCWKA==}
     engines: {node: '>=18.17'}
 
+=======
+  undici@6.24.1:
+    resolution: {integrity: sha512-sC+b0tB1whOCzbtlx20fx3WgCXwkW627p4EA9uM+/tNNPkSS+eSEld6pAs9nDv7WbY1UUljBMYPtu9BCOrCWKA==}
+    engines: {node: '>=18.17'}
+
+>>>>>>> upstream/main
   undici@7.24.5:
     resolution: {integrity: sha512-3IWdCpjgxp15CbJnsi/Y9TCDE7HWVN19j1hmzVhoAkY/+CJx449tVxT5wZc1Gwg8J+P0LWvzlBzxYRnHJ+1i7Q==}
     engines: {node: '>=20.18.1'}
@@ -9376,6 +9430,7 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 4.4.3
 
+<<<<<<< HEAD
   '@ai-sdk/google@3.0.103(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 3.0.14
@@ -9388,6 +9443,8 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.41(zod@4.4.3)
       zod: 4.4.3
 
+=======
+>>>>>>> upstream/main
   '@ai-sdk/mcp@1.0.52(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 3.0.10
@@ -9409,6 +9466,7 @@ snapshots:
       eventsource-parser: 3.1.0
       zod: 4.4.3
 
+<<<<<<< HEAD
   '@ai-sdk/provider-utils@4.0.41(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 3.0.14
@@ -9417,10 +9475,13 @@ snapshots:
       undici: 5.29.0
       zod: 4.4.3
 
+=======
+>>>>>>> upstream/main
   '@ai-sdk/provider@3.0.10':
     dependencies:
       json-schema: 0.4.0
 
+<<<<<<< HEAD
   '@ai-sdk/provider@3.0.14':
     dependencies:
       json-schema: 0.4.0
@@ -9436,6 +9497,19 @@ snapshots:
 
   '@ai-sdk/vue@3.0.209(vue@3.5.35(typescript@5.9.3))(zod@4.4.3)':
     dependencies:
+=======
+  '@ai-sdk/vue@3.0.199(vue@3.5.35(typescript@5.9.3))(zod@4.4.3)':
+    dependencies:
+      '@ai-sdk/provider-utils': 4.0.27(zod@4.4.3)
+      ai: 6.0.199(zod@4.4.3)
+      swrv: 1.2.0(vue@3.5.35(typescript@5.9.3))
+      vue: 3.5.35(typescript@5.9.3)
+    transitivePeerDependencies:
+      - zod
+
+  '@ai-sdk/vue@3.0.209(vue@3.5.35(typescript@5.9.3))(zod@4.4.3)':
+    dependencies:
+>>>>>>> upstream/main
       '@ai-sdk/provider-utils': 4.0.30(zod@4.4.3)
       ai: 6.0.209(zod@4.4.3)
       swrv: 1.2.0(vue@3.5.35(typescript@5.9.3))
@@ -10006,8 +10080,11 @@ snapshots:
   '@fastify/accept-negotiator@2.0.1':
     optional: true
 
+<<<<<<< HEAD
   '@fastify/busboy@2.1.1': {}
 
+=======
+>>>>>>> upstream/main
   '@fingerprintjs/botd@2.0.0': {}
 
   '@floating-ui/core@1.7.5':
@@ -10563,7 +10640,11 @@ snapshots:
       consola: 3.4.2
       debug: 4.4.3
       defu: 6.1.7
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       fuse.js: 7.4.2
       fzf: 0.5.2
       giget: 3.2.0
@@ -10918,7 +10999,11 @@ snapshots:
       devalue: 5.8.1
       errx: 0.1.0
       escape-string-regexp: 5.0.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       h3: 1.15.11
       impound: 1.1.5
       klona: 2.0.6
@@ -10987,7 +11072,11 @@ snapshots:
       devalue: 5.8.1
       errx: 0.1.0
       escape-string-regexp: 5.0.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       h3: 1.15.11
       impound: 1.1.5
       klona: 2.0.6
@@ -11183,7 +11272,11 @@ snapshots:
       cssnano: 8.0.1(postcss@8.5.15)
       defu: 6.1.7
       escape-string-regexp: 5.0.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       get-port-please: 3.2.0
       jiti: 2.7.0
       knitwork: 1.3.0
@@ -11242,7 +11335,11 @@ snapshots:
       cssnano: 8.0.1(postcss@8.5.15)
       defu: 6.1.7
       escape-string-regexp: 5.0.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       get-port-please: 3.2.0
       jiti: 2.7.0
       knitwork: 1.3.0
@@ -11355,7 +11452,11 @@ snapshots:
   '@nuxtjs/color-mode@4.0.1(magicast@0.5.3)':
     dependencies:
       '@nuxt/kit': 4.4.8(magicast@0.5.3)
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       pathe: 2.0.3
       pkg-types: 2.3.1
       semver: 7.8.3
@@ -13960,7 +14061,11 @@ snapshots:
       confbox: 0.2.4
       defu: 6.1.7
       dotenv: 17.4.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       giget: 2.0.0
       jiti: 2.7.0
       ohash: 2.0.11
@@ -13977,7 +14082,11 @@ snapshots:
       confbox: 0.2.4
       defu: 6.1.7
       dotenv: 17.4.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       giget: 3.2.0
       jiti: 2.7.0
       ohash: 2.0.11
@@ -14224,10 +14333,13 @@ snapshots:
       readable-stream: 4.7.0
 
   croner@10.0.1: {}
+<<<<<<< HEAD
 
   cross-env@7.0.3:
     dependencies:
       cross-spawn: 7.0.6
+=======
+>>>>>>> upstream/main
 
   cross-spawn@7.0.6:
     dependencies:
@@ -17495,7 +17607,11 @@ snapshots:
       devalue: 5.8.1
       errx: 0.1.0
       escape-string-regexp: 5.0.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       hookable: 6.1.1
       ignore: 7.0.5
       impound: 1.1.5
@@ -17624,7 +17740,11 @@ snapshots:
       devalue: 5.8.1
       errx: 0.1.0
       escape-string-regexp: 5.0.0
+<<<<<<< HEAD
       exsolve: 1.1.0
+=======
+      exsolve: 1.0.8
+>>>>>>> upstream/main
       hookable: 6.1.1
       ignore: 7.0.5
       impound: 1.1.5
@@ -19904,10 +20024,13 @@ snapshots:
 
   undici-types@7.18.2: {}
 
+<<<<<<< HEAD
   undici@5.29.0:
     dependencies:
       '@fastify/busboy': 2.1.1
 
+=======
+>>>>>>> upstream/main
   undici@6.24.1: {}
 
   undici@7.24.5: {}

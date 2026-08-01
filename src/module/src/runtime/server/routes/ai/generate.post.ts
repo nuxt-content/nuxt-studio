@@ -1,4 +1,5 @@
 import { streamText } from 'ai'
+
 import { eventHandler, readBody, createError } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import {
@@ -16,6 +17,7 @@ export default eventHandler(async (event) => {
   const config = useRuntimeConfig(event)
 
   const aiConfig = config.studio?.ai
+
 
   const { prompt, previousContext, nextContext, mode, language, selectionLength, fsPath, collectionName, hintOptions } = await readBody<AIGenerateOptions>(event)
 

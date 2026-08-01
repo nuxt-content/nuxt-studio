@@ -63,7 +63,13 @@ interface EditorOptions {
 }
 
 interface MediaUploadOptions {
-  /** Enable external media storage. */
+  /**
+   * Enable external storage for media uploads.
+   * When enabled, media files are uploaded to cloud storage (S3, Vercel Blob, Cloudflare R2, Cloudinary, etc.)
+   * instead of being committed to Git.
+   *
+   * @default false
+   */
   external?: boolean
 
   /** Select the external media provider. Defaults to NuxtHub Blob. */
@@ -88,6 +94,33 @@ interface MediaUploadOptions {
     apiSecret?: string
     folder?: string
   }
+
+  /**
+   * The maximum file size for media uploads.
+   * @default 10 * 1024 * 1024 (10MB)
+   */
+  maxFileSize?: number
+
+  /**
+   * The allowed types for media uploads.
+   * @default ['image/*', 'video/*', 'audio/*']
+   */
+  allowedTypes?: string[]
+
+  /**
+   * The public CDN URL for the media files.
+   * Falls back to the blob URL returned by the storage provider if not set.
+   * @default NUXT_PUBLIC_STUDIO_MEDIA_PUBLIC_URL
+   */
+  publicUrl?: string
+
+  /**
+   * The prefix used for files stored in external storage.
+   * Files are stored as `<prefix>/<path>` in the bucket.
+   * @default 'studio'
+   */
+  prefix?: string
+>>>>>>> upstream/main
 }
 
 interface RepositoryOptions {
@@ -200,7 +233,6 @@ export interface ModuleOptions {
      * @default 'gemini-2.0-flash-lite'
      */
     geminiFastModel?: string
-    /**
      * Contextual information to guide AI content generation.
      */
     context?: {

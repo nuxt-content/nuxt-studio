@@ -1,4 +1,5 @@
 import { streamText } from 'ai'
+
 import { eventHandler, createError, readBody } from 'h3'
 import { consola } from 'consola'
 import { useRuntimeConfig } from '#imports'
@@ -56,6 +57,7 @@ export default eventHandler(async (event) => {
       statusMessage: 'AI features are not enabled. Please set NUXT_STUDIO_AI_API_KEY environment variable.',
     })
   }
+
 
   // Build project context
   const projectContext = aiConfig?.context

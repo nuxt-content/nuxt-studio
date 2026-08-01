@@ -10,6 +10,7 @@ export default eventHandler(async (event) => {
 
   const config = useRuntimeConfig(event)
 
+
   const { changes } = await readBody<{ changes: string }>(event)
 
   if (!changes) {
