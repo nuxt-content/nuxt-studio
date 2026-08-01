@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "name": "nuxt-studio-playground-cloudinary",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "nuxt": "^4.4.8",
+    "@nuxt/content": "^3.14.0",
+    "nuxt-studio": "workspace:*"
+  }
+}

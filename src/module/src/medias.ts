@@ -8,7 +8,8 @@ import type { ModuleOptions } from './module'
 import { getAssetsDefaultStorageDevTemplate, getAssetsDefaultStorageTemplate, getAssetsExternalStorageTemplate } from './templates'
 
 const ASSETS_TEMPLATE = 'studio-assets.mjs'
-export async function setExternalMediaStorage(nuxt: Nuxt, runtime: (...args: string[]) => string): Promise<void> {
+
+export async function setExternalMediaStorage(_nuxt: Nuxt, runtime: (...args: string[]) => string, provider: 'nuxthub' | 'cloudinary' = 'nuxthub'): Promise<void> {
   addTemplate({
     filename: ASSETS_TEMPLATE,
     getContents: () => getAssetsExternalStorageTemplate(),
@@ -16,7 +17,7 @@ export async function setExternalMediaStorage(nuxt: Nuxt, runtime: (...args: str
 
   addServerHandler({
     route: '/__nuxt_studio/medias/**',
-    handler: runtime('./server/routes/medias/[...path]'),
+    handler: runtime(`./server/routes/medias/[...path]${provider === 'cloudinary' ? '.cloudinary' : ''}`),
   })
 }
 

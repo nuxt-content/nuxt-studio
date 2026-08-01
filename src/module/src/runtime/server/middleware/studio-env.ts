@@ -53,8 +53,14 @@ export default defineEventHandler((event) => {
     config.studio.git.gitlabToken = config.studio.git.gitlabToken || process.env.STUDIO_GITLAB_TOKEN || ''
   }
 
-  if (config.studio.media && !config.studio.media.publicUrl) {
-    config.studio.media.publicUrl = process.env.S3_PUBLIC_URL || ''
+  if (config.studio.media) {
+    config.studio.media.publicUrl = config.studio.media.publicUrl || process.env.S3_PUBLIC_URL || process.env.CLOUDINARY_CLOUD_URL || ''
+    const mediaConfig = config.studio.media as typeof config.studio.media & { cloudinary?: { cloudName?: string, apiKey?: string, apiSecret?: string, folder?: string } }
+    mediaConfig.cloudinary = mediaConfig.cloudinary || {}
+    mediaConfig.cloudinary.cloudName = mediaConfig.cloudinary.cloudName || process.env.CLOUDINARY_CLOUD_NAME || ''
+    mediaConfig.cloudinary.apiKey = mediaConfig.cloudinary.apiKey || process.env.CLOUDINARY_API_KEY || ''
+    mediaConfig.cloudinary.apiSecret = mediaConfig.cloudinary.apiSecret || process.env.CLOUDINARY_API_SECRET || ''
+    mediaConfig.cloudinary.folder = mediaConfig.cloudinary.folder || process.env.CLOUDINARY_FOLDER || ''
   }
 
   if (config.public?.studio?.ai) {
