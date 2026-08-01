@@ -149,12 +149,57 @@ export interface ModuleOptions {
    */
   ai?: {
     /**
+     * The AI provider used for content generation.
+     *
+     * - `auto` (default): uses Groq when a Groq API key is set, then Gemini,
+     *   then the Vercel AI Gateway.
+     * - `gateway`: always uses the Vercel AI Gateway (`apiKey`).
+     * - `gemini`: always uses the Google Gemini API (`geminiApiKey`).
+     * - `groq`: always uses the Groq API (`groqApiKey`) with Llama/Gemma/Qwen models.
+     *
+     * @default 'auto'
+     */
+    provider?: 'auto' | 'gateway' | 'gemini' | 'groq'
+    /**
+     * The Groq API key for AI features (free tier via GroqCloud).
+     * Set via `GROQ_API_KEY` environment variable at runtime.
+     */
+    groqApiKey?: string
+    /**
+     * The Groq model to use for quality transforms.
+     * @default 'llama-3.3-70b-versatile'
+     */
+    groqModel?: string
+    /**
+     * The Groq model to use for quick/continue completions.
+     * @default 'llama-3.1-8b-instant'
+     */
+    groqFastModel?: string
+    /**
      * The Vercel AI Gateway key for AI features.
      * When set, AI-powered content generation will be enabled.
      *
      * Set via `NUXT_STUDIO_AI_API_KEY` environment variable at runtime.
      */
     apiKey?: string
+    /**
+     * The Google Gemini API key for AI features.
+     * When set (and provider is not explicitly `gateway`), AI-powered content
+     * generation uses the Gemini API directly.
+     *
+     * Set via `GEMINI_API_KEY` or `NUXT_STUDIO_AI_GEMINI_API_KEY` environment variable at runtime.
+     */
+    geminiApiKey?: string
+    /**
+     * The Google Gemini model to use.
+     * @default 'gemini-2.0-flash'
+     */
+    geminiModel?: string
+    /**
+     * The Google Gemini model to use for quick/continue completions.
+     * @default 'gemini-2.0-flash-lite'
+     */
+    geminiFastModel?: string
     /**
      * Contextual information to guide AI content generation.
      */
@@ -527,8 +572,9 @@ export default defineNuxtModule<ModuleOptions>({
       },
       ai: {
         // Honest build-time baseline; the studio-env middleware recomputes this at runtime
-        // once NUXT_STUDIO_AI_API_KEY is resolved.
-        enabled: Boolean(options.ai?.apiKey),
+        // once the API keys are resolved.
+        enabled: Boolean(options.ai?.apiKey || options.ai?.geminiApiKey || options.ai?.groqApiKey),
+        provider: options.ai?.provider || 'auto',
         context: {
           collectionName: options.ai?.context?.collection?.name as string,
           contentFolder: options.ai?.context?.collection?.folder as string,
@@ -552,6 +598,13 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.runtimeConfig.studio = {
       ai: {
         apiKey: options.ai?.apiKey || '',
+        geminiApiKey: options.ai?.geminiApiKey || '',
+        geminiModel: options.ai?.geminiModel || 'gemini-2.0-flash',
+        geminiFastModel: options.ai?.geminiFastModel || 'gemini-2.0-flash-lite',
+        groqApiKey: options.ai?.groqApiKey || '',
+        groqModel: options.ai?.groqModel || 'llama-3.3-70b-versatile',
+        groqFastModel: options.ai?.groqFastModel || 'llama-3.1-8b-instant',
+        provider: options.ai?.provider || 'auto',
         context: options.ai?.context as never,
         experimental: options.ai?.experimental,
       },
@@ -599,7 +652,7 @@ export default defineNuxtModule<ModuleOptions>({
       media: {
         ...publicMediaOptions,
         publicUrl: options.media?.publicUrl || '',
-        cloudinary: cloudinaryOptions,
+        cloudinary: cloudinaryOptions as Record<string, unknown>,
       },
     }
 

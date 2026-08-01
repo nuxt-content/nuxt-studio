@@ -1,5 +1,4 @@
 import { streamText } from 'ai'
-import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, readBody, createError } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import {
@@ -7,6 +6,7 @@ import {
   calculateMaxTokens,
   getSystem,
 } from '../../utils/ai/generate'
+import { getAIModel } from '../../utils/ai/provider'
 import type { AIGenerateOptions } from 'nuxt-studio/app'
 import { requireStudioAuth } from '../../utils/auth'
 
@@ -16,15 +16,6 @@ export default eventHandler(async (event) => {
   const config = useRuntimeConfig(event)
 
   const aiConfig = config.studio?.ai
-  const apiKey = aiConfig?.apiKey
-  if (!apiKey) {
-    throw createError({
-      statusCode: 503,
-      statusMessage: 'AI features are not enabled. Please set NUXT_STUDIO_AI_API_KEY environment variable.',
-    })
-  }
-
-  const gateway = createGateway({ apiKey })
 
   const { prompt, previousContext, nextContext, mode, language, selectionLength, fsPath, collectionName, hintOptions } = await readBody<AIGenerateOptions>(event)
 
@@ -93,17 +84,15 @@ export default eventHandler(async (event) => {
   const maxOutputTokens = calculateMaxTokens(selectionLength, mode || 'continue', hintOptions)
 
   // Select model based on mode:
-  // - Continue mode: Haiku 4.5 (optimized for speed, ~300-500ms)
-  // - Transform modes: Sonnet 4.5 (optimized for quality)
-  const modelName = mode === 'continue'
-    ? 'anthropic/claude-haiku-4.5'
-    : 'anthropic/claude-sonnet-4.5'
+  // - Continue mode: faster/cheaper model
+  // - Transform modes: quality model
+  const model = await getAIModel(event, { fast: mode === 'continue' })
 
   // Temperature: continue mode benefits from creativity (0.7), transform modes are more deterministic (0.3)
   const temperature = mode === 'continue' ? 0.7 : 0.3
 
   return streamText({
-    model: gateway.languageModel(modelName),
+    model,
     system,
     prompt: finalPrompt,
     maxOutputTokens,

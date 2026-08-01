@@ -62,6 +62,8 @@ components.d.ts
 .history
 .cursor
 .claude
+.roo
+.agents
 
 playground/docus/.data
 docs/.data
