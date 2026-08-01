@@ -599,6 +599,7 @@ export default defineNuxtModule<ModuleOptions>({
       media: {
         ...publicMediaOptions,
         publicUrl: options.media?.publicUrl || '',
+        cloudinary: cloudinaryOptions,
       },
     }
 

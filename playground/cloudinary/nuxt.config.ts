@@ -19,7 +19,7 @@ export default defineNuxtConfig({
     },
     repository: {
       provider: 'github',
-      owner: 'nuxt-content',
+      owner: 'narr',
       repo: 'studio',
       branch: 'main',
       rootDir: 'playground/cloudinary',

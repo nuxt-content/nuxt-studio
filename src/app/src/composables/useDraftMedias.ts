@@ -61,9 +61,12 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   async function upload(parentFsPath: string, file: File) {
     try {
       const draftItem = await fileToDraftItem(parentFsPath, file)
-      await host.media.upsert(draftItem.fsPath, draftItem.modified!)
 
-      if (!isExternalMedia) {
+      if (isExternalMedia) {
+        await host.media.upsert(draftItem.fsPath, draftItem.modified!)
+      }
+      else {
+        await host.media.upsert(draftItem.fsPath, draftItem.modified!)
         await create(draftItem.fsPath, draftItem.modified!)
       }
 
