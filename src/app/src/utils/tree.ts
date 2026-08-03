@@ -32,6 +32,28 @@ TreeItem[] {
   const deletedDraftItems = draftList?.filter(draft => draft.status === DraftStatus.Deleted) || []
   const createdDraftItems = draftList?.filter(draft => draft.status === DraftStatus.Created) || []
 
+  function addCreatedDraftItemsInDbItems(dbItems: BaseItem[], createdItems: DraftItem[]) {
+    dbItems = [...dbItems]
+
+    for (const createdItem of createdItems) {
+      if (dbItems.some(dbItem => dbItem.fsPath === createdItem.fsPath)) {
+        continue
+      }
+
+      const virtualDbItem: BaseItem = {
+        id: 'N/A',
+        fsPath: createdItem.fsPath,
+        extension: getFileExtension(createdItem.fsPath),
+        stem: '',
+        path: createdItem.modified?.path,
+      }
+
+      dbItems.push(virtualDbItem)
+    }
+
+    return dbItems
+  }
+
   function addDeletedDraftItemsInDbItems(dbItems: BaseItem[], deletedItems: DraftItem[]) {
     dbItems = [...dbItems]
     for (const deletedItem of deletedItems) {
@@ -57,7 +79,7 @@ TreeItem[] {
     return dbItems
   }
 
-  const virtualDbItems = addDeletedDraftItemsInDbItems(dbItems, deletedDraftItems)
+  const virtualDbItems = addDeletedDraftItemsInDbItems(addCreatedDraftItemsInDbItems(dbItems, createdDraftItems), deletedDraftItems)
 
   for (const dbItem of virtualDbItems) {
     const itemHasPathField = 'path' in dbItem && dbItem.path
