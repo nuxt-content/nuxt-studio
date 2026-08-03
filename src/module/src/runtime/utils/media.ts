@@ -21,7 +21,7 @@ export function mediaItemFieldsFromKey(key: string): MediaItemKeyFields {
   return {
     id: generateIdFromFsPath(fsPath),
     extension: key.split('.').pop() || '',
-    stem: key.split('.').slice(0, -1).join('.'),
+    stem: fsPath.split('.').slice(0, -1).join('.'),
     path: fsPath,
     fsPath,
   }

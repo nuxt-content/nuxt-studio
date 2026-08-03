@@ -320,9 +320,10 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
         list: async (): Promise<MediaItem[]> => {
           const keys = await getStorage().getKeys()
+          // production's pre-baked storage keys carry the collection prefix; dev/external keys don't
+          const collectionPrefix = new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`)
           return keys.map((key: string): MediaItem => {
-            // production's pre-baked storage keys carry the collection prefix; dev/external keys don't
-            const rawKey = key.replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`), '')
+            const rawKey = key.replace(collectionPrefix, '')
             return mediaItemFieldsFromKey(rawKey)
           })
         },
