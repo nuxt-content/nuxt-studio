@@ -159,6 +159,8 @@ export const useContext = createSharedComposable((
       for (const file of files) {
         await (activeTree.value.draft as ReturnType<typeof useDraftMedias>).upload(parentFsPath, file)
       }
+
+      unsetActionInProgress()
     },
     [StudioItemActionId.RevertItem]: async (item: TreeItem) => {
       await activeTree.value.draft.revert(item.fsPath)

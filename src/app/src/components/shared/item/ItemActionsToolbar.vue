@@ -116,6 +116,7 @@ onUnmounted(() => {
       :accept="MEDIA_EXTENSIONS.map(ext => `.${ext}`).join(', ')"
       class="hidden"
       @change="handleFileSelection"
+      @cancel="context.unsetActionInProgress()"
     >
   </div>
 </template>

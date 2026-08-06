@@ -765,6 +765,25 @@ describe('Media - Action Chains Integration Tests', () => {
     expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:media:updated have been called by', 'useDraftBase.revert')
   })
 
+  it('Upload > Upload releases the action so the file picker can reopen', async () => {
+    const uploadAction = () => context.itemActions.value.find(action => action.id === StudioItemActionId.UploadMedia)!
+
+    /* STEP 1: TRIGGER UPLOAD - the action stays in progress while the file picker is open */
+    await uploadAction().handler!({ parentFsPath: parentPath, files: [] })
+    expect(context.actionInProgress.value).toEqual({ id: StudioItemActionId.UploadMedia })
+
+    /* STEP 2: FILES SELECTED - the action must be released once the upload completes */
+    await context.itemActionHandler[StudioItemActionId.UploadMedia]({
+      parentFsPath: parentPath,
+      files: [createMockFile(mediaName)],
+    })
+    expect(context.actionInProgress.value).toBeNull()
+
+    /* STEP 3: TRIGGER UPLOAD AGAIN - a released action can be triggered again */
+    await uploadAction().handler!({ parentFsPath: parentPath, files: [] })
+    expect(context.actionInProgress.value).toEqual({ id: StudioItemActionId.UploadMedia })
+  })
+
   it('Upload > Rename', async () => {
     const consoleInfoSpy = vi.spyOn(console, 'info')
     const file = createMockFile(mediaName)
