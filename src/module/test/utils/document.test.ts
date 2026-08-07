@@ -414,6 +414,125 @@ Description`
     expect(result).toBe(true)
   })
 
+  it('should be true when the source markdown marks the default slot explicitly', async () => {
+    const markdownContent = `::card{orientation="horizontal"}\n#default\n  :::icon{name="rocket"}\n  :::\n\n#body\nSome text.\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [[
+          'card',
+          { orientation: 'horizontal' },
+          ['icon', { name: 'rocket' }],
+          ['template', { name: 'body' }, 'Some text.'],
+        ]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(true)
+  })
+
+  it('should be true when a nested block marks the default slot explicitly', async () => {
+    const markdownContent = `::card\n  :::note\n  #default\n  Para one.\n\n  Para two.\n\n  #body\n  Body text.\n  :::\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [[
+          'card',
+          {},
+          ['note', {}, ['p', {}, 'Para one.'], ['p', {}, 'Para two.'], ['template', { name: 'body' }, 'Body text.']],
+        ]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(true)
+  })
+
+  it('should still be false when a default slot marker follows a named slot', async () => {
+    // Without the marker the trailing content parses into the preceding `#body` slot.
+    const markdownContent = `::card\n#body\nBody text.\n\n#default\nDefault text.\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [[
+          'card',
+          {},
+          ['template', { name: 'body' }, ['p', {}, 'Body text.']],
+          ['p', {}, 'Default text.'],
+        ]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(false)
+  })
+
+  it('should still be false when the default slot marker carries attributes', async () => {
+    const markdownContent = `::card\n#default{.text-primary}\nHello\n\n#body\nBody text.\n::\n`
+
+    const document = {
+      id: 'docs/test.md',
+      title: '',
+      body: {
+        nodes: [['card', {}, ['p', {}, 'Hello'], ['template', { name: 'body' }, 'Body text.']]],
+        frontmatter: {},
+        meta: {},
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/test',
+      stem: 'test',
+      fsPath: 'test.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+    expect(result).toBe(false)
+  })
+
   it('should still be false when content actually differs', async () => {
     const markdownContent = `::card{orientation="horizontal"}\nHello\n::\n`
 

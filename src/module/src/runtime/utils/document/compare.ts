@@ -21,6 +21,23 @@ function normalizeAttrsDeep(tree: ComarkTree): ComarkTree {
   return { ...tree, nodes: tree.nodes.map(normalizeNode) }
 }
 
+/**
+ * Unwrap a leading `#default` slot marker, which comark keeps but `@nuxtjs/mdc` erases.
+ */
+function unwrapLeadingDefaultSlot(children: ComarkNode[]): ComarkNode[] {
+  const [first, ...rest] = children
+  if (!Array.isArray(first) || first[0] !== 'template') return children
+
+  // Leading and attribute-free only: elsewhere the marker is load-bearing, and attributes
+  // are content. `$` is comark-internal, ignored by its template handler too.
+  const attrs = (first[1] || {}) as Record<string, unknown>
+  if (attrs.name !== 'default' || Object.keys(attrs).some(key => key !== 'name' && key !== '$')) {
+    return children
+  }
+
+  return [...(first.slice(2) as ComarkNode[]), ...rest]
+}
+
 function normalizeNode(node: ComarkNode): ComarkNode {
   if (typeof node === 'string') return node
   if (!Array.isArray(node)) return node
@@ -32,7 +49,9 @@ function normalizeNode(node: ComarkNode): ComarkNode {
     ? Object.fromEntries(Object.entries(attrs as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
     : attrs
 
-  return [tag, sortedAttrs, ...children.map(normalizeNode)] as ComarkNode
+  const normalizedChildren = unwrapLeadingDefaultSlot(children as ComarkNode[]).map(normalizeNode)
+
+  return [tag, sortedAttrs, ...normalizedChildren] as ComarkNode
 }
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
