@@ -6,6 +6,7 @@ packages:
 overrides:
   "@nuxt/content": "^3.14.0"
   "comark": "https://pkg.pr.new/comark@aba6281"
+  "nuxt-component-meta": "https://pkg.pr.new/nuxt-component-meta@05f350d"
   "@unhead/vue": "2.1.12"
   "minimark": "^0.2.0"
   "unimport": "5.6.0"

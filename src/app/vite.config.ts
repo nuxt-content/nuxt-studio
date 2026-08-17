@@ -77,7 +77,7 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: false,
     outDir: '../../dist/app',
     lib: {
-      entry: ['./src/main.ts', './src/shared.ts', './src/service-worker.ts'],
+      entry: ['./src/main.ts', './src/shared.ts', './src/service-worker.ts', './src/component-meta.ts'],
       formats: ['es'],
     },
     sourcemap: false,
