@@ -10,6 +10,7 @@ import { getFileExtension, slugifyFileName } from '../utils/file'
 import { useHooks } from './useHooks'
 import { useError } from './useError'
 import { consola } from 'consola'
+import { ref } from 'vue'
 
 const logger = consola.withTag('Nuxt Studio')
 const hooks = useHooks()
@@ -33,6 +34,9 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
 
   const isExternalMedia = host.meta.media?.external
 
+  // Shared uploading indicator so both drag & drop and the toolbar upload
+  // trigger the same overlay.
+  const isUploading = ref(false)
   async function createFolder(parentFsPath: string): Promise<string | undefined> {
     try {
       const gitkeepFsPath = joinURL(parentFsPath, '.gitkeep')
@@ -59,19 +63,48 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   }
 
   async function upload(parentFsPath: string, file: File) {
+    isUploading.value = true
     try {
       const draftItem = await fileToDraftItem(parentFsPath, file)
-      await host.media.upsert(draftItem.fsPath, draftItem.modified!)
 
-      if (!isExternalMedia) {
+      if (isExternalMedia) {
+        await host.media.upsert(draftItem.fsPath, draftItem.modified!)
+
+        // Fetch the provider metadata back so the draft immediately shows the
+        // remote URL (instead of the temporary local data URL) and is selectable
+        // without a page reload.
+        const uploadedMedia = await host.media.get(draftItem.fsPath)
+        const remoteDraftItem: DraftItem<MediaItem> = {
+          ...draftItem,
+          remoteFile: undefined,
+          status: DraftStatus.Created,
+          modified: {
+            ...draftItem.modified,
+            ...(uploadedMedia || {}),
+            raw: undefined,
+          },
+        }
+
+        await storage.setItem(draftItem.fsPath, remoteDraftItem)
+        list.value.push(remoteDraftItem)
+      }
+      else {
+        await host.media.upsert(draftItem.fsPath, draftItem.modified!)
         await create(draftItem.fsPath, draftItem.modified!)
       }
 
       await hooks.callHook('studio:draft:media:updated', { caller: 'useDraftMedias.upload' })
+
+      if (isExternalMedia) {
+        host.app.requestRerender()
+      }
     }
     catch (error) {
       logger.error('Error uploading media:', error)
       showError('Error uploading media', (error as Error).message)
+    }
+    finally {
+      isUploading.value = false
     }
   }
 
@@ -145,6 +178,9 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
   }
 
   async function listAsRawFiles(): Promise<RawFile[]> {
+    if (isExternalMedia) {
+      return []
+    }
     const files = [] as RawFile[]
     for (const draftItem of list.value) {
       if (draftItem.status === DraftStatus.Pristine) {
@@ -166,6 +202,7 @@ export const useDraftMedias = createSharedComposable((host: StudioHost, gitProvi
 
   return {
     isLoading,
+    isUploading,
     list,
     current,
     get,
