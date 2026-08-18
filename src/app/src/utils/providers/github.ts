@@ -14,8 +14,13 @@ interface GitHubUser {
 const NUXT_STUDIO_COAUTHOR = 'Co-authored-by: Nuxt Studio <noreply@nuxt.studio>'
 const logger = consola.withTag('Nuxt Studio')
 
+function featureBranchName(): string {
+  return `studio/${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}`
+}
+
 export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail } = options
+  const useFeatureBranch = options.branchStrategy === 'feature-branch'
   const gitFiles: Record<string, GitFile> = {}
 
   const instanceUrl = withoutTrailingSlash(options.instanceUrl || 'https://github.com')
@@ -157,15 +162,27 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
       ? `${message}\n\n${coAuthors.join('\n')}`
       : message
 
-    return commitFilesToGitHub({
+    let targetBranch = branch
+    if (useFeatureBranch) {
+      targetBranch = featureBranchName()
+      const refData = await $repositoryApi(`/git/refs/heads/${branch}`)
+      await $repositoryApi(`/git/refs`, {
+        method: 'POST',
+        body: JSON.stringify({ ref: `refs/heads/${targetBranch}`, sha: refData.object.sha }),
+      })
+    }
+
+    const result = await commitFilesToGitHub({
       owner,
       repo,
-      branch,
+      branch: targetBranch,
       files,
       message: fullMessage,
       authorName: commitAuthorName,
       authorEmail: commitAuthorEmail,
     })
+
+    return result ? { ...result, branch: useFeatureBranch ? targetBranch : undefined } : null
   }
 
   async function commitFilesToGitHub({ owner, repo, branch, files, message, authorName, authorEmail }: CommitFilesOptions) {
