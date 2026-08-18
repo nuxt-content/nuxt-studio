@@ -30,9 +30,11 @@
   ],
   "main": "./dist/module/module.mjs",
   "scripts": {
-    "prepack": "nuxt-module-build build src/module; vite build src/app",
-    "dev": "pnpm run dev:prepare && STUDIO_DEV_SERVER=http://localhost:5151 nuxi dev playground/docus",
-    "dev:minimal": "pnpm run dev:prepare && STUDIO_DEV_SERVER=http://localhost:5151 nuxt dev playground/minimal",
+    "prepack": "nuxt-module-build build src/module && vite build src/app",
+    "dev": "pnpm run dev:prepare && pnpm run dev:docus",
+    "dev:docus": "STUDIO_DEV_SERVER=http://localhost:5151 nuxi dev playground/docus",
+    "dev:minimal": "pnpm run dev:prepare && pnpm run dev:minimal:serve",
+    "dev:minimal:serve": "STUDIO_DEV_SERVER=http://localhost:5151 nuxt dev playground/minimal",
     "dev:app": "vite src/app --port 5151",
     "dev:docs": "nuxt dev docs",
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus && nuxi prepare docs",
@@ -51,6 +53,8 @@
     "ipx": "^3.1.1"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.0",
+    "@ai-sdk/google": "^3.0.0",
     "@ai-sdk/gateway": "^3.0.126",
     "@ai-sdk/vue": "^3.0.198",
     "@iconify-json/lucide": "^1.2.111",

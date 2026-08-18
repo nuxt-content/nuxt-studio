@@ -12,6 +12,14 @@ export default defineEventHandler((event) => {
 
   if (config.studio.ai) {
     config.studio.ai.apiKey = config.studio.ai.apiKey || process.env.AI_GATEWAY_API_KEY || ''
+    const aiConfig = config.studio.ai as typeof config.studio.ai & { geminiApiKey?: string, provider?: string, geminiModel?: string, geminiFastModel?: string, groqApiKey?: string, groqModel?: string, groqFastModel?: string }
+    aiConfig.geminiApiKey = aiConfig.geminiApiKey || process.env.GEMINI_API_KEY || process.env.NUXT_STUDIO_AI_GEMINI_API_KEY || ''
+    aiConfig.groqApiKey = aiConfig.groqApiKey || process.env.GROQ_API_KEY || ''
+    aiConfig.provider = aiConfig.provider || 'auto'
+    aiConfig.geminiModel = aiConfig.geminiModel || 'gemini-2.0-flash'
+    aiConfig.geminiFastModel = aiConfig.geminiFastModel || 'gemini-2.0-flash-lite'
+    aiConfig.groqModel = aiConfig.groqModel || 'llama-3.3-70b-versatile'
+    aiConfig.groqFastModel = aiConfig.groqFastModel || 'llama-3.1-8b-instant'
   }
 
   const github = config.studio.auth.github
@@ -53,12 +61,21 @@ export default defineEventHandler((event) => {
     config.studio.git.gitlabToken = config.studio.git.gitlabToken || process.env.STUDIO_GITLAB_TOKEN || ''
   }
 
-  if (config.studio.media && !config.studio.media.publicUrl) {
-    config.studio.media.publicUrl = process.env.S3_PUBLIC_URL || ''
+  if (config.studio.media) {
+    config.studio.media.publicUrl = config.studio.media.publicUrl || process.env.S3_PUBLIC_URL || process.env.CLOUDINARY_CLOUD_URL || ''
+    const mediaConfig = config.studio.media as typeof config.studio.media & { cloudinary?: { cloudName?: string, apiKey?: string, apiSecret?: string, folder?: string } }
+    mediaConfig.cloudinary = mediaConfig.cloudinary || {}
+    mediaConfig.cloudinary.cloudName = mediaConfig.cloudinary.cloudName || process.env.CLOUDINARY_CLOUD_NAME || ''
+    mediaConfig.cloudinary.apiKey = mediaConfig.cloudinary.apiKey || process.env.CLOUDINARY_API_KEY || ''
+    mediaConfig.cloudinary.apiSecret = mediaConfig.cloudinary.apiSecret || process.env.CLOUDINARY_API_SECRET || ''
+    mediaConfig.cloudinary.folder = mediaConfig.cloudinary.folder || process.env.CLOUDINARY_FOLDER || ''
   }
 
   if (config.public?.studio?.ai) {
-    config.public.studio.ai.enabled = Boolean(config.studio.ai?.apiKey)
+    const aiConfig = config.studio.ai as typeof config.studio.ai & { geminiApiKey?: string, groqApiKey?: string, provider?: string }
+    const publicAi = config.public.studio.ai as { enabled?: boolean, provider?: string }
+    publicAi.enabled = Boolean(aiConfig?.apiKey || aiConfig?.geminiApiKey || aiConfig?.groqApiKey)
+    publicAi.provider = aiConfig?.provider || 'auto'
   }
 
   if (ciRepository && config.public?.studio?.repository !== undefined) {
