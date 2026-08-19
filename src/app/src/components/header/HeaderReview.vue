@@ -7,6 +7,7 @@ import { StudioBranchActionId } from '../../types'
 import { useStudioState } from '../../composables/useStudioState'
 import { useI18n } from 'vue-i18n'
 import { useAI } from '../../composables/useAI'
+import { GITLAB_TOKEN_EXPIRED_ERROR_CODE, isGitLabTokenExpiredError } from '../../utils/providers/gitlab-errors'
 
 const router = useRouter()
 const { location } = useStudioState()
@@ -80,6 +81,16 @@ async function publishChanges() {
     await router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
   }
   catch (error) {
+    if (isGitLabTokenExpiredError(error)) {
+      await router.push({
+        path: '/error',
+        query: {
+          code: GITLAB_TOKEN_EXPIRED_ERROR_CODE,
+        },
+      })
+      return
+    }
+
     const err = error as Error
     await router.push({
       path: '/error',
