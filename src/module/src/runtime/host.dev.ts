@@ -36,8 +36,18 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
     const id = generateIdFromFsPath(fsPath, collectionInfo)
     const document = applyCollectionSchema(id, collectionInfo, upsertedDocument)
     const sanitizedDocument = sanitizeDocumentTree(document, collectionInfo)
-
     const content = await host.document.generate.contentFromDocument(sanitizedDocument)
+    const currentContent = await devStorage.getItem<string>(fsPath)
+    const renderedDocument = content === null
+      ? null
+      : await host.document.generate.documentFromContent(id, content)
+    const isDocumentUnchanged = typeof currentContent === 'string' && renderedDocument
+      ? await host.document.utils.isMatchingContent(currentContent, renderedDocument)
+      : false
+
+    if (isDocumentUnchanged) {
+      return
+    }
 
     await $fetch('/__nuxt_studio/dev/content/' + fsPath, {
       method: 'PUT',

@@ -6,6 +6,7 @@ import type { FormItem, FormTree } from '../../types'
 import type { ComponentMeta } from '../../types/editor'
 import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
 import type { ComarkElementAttributes } from 'comark'
+import { isEmpty } from '../object'
 
 const HIDDEN_PROPS = [
   'ui',
@@ -157,6 +158,49 @@ export function normalizeProps(nodeProps: Record<string, unknown>, extraProps: o
 
 export const stripBindingPrefix = (key: string): string => (key.startsWith(':') ? key.slice(1) : key)
 
+/**
+ * Convert component form values back to TipTap props while retaining the
+ * insertion order of props already present on the source node.
+ *
+ * @param formTree - Component form fields and their current values.
+ * @param sourceProps - Props from the TipTap node before the form update.
+ * @returns Props ready to pass to TipTap's `updateAttributes`.
+ */
+export function convertFormTreeToProps(formTree: FormTree, sourceProps: Record<string, unknown> = {}): Record<string, unknown> {
+  const formItems = Object.values(formTree)
+  const sourceItems = Object.keys(sourceProps).flatMap((sourceKey) => {
+    const normalizedSourceKey = kebabCase(stripBindingPrefix(sourceKey))
+    const item = formItems.find(item => item.key && kebabCase(stripBindingPrefix(item.key)) === normalizedSourceKey)
+
+    return item ? [item] : []
+  })
+  const sourceItemKeys = new Set(sourceItems.map(item => item.key))
+  const orderedItems = [
+    ...sourceItems,
+    ...formItems.filter(item => !sourceItemKeys.has(item.key)),
+  ]
+  const result: Record<string, unknown> = {}
+
+  for (const item of orderedItems) {
+    if (!item.key) continue
+
+    let value = item.value
+    if (item.key === 'rel' && value === 'Default value applied') {
+      value = 'nofollow,noopener,noreferrer'
+    }
+
+    if (['boolean', 'number'].includes(typeof value) || !isEmpty(value as Record<string, unknown>)) {
+      result[item.key] = typeof value === 'string' ? value : JSON.stringify(value)
+    }
+
+    if (item.default === value && !sourceItemKeys.has(item.key)) {
+      Reflect.deleteProperty(result, item.key)
+    }
+  }
+
+  return result
+}
+
 // Stored attrs may be kebab-cased while meta declares props in camelCase (e.g. `foo-bar` vs `fooBar`)
 const resolveNodePropValue = (nodeProps: Record<string, unknown>, key: string): unknown => {
   if (key in nodeProps) return nodeProps[key]
@@ -261,7 +305,8 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
 const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Record<string, unknown>, level = 0, parent?: FormItem): FormItem => {
   const key = prop.name
   const title = upperFirst(prop.name)
-  const defaultValue: string | boolean | number | object | unknown[] | null = prop.tags?.find(tag => tag.name === 'defaultValue')?.text || ''
+  const defaultValue: string | boolean | number | object | unknown[] | null
+    = prop.tags?.find(tag => tag.name === 'defaultValue')?.text ?? prop.default ?? ''
 
   const { type, options } = computeTypeAndOptions(componentId, key, prop, level)
 

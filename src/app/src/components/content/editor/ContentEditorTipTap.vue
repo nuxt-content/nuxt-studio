@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 import type { JSONContent } from '@tiptap/vue-3'
 import type { ComarkTree } from 'comark'
 import type { DraftItem, DatabasePageItem } from '../../../types'
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
 import { comarkToTiptap } from '../../../utils/tiptap/comarkToTiptap'
@@ -84,11 +84,12 @@ const currentComark = ref<ComarkTree>()
 const currentContent = ref<string>()
 
 let isConverting = false
+let isApplyingDocumentToEditor = false
 
 // TipTap to Markdown
 watch(tiptapJSON, async (json) => {
-  // Skip if already converting (prevents UEditor v-model from triggering multiple times)
-  if (isConverting) {
+  // Skip updates emitted while hydrating TipTap from the stored document.
+  if (isConverting || isApplyingDocumentToEditor) {
     return
   }
 
@@ -126,7 +127,10 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
   const newTiptapJSON = comarkToTiptap(comarkTree, { hasNuxtUI: hasNuxtUI.value })
 
   if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
+    isApplyingDocumentToEditor = true
     tiptapJSON.value = newTiptapJSON
+    await nextTick()
+    isApplyingDocumentToEditor = false
 
     if (debug.value && !currentComark.value) {
       const generatedContent = await host.document.generate.contentFromDocument(document.value!) || ''
