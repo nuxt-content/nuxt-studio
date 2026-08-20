@@ -3,9 +3,8 @@ import { ref, computed, unref, onMounted } from 'vue'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { PropType } from 'vue'
 import { pascalCase, titleCase, kebabCase, flatCase } from 'scule'
-import { buildFormTreeFromProps } from '../../utils/tiptap/props'
+import { buildFormTreeFromProps, convertFormTreeToProps } from '../../utils/tiptap/props'
 import { useStudio } from '../../composables/useStudio'
-import { isEmpty } from '../../utils/object'
 import type { ComponentMeta, FormTree } from '../../types'
 
 const props = defineProps({
@@ -65,33 +64,6 @@ const formTreeWithValues = computed(() => {
   }
 })
 
-// Convert form tree to props object for saving
-function convertTreeToPropsObject(tree: FormTree): Record<string, unknown> {
-  const result: Record<string, unknown> = {}
-
-  for (const key of Object.keys(tree)) {
-    const prop = tree[key]
-
-    // Handle special case for rel attribute
-    let value = prop.value
-    if (prop.key === 'rel' && value === 'Default value applied') {
-      value = 'nofollow,noopener,noreferrer'
-    }
-
-    // Only include non-empty values
-    if (['boolean', 'number'].includes(typeof value) || !isEmpty(value as Record<string, unknown>)) {
-      result[prop.key!] = typeof value === 'string' ? value : JSON.stringify(value)
-    }
-
-    // Remove if value equals default
-    if (prop.default === value && prop.key) {
-      Reflect.deleteProperty(result, prop.key)
-    }
-  }
-
-  return result
-}
-
 // Update a prop value (supports nested paths for objects)
 function updateFormTree(updatedTree: FormTree) {
   // Find what changed by comparing trees
@@ -114,7 +86,7 @@ function updateFormTree(updatedTree: FormTree) {
   }
 
   // Update props in editor
-  props.updateProps(convertTreeToPropsObject(formTree.value))
+  props.updateProps(convertFormTreeToProps(formTree.value, props.node.attrs.props))
 }
 
 function updatePropValue(key: string, updatedProp: FormTree[string], originalProp: FormTree[string]) {

@@ -2,7 +2,7 @@ import { expect, test, describe } from 'vitest'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { JSType } from 'untyped'
 import type { PropertyMeta } from 'vue-component-meta'
-import { buildAttrs, buildFormTreeFromProps, convertStringToArray, convertStringToValue, normalizeProps } from '../../../../src/utils/tiptap/props'
+import { buildAttrs, buildFormTreeFromProps, convertFormTreeToProps, convertStringToArray, convertStringToValue, normalizeProps } from '../../../../src/utils/tiptap/props'
 import { buttonPropsSchema, iconPropsSchema } from '../../../mocks/props'
 import type { ComponentMeta } from '../../../../src/types/component'
 
@@ -1333,6 +1333,59 @@ describe('props', () => {
       expect(formTree.fooBar).toMatchObject({ key: 'fooBar', value: 'foo bar value', custom: false })
       expect(formTree.bazQux).toMatchObject({ key: 'bazQux', value: 'baz qux value', custom: false })
       expect(formTree.quuxCorge).toMatchObject({ key: 'quuxCorge', value: 'quux corge value', custom: false })
+    })
+
+    test('preserves stored prop order and omits defaults declared by component meta', () => {
+      const props = [
+        { name: 'variant', type: 'string', schema: 'string', tags: [] },
+        { name: 'width', type: 'string', schema: 'string', tags: [] },
+        {
+          name: 'image',
+          type: 'MediaImage',
+          tags: [],
+          schema: {
+            kind: 'object',
+            type: 'MediaImage',
+            schema: {
+              src: { name: 'src', type: 'string', schema: 'string', tags: [] },
+              alt: { name: 'alt', type: 'string', schema: 'string', tags: [] },
+            },
+          },
+        },
+        { name: 'imagePosition', type: 'string', schema: 'string', tags: [] },
+        { name: 'imageSize', type: 'string', schema: 'string', tags: [], default: '"1/2"' },
+      ] as unknown as PropertyMeta[]
+      const sourceProps = {
+        image: { src: '/cat.png', alt: 'A cat' },
+        imagePosition: 'right',
+        variant: 'neutral',
+        width: 'wide',
+      }
+      const node = {
+        type: { name: 'element' },
+        attrs: {
+          tag: 'MediaSection',
+          props: sourceProps,
+        },
+      } as unknown as ProseMirrorNode
+
+      const formTree = buildFormTreeFromProps(node, createComponentMeta(props))
+      const convertedProps = convertFormTreeToProps(formTree, sourceProps)
+
+      expect(Object.keys(convertedProps)).toEqual([':image', 'imagePosition', 'variant', 'width'])
+      expect(convertedProps).not.toHaveProperty('imageSize')
+      expect(formTree.imageSize).toMatchObject({ value: '1/2', default: '1/2' })
+
+      const scalarFirstProps = convertFormTreeToProps(formTree, {
+        variant: 'neutral',
+        width: 'wide',
+        image: sourceProps.image,
+        imagePosition: 'right',
+      })
+      const explicitlyAuthoredDefault = convertFormTreeToProps(formTree, { ...sourceProps, imageSize: '1/2' })
+
+      expect(Object.keys(scalarFirstProps)).toEqual(['variant', 'width', ':image', 'imagePosition'])
+      expect(explicitlyAuthoredDefault).toHaveProperty('imageSize', '1/2')
     })
 
     // test('generate props for video component', () => {

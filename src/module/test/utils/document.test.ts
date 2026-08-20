@@ -414,6 +414,53 @@ Description`
     expect(result).toBe(true)
   })
 
+  it('should be true when nested object attributes are reordered by the legacy MDC parser', async () => {
+    const markdownContent = `::media-section
+---
+variant: neutral
+width: wide
+image:
+  src: /cat.png
+  alt: A cat
+imagePosition: right
+---
+#body
+Hello
+::
+`
+
+    const document = {
+      id: 'pages/index.md',
+      title: '',
+      body: {
+        type: 'minimark',
+        value: [[
+          'media-section',
+          {
+            ':image': '{"src":"/cat.png","alt":"A cat"}',
+            'imagePosition': 'right',
+            'variant': 'neutral',
+            'width': 'wide',
+          },
+          ['template', { 'v-slot:body': '' }, ['p', {}, 'Hello']],
+        ]],
+      },
+      description: '',
+      extension: 'md',
+      layout: null,
+      links: null,
+      meta: {},
+      navigation: true,
+      path: '/',
+      stem: 'index',
+      fsPath: 'index.md',
+    } as unknown as DatabaseItem
+
+    const result = await isDocumentMatchingContent(markdownContent, document)
+
+    expect(result).toBe(true)
+  })
+
   it('should be true when the source markdown marks the default slot explicitly', async () => {
     const markdownContent = `::card{orientation="horizontal"}\n#default\n  :::icon{name="rocket"}\n  :::\n\n#body\nSome text.\n::\n`
 
