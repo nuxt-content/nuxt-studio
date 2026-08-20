@@ -20,6 +20,52 @@ const changeCount = computed(() => {
 })
 const repositoryInfo = computed(() => gitProvider.api.getRepositoryInfo())
 
+const reviewRequestUrl = computed(() => {
+  const url = route.query.reviewRequestUrl
+  return typeof url === 'string' ? url : undefined
+})
+
+const reviewRequestKind = computed(() => {
+  const kind = route.query.reviewRequestKind
+  return kind === 'pull-request' || kind === 'merge-request' ? kind : undefined
+})
+
+const reviewRequestState = computed(() => {
+  const state = route.query.reviewRequestState
+  return state === 'created' || state === 'existing' ? state : undefined
+})
+
+const reviewRequestError = computed(() => {
+  const error = route.query.reviewRequestError
+  return typeof error === 'string' ? error : undefined
+})
+
+const commitUrl = computed(() => {
+  const url = route.query.commitUrl
+  return typeof url === 'string' ? url : undefined
+})
+
+const reviewRequestTitle = computed(() => {
+  if (!reviewRequestKind.value || !reviewRequestState.value) {
+    return ''
+  }
+
+  const kindKey = reviewRequestKind.value === 'pull-request' ? 'pullRequest' : 'mergeRequest'
+  const stateKey = reviewRequestState.value === 'created' ? 'created' : 'existing'
+
+  return t(`studio.publishSuccess.reviewRequest.${kindKey}.${stateKey}`)
+})
+
+const reviewRequestButtonLabel = computed(() => {
+  if (!reviewRequestKind.value) {
+    return ''
+  }
+
+  return reviewRequestKind.value === 'pull-request'
+    ? t('studio.publishSuccess.reviewRequest.openPullRequest')
+    : t('studio.publishSuccess.reviewRequest.openMergeRequest')
+})
+
 const alertDescription = computed(() => {
   if (isWaitingForDeployment.value) {
     return t('studio.publishSuccess.alertDescWaiting')
@@ -97,6 +143,48 @@ onMounted(() => {
           </template>
         </i18n-t>
       </div>
+
+      <UAlert
+        v-if="reviewRequestUrl"
+        icon="i-lucide-git-pull-request"
+        :title="reviewRequestTitle"
+        color="primary"
+        variant="soft"
+      >
+        <template #description>
+          <UButton
+            :label="reviewRequestButtonLabel"
+            icon="i-lucide-external-link"
+            :to="reviewRequestUrl"
+            variant="link"
+            target="_blank"
+            :padded="false"
+          />
+        </template>
+      </UAlert>
+
+      <UAlert
+        v-if="reviewRequestError"
+        icon="i-lucide-alert-triangle"
+        :title="$t('studio.publishSuccess.reviewRequest.failedTitle')"
+        color="warning"
+        variant="soft"
+      >
+        <template #description>
+          <div class="flex flex-col gap-2 items-start">
+            <p>{{ reviewRequestError }}</p>
+            <UButton
+              v-if="commitUrl"
+              :label="$t('studio.publishSuccess.reviewRequest.openCommit')"
+              icon="i-lucide-git-commit-horizontal"
+              :to="commitUrl"
+              variant="link"
+              target="_blank"
+              :padded="false"
+            />
+          </div>
+        </template>
+      </UAlert>
 
       <UAlert
         :icon="isWaitingForDeployment ? 'i-lucide-loader' : 'i-lucide-check'"

@@ -1,7 +1,7 @@
 import { ofetch } from 'ofetch'
 import { joinURL, withoutTrailingSlash } from 'ufo'
 import { consola } from 'consola'
-import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions } from '../../types'
+import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions, EnsureReviewRequestOptions, ReviewRequestResult } from '../../types'
 import { StudioFeature } from '../../types'
 import { DraftStatus } from '../../types/draft'
 
@@ -244,6 +244,93 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
     }
   }
 
+  async function findOpenPullRequest(headRef: string, base: string) {
+    const existingPulls = await $repositoryApi<Array<{
+      number: number
+      html_url: string
+      head: { ref: string }
+      base: { ref: string }
+    }>>('/pulls', {
+      query: {
+        state: 'open',
+        head: headRef,
+        base,
+      },
+    })
+
+    return existingPulls[0] ?? null
+  }
+
+  async function ensureReviewRequest({ title, head, base, body, commitUrl }: EnsureReviewRequestOptions): Promise<ReviewRequestResult | null> {
+    if (!token) {
+      return null
+    }
+
+    const headRef = `${owner}:${head}`
+    const existingPull = await findOpenPullRequest(headRef, base)
+
+    if (existingPull) {
+      return {
+        kind: 'pull-request',
+        state: 'existing',
+        url: existingPull.html_url,
+        head: existingPull.head.ref,
+        base: existingPull.base.ref,
+        number: existingPull.number,
+      }
+    }
+
+    const description = [
+      body,
+      commitUrl ? `Commit: ${commitUrl}` : undefined,
+      'Published via [Nuxt Studio](https://nuxt.studio/)',
+    ].filter(Boolean).join('\n\n')
+
+    try {
+      const createdPull = await $repositoryApi<{
+        number: number
+        html_url: string
+        head: { ref: string }
+        base: { ref: string }
+      }>('/pulls', {
+        method: 'POST',
+        body: JSON.stringify({
+          title,
+          head,
+          base,
+          body: description,
+        }),
+      })
+
+      return {
+        kind: 'pull-request',
+        state: 'created',
+        url: createdPull.html_url,
+        head: createdPull.head.ref,
+        base: createdPull.base.ref,
+        number: createdPull.number,
+      }
+    }
+    catch (error) {
+      if ((error as { status?: number }).status === 422) {
+        const racedPull = await findOpenPullRequest(headRef, base)
+
+        if (racedPull) {
+          return {
+            kind: 'pull-request',
+            state: 'existing',
+            url: racedPull.html_url,
+            head: racedPull.head.ref,
+            base: racedPull.base.ref,
+            number: racedPull.number,
+          }
+        }
+      }
+
+      throw error
+    }
+  }
+
   function getRepositoryUrl() {
     return `${instanceUrl}/${owner}/${repo}`
   }
@@ -274,6 +361,7 @@ export function createGitHubProvider(options: GitOptions): GitProviderAPI {
   return {
     fetchFile,
     commitFiles,
+    ensureReviewRequest,
     getRepositoryUrl,
     getBranchUrl,
     getCommitUrl,

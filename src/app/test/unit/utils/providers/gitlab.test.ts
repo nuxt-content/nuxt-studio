@@ -2,15 +2,36 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DraftStatus } from '../../../../src/types/draft'
 import { createGitLabProvider } from '../../../../src/utils/providers/gitlab'
 
-function createCommitsApiHandler() {
+function createCommitsApiHandler(options?: {
+  existingMergeRequest?: {
+    iid: number
+    web_url: string
+    source_branch: string
+    target_branch: string
+  } | null
+}) {
   return (
     request: string,
-    options?: { method?: string, body?: Record<string, unknown> },
+    requestOptions?: { method?: string, query?: Record<string, string>, body?: Record<string, unknown> },
   ) => {
-    if (request === '/repository/commits' && options?.method === 'POST') {
+    if (request === '/merge_requests' && !requestOptions?.method) {
+      return Promise.resolve(options?.existingMergeRequest ? [options.existingMergeRequest] : [])
+    }
+
+    if (request === '/merge_requests' && requestOptions?.method === 'POST') {
+      return Promise.resolve({
+        iid: 12,
+        web_url: 'https://gitlab.example.com/team-communication/numberly-2026/-/merge_requests/12',
+        source_branch: 'dev',
+        target_branch: 'main',
+      })
+    }
+
+    if (request === '/repository/commits' && requestOptions?.method === 'POST') {
       return Promise.resolve({ id: 'a1b2c3d4e5f6' })
     }
-    return Promise.reject(new Error(`Unexpected request: ${request} ${options?.method ?? ''}`))
+
+    return Promise.reject(new Error(`Unexpected request: ${request} ${requestOptions?.method ?? ''}`))
   }
 }
 
@@ -182,6 +203,97 @@ describe('createGitLabProvider / commitFiles', () => {
       [{ path: 'x.md', status: DraftStatus.Created, content: 'x', encoding: 'utf-8' }],
       'msg',
     )
+
+    expect(result).toBeNull()
+    expect(mock$api).not.toHaveBeenCalled()
+  })
+})
+
+describe('createGitLabProvider / ensureReviewRequest', () => {
+  const existingMergeRequest = {
+    iid: 7,
+    web_url: 'https://gitlab.example.com/team-communication/numberly-2026/-/merge_requests/7',
+    source_branch: 'dev',
+    target_branch: 'main',
+  }
+
+  beforeEach(() => {
+    mock$api.mockImplementation(createCommitsApiHandler())
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns an existing open merge request when one already exists', async () => {
+    mock$api.mockImplementation(createCommitsApiHandler({ existingMergeRequest }))
+
+    const provider = createGitLabProvider({ ...baseGitOptions })
+    const result = await provider.ensureReviewRequest({
+      title: 'content: update homepage',
+      head: 'dev',
+      base: 'main',
+      commitUrl: 'https://gitlab.example.com/team-communication/numberly-2026/-/commit/a1b2c3d4e5f6',
+    })
+
+    expect(result).toEqual({
+      kind: 'merge-request',
+      state: 'existing',
+      url: existingMergeRequest.web_url,
+      head: 'dev',
+      base: 'main',
+      iid: 7,
+    })
+
+    expect(mock$api).toHaveBeenCalledWith('/merge_requests', {
+      query: {
+        state: 'opened',
+        source_branch: 'dev',
+        target_branch: 'main',
+      },
+    })
+  })
+
+  it('creates a merge request when none exists', async () => {
+    const provider = createGitLabProvider({ ...baseGitOptions })
+    const result = await provider.ensureReviewRequest({
+      title: 'content: update homepage',
+      head: 'dev',
+      base: 'main',
+      commitUrl: 'https://gitlab.example.com/team-communication/numberly-2026/-/commit/a1b2c3d4e5f6',
+    })
+
+    expect(result).toEqual({
+      kind: 'merge-request',
+      state: 'created',
+      url: 'https://gitlab.example.com/team-communication/numberly-2026/-/merge_requests/12',
+      head: 'dev',
+      base: 'main',
+      iid: 12,
+    })
+
+    const [, requestInit] = mock$api.mock.calls.find(
+      ([request, options]) => request === '/merge_requests' && options?.method === 'POST',
+    ) as [string, { method: string, body: Record<string, unknown> }]
+
+    expect(requestInit.body).toMatchObject({
+      title: 'content: update homepage',
+      source_branch: 'dev',
+      target_branch: 'main',
+    })
+  })
+
+  it('does not call the API when token is missing', async () => {
+    const provider = createGitLabProvider({
+      ...baseGitOptions,
+      token: '',
+    })
+
+    const result = await provider.ensureReviewRequest({
+      title: 'content: update homepage',
+      head: 'dev',
+      base: 'main',
+    })
 
     expect(result).toBeNull()
     expect(mock$api).not.toHaveBeenCalled()
