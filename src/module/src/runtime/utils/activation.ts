@@ -33,14 +33,56 @@ export async function defineStudioActivationPlugin(onStudioActivation: (user: St
   else if (mounted) {
     window.location.reload()
   }
-  else {
-    // Listen to CMD + . to toggle the studio or redirect to the login page
-    document.addEventListener('keydown', (event) => {
-      if (event.metaKey && event.key === '.') {
-        setTimeout(() => {
-          window.location.href = config.route + '?redirect=' + encodeURIComponent(window.location.pathname)
-        })
+  else if (config.shortcut) {
+    const macOS = /Macintosh;/.test(navigator.userAgent)
+
+    const keySplit = config.shortcut.toLowerCase().split('_').map(k => k)
+    const key = keySplit.filter(k => !['meta', 'command', 'ctrl', 'shift', 'alt', 'option'].includes(k)).join('_')
+
+    let metaKey = keySplit.includes('meta') || keySplit.includes('command')
+    let ctrlKey = keySplit.includes('ctrl')
+    const shiftKey = keySplit.includes('shift')
+    const altKey = keySplit.includes('alt') || keySplit.includes('option')
+
+    // Convert Meta to Ctrl for non-MacOS
+    if (!macOS && metaKey && !ctrlKey) {
+      metaKey = false
+      ctrlKey = true
+    }
+
+    const shiftableKeys = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'tab', 'escape', 'enter', 'backspace']
+
+    document.addEventListener('keydown', (e) => {
+      if (!e.key) {
+        return
       }
+
+      if (e.key.toLowerCase() !== key) {
+        return
+      }
+      if (e.metaKey !== metaKey) {
+        return
+      }
+      if (e.ctrlKey !== ctrlKey) {
+        return
+      }
+      if (e.altKey !== altKey) {
+        return
+      }
+
+      // Shift modifier is checked for alphabet keys, shiftable keys, explicit shift shortcuts,
+      // or when shift is pressed alongside meta/ctrl (where shift doesn't transform the key value).
+      // Without meta/ctrl, shift changes the key itself (e.g. / -> ?) so the check is skipped.
+      const alphabetKey = /^[a-z]$/i.test(e.key)
+      const shiftableKey = shiftableKeys.includes(e.key.toLowerCase())
+      if ((alphabetKey || shiftableKey || shiftKey || (e.shiftKey && (e.metaKey || e.ctrlKey))) && e.shiftKey !== shiftKey) {
+        return
+      }
+
+      e.preventDefault()
+      setTimeout(() => {
+        window.location.href = config.route + '?redirect=' + encodeURIComponent(window.location.pathname)
+      })
     })
   }
 }
