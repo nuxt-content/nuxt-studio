@@ -48,6 +48,11 @@ function computeValue(formItem: FormItem): unknown {
       return typeof value === 'boolean' ? value : false
     case 'number':
       return typeof value === 'number' ? value : 0
+    case 'reference':
+      if (formItem.multiple) {
+        return Array.isArray(value) ? value : []
+      }
+      return typeof value === 'string' ? value : ''
     case 'array':
       return Array.isArray(value) ? value : []
     case 'object':
