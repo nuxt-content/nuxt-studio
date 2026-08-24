@@ -324,6 +324,155 @@ describe('buildFormTreeFromSchema', () => {
     })
   })
 
+  test('handle an array of relations', () => {
+    const schema = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/blog',
+      definitions: {
+        blog: {
+          type: 'object',
+          properties: {
+            authors: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              $content: {
+                editor: {
+                  input: 'relation',
+                  relation: {
+                    collection: 'people',
+                    labelField: 'name',
+                  },
+                },
+              },
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    } as unknown as Draft07
+
+    expect(buildFormTreeFromSchema('blog', schema)).toStrictEqual({
+      blog: {
+        id: '#blog',
+        type: 'object',
+        title: 'Blog',
+        children: {
+          authors: {
+            id: '#blog/authors',
+            type: 'array',
+            title: 'Authors',
+            arrayItemForm: {
+              id: '#authors/items',
+              type: 'relation',
+              title: 'Items',
+              relation: {
+                collection: 'people',
+                labelField: 'name',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  test('do not turn non-string array items into relations', () => {
+    const schema = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/blog',
+      definitions: {
+        blog: {
+          type: 'object',
+          properties: {
+            authors: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  slug: { type: 'string' },
+                },
+              },
+              $content: {
+                editor: {
+                  input: 'relation',
+                  relation: { collection: 'people' },
+                },
+              },
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    } as unknown as Draft07
+
+    const tree = buildFormTreeFromSchema('blog', schema)
+
+    expect(tree.blog.children!.authors.type).toBe('array')
+    expect(tree.blog.children!.authors.arrayItemForm!.type).toBe('object')
+    expect(tree.blog.children!.authors.arrayItemForm!.relation).toBeUndefined()
+  })
+
+  test('handle an array of relations nested past the object depth limit', () => {
+    const relationArray = {
+      type: 'array',
+      items: { type: 'string' },
+      $content: {
+        editor: {
+          input: 'relation',
+          relation: { collection: 'people' },
+        },
+      },
+    }
+
+    const schema = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/blog',
+      definitions: {
+        blog: {
+          type: 'object',
+          properties: {
+            a: {
+              type: 'object',
+              properties: {
+                b: {
+                  type: 'object',
+                  properties: {
+                    c: {
+                      type: 'object',
+                      properties: {
+                        authors: relationArray,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    } as unknown as Draft07
+
+    const deep = buildFormTreeFromSchema('blog', schema)
+      .blog.children!.a.children!.b.children!.c.children!.authors
+
+    // Without the fix the editor input would replace the array type itself,
+    // leaving the field with no item form to render
+    expect(deep.type).toBe('array')
+    expect(deep.relation).toBeUndefined()
+    expect(deep.arrayItemForm).toStrictEqual({
+      id: '#authors/items',
+      type: 'relation',
+      title: 'Items',
+      relation: { collection: 'people' },
+    })
+  })
+
   test('ignore relation options without a target collection', () => {
     const schema = {
       $schema: 'http://json-schema.org/draft-07/schema#',

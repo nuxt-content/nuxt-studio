@@ -11,6 +11,12 @@ const createDocsSchema = () => z.object({
     label: 'Author',
     description: 'Author of the page, picked from the authors collection',
   } as EditorOptions),
+  reviewers: property(z.array(z.string())).editor({
+    input: 'relation',
+    relation: { collection: 'authors', labelField: 'name' },
+    label: 'Reviewers',
+    description: 'Anyone who reviewed the page, picked from the authors collection',
+  } as EditorOptions),
   links: z.array(z.object({
     label: z.string(),
     icon: z.string(),

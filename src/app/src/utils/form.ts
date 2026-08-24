@@ -13,6 +13,21 @@ type StudioEditorOptions = Omit<EditorOptions, 'input'> & {
   relation?: RelationOptions
 }
 
+/**
+ * A relation declared on an array applies to each of its items: the editor
+ * option sits on the array, while the value holding the reference is the item.
+ *
+ * Only string items are converted, so an array of objects or numbers keeps the
+ * form it would have had without the option.
+ */
+function applyRelationToArrayItem(itemForm: FormItem, editor: StudioEditorOptions | undefined): FormItem {
+  if (editor?.input !== 'relation' || !editor.relation?.collection || itemForm.type !== 'string') {
+    return itemForm
+  }
+
+  return { ...itemForm, type: 'relation', relation: editor.relation }
+}
+
 export function formItemInputLabel(formItem: FormItem): string {
   const custom = formItem.label?.trim()
   if (custom) {
@@ -141,7 +156,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
           id,
           title: upperFirst(itemKey),
           type: 'array',
-          arrayItemForm: buildFormTreeItem(def.items, `#${itemKey}/items`)!,
+          arrayItemForm: applyRelationToArrayItem(buildFormTreeItem(def.items, `#${itemKey}/items`)!, editor),
           ...editorDisplayFromContent(def.$content),
         }
       }
@@ -174,17 +189,19 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
 
     // Else edit directly as the return type
     const editorType = editor?.input
+    // An array holding relations stays an array: the input describes its items
+    const isRelationArray = def.type === 'array' && !!def.items && editorType === 'relation'
     const type = def.type === 'string' && def.format?.includes('date') ? 'date' : editorType ?? def.type
 
     const item: FormItem = {
       id,
       title: upperFirst(itemKey),
-      type: editorType ?? type as never,
+      type: isRelationArray ? 'array' : editorType ?? type as never,
       ...editorDisplayFromContent(def.$content),
     }
 
-    if (type === 'array' && def.items) {
-      item.arrayItemForm = buildFormTreeItem(def.items, `#${itemKey}/items`)!
+    if ((type === 'array' || isRelationArray) && def.items) {
+      item.arrayItemForm = applyRelationToArrayItem(buildFormTreeItem(def.items, `#${itemKey}/items`)!, editor)
     }
 
     if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
@@ -195,8 +212,9 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
       item.options = editor.iconLibraries as string[]
     }
 
-    // Pass relation options from editor options for relation inputs
-    if (editor?.relation?.collection) {
+    // Pass relation options from editor options for relation inputs.
+    // On an array they belong to the item form, not to the array itself.
+    if (editor?.relation?.collection && !isRelationArray) {
       item.relation = editor.relation
     }
 
