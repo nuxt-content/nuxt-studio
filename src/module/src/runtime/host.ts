@@ -252,7 +252,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
 
           const id = generateIdFromFsPath(fsPath, collectionInfo)
 
-          // Convert ComarkTree body back to MarkdownRoot before storing in DB
+          // Convert MarkdownDocument body back to MarkdownRoot before storing in DB
           const body = (document as DatabaseItem).body
           const documentToStore = isComarkTree(body)
             ? { ...document, body: markdownRootFromComarkTree(body) as unknown }

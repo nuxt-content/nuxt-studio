@@ -6,7 +6,6 @@ settings:
 
 overrides:
   '@nuxt/content': ^3.14.0
-  comark: https://pkg.pr.new/comark@aba6281
   '@unhead/vue': 2.1.12
   minimark: ^0.2.0
   unimport: 5.6.0
@@ -36,8 +35,8 @@ importers:
         specifier: ^6.0.198
         version: 6.0.199(zod@4.4.3)
       comark:
-        specifier: https://pkg.pr.new/comark@aba6281
-        version: https://pkg.pr.new/comark@aba6281(shiki@4.2.0)
+        specifier: ^0.6.2
+        version: 0.6.2(shiki@4.2.0)
       defu:
         specifier: ^6.1.7
         version: 6.1.7
@@ -4841,9 +4840,8 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@https://pkg.pr.new/comark@aba6281:
-    resolution: {integrity: sha512-bwSghoe5oPA8JEm7DzbGhGyb7aAKvo2gnYTrWMpI6yozYh/ixNYhleyRS85eYxEkingUhG3vzr3Or61DnPlFnA==, tarball: https://pkg.pr.new/comark@aba6281}
-    version: 0.4.0
+  comark@0.4.0:
+    resolution: {integrity: sha512-s+wZc9FDgxJDxS3oLhDhthuc8EFggd7oEQaGKEFSw/UbECEwM3qMgW/T3dk6eoNTuy+PNSAyPQtjyKZJfudlbA==}
     peerDependencies:
       beautiful-mermaid: ^1.1.3
       katex: ^0.16.45
@@ -4852,6 +4850,23 @@ packages:
       beautiful-mermaid:
         optional: true
       katex:
+        optional: true
+      shiki:
+        optional: true
+
+  comark@0.6.2:
+    resolution: {integrity: sha512-hlWa7KlGPfRxovQavnHZlLlTUKrfwE7/o4ewCY0FzqFtRvVT8VdslrumQwELIiK9utsurpoSWCBFj1yVMtDOtw==}
+    peerDependencies:
+      beautiful-mermaid: ^1.1.3
+      katex: ^0.17.0
+      rangi: ^2.2.0
+      shiki: ^4.3.1
+    peerDependenciesMeta:
+      beautiful-mermaid:
+        optional: true
+      katex:
+        optional: true
+      rangi:
         optional: true
       shiki:
         optional: true
@@ -6311,6 +6326,10 @@ packages:
     resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
     hasBin: true
 
+  js-yaml@5.4.1:
+    resolution: {integrity: sha512-28R/k+NAjeuf7+CKlTxWZVExJGwVVLwY06DgEnOMz2gEpfNkDcD7QvyiVPT0xy0XXhU8vHsd4Ot42OOPdJG7dQ==}
+    hasBin: true
+
   jsdoc-type-pratt-parser@7.2.0:
     resolution: {integrity: sha512-dh140MMgjyg3JhJZY/+iEzW+NO5xR2gpbDFKHqotCmexElVntw7GjWjt511+C/Ef02RU5TKYrJo/Xlzk+OLaTw==}
     engines: {node: '>=20.0.0'}
@@ -6473,6 +6492,9 @@ packages:
   linkify-it@5.0.0:
     resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
 
+  linkify-it@5.0.2:
+    resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
+
   linkifyjs@4.3.3:
     resolution: {integrity: sha512-P8aEP5U/D1/IlTY2OeYsErdwh9bGuLE30NcXtKEjgdHcahveQoQwM2yZNsioQHsWFz0P7KKudisbrzCgR0sDHg==}
 
@@ -6571,6 +6593,9 @@ packages:
 
   markdown-exit@1.0.0-beta.9:
     resolution: {integrity: sha512-5tzrMKMF367amyBly131vm6eGuWRL2DjBqWaFmPzPbLyuxP0XOmyyyroOAIXuBAMF/3kZbbfqOxvW/SotqKqbQ==}
+
+  markdown-exit@1.1.0-beta.2:
+    resolution: {integrity: sha512-8CzMGVlFZ4DEfnc8KU+4ycUW2SIOuiXqCHD7z51ecVEi/weyc0f2ylQbCm4KoKuVlTZSuMUMnWT0hTyquZ7anQ==}
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
@@ -9590,7 +9615,7 @@ snapshots:
 
   '@comark/vue@0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))':
     dependencies:
-      comark: https://pkg.pr.new/comark@aba6281(shiki@4.2.0)
+      comark: 0.4.0(shiki@4.2.0)
       vue: 3.5.35(typescript@5.9.3)
     optionalDependencies:
       shiki: 4.2.0
@@ -14008,12 +14033,21 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@https://pkg.pr.new/comark@aba6281(shiki@4.2.0):
+  comark@0.4.0(shiki@4.2.0):
     dependencies:
       entities: 8.0.0
       htmlparser2: 12.0.0
       js-yaml: 4.2.0
       markdown-exit: 1.0.0-beta.9
+    optionalDependencies:
+      shiki: 4.2.0
+
+  comark@0.6.2(shiki@4.2.0):
+    dependencies:
+      entities: 8.0.0
+      htmlparser2: 12.0.0
+      js-yaml: 5.4.1
+      markdown-exit: 1.1.0-beta.2
     optionalDependencies:
       shiki: 4.2.0
 
@@ -15993,6 +16027,10 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
+  js-yaml@5.4.1:
+    dependencies:
+      argparse: 2.0.1
+
   jsdoc-type-pratt-parser@7.2.0: {}
 
   jsesc@3.1.0: {}
@@ -16123,6 +16161,10 @@ snapshots:
     dependencies:
       uc.micro: 2.1.0
 
+  linkify-it@5.0.2:
+    dependencies:
+      uc.micro: 2.1.0
+
   linkifyjs@4.3.3: {}
 
   listhen@1.10.0(srvx@0.11.16):
@@ -16242,6 +16284,16 @@ snapshots:
       '@types/mdurl': 2.0.0
       entities: 7.0.1
       linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
+
+  markdown-exit@1.1.0-beta.2:
+    dependencies:
+      '@types/linkify-it': 5.0.0
+      '@types/mdurl': 2.0.0
+      entities: 7.0.1
+      linkify-it: 5.0.2
       mdurl: 2.0.0
       punycode.js: 2.3.1
       uc.micro: 2.1.0

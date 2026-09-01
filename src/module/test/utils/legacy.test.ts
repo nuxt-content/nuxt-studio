@@ -4,7 +4,7 @@ import {
   markdownRootFromComarkTree,
 } from '../../src/runtime/utils/document/legacy'
 import { renderMarkdown } from 'comark/render'
-import type { ComarkTree } from 'comark'
+import type { MarkdownDocument } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { MDCRoot } from '@nuxtjs/mdc'
 
@@ -743,7 +743,7 @@ describe('mdc → comark `rel` stripping', () => {
   })
 })
 
-describe('roundtrip: legacy MDC → ComarkTree → legacy MDC', () => {
+describe('roundtrip: legacy MDC → MarkdownDocument → legacy MDC', () => {
   it('round-trips a template slot back into `v-slot:name=""` shape', () => {
     const original: MDCRoot = {
       type: 'root',
@@ -793,7 +793,7 @@ describe('roundtrip: legacy MDC → ComarkTree → legacy MDC', () => {
 
 describe('comark → mdc reverse helpers (used at DB write boundary)', () => {
   it('writes back a `template` slot as `v-slot:name=""`', () => {
-    const tree: ComarkTree = {
+    const tree: MarkdownDocument = {
       nodes: [['template', { name: 'title' }, 'Hello']],
       frontmatter: {},
       meta: {},
@@ -892,7 +892,7 @@ describe('comark → mdc reverse helpers (used at DB write boundary)', () => {
   })
 
   it('writes back `class` strings as `className` arrays', () => {
-    const tree: ComarkTree = {
+    const tree: MarkdownDocument = {
       nodes: [['span', { class: 'text-primary font-bold' }, 'Nuxt']],
       frontmatter: {},
       meta: {},

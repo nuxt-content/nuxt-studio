@@ -1,10 +1,10 @@
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
-import { parse } from 'comark'
+import { parseMarkdown } from 'comark'
 import comarkEmoji from 'comark/plugins/emoji'
 import tocPlugin from 'comark/plugins/toc'
-import type { ComarkTree } from 'comark'
+import type { MarkdownDocument } from 'comark'
 import highlight from 'comark/plugins/highlight'
 import { renderMarkdown } from 'comark/render'
 import destr from 'destr'
@@ -87,8 +87,8 @@ export async function documentFromJSONContent(id: string, content: string): Prom
   return document
 }
 
-export function isComarkTree(body: unknown): body is ComarkTree {
-  return typeof body === 'object' && body !== null && Array.isArray((body as ComarkTree).nodes)
+export function isComarkTree(body: unknown): body is MarkdownDocument {
+  return typeof body === 'object' && body !== null && Array.isArray((body as MarkdownDocument).nodes)
 }
 
 export async function documentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
@@ -101,7 +101,7 @@ export async function documentFromMarkdownContent(id: string, content: string, o
       }
     : { default: 'github-light', dark: 'github-dark' }
 
-  const tree = await parse(content, {
+  const tree = await parseMarkdown(content, {
     autoClose: false,
     autoUnwrap: true,
     linkify: false,

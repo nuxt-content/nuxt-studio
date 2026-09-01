@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
 import type { JSONContent } from '@tiptap/vue-3'
-import type { ComarkTree } from 'comark'
+import type { MarkdownDocument } from 'comark'
 
 const props = defineProps({
   currentTiptap: {
@@ -9,7 +9,7 @@ const props = defineProps({
     default: undefined,
   },
   currentComark: {
-    type: Object as PropType<ComarkTree | undefined>,
+    type: Object as PropType<MarkdownDocument | undefined>,
     default: undefined,
   },
   currentContent: {
@@ -60,7 +60,7 @@ const formattedCurrentComark = computed(() => props.currentComark ? JSON.stringi
         >{{ formattedCurrentTiptap || 'No data' }}</pre>
       </UCard>
 
-      <!-- Current ComarkTree -->
+      <!-- Current MarkdownDocument -->
       <UCard>
         <template #header>
           <div class="flex items-center justify-between">
