@@ -5,6 +5,26 @@ packages:
 
 overrides:
   "@nuxt/content": "^3.14.0"
+  "@tiptap/extension-blockquote": "3.26.0"
+  "@tiptap/extension-bold": "3.26.0"
+  "@tiptap/extension-bullet-list": "3.26.0"
+  "@tiptap/extension-code-block": "3.26.0"
+  "@tiptap/extension-document": "3.26.0"
+  "@tiptap/extension-dropcursor": "3.26.0"
+  "@tiptap/extension-gapcursor": "3.26.0"
+  "@tiptap/extension-hard-break": "3.26.0"
+  "@tiptap/extension-heading": "3.26.0"
+  "@tiptap/extension-italic": "3.26.0"
+  "@tiptap/extension-link": "3.26.0"
+  "@tiptap/extension-list-item": "3.26.0"
+  "@tiptap/extension-list-keymap": "3.26.0"
+  "@tiptap/extension-list": "3.26.0"
+  "@tiptap/extension-ordered-list": "3.26.0"
+  "@tiptap/extension-paragraph": "3.26.0"
+  "@tiptap/extension-strike": "3.26.0"
+  "@tiptap/extension-text": "3.26.0"
+  "@tiptap/extension-underline": "3.26.0"
+  "@tiptap/extensions": "3.26.0"
   "@unhead/vue": "2.1.12"
   "minimark": "^0.2.0"
   "unimport": "5.6.0"
@@ -12,7 +32,7 @@ overrides:
   "vite-plugin-inspect": "11.4.1"
   "vite-dev-rpc": "2.0.0"
   "vite-plugin-vue-tracer": "1.4.0"
-  "nuxtseo-shared": "5.2.5"
+  "nuxtseo-shared": "5.3.14"
 
 shamefullyHoist: true
 strictPeerDependencies: false

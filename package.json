@@ -70,7 +70,7 @@
   "devDependencies": {
     "@gitbeaker/core": "^43.8.0",
     "@iconify-json/simple-icons": "^1.2.86",
-    "@nuxt/content": "^3.14.0",
+    "@nuxt/content": "^3.16.0",
     "@nuxt/eslint-config": "^1.15.2",
     "@nuxt/kit": "^4.4.8",
     "@nuxt/module-builder": "^1.0.2",

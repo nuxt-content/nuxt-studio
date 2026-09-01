@@ -128,7 +128,7 @@ function moveItem(index: number, offset: number) {
           :open="activeIndex === item.index"
           :label="item.label"
           class="group/item"
-          @update:open="(open: boolean) => activeIndex = open ? item.index : null"
+          @update:open="(open?: boolean) => activeIndex = open ? item.index : null"
         >
           <template #actions>
             <UButton
