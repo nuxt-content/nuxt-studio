@@ -35,8 +35,8 @@ If anything matches, the PR is legacy.
 
 | Legacy (pre-#355) | Comark (current main) |
 |---|---|
-| `MDCRoot`, `MarkdownRoot` from `@nuxt/content` | `ComarkTree` from `comark` |
-| `MDCNode`, `MDCElement`, `MDCText`, `MDCComment` from `@nuxtjs/mdc` | `ComarkNode`, `ComarkElement`, `ComarkComment` from `comark` |
+| `MDCRoot`, `MarkdownRoot` from `@nuxt/content` | `MarkdownDocument` from `comark` |
+| `MDCNode`, `MDCElement`, `MDCText`, `MDCComment` from `@nuxtjs/mdc` | `MarkdownNode`, `ElementNode`, `CommentNode` from `comark` |
 | MDC element: `{ type: 'element', tag: 'note', props: {…}, children: [...] }` | Tuple: `['note', attrs, ...children]` |
 | MDC text: `{ type: 'text', value: 'hello' }` | Plain string: `'hello'` |
 | MDC comment: `{ type: 'comment', value: 'txt' }` | Tuple: `[null, {}, 'txt']` |
@@ -67,15 +67,15 @@ Located in `src/app/src/utils/tiptap/`:
 | `mdcToTiptap.ts` | `comarkToTiptap.ts` |
 | `tiptapToMdc.ts` | `tiptapToComark.ts` |
 | `mdcToTiptap(body, frontmatterData, opts)` | `comarkToTiptap(tree, opts)` — options collapsed to a single object; frontmatter is part of the tree |
-| `tiptapToMDC(json, opts) → { body, data }` | `tiptapToComark(json, opts) → ComarkTree` — returns one tree with `frontmatter` embedded |
+| `tiptapToMDC(json, opts) → { body, data }` | `tiptapToComark(json, opts) → MarkdownDocument` — returns one tree with `frontmatter` embedded |
 
 ### Parser / stringifier
 
 | Legacy | Comark |
 |---|---|
-| `import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'` | `import { parse } from 'comark'` |
+| `import { parseMarkdown } from '@nuxtjs/mdc/runtime/parser/index'` | `import { parseMarkdown } from 'comark'` |
 | `import { stringifyMarkdown } from '@nuxtjs/mdc/runtime'` | `import { renderMarkdown } from 'comark/render'` |
-| `parseFrontMatter` / `stringifyFrontMatter` from `remark-mdc` | `js-yaml` (`yaml.load` / `yaml.dump`) for pure YAML/JSON files; for Markdown, frontmatter is now embedded in `ComarkTree.frontmatter` |
+| `parseFrontMatter` / `stringifyFrontMatter` from `remark-mdc` | `js-yaml` (`yaml.load` / `yaml.dump`) for pure YAML/JSON files; for Markdown, frontmatter is now embedded in `MarkdownDocument.frontmatter` |
 | `compressTree` / `decompressTree` from `@nuxt/content/runtime` | No longer used in app code — see §4 "Legacy bridge" |
 | `visit` from `unist-util-visit` | Walk the tuple tree manually using the helpers from `src/app/src/utils/comark.ts` |
 
@@ -95,17 +95,17 @@ parseMarkdown(content, {
 })
 
 // Comark
-import { parse } from 'comark'
+import { parseMarkdown } from 'comark'
 import comarkEmoji from 'comark/plugins/emoji'
-import highlight from 'comark/plugins/highlight'
+import shiki from 'comark/plugins/shiki'
 import tocPlugin from 'comark/plugins/toc'
 
-parse(content, {
+parseMarkdown(content, {
   autoClose: false,
   autoUnwrap: true,
   plugins: [
     comarkEmoji(),
-    highlight({ themes: { default, dark, light } }),
+    shiki({ themes: { default, dark, light } }),
     tocPlugin({ depth: 2, searchDepth: 2, title: '', links: [] }),
   ],
 })
@@ -139,7 +139,7 @@ If the PR adds any of the removed runtime deps, drop them; if it uses one, swap 
 
 ## 3. Comark AST helpers
 
-When walking or building a `ComarkTree`, use the helpers in [`src/app/src/utils/comark.ts`](../../../Library/Mobile%20Documents/com~apple~CloudDocs/Documents/nuxt/modules/studio/src/app/src/utils/comark.ts):
+When walking or building a `MarkdownDocument`, use the helpers in [`src/app/src/utils/comark.ts`](../../../Library/Mobile%20Documents/com~apple~CloudDocs/Documents/nuxt/modules/studio/src/app/src/utils/comark.ts):
 
 ```ts
 import { isElement, isComment, getTag, getAttrs, getChildren } from '../../utils/comark'
@@ -171,7 +171,7 @@ visit(document.body, (node) => node.type === 'element' && node.tag === 'a', (nod
 })
 
 // Comark — manual recursion
-function walk(node: ComarkNode) {
+function walk(node: MarkdownNode) {
   if (isElement(node)) {
     if (getTag(node) === 'a') delete (node[1] as Record<string, unknown>).rel
     for (const child of getChildren(node)) walk(child)
@@ -196,7 +196,7 @@ const stored = isComarkTree(body)
   : body  // already MarkdownRoot
 ```
 
-This bridge is **temporary**. The header comment of `legacy.ts` lists the cleanup steps for when `@nuxt/content` ships native `ComarkTree` storage — do not extend it.
+This bridge is **temporary**. The header comment of `legacy.ts` lists the cleanup steps for when `@nuxt/content` ships native `MarkdownDocument` storage — do not extend it.
 
 ## 5. Editor component pattern
 
@@ -237,7 +237,7 @@ const updatedDocument = {
 
 Key points:
 
-- Frontmatter is **inside** the `ComarkTree`. There is no separate `data` return value.
+- Frontmatter is **inside** the `MarkdownDocument`. There is no separate `data` return value.
 - No manual `compressTree`, no manual `generateToc` — the tree carries everything.
 - `host.document.utils.areEqual` and `host.document.generate.contentFromDocument` are now async (the comark renderer is async).
 
@@ -268,7 +268,7 @@ Common files: `ContentEditorTipTap.vue`, `ContentEditorTipTapDebug.vue`, `useStu
 
 - **[[mdc-to-comark]]** — Project-wide migration from `@nuxtjs/mdc` to comark in arbitrary Nuxt projects (this skill is the Studio-specific PR-port flavour).
 - **[[comark]]** — Reference for the comark syntax, AST and renderers.
-- **[[nuxt-content-comark]]** — Migrating an entire Nuxt Content project's storage to `ComarkTree`.
+- **[[nuxt-content-comark]]** — Migrating an entire Nuxt Content project's storage to `MarkdownDocument`.
 
 ## 9. Checklist for Each Legacy PR Port
 
@@ -276,9 +276,9 @@ Common files: `ContentEditorTipTap.vue`, `ContentEditorTipTapDebug.vue`, `useStu
 - [ ] Map every legacy function call to its comark equivalent (§2)
 - [ ] DU conflicts: `git rm` the deleted files; reimplement intent in `comarkToTiptap.ts` / `tiptapToComark.ts`
 - [ ] UU conflicts: keep HEAD as base, translate incoming MDC calls to comark
-- [ ] Replace `parseMarkdown` / `stringifyMarkdown` with `parse` / `renderMarkdown` and update the plugin shape
+- [ ] Replace `parseMarkdown` / `stringifyMarkdown` (from `@nuxtjs/mdc`) with `parseMarkdown` / `renderMarkdown` (from `comark`) and update the plugin shape
 - [ ] Replace `visit(...)` walks with manual tuple walks using `isElement` / `getChildren` / `getAttrs`
-- [ ] Drop manual `compressTree` / `generateToc` / `decompressTree` calls in app code — `ComarkTree` carries this natively
+- [ ] Drop manual `compressTree` / `generateToc` / `decompressTree` calls in app code — `MarkdownDocument` carries this natively
 - [ ] Move frontmatter merging to `...comarkTree.frontmatter`
 - [ ] Treat `areEqual` and `contentFromDocument` as async at every call site
 - [ ] Remove `@nuxtjs/mdc`, `remark-mdc` (runtime), `unist-util-visit`, `minimark` (runtime) from added deps

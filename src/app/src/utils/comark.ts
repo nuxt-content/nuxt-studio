@@ -1,21 +1,21 @@
-import type { ComarkNode, ComarkElement, ComarkComment } from 'comark'
+import type { Node as MarkdownNode, ElementNode, CommentNode } from 'comark'
 
-export function isElement(node: ComarkNode): node is ComarkElement {
+export function isElement(node: MarkdownNode): node is ElementNode {
   return Array.isArray(node) && node[0] !== null
 }
 
-export function isComment(node: ComarkNode): node is ComarkComment {
+export function isComment(node: MarkdownNode): node is CommentNode {
   return Array.isArray(node) && node[0] === null
 }
 
-export function getTag(node: ComarkElement): string {
+export function getTag(node: ElementNode): string {
   return node[0] as string
 }
 
-export function getAttrs(node: ComarkElement): Record<string, unknown> {
+export function getAttrs(node: ElementNode): Record<string, unknown> {
   return (node[1] as Record<string, unknown>) || {}
 }
 
-export function getChildren(node: ComarkElement): ComarkNode[] {
-  return node.slice(2) as ComarkNode[]
+export function getChildren(node: ElementNode): MarkdownNode[] {
+  return node.slice(2) as MarkdownNode[]
 }

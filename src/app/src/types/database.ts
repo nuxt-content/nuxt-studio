@@ -1,5 +1,5 @@
 import type { CollectionItemBase, PageCollectionItemBase, DataCollectionItemBase } from '@nuxt/content'
-import type { ComarkTree } from 'comark'
+import type { MarkdownDocument } from 'comark'
 import type { BaseItem } from './item'
 
 export interface DatabaseItem extends CollectionItemBase, BaseItem {
@@ -8,7 +8,7 @@ export interface DatabaseItem extends CollectionItemBase, BaseItem {
 
 export interface DatabasePageItem extends Omit<PageCollectionItemBase, 'body' | 'excerpt'>, BaseItem {
   path: string
-  body: ComarkTree
+  body: MarkdownDocument
   [key: string]: unknown
 }
 

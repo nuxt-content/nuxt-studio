@@ -1,11 +1,11 @@
 import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nuxt-studio/app'
 import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
-import { parse } from 'comark'
+import { parseMarkdown } from 'comark'
 import comarkEmoji from 'comark/plugins/emoji'
 import tocPlugin from 'comark/plugins/toc'
-import type { ComarkTree } from 'comark'
-import highlight from 'comark/plugins/highlight'
+import type { MarkdownDocument } from 'comark'
+import shiki from 'comark/plugins/shiki'
 import { renderMarkdown } from 'comark/render'
 import destr from 'destr'
 import yaml from 'js-yaml'
@@ -87,8 +87,8 @@ export async function documentFromJSONContent(id: string, content: string): Prom
   return document
 }
 
-export function isComarkTree(body: unknown): body is ComarkTree {
-  return typeof body === 'object' && body !== null && Array.isArray((body as ComarkTree).nodes)
+export function isComarkTree(body: unknown): body is MarkdownDocument {
+  return typeof body === 'object' && body !== null && Array.isArray((body as MarkdownDocument).nodes)
 }
 
 export async function documentFromMarkdownContent(id: string, content: string, options: MarkdownParsingOptions = { compress: true }): Promise<DatabaseItem> {
@@ -101,13 +101,13 @@ export async function documentFromMarkdownContent(id: string, content: string, o
       }
     : { default: 'github-light', dark: 'github-dark' }
 
-  const tree = await parse(content, {
+  const tree = await parseMarkdown(content, {
     autoClose: false,
     autoUnwrap: true,
     linkify: false,
     plugins: [
       comarkEmoji(),
-      highlight({ themes }),
+      shiki({ themes }),
       tocPlugin({ depth: 2, searchDepth: 2, title: '', links: [] }),
     ],
   })
@@ -163,5 +163,5 @@ export async function contentFromMarkdownDocument(document: DatabaseItem): Promi
   const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
   })
-  return markdown.replace(/&#x2A;/g, '*') + '\n'
+  return markdown + '\n'
 }

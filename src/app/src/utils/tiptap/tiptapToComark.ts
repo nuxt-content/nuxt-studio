@@ -1,13 +1,13 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import Slugger from 'github-slugger'
-import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment, ComarkElementAttributes } from 'comark'
+import type { MarkdownDocument, Node as MarkdownNode, ElementNode, CommentNode, ElementNodeAttributes } from 'comark'
 import type { SyntaxHighlightTheme } from '../../types/content'
 import { getEmojiUnicode } from '../emoji'
 import { buildAttrs, cleanSpanProps, normalizeProps } from './props'
 import type { EditorState } from '@tiptap/pm/state'
-import { highlightCodeBlocks } from 'comark/plugins/highlight'
+import { highlightCodeBlocks } from 'comark/plugins/shiki'
 
-type TiptapToComarkMap = Record<string, (node: JSONContent) => ComarkNode | ComarkNode[]>
+type TiptapToComarkMap = Record<string, (node: JSONContent) => MarkdownNode | MarkdownNode[]>
 
 interface TiptapToComarkOptions {
   highlightTheme?: SyntaxHighlightTheme
@@ -28,7 +28,7 @@ const tiptapToComarkMap: TiptapToComarkMap = {
   'span-style': (node: JSONContent) => createElement(node, 'span', { props: cleanSpanProps(node.attrs as Record<string, unknown>) }),
   'link': createLinkElement,
   'text': createTextElement,
-  'comment': (node: JSONContent) => [null, {}, node.attrs!.text] as unknown as ComarkComment,
+  'comment': (node: JSONContent) => [null, {}, node.attrs!.text] as unknown as CommentNode,
   'listItem': createListItemElement,
   'slot': (node: JSONContent) => createElement(node, 'template', { props: { name: node.attrs?.name } }),
   'paragraph': (node: JSONContent) => createElement(node, 'p'),
@@ -47,7 +47,7 @@ const tiptapToComarkMap: TiptapToComarkMap = {
   'binding': (node: JSONContent) => {
     const defaultValue = (node.attrs as Record<string, unknown> | undefined)?.defaultValue as string
     const value = (node.attrs as Record<string, unknown> | undefined)?.value as string
-    return ['binding', { defaultValue, value }] as ComarkElement
+    return ['binding', { defaultValue, value }] as ElementNode
   },
   'hardBreak': (node: JSONContent) => createElement(node, 'br'),
   'u-callout': (node: JSONContent) => createCalloutElement(node),
@@ -59,37 +59,37 @@ const tiptapToComarkMap: TiptapToComarkMap = {
 
 let slugs = new Slugger()
 
-// ─── ComarkNode helper ────────────────────────────────────────────────────────
+// ─── MarkdownNode helper ────────────────────────────────────────────────────────
 
 /**
- * Convert an array of TipTap nodes to ComarkNodes without spreading ComarkElements.
+ * Convert an array of TipTap nodes to MarkdownNodes without spreading ElementNodes.
  *
- * `flatMap` cannot be used here because a ComarkElement is itself an array
+ * `flatMap` cannot be used here because an ElementNode is itself an array
  * (e.g. `['p', {}, 'text']`), so `flatMap` would spread its contents into the
  * parent array instead of keeping it as a single child node.
  *
  * We distinguish two cases by inspecting the second element of the result:
- *   - ComarkElement  → `[tag|null, Record, ...children]` — second element is a plain object
- *   - ComarkNode[]   → multiple nodes (prefix + element + suffix from createTextElement)
+ *   - ElementNode  → `[tag|null, Record, ...children]` — second element is a plain object
+ *   - MarkdownNode[]   → multiple nodes (prefix + element + suffix from createTextElement)
  *                       — second element is an array, string, or missing
  */
-function comarkNodesFromTiptap(items: JSONContent[]): ComarkNode[] {
-  return items.reduce((acc: ComarkNode[], n) => {
+function comarkNodesFromTiptap(items: JSONContent[]): MarkdownNode[] {
+  return items.reduce((acc: MarkdownNode[], n) => {
     const result = tiptapNodeToComark(n)
     if (Array.isArray(result)) {
       if (result.length >= 2 && typeof result[1] === 'object' && !Array.isArray(result[1])) {
-        acc.push(result as ComarkElement)
+        acc.push(result as ElementNode)
       }
       else {
         for (const node of result) {
           if (node !== null && node !== undefined) {
-            acc.push(node as ComarkNode)
+            acc.push(node as MarkdownNode)
           }
         }
       }
     }
     else if (result !== undefined && result !== null) {
-      acc.push(result as ComarkNode)
+      acc.push(result as MarkdownNode)
     }
     return acc
   }, [])
@@ -97,7 +97,7 @@ function comarkNodesFromTiptap(items: JSONContent[]): ComarkNode[] {
 
 // ─── Entry point ──────────────────────────────────────────────────────────────
 
-export async function tiptapToComark(node: JSONContent, options?: TiptapToComarkOptions): Promise<ComarkTree> {
+export async function tiptapToComark(node: JSONContent, options?: TiptapToComarkOptions): Promise<MarkdownDocument> {
   // Re-create slugs for fresh ID generation
   slugs = new Slugger()
 
@@ -118,9 +118,9 @@ export async function tiptapToComark(node: JSONContent, options?: TiptapToComark
     }
   }
 
-  const nodes = comarkNodesFromTiptap(nodeCopy.content || []).filter(Boolean) as ComarkNode[]
+  const nodes = comarkNodesFromTiptap(nodeCopy.content || []).filter(Boolean) as MarkdownNode[]
 
-  const tree: ComarkTree = {
+  const tree: MarkdownDocument = {
     nodes,
     frontmatter,
     meta: {},
@@ -131,10 +131,10 @@ export async function tiptapToComark(node: JSONContent, options?: TiptapToComark
   return tree
 }
 
-export function tiptapNodeToComark(node: JSONContent): ComarkNode | ComarkNode[] {
+export function tiptapNodeToComark(node: JSONContent): MarkdownNode | MarkdownNode[] {
   // New list items create an undefined node, so we need to handle it
   if (!node) {
-    return ['p', {}] as ComarkElement
+    return ['p', {}] as ElementNode
   }
 
   if (tiptapToComarkMap[node.type!]) {
@@ -142,21 +142,21 @@ export function tiptapNodeToComark(node: JSONContent): ComarkNode | ComarkNode[]
   }
 
   if (node.type === 'emoji') {
-    return getEmojiUnicode(node.attrs?.name || '') as ComarkNode
+    return getEmojiUnicode(node.attrs?.name || '') as MarkdownNode
   }
 
   // All unknown nodes become a paragraph with an error message
-  return ['p', {}, `--- Unknown node: ${node.type} ---`] as ComarkElement
+  return ['p', {}, `--- Unknown node: ${node.type} ---`] as ElementNode
 }
 
 /**
- * Serialize a portion of the TipTap document to a ComarkTree
+ * Serialize a portion of the TipTap document to a MarkdownDocument
  */
 export async function tiptapSliceToComark(
   state: EditorState,
   from: number,
   to: number,
-): Promise<ComarkTree> {
+): Promise<MarkdownDocument> {
   // Get the document slice
   const slice = state.doc.slice(from, to)
 
@@ -190,7 +190,7 @@ export function sameMark(markA: MarkInfo | null, markB: MarkInfo | null): boolea
 
 // ─── Element creation helpers ─────────────────────────────────────────────────
 
-function createElement(node: JSONContent, tag?: string, extra: unknown = {}): ComarkElement {
+function createElement(node: JSONContent, tag?: string, extra: unknown = {}): ElementNode {
   const { props = {}, ...rest } = extra as { props: object }
   let children = node.content || []
 
@@ -209,7 +209,7 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
   if (node.type === 'paragraph') {
     // Empty paragraph
     if (!children || children.length === 0) {
-      return ['p', {}] as ComarkElement
+      return ['p', {}] as ElementNode
     }
     // Create paragraph element
     return createParagraphElement(node, elementProps, rest)
@@ -219,12 +219,12 @@ function createElement(node: JSONContent, tag?: string, extra: unknown = {}): Co
   children = unwrapParagraph(children)
   children = wrapImageInParagraph(children)
 
-  const elementChildren = (node.children || comarkNodesFromTiptap(children)) as ComarkNode[]
+  const elementChildren = (node.children || comarkNodesFromTiptap(children)) as MarkdownNode[]
 
-  return [tag || node.attrs?.tag, elementProps, ...elementChildren] as ComarkElement
+  return [tag || node.attrs?.tag, elementProps, ...elementChildren] as ElementNode
 }
 
-function createParagraphElement(node: JSONContent, props: ComarkElementAttributes, _rest: object = {}): ComarkElement {
+function createParagraphElement(node: JSONContent, props: ElementNodeAttributes, _rest: object = {}): ElementNode {
   const blocks: Array<{ mark: MarkInfo | null, content: JSONContent[] }> = []
   let currentBlockContent: JSONContent[] = []
   let currentBlockMark: MarkInfo | null = null
@@ -256,7 +256,7 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
     blocks.push({ mark: currentBlockMark, content: currentBlockContent })
   }
 
-  const flatChildren: ComarkNode[] = []
+  const flatChildren: MarkdownNode[] = []
   for (const block of blocks) {
     if (block.content.length > 1 && block.mark && markToTag[block.mark.type]) {
       const blockMark = block.mark
@@ -267,7 +267,7 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
         }
       })
       const markAttrs = blockMark.attrs && Object.keys(blockMark.attrs).length > 0 ? blockMark.attrs : {}
-      flatChildren.push([markToTag[blockMark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ComarkElement)
+      flatChildren.push([markToTag[blockMark.type], markAttrs, ...comarkNodesFromTiptap(block.content)] as ElementNode)
     }
     else {
       flatChildren.push(...comarkNodesFromTiptap(block.content))
@@ -276,11 +276,11 @@ function createParagraphElement(node: JSONContent, props: ComarkElementAttribute
 
   const mergedChildren = mergeSiblingsWithSameTag(flatChildren, Object.values(markToTag))
 
-  return ['p', props, ...mergedChildren] as ComarkElement
+  return ['p', props, ...mergedChildren] as ElementNode
 }
 
-function createHeadingElement(node: JSONContent): ComarkElement {
-  const headingEl = createElement(node, `h${node.attrs?.level}`) as ComarkElement
+function createHeadingElement(node: JSONContent): ElementNode {
+  const headingEl = createElement(node, `h${node.attrs?.level}`) as ElementNode
   const [tag, attrs, ...children] = headingEl
 
   const id = slugs
@@ -289,39 +289,39 @@ function createHeadingElement(node: JSONContent): ComarkElement {
     .replace(/^-|-$/g, '')
     .replace(/^(\d)/, '_$1')
 
-  return [tag, { ...attrs as object, id }, ...children] as ComarkElement
+  return [tag, { ...attrs as object, id }, ...children] as ElementNode
 }
 
-function createCodeBlockElement(node: JSONContent): ComarkElement {
+function createCodeBlockElement(node: JSONContent): ElementNode {
   const code = node.attrs?.code || getNodeContent(node)
   const language = node.attrs?.language
   const filename = node.attrs?.filename
 
   // Any pre attr beyond language/filename (notably `code`) makes comark emit a `::pre{…}` wrapper, not a ``` fence.
-  const attrs: ComarkElementAttributes = {}
+  const attrs: ElementNodeAttributes = {}
   if (language) attrs.language = language
   if (filename) attrs.filename = filename
 
-  const codeChild: ComarkElement = ['code', { __ignoreMap: '' }, code as ComarkNode]
+  const codeChild: ElementNode = ['code', { __ignoreMap: '' }, code as MarkdownNode]
 
-  return ['pre', attrs, codeChild] as ComarkElement
+  return ['pre', attrs, codeChild] as ElementNode
 }
 
 // Boolean video attrs that comark serializes with a `:` prefix (e.g. `:controls: 'true'`).
 const VIDEO_BOOLEAN_ATTRS = new Set(['controls', 'autoplay', 'loop', 'muted'])
 
-function createImageElement(node: JSONContent): ComarkElement {
+function createImageElement(node: JSONContent): ElementNode {
   // Preserve the attr order TipTap stored
   const imageProps = buildAttrs(node.attrs?.props, {
     fallbacks: { src: node.attrs?.src, alt: node.attrs?.alt },
   })
   if (['nuxt-img', 'nuxt-picture'].includes(node.attrs?.tag)) {
-    return createElement(node, node.attrs?.tag, { props: imageProps }) as ComarkElement
+    return createElement(node, node.attrs?.tag, { props: imageProps }) as ElementNode
   }
-  return createElement(node, 'img', { props: imageProps }) as ComarkElement
+  return createElement(node, 'img', { props: imageProps }) as ElementNode
 }
 
-function createVideoElement(node: JSONContent): ComarkElement {
+function createVideoElement(node: JSONContent): ElementNode {
   // Preserve the attr order TipTap stored
   const videoProps = buildAttrs(node.attrs?.props, {
     transform: (key, value) => {
@@ -333,52 +333,52 @@ function createVideoElement(node: JSONContent): ComarkElement {
   })
 
   const children = comarkNodesFromTiptap(node.content || [])
-  return ['video', videoProps, ...children] as ComarkElement
+  return ['video', videoProps, ...children] as ElementNode
 }
 
-function createCalloutElement(node: JSONContent): ComarkElement {
+function createCalloutElement(node: JSONContent): ElementNode {
   // Support both new 'tag' attr and legacy 'type' attr for backward compatibility
   const tag = node.attrs?.tag || node.attrs?.type || 'note'
-  return createElement(node, tag) as ComarkElement
+  return createElement(node, tag) as ElementNode
 }
 
-function createTableElement(node: JSONContent): ComarkElement {
-  const headerRows: ComarkNode[] = []
-  const bodyRows: ComarkNode[] = []
+function createTableElement(node: JSONContent): ElementNode {
+  const headerRows: MarkdownNode[] = []
+  const bodyRows: MarkdownNode[] = []
 
   for (const row of (node.content || [])) {
     if (row.type !== 'tableRow') continue
     const firstCell = row.content?.[0]
     if (firstCell?.type === 'tableHeader') {
-      headerRows.push(tiptapNodeToComark(row) as ComarkNode)
+      headerRows.push(tiptapNodeToComark(row) as MarkdownNode)
     }
     else {
-      bodyRows.push(tiptapNodeToComark(row) as ComarkNode)
+      bodyRows.push(tiptapNodeToComark(row) as MarkdownNode)
     }
   }
 
-  const children: ComarkNode[] = []
+  const children: MarkdownNode[] = []
   if (headerRows.length > 0) {
-    children.push(['thead', {}, ...headerRows] as ComarkElement)
+    children.push(['thead', {}, ...headerRows] as ElementNode)
   }
   if (bodyRows.length > 0) {
-    children.push(['tbody', {}, ...bodyRows] as ComarkElement)
+    children.push(['tbody', {}, ...bodyRows] as ElementNode)
   }
 
-  return ['table', {}, ...children] as ComarkElement
+  return ['table', {}, ...children] as ElementNode
 }
 
-function createTableCellElement(node: JSONContent, tag: 'th' | 'td'): ComarkElement {
+function createTableCellElement(node: JSONContent, tag: 'th' | 'td'): ElementNode {
   const content = comarkNodesFromTiptap(node.content || [])
   // Unwrap single paragraph wrapper (reverses the wrapping done in comarkToTiptap)
-  if (content.length === 1 && Array.isArray(content[0]) && (content[0] as ComarkElement)[0] === 'p') {
-    const pChildren = (content[0] as ComarkElement).slice(2) as ComarkNode[]
-    return [tag, {}, ...pChildren] as ComarkElement
+  if (content.length === 1 && Array.isArray(content[0]) && (content[0] as ElementNode)[0] === 'p') {
+    const pChildren = (content[0] as ElementNode).slice(2) as MarkdownNode[]
+    return [tag, {}, ...pChildren] as ElementNode
   }
-  return [tag, {}, ...content] as ComarkElement
+  return [tag, {}, ...content] as ElementNode
 }
 
-function createLinkElement(node: JSONContent): ComarkElement {
+function createLinkElement(node: JSONContent): ElementNode {
   // Preserve the attr order TipTap stored
   const linkProps = buildAttrs(node.attrs, {
     transform: (key, value) => {
@@ -387,19 +387,19 @@ function createLinkElement(node: JSONContent): ComarkElement {
       return [key, value]
     },
   })
-  const children = (node.children || []) as ComarkNode[]
-  return ['a', linkProps, ...children] as ComarkElement
+  const children = (node.children || []) as MarkdownNode[]
+  return ['a', linkProps, ...children] as ElementNode
 }
 
 /**
- * Renders a ComarkNode to an inline markdown string.
+ * Renders a MarkdownNode to an inline markdown string.
  * Used to pre-render nested marks inside `del` nodes, because the comark library's
  * `del` handler uses textContent() which strips all nested markup.
  */
-function renderComarkNodeToInline(node: ComarkNode): string {
+function renderComarkNodeToInline(node: MarkdownNode): string {
   if (typeof node === 'string') return node
   if (!Array.isArray(node)) return ''
-  const [tag, attrs, ...children] = node as ComarkElement
+  const [tag, attrs, ...children] = node as ElementNode
   if (tag === null) return ''
   const inner = children.map(renderComarkNodeToInline).join('')
   switch (tag) {
@@ -415,13 +415,13 @@ function renderComarkNodeToInline(node: ComarkNode): string {
   }
 }
 
-function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
+function createTextElement(node: JSONContent): MarkdownNode | MarkdownNode[] {
   const prefix = node.text?.match(/^\s+/)?.[0] || ''
   const suffix = node.text?.match(/\s+$/)?.[0] || ''
   const text = node.text?.trim() || ''
 
   if (!node.marks?.length) {
-    return node.text! as ComarkNode
+    return node.text! as MarkdownNode
   }
 
   // code must be innermost — comark's textContent() strips nested markup when handling it.
@@ -432,7 +432,7 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
     return 0
   })
 
-  const res = orderedMarks.reduce((acc: ComarkNode, mark: Record<string, unknown>) => {
+  const res = orderedMarks.reduce((acc: MarkdownNode, mark: Record<string, unknown>) => {
     const markAttrs = (mark.attrs as Record<string, unknown>) || {}
     if (mark.type === 'link') {
       // Preserve the attr order the link mark was authored in. TipTap auto-injects
@@ -446,13 +446,13 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
           return [key, String(value)]
         },
       })
-      return ['a', linkAttrs, acc] as ComarkElement
+      return ['a', linkAttrs, acc] as ElementNode
     }
     const markTag = markToTag[mark.type as string]
     if (markTag) {
       // del handler in comark uses textContent() which strips nested markup — pre-render to inline markdown
       if (markTag === 'del' && Array.isArray(acc)) {
-        return ['del', {}, renderComarkNodeToInline(acc as ComarkElement)] as ComarkElement
+        return ['del', {}, renderComarkNodeToInline(acc as ElementNode)] as ElementNode
       }
       // code marks: convert 'language' back to 'lang' (comark's inline code attribute name)
       if (markTag === 'code') {
@@ -460,22 +460,22 @@ function createTextElement(node: JSONContent): ComarkNode | ComarkNode[] {
         if ((markAttrs as Record<string, unknown>).language) {
           codeAttrs.lang = (markAttrs as Record<string, unknown>).language
         }
-        return ['code', codeAttrs, acc] as ComarkElement
+        return ['code', codeAttrs, acc] as ElementNode
       }
       const elementAttrs = Object.keys(markAttrs).length > 0 ? markAttrs : {}
-      return [markTag, elementAttrs, acc] as ComarkElement
+      return [markTag, elementAttrs, acc] as ElementNode
     }
     return acc
-  }, text as ComarkNode)
+  }, text as MarkdownNode)
 
   return [
-    prefix ? prefix as ComarkNode : null,
+    prefix ? prefix as MarkdownNode : null,
     res,
-    suffix ? suffix as ComarkNode : null,
-  ].filter(Boolean) as ComarkNode[]
+    suffix ? suffix as MarkdownNode : null,
+  ].filter(Boolean) as MarkdownNode[]
 }
 
-function createListItemElement(node: JSONContent): ComarkElement {
+function createListItemElement(node: JSONContent): ElementNode {
   // Remove paragraph children
   node.content = (node.content || []).flatMap((child: JSONContent) => {
     if (child.type === 'paragraph') {
@@ -484,20 +484,20 @@ function createListItemElement(node: JSONContent): ComarkElement {
 
     return child
   })
-  return createElement(node, 'li') as ComarkElement
+  return createElement(node, 'li') as ElementNode
 }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
-async function applyShikiSyntaxHighlighting(tree: ComarkTree, theme: SyntaxHighlightTheme = { default: 'github-light', dark: 'github-dark' }) {
+async function applyShikiSyntaxHighlighting(tree: MarkdownDocument, theme: SyntaxHighlightTheme = { default: 'github-light', dark: 'github-dark' }) {
   // Clean all style element nodes before applying syntax highlighting
   tree.nodes = tree.nodes.filter((node) => {
     if (!Array.isArray(node) || node[0] === null) return true
-    return (node as ComarkElement)[0] !== 'style'
+    return (node as ElementNode)[0] !== 'style'
   })
 
   // Only invoke Shiki when there are actual code blocks to process
-  const hasCodeBlocks = tree.nodes.some(node => Array.isArray(node) && (node as ComarkElement)[0] === 'pre')
+  const hasCodeBlocks = tree.nodes.some(node => Array.isArray(node) && (node as ElementNode)[0] === 'pre')
   if (!hasCodeBlocks) return
 
   const themes: Record<string, string> = {
@@ -547,19 +547,19 @@ function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
 /**
  * Merge adjacent children with the same tag if separated by a single space text node
  */
-function mergeSiblingsWithSameTag(children: ComarkNode[], allowedTags: string[]): ComarkNode[] {
+function mergeSiblingsWithSameTag(children: MarkdownNode[], allowedTags: string[]): MarkdownNode[] {
   if (!Array.isArray(children)) return children
-  const merged: ComarkNode[] = []
+  const merged: MarkdownNode[] = []
   let i = 0
   while (i < children.length) {
     const current = children[i]
     const next = children[i + 1]
     const afterNext = children[i + 2]
 
-    const isEl = (n: ComarkNode) => Array.isArray(n) && n[0] !== null
-    const elTag = (n: ComarkNode) => (n as ComarkElement)[0] as string
-    const elAttrs = (n: ComarkNode) => (n as ComarkElement)[1] as Record<string, unknown>
-    const elChildren = (n: ComarkNode) => (n as ComarkElement).slice(2) as ComarkNode[]
+    const isEl = (n: MarkdownNode) => Array.isArray(n) && n[0] !== null
+    const elTag = (n: MarkdownNode) => (n as ElementNode)[0] as string
+    const elAttrs = (n: MarkdownNode) => (n as ElementNode)[1] as Record<string, unknown>
+    const elChildren = (n: MarkdownNode) => (n as ElementNode).slice(2) as MarkdownNode[]
 
     if (
       current && afterNext
@@ -573,9 +573,9 @@ function mergeSiblingsWithSameTag(children: ComarkNode[], allowedTags: string[])
         elTag(current),
         elAttrs(current),
         ...elChildren(current),
-        ' ' as ComarkNode,
+        ' ' as MarkdownNode,
         ...elChildren(afterNext),
-      ] as ComarkElement)
+      ] as ElementNode)
       i += 3
     }
     else {

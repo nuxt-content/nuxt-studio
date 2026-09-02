@@ -56,7 +56,7 @@ studio/
 
 - **Nuxt 3**: Core framework
 - **Nuxt Content**: Content management layer (peer dependency)
-- **comark**: MDC (Markdown Components) parsing and rendering — produces a compact array-based `ComarkTree` AST
+- **comark**: MDC (Markdown Components) parsing and rendering — produces a compact array-based `MarkdownDocument` AST
 - **TipTap**: Visual WYSIWYG editor
 - **Monaco Editor**: Code editor
 - **Vue Router**: SPA routing inside Studio
@@ -232,9 +232,9 @@ description: 'meta description of the page'
 
 **Tiptap editor**
 - Can edit Markdown files with MDC syntax
-- TipTap AST is converted to/from `ComarkTree` (via `comarkToTiptap.ts` / `tiptapToComark.ts`) and stored in the SQLite database
+- TipTap AST is converted to/from `MarkdownDocument` (via `comarkToTiptap.ts` / `tiptapToComark.ts`) and stored in the SQLite database
 - If we want to display raw markdown of a file, we can use the `generateContentFromDocument` function to get the raw markdown (ie. preview page or monaco editor)
-- If we want to generate a `ComarkTree` from raw markdown, we can use the `generateDocumentFromMarkdownContent` function
+- If we want to generate a `MarkdownDocument` from raw markdown, we can use the `generateDocumentFromMarkdownContent` function
 
 **Form editor**
 - Can edit YAML files
@@ -504,7 +504,7 @@ This ensures AI never generates headings when you're writing paragraphs, or full
 
 **In production mode:**
 - Exisiting db files is stored in SQLite browser side database by Nuxt Content. It's loaded by a dump file.
-- Markdown files are stored as `ComarkTree` (the array-based AST produced by the comark parser)
+- Markdown files are stored as `MarkdownDocument` (the array-based AST produced by the comark parser)
 - YAML and JSON files are stored as pure json
 - Drafts files and meta are stored client-side in IndexedDB
 - Drafts files content is merged with the existing db files in the browser before being rendered => app is rerendered with updated content in db => this is the preview you see in the browser
@@ -519,16 +519,16 @@ A single piece of content exists in several distinct forms as it flows from disk
 | # | Name | What it is | Where it lives | Who transforms it |
 |---|------|-----------|----------------|-------------------|
 | **A** | **Raw file on disk** | Plain text exactly as the user authored it | Git remote (fetched via GitHub/GitLab API), or local filesystem in dev mode | Nobody — just bytes |
-| **B** | **Stored ComarkTree (`original.body`)** — *today* | The AST `@nuxt/content` built at SQLite-build time, then bridged to ComarkTree on read | Browser SQLite (loaded from the dump), then in-memory under `draftItem.original` | `comarkTreeFromLegacyDocument` → `mdcToComark` → `propsMDCToComark` |
-| **B bis** | **Stored ComarkTree (`original.body`)** — *future, post-comark-native `@nuxt/content`* | The same immutable "as-stored" snapshot — but built directly by comark at @nuxt/content build time, no MDC bridge in between | Browser SQLite, then in-memory under `draftItem.original` (same shape as what was stored) | None at runtime — Studio just reads it. The upstream `comark.parse` ran once at build time and the result was stored as-is. The whole `legacy.ts` bridge file can be deleted at that point. |
+| **B** | **Stored MarkdownDocument (`original.body`)** — *today* | The AST `@nuxt/content` built at SQLite-build time, then bridged to MarkdownDocument on read | Browser SQLite (loaded from the dump), then in-memory under `draftItem.original` | `comarkTreeFromLegacyDocument` → `mdcToComark` → `propsMDCToComark` |
+| **B bis** | **Stored MarkdownDocument (`original.body`)** — *future, post-comark-native `@nuxt/content`* | The same immutable "as-stored" snapshot — but built directly by comark at @nuxt/content build time, no MDC bridge in between | Browser SQLite, then in-memory under `draftItem.original` (same shape as what was stored) | None at runtime — Studio just reads it. The upstream `comark.parseMarkdown` ran once at build time and the result was stored as-is. The whole `legacy.ts` bridge file can be deleted at that point. |
 | **C** | **TipTap document JSON** | Editor-internal representation of the same content | TipTap editor state, in memory only | `comarkToTiptap(original.body)` on mount; lives as long as the editor is open |
-| **D** | **Edited ComarkTree (`modified.body`)** | Result of bouncing state C back through `tiptapToComark` after every editor `onUpdate` (which fires even on harmless normalizations like wrapping inline nodes) | In-memory `draftItem.modified`; persisted to IndexedDB as the draft | `tiptapToComark` → `createElement` / `createVideoElement` / `createImageElement` / `createLinkElement` / link-mark branch in `createTextElement` — all use `buildAttrs` to preserve incoming attr order, no hardcoded reordering |
-| **E** | **Rendered markdown string** | Any ComarkTree (B or D) serialized back to text via `contentFromMarkdownDocument` → comark `renderMarkdown` | Computed on demand by `host.document.generate.contentFromDocument` | Pure render; comark preserves insertion order — no Studio-imposed sort |
+| **D** | **Edited MarkdownDocument (`modified.body`)** | Result of bouncing state C back through `tiptapToComark` after every editor `onUpdate` (which fires even on harmless normalizations like wrapping inline nodes) | In-memory `draftItem.modified`; persisted to IndexedDB as the draft | `tiptapToComark` → `createElement` / `createVideoElement` / `createImageElement` / `createLinkElement` / link-mark branch in `createTextElement` — all use `buildAttrs` to preserve incoming attr order, no hardcoded reordering |
+| **E** | **Rendered markdown string** | Any MarkdownDocument (B or D) serialized back to text via `contentFromMarkdownDocument` → comark `renderMarkdown` | Computed on demand by `host.document.generate.contentFromDocument` | Pure render; comark preserves insertion order — no Studio-imposed sort |
 
 **Mapping to UI surfaces:**
 
 - **TipTap editor** — shows state **C** rendered visually. v-models on `modified`, so anything you type updates **D**.
-- **Monaco code editor** — shows **E(D)** (the round-tripped string of the current draft). Edits parse back via `documentFromContent` (comark.parse) into a fresh **D**.
+- **Monaco code editor** — shows **E(D)** (the round-tripped string of the current draft). Edits parse back via `documentFromContent` (comark.parseMarkdown) into a fresh **D**.
 - **MDC formatting banner** ([ContentEditor.vue](src/app/src/components/content/editor/ContentEditor.vue) + [ContentEditorDiff](src/app/src/components/content/editor/ContentEditorDiff.vue)) — left pane = **A** (raw remote file), right pane = **E(B)** (round-trip of `original`). Fires when `A !== E(B)`.
 - **Review card** ([ContentCardReview](src/app/src/components/content/ContentCardReview.vue)) — for `Updated` drafts, left = **A**, right = **E(D)**. For `Created`/`Deleted` it falls back to a single-pane monaco of whichever side exists.
 - **Conflict editor** ([ContentEditorConflict](src/app/src/components/content/editor/ContentEditorConflict.vue)) — shown via `draft.checkConflict` when the remote moved on while a draft existed locally. Left = **E(B)**, right = **A** (re-fetched).
@@ -545,7 +545,7 @@ When triaging any new version-mismatch bug, ask: *which two states are we compar
 
 Comark's render is **not** a byte-perfect round-trip of the input — it normalizes MDC syntax to a canonical form defined by the [comark SPEC](https://github.com/comarkdown/comark/tree/main/packages/comark/SPEC). 
 
-These are intentional. A file authored loosely (4 inline props, wrong colon depth, …) goes through `comark.parse → renderMarkdown` and comes out as canonical comark. That difference between A and E(B) is exactly what the **MDC formatting banner** is for.
+These are intentional. A file authored loosely (4 inline props, wrong colon depth, …) goes through `comark.parseMarkdown → renderMarkdown` and comes out as canonical comark. That difference between A and E(B) is exactly what the **MDC formatting banner** is for.
 
 ### Conflict detection vs. formatting drift — the distinction
 
@@ -578,15 +578,15 @@ Studio uses `nuxt-component-meta` to:
 #### comark
 
 Studio uses `comark` to:
-- Parse MDC/Markdown content into a `ComarkTree` — a compact array-based AST: `[tag, attrs, ...children]`
-- Render a `ComarkTree` back to raw markdown (via `renderMarkdown` from `comark/render`)
+- Parse MDC/Markdown content into a `MarkdownDocument` — a compact array-based AST: `[tag, attrs, ...children]`
+- Render a `MarkdownDocument` back to raw markdown (via `renderMarkdown` from `comark/render`)
 - Apply plugins during parsing: emoji, syntax highlighting (shiki themes), and table of contents
 
 **Key files:**
 - `src/module/src/runtime/utils/document/generate.ts` — parses markdown files server-side with `parse()` from comark
-- `src/app/src/utils/tiptap/comarkToTiptap.ts` / `tiptapToComark.ts` — convert between ComarkTree and TipTap JSON in the visual editor
-- `src/app/src/utils/comark.ts` — helpers to traverse ComarkTree nodes (`isElement`, `getTag`, `getAttrs`, `getChildren`)
-- `src/module/src/runtime/utils/document/legacy.ts` — backward-compatible conversion layer between the old `MarkdownRoot` format (produced by `@nuxtjs/mdc`) and the new `ComarkTree`, allowing Nuxt Content to continue storing documents in its existing format until it natively supports ComarkTree
+- `src/app/src/utils/tiptap/comarkToTiptap.ts` / `tiptapToComark.ts` — convert between MarkdownDocument and TipTap JSON in the visual editor
+- `src/app/src/utils/comark.ts` — helpers to traverse MarkdownDocument nodes (`isElement`, `getTag`, `getAttrs`, `getChildren`)
+- `src/module/src/runtime/utils/document/legacy.ts` — backward-compatible conversion layer between the old `MarkdownRoot` format (produced by `@nuxtjs/mdc`) and the new `MarkdownDocument`, allowing Nuxt Content to continue storing documents in its existing format until it natively supports MarkdownDocument
 
 #### shiki
 
@@ -651,7 +651,7 @@ When adding a new node type to `src/app/src/utils/tiptap/tiptapToComark.ts` (e.g
 
 **Required**:
 - `@nuxt/content` - Content layer (peer dependency)
-- `comark` - MDC parsing/rendering (produces `ComarkTree` AST)
+- `comark` - MDC parsing/rendering (produces `MarkdownDocument` AST)
 
 **Core**:
 - `unstorage` - Storage abstraction
@@ -665,12 +665,6 @@ When adding a new node type to `src/app/src/utils/tiptap/tiptapToComark.ts` (e.g
 **Git Providers**:
 - `@octokit/types` - GitHub API
 - `@gitbeaker/core` - GitLab API
-
-### Patched dependencies (`patches/`)
-
-Studio carries a pnpm patch (`patches/@nuxtjs__mdc@<version>.patch`, registered in `pnpm-workspace.yaml` under `patchedDependencies`) that **removes `rehype-sort-attribute-values` and `rehype-sort-attributes` from `@nuxtjs/mdc`'s default rehype pipeline**. Without this patch, every MDC component's attrs would be sorted alphabetically at parse time — silently reshuffling the author's intent and forcing the formatting banner to fire on every file open whose attrs aren't already in alphabetical order.
-
-When bumping the `@nuxtjs/mdc` version, the patch will likely need to be re-created (`pnpm patch @nuxtjs/mdc@<new-version>`, drop the same two plugins in `dist/runtime/parser/options.js`, then `pnpm patch-commit <tmp-dir>`). The retire path is once `@nuxt/content` natively supports ComarkTree (see the comment at the top of `legacy.ts`) — at that point the patch becomes unnecessary along with the whole MDC bridge.
 
 ## SSR Requirements
 
@@ -719,4 +713,3 @@ export default defineNuxtConfig({
 
 - **Never mutate nested objects on a `DatabaseItem` you didn't construct fresh.** Several flows share references between top-level fields and `body.frontmatter` (notably TipTap's `{ ...comarkTree.frontmatter, body: comarkTree }` spread in `ContentEditorTipTap.vue`). An in-place mutation in a "normalize" step (e.g. `seo.title = seo.title || result.title`) will back-propagate through the shared reference and silently corrupt the body's frontmatter. Always shallow-clone the nested object first: `const seo = { ...(result.seo || {}) }`.
 - **TipTap emits an initial `onUpdate` on mount even with no real edits.** This means `draftItem.modified.body` diverges *structurally* from `original.body` as soon as the editor opens. Don't compare `modified` and `original` by reference equality or deep tree equality — always compare via render output (or use `compare.ts:normalizeAttrsDeep` for AST-aware equivalence).
-- **`@nuxtjs/mdc` is patched** (see `patches/`). Don't assume upstream parser behavior — the patch disables attribute sorting. If the patch is missing after `pnpm install`, the formatting banner will fire on most files.

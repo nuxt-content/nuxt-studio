@@ -4,8 +4,8 @@ packages:
   - ./docs
 
 overrides:
-  "@nuxt/content": "^3.14.0"
-  "comark": "https://pkg.pr.new/comark@aba6281"
+  "@nuxt/content": "^3.15.2"
+  "comark": "^0.6.2"
   "@unhead/vue": "2.1.12"
   "minimark": "^0.2.0"
   "unimport": "5.6.0"
@@ -13,7 +13,7 @@ overrides:
   "vite-plugin-inspect": "11.4.1"
   "vite-dev-rpc": "2.0.0"
   "vite-plugin-vue-tracer": "1.4.0"
-  "nuxtseo-shared": "5.2.5"
+  "nuxtseo-shared": "5.3.14"
 
 shamefullyHoist: true
 strictPeerDependencies: false

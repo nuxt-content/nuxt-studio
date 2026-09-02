@@ -1,4 +1,4 @@
-import type { ComarkNode, ComarkTree } from 'comark'
+import type { Node as MarkdownNode, MarkdownDocument } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import { ContentFileExtension } from '../../types/content'
 import { doObjectsMatch } from '../object'
@@ -7,24 +7,24 @@ import { documentFromContent } from './generate'
 import { cleanDataKeys } from './schema'
 import { comarkTreeFromLegacyDocument } from './legacy'
 
-const EMPTY_TREE: ComarkTree = { nodes: [], frontmatter: {}, meta: {} }
+const EMPTY_TREE: MarkdownDocument = { nodes: [], frontmatter: {}, meta: {} }
 
 // Legacy bodies (MarkdownRoot/minimark, no `.nodes`) make renderMarkdown throw unless upgraded.
-function comarkBody(document: Record<string, unknown>): ComarkTree {
+function comarkBody(document: Record<string, unknown>): MarkdownDocument {
   return comarkTreeFromLegacyDocument(document as DatabaseItem) ?? EMPTY_TREE
 }
 
 /**
  * Sort and normalize every element's attributes alphabetically.
  */
-function normalizeAttrsDeep(tree: ComarkTree): ComarkTree {
+function normalizeAttrsDeep(tree: MarkdownDocument): MarkdownDocument {
   return { ...tree, nodes: tree.nodes.map(normalizeNode) }
 }
 
 /**
  * Unwrap a leading `#default` slot marker, which comark keeps but `@nuxtjs/mdc` erases.
  */
-function unwrapLeadingDefaultSlot(children: ComarkNode[]): ComarkNode[] {
+function unwrapLeadingDefaultSlot(children: MarkdownNode[]): MarkdownNode[] {
   const [first, ...rest] = children
   if (!Array.isArray(first) || first[0] !== 'template') return children
 
@@ -35,10 +35,10 @@ function unwrapLeadingDefaultSlot(children: ComarkNode[]): ComarkNode[] {
     return children
   }
 
-  return [...(first.slice(2) as ComarkNode[]), ...rest]
+  return [...(first.slice(2) as MarkdownNode[]), ...rest]
 }
 
-function normalizeNode(node: ComarkNode): ComarkNode {
+function normalizeNode(node: MarkdownNode): MarkdownNode {
   if (typeof node === 'string') return node
   if (!Array.isArray(node)) return node
 
@@ -49,9 +49,9 @@ function normalizeNode(node: ComarkNode): ComarkNode {
     ? Object.fromEntries(Object.entries(attrs as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
     : attrs
 
-  const normalizedChildren = unwrapLeadingDefaultSlot(children as ComarkNode[]).map(normalizeNode)
+  const normalizedChildren = unwrapLeadingDefaultSlot(children as MarkdownNode[]).map(normalizeNode)
 
-  return [tag, sortedAttrs, ...normalizedChildren] as ComarkNode
+  return [tag, sortedAttrs, ...normalizedChildren] as MarkdownNode
 }
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
@@ -59,7 +59,7 @@ export async function isDocumentMatchingContent(content: string, document: Datab
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
     // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below).
-    const generatedNormalized = normalizeAttrsDeep({ ...(generatedDocument.body as ComarkTree), frontmatter: {} })
+    const generatedNormalized = normalizeAttrsDeep({ ...(generatedDocument.body as MarkdownDocument), frontmatter: {} })
     const documentNormalized = normalizeAttrsDeep({ ...comarkBody(document), frontmatter: {} })
     const generatedBodyStringified = (await renderMarkdown(generatedNormalized)).replace(/\n/g, '')
     const documentBodyStringified = (await renderMarkdown(documentNormalized)).replace(/\n/g, '')

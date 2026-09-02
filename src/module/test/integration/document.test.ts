@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { areDocumentsEqual, contentFromMarkdownDocument, documentFromMarkdownContent, ensureComarkBody, isDocumentMatchingContent } from '../../src/runtime/utils/document'
 import { markdownRootFromComarkTree } from '../../src/runtime/utils/document/legacy'
-import type { ComarkTree } from 'comark'
+import type { MarkdownDocument } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
 
 // Downgrades a comark document to the minimark body older Studio builds persisted.
 async function legacyBodyOf(id: string, content: string): Promise<{ comark: DatabaseItem, legacy: DatabaseItem }> {
   const comark = await documentFromMarkdownContent(id, content) as DatabaseItem
-  const legacy = { ...comark, body: markdownRootFromComarkTree(comark.body as unknown as ComarkTree) as unknown } as DatabaseItem
+  const legacy = { ...comark, body: markdownRootFromComarkTree(comark.body as unknown as MarkdownDocument) as unknown } as DatabaseItem
   return { comark, legacy }
 }
 
@@ -129,12 +129,12 @@ A paragraph with **bold** text.
   })
 
   describe('ensureComarkBody', () => {
-    it('upgrades a legacy body to a ComarkTree (adds .nodes)', async () => {
+    it('upgrades a legacy body to a MarkdownDocument (adds .nodes)', async () => {
       const { legacy } = await legacyBodyOf('content:legacy.md', '# Hello\n')
 
       const upgraded = ensureComarkBody(legacy)
 
-      expect(Array.isArray((upgraded.body as ComarkTree).nodes)).toBe(true)
+      expect(Array.isArray((upgraded.body as MarkdownDocument).nodes)).toBe(true)
     })
 
     it('returns an already-comark document untouched (no re-parse)', async () => {

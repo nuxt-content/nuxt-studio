@@ -5,8 +5,8 @@ import type { DatabasePageItem } from '../../src/types'
 import { createMockDocument } from '../mocks/document'
 import { comarkToTiptap } from '../../src/utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../src/utils/tiptap/tiptapToComark'
-import type { ComarkTree, ComarkNode } from 'comark'
-import highlight, { resetHighlighter } from 'comark/plugins/highlight'
+import type { MarkdownDocument, Node as MarkdownNode } from 'comark'
+import shiki, { resetHighlighter } from 'comark/plugins/shiki'
 import { roundTripThroughEditor } from '../utils/editor'
 
 describe('paragraph', () => {
@@ -1495,11 +1495,11 @@ describe('code block', () => {
   test('code block preserves space indentation when loaded from Shiki-highlighted MDC', async () => {
     const inputContent = 'function hello() {\n  console.log(\'world\')\n}'
 
-    const expectedComarkNodes: ComarkNode[] = [
+    const expectedComarkNodes: MarkdownNode[] = [
       ['pre', { language: 'ts', code: inputContent }],
     ]
 
-    const comarkTreeInput: ComarkTree = {
+    const comarkTreeInput: MarkdownDocument = {
       nodes: expectedComarkNodes,
       frontmatter: {},
       meta: {},
@@ -1520,11 +1520,11 @@ describe('code block', () => {
     // Shiki spans loses the original tab characters. props.code stores the raw code.
     const inputContent = 'function hello() {\n\tconsole.log(\'world\')\n}'
 
-    const expectedComarkNodes: ComarkNode[] = [
+    const expectedComarkNodes: MarkdownNode[] = [
       ['pre', { language: 'ts', code: inputContent }],
     ]
 
-    const comarkTreeInput: ComarkTree = {
+    const comarkTreeInput: MarkdownDocument = {
       nodes: expectedComarkNodes,
       frontmatter: {},
       meta: {},
@@ -1603,7 +1603,7 @@ describe('code block', () => {
   test('simple code block highlighting', async () => {
     const inputContent = 'console.log("Hello, world!");'
 
-    const comarkTreeInput: ComarkTree = {
+    const comarkTreeInput: MarkdownDocument = {
       nodes: [['pre', { language: 'javascript' }, ['code', {}, inputContent]]],
       frontmatter: {},
       meta: {},
@@ -1635,7 +1635,7 @@ describe('code block', () => {
     const editorJSON = roundTripThroughEditor(tiptapJSON)
     const rtComarkTree = await tiptapToComark(editorJSON, { highlightTheme: { default: 'material-theme-lighter', dark: 'material-theme-lighter' } })
 
-    const preNode = rtComarkTree.nodes[0] as ComarkNode & unknown[]
+    const preNode = rtComarkTree.nodes[0] as MarkdownNode & unknown[]
     // a span array (not a raw string) proves Shiki actually ran rather than hitting its catch
     expect(Array.isArray((preNode[2] as unknown[])[2])).toBe(true)
     // raw source on the pre attrs would force a `::pre{code=…}` wrapper
@@ -1658,7 +1658,7 @@ describe('code block', () => {
     const editorJSON = roundTripThroughEditor(tiptapJSON)
     const rtComarkTree = await tiptapToComark(editorJSON, { highlightTheme: { default: 'material-theme-lighter', dark: 'material-theme-palenight' } })
 
-    const preNode = rtComarkTree.nodes[0] as ComarkNode & unknown[]
+    const preNode = rtComarkTree.nodes[0] as MarkdownNode & unknown[]
     expect(Array.isArray((preNode[2] as unknown[])[2])).toBe(true)
 
     const generatedDocument = createMockDocument('docs/test.md', { body: rtComarkTree, ...rtComarkTree.frontmatter })
@@ -1678,7 +1678,7 @@ describe('code block', () => {
     const editorJSON = roundTripThroughEditor(tiptapJSON)
     const rtComarkTree = await tiptapToComark(editorJSON, { highlightTheme: { default: 'material-theme-lighter', dark: 'material-theme-palenight' } })
 
-    const preNode = rtComarkTree.nodes[0] as ComarkNode & unknown[]
+    const preNode = rtComarkTree.nodes[0] as MarkdownNode & unknown[]
     expect(Array.isArray((preNode[2] as unknown[])[2])).toBe(true)
 
     const generatedDocument = createMockDocument('docs/test.md', { body: rtComarkTree, ...rtComarkTree.frontmatter })
@@ -1734,10 +1734,10 @@ describe('inline code', () => {
   test('inline code language is preserved when Shiki runs with a real theme', async () => {
     const inputContent = '`const foo = "bar"`{lang="ts"}'
 
-    const { parse } = await import('comark')
+    const { parseMarkdown } = await import('comark')
     const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
-    const tree = await parse(inputContent, {
-      plugins: [highlight({ themes })],
+    const tree = await parseMarkdown(inputContent, {
+      plugins: [shiki({ themes })],
     })
 
     // After Shiki, the `language` prop must still be present so comarkToTiptap can preserve it.
@@ -1795,10 +1795,10 @@ describe('inline code', () => {
   test('inline code with already-corrupted Shiki classes and real Shiki theme', async () => {
     const inputContent = '`docus`{.shiki,shiki-themes,material-theme-lighter,material-theme,material-theme-palenight lang="ts"}'
 
-    const { parse } = await import('comark')
+    const { parseMarkdown } = await import('comark')
     const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
-    const tree = await parse(inputContent, {
-      plugins: [highlight({ themes })],
+    const tree = await parseMarkdown(inputContent, {
+      plugins: [shiki({ themes })],
     })
 
     const tiptapJSON = comarkToTiptap(tree)
@@ -2814,10 +2814,10 @@ text 1
     expect(outputContent).toBe(`${inputContent}\n`)
 
     // Custom case also valid when image is not enclosed in a paragraph
-    const bisCmarkTree: ComarkTree = {
+    const bisCmarkTree: MarkdownDocument = {
       nodes: [
         ['steps', {}, ['h3', {}, 'Step 1'], ['img', { src: 'https://example.com/image.jpg', alt: 'Image' }]],
-      ] as ComarkNode[],
+      ] as MarkdownNode[],
       frontmatter: {},
       meta: {},
     }

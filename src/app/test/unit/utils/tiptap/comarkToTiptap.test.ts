@@ -1,11 +1,11 @@
 import { test, describe, expect } from 'vitest'
 import { createMark } from '../../../../src/utils/tiptap/comarkToTiptap'
-import type { ComarkElement } from 'comark'
+import type { ElementNode } from 'comark'
 
 describe('marks', () => {
   test('createMark: create `italic` mark nodes', () => {
     const mark = 'italic'
-    const node: ComarkElement = ['em', {}, 'this is a test in italic']
+    const node: ElementNode = ['em', {}, 'this is a test in italic']
 
     expect(createMark(node, mark)).toEqual([{
       type: 'text',
@@ -16,7 +16,7 @@ describe('marks', () => {
 
   test('createMark: create multiple mark (italic and bold) nodes', () => {
     const mark = 'italic'
-    const node: ComarkElement = ['em', {}, ['strong', {}, 'this is a test in italic and bold'] as ComarkElement]
+    const node: ElementNode = ['em', {}, ['strong', {}, 'this is a test in italic and bold'] as ElementNode]
 
     expect(createMark(node, mark)).toStrictEqual([{
       type: 'text',
@@ -36,7 +36,7 @@ describe('marks', () => {
 
   test('createMark: nested strong containing a link - no duplicate bold marks, link preserved', () => {
     // comark.parse produces strong > strong > a for **...**[here]**...**
-    const node: ComarkElement = ['strong', {}, ['strong', {}, ['a', { href: '/bugs' }, 'here']] as ComarkElement]
+    const node: ElementNode = ['strong', {}, ['strong', {}, ['a', { href: '/bugs' }, 'here']] as ElementNode]
 
     expect(createMark(node, 'bold')).toStrictEqual([{
       type: 'text',
@@ -51,17 +51,17 @@ describe('marks', () => {
   test('createMark: create `code` mark nodes should not handle shiki elements', () => {
     const mark = 'code'
     // A code element containing shiki-highlighted spans
-    const node: ComarkElement = [
+    const node: ElementNode = [
       'code',
       {},
       [
         'span',
         { class: 'line', line: 1 },
-        ['span', { style: '--shiki-default:#C678DD' }, 'const'] as ComarkElement,
-        ['span', { style: '--shiki-default:#E5C07B' }, ' code'] as ComarkElement,
-        ['span', { style: '--shiki-default:#56B6C2' }, ' ='] as ComarkElement,
-        ['span', { style: '--shiki-default:#98C379' }, ' \'test\''] as ComarkElement,
-      ] as ComarkElement,
+        ['span', { style: '--shiki-default:#C678DD' }, 'const'] as ElementNode,
+        ['span', { style: '--shiki-default:#E5C07B' }, ' code'] as ElementNode,
+        ['span', { style: '--shiki-default:#56B6C2' }, ' ='] as ElementNode,
+        ['span', { style: '--shiki-default:#98C379' }, ' \'test\''] as ElementNode,
+      ] as ElementNode,
     ]
 
     expect(createMark(node, mark)).toStrictEqual([{

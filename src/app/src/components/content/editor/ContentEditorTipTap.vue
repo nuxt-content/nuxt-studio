@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 import type { JSONContent } from '@tiptap/vue-3'
-import type { ComarkTree } from 'comark'
+import type { MarkdownDocument } from 'comark'
 import type { DraftItem, DatabasePageItem } from '../../../types'
 import { ref, watch, computed } from 'vue'
 import { useStudio } from '../../../composables/useStudio'
@@ -80,7 +80,7 @@ const tiptapJSON = ref<JSONContent>()
 // Debug
 const debug = computed(() => preferences.value.debug)
 const currentTiptap = ref<JSONContent>()
-const currentComark = ref<ComarkTree>()
+const currentComark = ref<MarkdownDocument>()
 const currentContent = ref<string>()
 
 let isConverting = false
@@ -96,7 +96,7 @@ watch(tiptapJSON, async (json) => {
 
   const cleanedTiptap = removeLastEmptyParagraph(json!)
 
-  // TipTap → ComarkTree (internal representation)
+  // TipTap → MarkdownDocument (internal representation)
   const comarkTree = await tiptapToComark(cleanedTiptap, {
     highlightTheme: host.meta.editor.highlightTheme,
   })

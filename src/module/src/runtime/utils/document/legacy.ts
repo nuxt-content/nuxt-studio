@@ -2,9 +2,9 @@
  * LEGACY COMPATIBILITY LAYER
  *
  * These utilities exist solely to bridge the gap between the current @nuxt/content
- * storage format (MarkdownRoot / minimark) and the upcoming native ComarkTree format.
+ * storage format (MarkdownRoot / minimark) and the upcoming native MarkdownDocument format.
  *
- * When @nuxt/content releases native ComarkTree body support:
+ * When @nuxt/content releases native MarkdownDocument body support:
  *   1. Delete this file
  *   2. Fix TypeScript errors at call sites:
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
@@ -18,26 +18,26 @@
 import type { MarkdownRoot } from '@nuxt/content'
 import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/mdc'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comark'
+import type { MarkdownDocument, Node as MarkdownNode, ElementNode, CommentNode } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { generateFlatToc } from 'comark/plugins/toc'
 import { cleanDataKeys } from './schema'
 import { isComarkTree } from './generate'
 
-function comarkToMDC(tree: ComarkTree): MDCRoot {
+function comarkToMDC(tree: MarkdownDocument): MDCRoot {
   return {
     type: 'root',
     children: tree.nodes.map(comarkNodeToMDCNode),
   }
 }
 
-function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
+function comarkNodeToMDCNode(node: MarkdownNode): MDCNode {
   if (typeof node === 'string') {
     return { type: 'text', value: node } as MDCText
   }
 
   if (Array.isArray(node)) {
-    const [tag, attrs, ...children] = node as ComarkElement | ComarkComment
+    const [tag, attrs, ...children] = node as ElementNode | CommentNode
 
     if (tag === null) {
       return { type: 'comment', value: children[0] as string } as MDCComment
@@ -47,14 +47,14 @@ function comarkNodeToMDCNode(node: ComarkNode): MDCNode {
       type: 'element',
       tag: tag as string,
       props: propsComarkToMDC(tag as string, (attrs as Record<string, unknown>) || {}),
-      children: (children as ComarkNode[]).map(comarkNodeToMDCNode),
+      children: (children as MarkdownNode[]).map(comarkNodeToMDCNode),
     } as MDCElement
   }
 
   return { type: 'text', value: '' } as MDCText
 }
 
-function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkTree {
+function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): MarkdownDocument {
   const repaired = repairMdcRoot(root)
   return {
     nodes: normalizeMdcChildren(repaired.children || []).map(mdcNodeToComarkNode),
@@ -63,13 +63,13 @@ function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): ComarkT
   }
 }
 
-function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
+function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
   if (node.type === 'text') {
     return (node as MDCText).value
   }
 
   if (node.type === 'comment') {
-    return [null, {}, (node as MDCComment).value] as unknown as ComarkComment
+    return [null, {}, (node as MDCComment).value] as unknown as CommentNode
   }
 
   if (node.type === 'element') {
@@ -80,7 +80,7 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
       ...children.map(mdcNodeToComarkNode),
-    ] as ComarkElement
+    ] as ElementNode
   }
 
   return ''
@@ -90,17 +90,17 @@ function mdcNodeToComarkNode(node: MDCNode): ComarkNode {
  * A leftover `pre` attr serializes as a `::pre{…}` wrapper; comark renders the fence
  * from the `code` child. mdc's repair can empty that child, so move `props.code` into it.
  */
-function preMdcToComarkNode(el: MDCElement): ComarkElement {
+function preMdcToComarkNode(el: MDCElement): ElementNode {
   const { code, ...rest } = (el.props as Record<string, unknown>) || {}
   const attrs = propsMDCToComark('pre', rest)
   if (typeof code === 'string') {
     // mdc keeps the fence's trailing newline in `code`; comark's canonical code
     // child omits it. Strip one so the editor doesn't show an extra blank line.
     const canonicalCode = code.endsWith('\n') ? code.slice(0, -1) : code
-    return ['pre', attrs, ['code', { __ignoreMap: '' }, canonicalCode]] as ComarkElement
+    return ['pre', attrs, ['code', { __ignoreMap: '' }, canonicalCode]] as ElementNode
   }
   const children = normalizeMdcChildren(el.children || [])
-  return ['pre', attrs, ...children.map(mdcNodeToComarkNode)] as ComarkElement
+  return ['pre', attrs, ...children.map(mdcNodeToComarkNode)] as ElementNode
 }
 
 /**
@@ -412,19 +412,19 @@ function unbindMDCProps(props: Record<string, unknown>): { props: Record<string,
  * a YAML block, producing a permanent phantom conflict. Scalar bindings are left
  * alone — comark round-trips those itself; stripping the colon would drop them.
  */
-export function unbindComarkTree(tree: ComarkTree): ComarkTree {
+export function unbindComarkTree(tree: MarkdownDocument): MarkdownDocument {
   return { ...tree, nodes: tree.nodes.map(unbindComarkNode) }
 }
 
-function unbindComarkNode(node: ComarkNode): ComarkNode {
+function unbindComarkNode(node: MarkdownNode): MarkdownNode {
   if (!Array.isArray(node)) return node
-  const [tag, attrs, ...children] = node as ComarkElement | ComarkComment
+  const [tag, attrs, ...children] = node as ElementNode | CommentNode
   if (tag === null) return node // comments carry no bindable attrs
   return [
     tag,
     unbindMDCBlockProps((attrs as Record<string, unknown>) || {}),
-    ...(children as ComarkNode[]).map(unbindComarkNode),
-  ] as ComarkElement
+    ...(children as MarkdownNode[]).map(unbindComarkNode),
+  ] as ElementNode
 }
 
 function unbindMDCBlockProps(props: Record<string, unknown>): Record<string, unknown> {
@@ -474,20 +474,20 @@ function propsComarkToMDC(tag: string, attrs: Record<string, unknown>): Record<s
 }
 
 /**
- * Convert a legacy stored document's body (MarkdownRoot/minimark) to a ComarkTree.
+ * Convert a legacy stored document's body (MarkdownRoot/minimark) to a MarkdownDocument.
  * Used at DB read boundaries (db.get, db.list, db.create) to transparently upgrade
  * legacy documents to the new format before they reach the app.
  */
-export function comarkTreeFromLegacyDocument(document: DatabaseItem): ComarkTree | null {
+export function comarkTreeFromLegacyDocument(document: DatabaseItem): MarkdownDocument | null {
   if (!document.body) return null
-  if (isComarkTree(document.body)) return document.body as unknown as ComarkTree
+  if (isComarkTree(document.body)) return document.body as unknown as MarkdownDocument
   const body: MDCRoot = (document.body as { type: string }).type === 'minimark'
     ? decompressTree(document.body as never)
     : (document.body as MDCRoot)
   return mdcToComark(body, cleanDataKeys(document) as Record<string, unknown>)
 }
 
-// Legacy body (MarkdownRoot/minimark) → ComarkTree, applied at read boundaries so consumers only see comark.
+// Legacy body (MarkdownRoot/minimark) → MarkdownDocument, applied at read boundaries so consumers only see comark.
 export function ensureComarkBody(document: DatabaseItem): DatabaseItem {
   if (document.extension !== 'md' || !document.body) return document
   if (isComarkTree(document.body)) return document
@@ -497,10 +497,10 @@ export function ensureComarkBody(document: DatabaseItem): DatabaseItem {
 }
 
 /**
- * Convert a ComarkTree body back to the legacy compressed MarkdownRoot format for DB storage.
+ * Convert a MarkdownDocument body back to the legacy compressed MarkdownRoot format for DB storage.
  * Used at the DB write boundary (db.upsert) to store documents in the current @nuxt/content format.
  */
-export function markdownRootFromComarkTree(tree: ComarkTree): MarkdownRoot {
+export function markdownRootFromComarkTree(tree: MarkdownDocument): MarkdownRoot {
   const mdcBody = comarkToMDC(tree)
   const compressedBody = compressTree(mdcBody)
   const toc = generateFlatToc(tree, { title: '', depth: 2, searchDepth: 2, links: [] })

@@ -8,7 +8,7 @@ Tests are the highest-volume source of conflicts when porting a legacy PR. The s
 |---|---|
 | `generateDocumentFromContent(md)` | `documentFromContent(md)` |
 | `mdcToTiptap(doc.body, frontmatter, opts)` | `comarkToTiptap(doc.body, opts)` |
-| `tiptapToMDC(tiptapDoc) → { body, data }` | `tiptapToComark(tiptapDoc) → ComarkTree` |
+| `tiptapToMDC(tiptapDoc) → { body, data }` | `tiptapToComark(tiptapDoc) → MarkdownDocument` |
 | `generateContentFromDocument(doc)` | `contentFromDocument(doc)` |
 | Expected MDC AST `{ type: 'element', tag: 'note', props: {…}, children: [...] }` | Expected comark tuple `['note', attrs, ...children]` |
 | Expected MDC text `{ type: 'text', value: 'hello' }` | Plain string `'hello'` |
@@ -59,7 +59,7 @@ expect(doc.body.frontmatter).toEqual({})  // if relevant
 
 ## Mock fixtures
 
-The mocks under `src/app/test/mocks/` (`document.ts`, `draft.ts`, `database.ts`, `host.ts`) were all updated to return `ComarkTree`-shaped bodies. If the PR's test setup constructs MDC bodies inline, replace them with comark tuples. Prefer reusing the updated mock helpers over hand-rolling fixtures.
+The mocks under `src/app/test/mocks/` (`document.ts`, `draft.ts`, `database.ts`, `host.ts`) were all updated to return `MarkdownDocument`-shaped bodies. If the PR's test setup constructs MDC bodies inline, replace them with comark tuples. Prefer reusing the updated mock helpers over hand-rolling fixtures.
 
 ## Async-only assertions
 
@@ -83,5 +83,5 @@ expect(await contentFromDocument(doc)).toBe('# Hello\n')
 - **Text nodes**: replace `{ type: 'text', value: 'hello' }` with plain string `'hello'`
 - **Comment nodes**: replace `{ type: 'comment', value: 'txt' }` with `[null, {}, 'txt']`
 - **Options signature**: `mdcToTiptap(body, {}, { hasNuxtUI })` → `comarkToTiptap(body, { hasNuxtUI })`
-- **Return shape**: `tiptapToMDC` returned `{ body, data }`; `tiptapToComark` returns a single `ComarkTree` with `nodes`, `frontmatter`, `meta`
+- **Return shape**: `tiptapToMDC` returned `{ body, data }`; `tiptapToComark` returns a single `MarkdownDocument` with `nodes`, `frontmatter`, `meta`
 - **Test file location**: the comark-era unit tests live at `src/app/test/unit/utils/tiptap/comarkToTiptap.test.ts`. The integration suite remains at `src/app/test/integration/tiptap.test.ts` but with tuple assertions throughout.

@@ -3,9 +3,9 @@ import type { JSONContent } from '@tiptap/vue-3'
 import type { AIHintOptions } from '../../types/ai'
 import { tiptapSliceToComark } from '../tiptap/tiptapToComark'
 import { comarkToTiptap } from '../tiptap/comarkToTiptap'
-import { parse } from 'comark'
+import { parseMarkdown } from 'comark'
 import { renderMarkdown } from 'comark/render'
-import type { ComarkTree, ComarkElement, ComarkNode } from 'comark'
+import type { MarkdownDocument, ElementNode, Node as MarkdownNode } from 'comark'
 
 function isWhitespace(char: string): boolean {
   return /\s/.test(char)
@@ -179,19 +179,19 @@ export function generateHintOptions(state: EditorState, cursorPos: number): AIHi
 }
 
 /**
- * Clean ComarkTree by removing all attrs from elements (noise for AI context)
+ * Clean MarkdownDocument by removing all attrs from elements (noise for AI context)
  * For AI completion, only content and structure matter, not implementation details
  */
-function cleanComarkNode(node: ComarkNode): ComarkNode {
-  if (typeof node === 'string') return node // ComarkText
+function cleanComarkNode(node: MarkdownNode): MarkdownNode {
+  if (typeof node === 'string') return node // TextNode
   if (!Array.isArray(node)) return node
-  const [tag, , ...children] = node as ComarkElement
-  if (tag === null) return node // ComarkComment - keep as-is
+  const [tag, , ...children] = node as ElementNode
+  if (tag === null) return node // CommentNode - keep as-is
   // Element: strip all attrs, recursively clean children
-  return [tag, {}, ...(children as ComarkNode[]).map(cleanComarkNode)] as ComarkElement
+  return [tag, {}, ...(children as MarkdownNode[]).map(cleanComarkNode)] as ElementNode
 }
 
-function cleanComark(tree: ComarkTree): ComarkTree {
+function cleanComark(tree: MarkdownDocument): MarkdownDocument {
   return {
     ...tree,
     nodes: tree.nodes.map(cleanComarkNode),
@@ -208,13 +208,13 @@ export async function tiptapSliceToMarkdown(
   maxChars?: number,
   trimDirection: 'start' | 'end' = 'end',
 ): Promise<string> {
-  // Convert TipTap slice to ComarkTree
+  // Convert TipTap slice to MarkdownDocument
   const tree = await tiptapSliceToComark(state, from, to)
 
   // Clean the AST by removing component attrs (reduces noise for AI)
   const cleanedTree = cleanComark(tree)
 
-  // Stringify ComarkTree to markdown
+  // Stringify MarkdownDocument to markdown
   const markdown = await renderMarkdown(cleanedTree)
 
   if (!markdown) {
@@ -235,10 +235,10 @@ export async function tiptapSliceToMarkdown(
  * Convert markdown string to TipTap nodes (reverse of tiptapSliceToMarkdown)
  */
 export async function markdownSliceToTiptap(markdown: string): Promise<JSONContent[]> {
-  // Parse markdown to ComarkTree
-  const tree = await parse(markdown, { linkify: false })
+  // Parse markdown to MarkdownDocument
+  const tree = await parseMarkdown(markdown, { linkify: false })
 
-  // Convert ComarkTree directly to TipTap JSON
+  // Convert MarkdownDocument directly to TipTap JSON
   const tiptapDoc = comarkToTiptap(tree)
 
   // Extract content nodes (skip frontmatter)

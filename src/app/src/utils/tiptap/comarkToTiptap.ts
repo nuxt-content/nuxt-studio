@@ -1,12 +1,12 @@
 import type { JSONContent } from '@tiptap/vue-3'
 import { isEmpty } from '../../utils/object'
-import type { ComarkTree, ComarkNode, ComarkElement, ComarkComment } from 'comark'
+import type { MarkdownDocument, Node as MarkdownNode, ElementNode, CommentNode } from 'comark'
 import { EMOJI_REGEXP, getEmojiUnicode } from '../emoji'
 import { isValidAttr, stripBindingPrefix } from './props'
 import { isElement, isComment, getTag, getAttrs, getChildren } from '../comark'
 import { sameMark, type MarkInfo } from './tiptapToComark'
 
-type ComarkToTipTapMap = Record<string, (node: ComarkElement) => JSONContent | JSONContent[]>
+type ComarkToTipTapMap = Record<string, (node: ElementNode) => JSONContent | JSONContent[]>
 
 const tagToMark: Record<string, string> = {
   strong: 'bold',
@@ -38,7 +38,7 @@ const comarkToTiptapMap: ComarkToTipTapMap = {
   h6: node => createTipTapNode(node, 'heading', { attrs: { level: 6 } }),
   ul: node => createTipTapNode(node, 'bulletList'),
   ol: node => createTipTapNode(node, 'orderedList', { attrs: { start: getAttrs(node)?.start } }),
-  li: node => createTipTapNode(node, 'listItem', { children: [['p', {}, ...getChildren(node)] as ComarkElement] }),
+  li: node => createTipTapNode(node, 'listItem', { children: [['p', {}, ...getChildren(node)] as ElementNode] }),
   blockquote: node => createTipTapNode(node, 'blockquote'),
   binding: node => createTipTapNode(node, 'binding', { attrs: { value: getAttrs(node)?.value, defaultValue: getAttrs(node)?.defaultValue } }),
   hr: node => createTipTapNode(node, 'horizontalRule'),
@@ -55,11 +55,11 @@ const comarkToTiptapMap: ComarkToTipTapMap = {
 * ──────────────────────────────────────────────────────────────────────────────
 */
 
-export function comarkToTiptap(tree: ComarkTree, options?: { hasNuxtUI?: boolean }): JSONContent {
+export function comarkToTiptap(tree: MarkdownDocument, options?: { hasNuxtUI?: boolean }): JSONContent {
   const hasNuxtUI = options?.hasNuxtUI ?? false
 
   // Remove invalid top-level text nodes (same as MDC version filtering type !== 'text')
-  const nodes = tree.nodes.filter(node => !isComment(node as ComarkNode) || isElement(node as ComarkNode))
+  const nodes = tree.nodes.filter(node => !isComment(node as MarkdownNode) || isElement(node as MarkdownNode))
     .filter(node => typeof node !== 'string')
 
   // Remove style elements recursively
@@ -85,10 +85,10 @@ export function comarkToTiptap(tree: ComarkTree, options?: { hasNuxtUI?: boolean
 * ──────────────────────────────────────────────────────────────────────────────
 */
 
-export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxtUI = false): JSONContent | JSONContent[] {
+export function comarkNodeToTiptap(node: MarkdownNode, parentTag?: string, hasNuxtUI = false): JSONContent | JSONContent[] {
   /**
    * Text node
-   * ComarkText is a plain string
+   * A TextNode is a plain string
    */
   if (typeof node === 'string') {
     return createTextNode(node)
@@ -102,10 +102,10 @@ export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxt
 
   /**
    * Comment node
-   * ComarkComment is [null, {}, text]
+   * CommentNode is [null, {}, text]
    */
   if (rawTag === null) {
-    return { type: 'comment', attrs: { text: (node as ComarkComment)[2] as string } }
+    return { type: 'comment', attrs: { text: (node as CommentNode)[2] as string } }
   }
 
   const tagStr = rawTag as string
@@ -114,7 +114,7 @@ export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxt
    * Known node types
    */
   if (comarkToTiptapMap[tagStr]) {
-    return comarkToTiptapMap[tagStr](node as ComarkElement)
+    return comarkToTiptapMap[tagStr](node as ElementNode)
   }
 
   /**
@@ -122,13 +122,13 @@ export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxt
    * If parent is a paragraph, then element should be inline
    */
   if (parentTag === 'p') {
-    return createTipTapNode(node as ComarkElement, 'inline-element', { attrs: { tag: tagStr } })
+    return createTipTapNode(node as ElementNode, 'inline-element', { attrs: { tag: tagStr } })
   }
 
   /**
    * Block vue components
    */
-  return createElementNode(node as ComarkElement, tagStr, hasNuxtUI)
+  return createElementNode(node as ElementNode, tagStr, hasNuxtUI)
 }
 
 /*
@@ -141,7 +141,7 @@ function dedupeMarks(marks: MarkInfo[]): MarkInfo[] {
   return marks.filter((mark, index) => marks.findIndex(m => sameMark(m, mark)) === index)
 }
 
-export function createMark(node: ComarkElement, mark: string, accumulatedMarks: MarkInfo[] = []): JSONContent[] {
+export function createMark(node: ElementNode, mark: string, accumulatedMarks: MarkInfo[] = []): JSONContent[] {
   const attrs = { ...getAttrs(node) }
 
   // Link attributes
@@ -156,12 +156,12 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
 
   const marks = [...accumulatedMarks, { type: mark, attrs }]
 
-  function getNodeContent(n: ComarkNode): string {
+  function getNodeContent(n: MarkdownNode): string {
     if (typeof n === 'string') return n
     if (!Array.isArray(n)) return ''
     const [t, , ...ch] = n
     if (t === null) return '' // comment
-    return (ch as ComarkNode[]).map(getNodeContent).join('')
+    return (ch as MarkdownNode[]).map(getNodeContent).join('')
   }
 
   const tag = getTag(node)
@@ -221,7 +221,7 @@ export function createMark(node: ComarkElement, mark: string, accumulatedMarks: 
 * ──────────────────────────────────────────────────────────────────────────────
 */
 
-function createTipTapNode(node: ComarkElement, type: string, extra: Record<string, unknown> = {}): JSONContent {
+function createTipTapNode(node: ElementNode, type: string, extra: Record<string, unknown> = {}): JSONContent {
   const { attrs = {}, children, ...rest } = extra
   const nodeAttrs = getAttrs(node)
 
@@ -250,7 +250,7 @@ function createTipTapNode(node: ComarkElement, type: string, extra: Record<strin
     (tiptapNode.attrs as Record<string, unknown>).props = Object.fromEntries(cleanProps)
   }
 
-  const effectiveChildren = (children !== undefined ? children : getChildren(node)) as ComarkNode[]
+  const effectiveChildren = (children !== undefined ? children : getChildren(node)) as MarkdownNode[]
 
   if (effectiveChildren.length > 0 || children !== undefined) {
     tiptapNode.content = effectiveChildren.flatMap(child => comarkNodeToTiptap(child, getTag(node)))
@@ -259,7 +259,7 @@ function createTipTapNode(node: ComarkElement, type: string, extra: Record<strin
   return tiptapNode as JSONContent
 }
 
-function createVideoTipTapNode(node: ComarkElement): JSONContent {
+function createVideoTipTapNode(node: ElementNode): JSONContent {
   const props = getAttrs(node)
   const booleanProps = ['controls', 'autoplay', 'loop', 'muted']
 
@@ -289,7 +289,7 @@ function createVideoTipTapNode(node: ComarkElement): JSONContent {
   } as JSONContent
 }
 
-function createTemplateNode(node: ComarkElement): JSONContent {
+function createTemplateNode(node: ElementNode): JSONContent {
   const nodeAttrs = getAttrs(node)
   // comark uses { name: 'xxx' } format; legacy MDC used { 'v-slot:xxx': '' } format
   const name = Object.keys(nodeAttrs || {}).find(prop => prop?.startsWith('v-slot:'))?.replace('v-slot:', '')
@@ -309,19 +309,19 @@ function createTemplateNode(node: ComarkElement): JSONContent {
   const isInlineFirstChild = typeof firstChild === 'string'
     || (Array.isArray(firstChild) && firstChild[0] !== null && (firstChild[0] as string) in tagToMark)
   if (children.length > 0 && isInlineFirstChild) {
-    children = [['p', {}, ...children] as ComarkElement]
+    children = [['p', {}, ...children] as ElementNode]
   }
   else if (children.length === 0) {
     // TipTap slot requires block+ content; an empty slot would be schema-invalid
     // and crash setNodeMarkup on any later updateAttributes (e.g. renaming the slot).
-    children = [['p', {}] as ComarkElement]
+    children = [['p', {}] as ElementNode]
   }
 
-  const processedNode: ComarkElement = [getTag(node), cleanAttrs, ...children]
+  const processedNode: ElementNode = [getTag(node), cleanAttrs, ...children]
   return createTipTapNode(processedNode, 'slot', { attrs: { name } })
 }
 
-function createPreNode(node: ComarkElement): JSONContent {
+function createPreNode(node: ElementNode): JSONContent {
   const nodeAttrs = getAttrs(node)
   const language = nodeAttrs.language || 'text'
   const filename = nodeAttrs.filename
@@ -354,7 +354,7 @@ function createPreNode(node: ComarkElement): JSONContent {
   return tiptapNode
 }
 
-function createParagraphNode(node: ComarkElement): JSONContent {
+function createParagraphNode(node: ElementNode): JSONContent {
   const children = getChildren(node).filter(child => !(typeof child === 'string' && !child))
 
   // Flatten children (e.g., from createMark which returns arrays)
@@ -405,7 +405,7 @@ function createTextNode(text: string): JSONContent | JSONContent[] {
   return nodes.length === 0 ? { type: 'text', text } : nodes
 }
 
-function createSpanStyleNode(node: ComarkElement): JSONContent {
+function createSpanStyleNode(node: ElementNode): JSONContent {
   const nodeAttrs = getAttrs(node)
   const spanStyle = nodeAttrs?.style
   const spanClass = nodeAttrs?.class || nodeAttrs?.className
@@ -419,11 +419,11 @@ function createSpanStyleNode(node: ComarkElement): JSONContent {
   delete cleanedAttrs.class
   delete cleanedAttrs.className
 
-  const cleanedNode: ComarkElement = [getTag(node), cleanedAttrs, ...getChildren(node)]
+  const cleanedNode: ElementNode = [getTag(node), cleanedAttrs, ...getChildren(node)]
   return createTipTapNode(cleanedNode, 'span-style', { attrs: spanAttrs })
 }
 
-function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false): JSONContent {
+function createElementNode(node: ElementNode, type: string, hasNuxtUI = false): JSONContent {
   const CALLOUT_TAGS = new Set(['callout', 'note', 'tip', 'warning', 'caution'])
   /**
    * In tiptap side only, inside element, text must be enclosed in a paragraph
@@ -435,7 +435,7 @@ function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false)
   const nodeChildren = getChildren(processedNode)
   if (nodeChildren.length > 0 && typeof nodeChildren[0] === 'string') {
     const originalAttrs = getAttrs(processedNode)
-    processedNode = [type, { ...originalAttrs, __tiptapWrap: true }, ['p', {}, ...nodeChildren] as ComarkElement] as ComarkElement
+    processedNode = [type, { ...originalAttrs, __tiptapWrap: true }, ['p', {}, ...nodeChildren] as ElementNode] as ElementNode
   }
 
   const slotWrapped = wrapChildrenWithinSlot(getChildren(processedNode))
@@ -447,16 +447,16 @@ function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false)
 /**
  * Flatten thead/tbody wrappers so TipTap table contains tableRow nodes directly
  */
-function createTableNode(node: ComarkElement): JSONContent {
+function createTableNode(node: ElementNode): JSONContent {
   const rows: JSONContent[] = []
   for (const child of getChildren(node)) {
     if (!isElement(child)) continue
-    const childEl = child as ComarkElement
+    const childEl = child as ElementNode
     const tag = getTag(childEl)
     if (tag === 'thead' || tag === 'tbody') {
       for (const sectionChild of getChildren(childEl)) {
-        if (isElement(sectionChild) && getTag(sectionChild as ComarkElement) === 'tr') {
-          rows.push(createTableRowNode(sectionChild as ComarkElement))
+        if (isElement(sectionChild) && getTag(sectionChild as ElementNode) === 'tr') {
+          rows.push(createTableRowNode(sectionChild as ElementNode))
         }
       }
     }
@@ -467,8 +467,8 @@ function createTableNode(node: ComarkElement): JSONContent {
   return { type: 'table', content: rows }
 }
 
-function createTableRowNode(node: ComarkElement): JSONContent {
-  return { type: 'tableRow', content: getChildren(node).flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[] }
+function createTableRowNode(node: ElementNode): JSONContent {
+  return { type: 'tableRow', content: getChildren(node).flatMap(child => comarkNodeToTiptap(child as MarkdownNode)) as JSONContent[] }
 }
 
 const INLINE_CELL_TYPES = new Set(['text', 'hardBreak', 'inline-element', 'span-style'])
@@ -476,9 +476,9 @@ const INLINE_CELL_TYPES = new Set(['text', 'hardBreak', 'inline-element', 'span-
 /**
  * TipTap requires every cell to contain at least one block node
  */
-function createTableCellNode(node: ComarkElement, type: 'tableHeader' | 'tableCell'): JSONContent {
+function createTableCellNode(node: ElementNode, type: 'tableHeader' | 'tableCell'): JSONContent {
   const children = getChildren(node)
-  const content = children.flatMap(child => comarkNodeToTiptap(child as ComarkNode)) as JSONContent[]
+  const content = children.flatMap(child => comarkNodeToTiptap(child as MarkdownNode)) as JSONContent[]
   if (content.length === 0) {
     return { type, content: [{ type: 'paragraph', content: [] }] }
   }
@@ -499,9 +499,9 @@ function createTableCellNode(node: ComarkElement, type: 'tableHeader' | 'tableCe
  * Ensure all children of an element are wrapped in a slot.
  * Children not wrapped in a slot are appended to the default slot.
  */
-function wrapChildrenWithinSlot(children: ComarkNode[]): ComarkNode[] {
-  const isTemplateEl = (child: ComarkNode): boolean =>
-    isElement(child) && getTag(child as ComarkElement) === 'template'
+function wrapChildrenWithinSlot(children: MarkdownNode[]): MarkdownNode[] {
+  const isTemplateEl = (child: MarkdownNode): boolean =>
+    isElement(child) && getTag(child as ElementNode) === 'template'
 
   const noneTemplateChildren = children.filter(child => !isTemplateEl(child))
 
@@ -510,18 +510,18 @@ function wrapChildrenWithinSlot(children: ComarkNode[]): ComarkNode[] {
 
     // Detect default slot by both comark format ({ name: 'default' }) and legacy MDC format ({ 'v-slot:default': '' })
     const defaultSlotIndex = templates.findIndex((child) => {
-      const attrs = getAttrs(child as ComarkElement) as Record<string, unknown>
+      const attrs = getAttrs(child as ElementNode) as Record<string, unknown>
       return attrs?.['v-slot:default'] !== undefined || attrs?.name === 'default'
     })
 
     if (defaultSlotIndex === -1) {
-      const defaultSlot: ComarkElement = ['template', { name: 'default' }, ...noneTemplateChildren]
+      const defaultSlot: ElementNode = ['template', { name: 'default' }, ...noneTemplateChildren]
       templates = [defaultSlot, ...templates]
     }
     else {
-      const slot = templates[defaultSlotIndex] as ComarkElement
+      const slot = templates[defaultSlotIndex] as ElementNode
       const [slotTag, slotAttrs, ...existingChildren] = slot
-      templates[defaultSlotIndex] = [slotTag, slotAttrs, ...existingChildren, ...noneTemplateChildren] as ComarkElement
+      templates[defaultSlotIndex] = [slotTag, slotAttrs, ...existingChildren, ...noneTemplateChildren] as ElementNode
     }
 
     return templates
@@ -531,15 +531,15 @@ function wrapChildrenWithinSlot(children: ComarkNode[]): ComarkNode[] {
 }
 
 /**
- * Remove shiki style elements from ComarkNode array (recursive)
+ * Remove shiki style elements from MarkdownNode array (recursive)
  */
-function removeStyleElements(nodes: ComarkNode[]): ComarkNode[] {
+function removeStyleElements(nodes: MarkdownNode[]): MarkdownNode[] {
   return nodes
-    .filter(node => !(isElement(node) && getTag(node as ComarkElement) === 'style'))
+    .filter(node => !(isElement(node) && getTag(node as ElementNode) === 'style'))
     .map((node) => {
       if (!isElement(node)) return node
-      const el = node as ComarkElement
+      const el = node as ElementNode
       const [tag, attrs, ...children] = el
-      return [tag, attrs, ...removeStyleElements(children as ComarkNode[])] as ComarkElement
+      return [tag, attrs, ...removeStyleElements(children as MarkdownNode[])] as ElementNode
     })
 }

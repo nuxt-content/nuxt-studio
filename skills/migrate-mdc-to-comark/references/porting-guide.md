@@ -8,18 +8,18 @@ Options flow as **function parameters**, never as module-level mutable state.
 
 ```ts
 // Entry point extracts options
-export function comarkToTiptap(tree: ComarkTree, options?: { hasNuxtUI?: boolean }): JSONContent {
+export function comarkToTiptap(tree: MarkdownDocument, options?: { hasNuxtUI?: boolean }): JSONContent {
   const hasNuxtUI = options?.hasNuxtUI ?? false
   const content = cleanNodes.flatMap(node => comarkNodeToTiptap(node, undefined, hasNuxtUI))
 }
 
 // Middle layer threads it through
-export function comarkNodeToTiptap(node: ComarkNode, parentTag?: string, hasNuxtUI = false): JSONContent | JSONContent[] {
-  return createElementNode(node as ComarkElement, tagStr, hasNuxtUI)
+export function comarkNodeToTiptap(node: MarkdownNode, parentTag?: string, hasNuxtUI = false): JSONContent | JSONContent[] {
+  return createElementNode(node as ElementNode, tagStr, hasNuxtUI)
 }
 
 // Leaf function uses it; option-dependent constants defined locally
-function createElementNode(node: ComarkElement, type: string, hasNuxtUI = false): JSONContent {
+function createElementNode(node: ElementNode, type: string, hasNuxtUI = false): JSONContent {
   const CALLOUT_TAGS = new Set(['callout', 'note', 'tip', 'warning', 'caution'])
   const tiptapType = hasNuxtUI && CALLOUT_TAGS.has(type) ? 'u-callout' : 'element'
 }
@@ -47,9 +47,9 @@ The `tag` attr stores the original comark tag string (e.g. `'note'`, `'tip'`).
 'u-callout': (node: JSONContent) => createCalloutElement(node),
 
 // Dedicated function — support both new 'tag' attr and legacy 'type' attr
-function createCalloutElement(node: JSONContent): ComarkElement {
+function createCalloutElement(node: JSONContent): ElementNode {
   const tag = node.attrs?.tag || node.attrs?.type || 'note'
-  return createElement(node, tag) as ComarkElement
+  return createElement(node, tag) as ElementNode
 }
 ```
 
@@ -74,7 +74,7 @@ All section headers inside converter functions use `/** */` blocks, not `//` sin
 // ✓ Correct
 /**
  * Text node
- * ComarkText is a plain string
+ * TextNode is a plain string
  */
 if (typeof node === 'string') { … }
 ```
@@ -82,9 +82,9 @@ if (typeof node === 'string') { … }
 Standard sections in `comarkNodeToTiptap`:
 
 ```ts
-/** Text node — ComarkText is a plain string */
+/** Text node — TextNode is a plain string */
 
-/** Comment node — ComarkComment is [null, {}, text] */
+/** Comment node — CommentNode is [null, {}, text] */
 
 /** Known node types */
 
@@ -95,7 +95,7 @@ Standard sections in `comarkNodeToTiptap`:
 
 ## Tuple-Building Helpers
 
-When constructing a `ComarkElement` from a TipTap node, reuse the existing `createElement(node, tag)` helper rather than building the tuple by hand. It centralises attribute extraction and child recursion so behavioural changes stay consistent across all node creators.
+When constructing an `ElementNode` from a TipTap node, reuse the existing `createElement(node, tag)` helper rather than building the tuple by hand. It centralises attribute extraction and child recursion so behavioural changes stay consistent across all node creators.
 
 ```ts
 // ❌ Wrong — hand-rolled tuple
@@ -108,15 +108,15 @@ return createElement(node, tag)
 For comments use the well-known sentinel:
 
 ```ts
-return [null, {}, commentText] as ComarkComment
+return [null, {}, commentText] as CommentNode
 ```
 
 ## Frontmatter on the Tree
 
-`ComarkTree` carries `frontmatter`, `nodes`, and `meta`. When building a tree from TipTap, set frontmatter explicitly:
+`MarkdownDocument` carries `frontmatter`, `nodes`, and `meta`. When building a tree from TipTap, set frontmatter explicitly:
 
 ```ts
-const tree: ComarkTree = {
+const tree: MarkdownDocument = {
   nodes,
   frontmatter: extractedFrontmatter,
   meta: {},
