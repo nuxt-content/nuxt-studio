@@ -61,7 +61,7 @@
     "destr": "^2.0.5",
     "js-yaml": "^4.2.0",
     "minimatch": "^10.2.5",
-    "nuxt-component-meta": "^0.17.2",
+    "nuxt-component-meta": "^0.18.0",
     "shiki": "^4.3.1",
     "unstorage": "1.17.5",
     "zod": "^4.4.3",
@@ -97,7 +97,7 @@
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-libcss": "^1.1.2",
     "vitest": "^4.1.8",
-    "vue": "^3.5.35",
+    "vue": "^3.5.42",
     "vue-router": "^5.1.0",
     "vue-tsc": "3.3.3"
   },
