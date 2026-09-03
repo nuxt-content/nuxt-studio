@@ -43,6 +43,7 @@ function computeValue(formItem: FormItem): unknown {
     case 'media':
     case 'file':
     case 'textarea':
+    case 'relation':
       return typeof value === 'string' ? value : ''
     case 'boolean':
       return typeof value === 'boolean' ? value : false
