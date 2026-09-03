@@ -1600,6 +1600,29 @@ describe('code block', () => {
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  // A bare ``` fence has no `language`. Opening it in the editor must not
+  // invent one — `comarkToTiptap` used to default absent languages to 'text'
+  // for editor display, and `tiptapToComark` wrote that default straight back,
+  // silently rewriting ``` -> ```text on save with zero user edits.
+  test('bare fence with no language round-trips without gaining a language', async () => {
+    const inputContent = '```\nassets/\n  icons/\n    my-logo.svg\n```\n'
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON = comarkToTiptap(comarkTree)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(inputContent)
+  })
+
   test('simple code block highlighting', async () => {
     const inputContent = 'console.log("Hello, world!");'
 
