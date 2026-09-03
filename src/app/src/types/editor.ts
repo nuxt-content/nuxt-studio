@@ -12,7 +12,30 @@ export interface ComponentMeta {
   }
 }
 
-export type FormInputsTypes = JSType | 'icon' | 'media' | 'file' | 'date' | 'datetime' | 'textarea'
+export type FormInputsTypes = JSType | 'icon' | 'media' | 'file' | 'date' | 'datetime' | 'textarea' | 'relation'
+
+/**
+ * Describes a reference from a string field to a document of another collection.
+ * The field keeps storing a plain string, so files stay valid for any consumer.
+ */
+export interface RelationOptions {
+  /**
+   * Name of the referenced collection, as declared in `content.config.ts`.
+   */
+  collection: string
+  /**
+   * Field of the referenced document written to the file.
+   * `slug` (default) uses the document file name, `path` its route and `stem`
+   * its source relative path. Any other value is read from the document itself.
+   * @default 'slug'
+   */
+  valueField?: 'slug' | 'path' | 'stem' | (string & {})
+  /**
+   * Field of the referenced document displayed in the picker.
+   * Defaults to `name`, then `title`, then the stored value.
+   */
+  labelField?: string
+}
 
 export type FormTree = Record<string, FormItem>
 export type FormItem = {
@@ -22,6 +45,7 @@ export type FormItem = {
   value?: unknown
   default?: unknown
   options?: string[]
+  relation?: RelationOptions
   title: string
   icon?: string
   children?: FormTree
