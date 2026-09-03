@@ -1,4 +1,4 @@
-import type { Node as MarkdownNode, MarkdownDocument } from 'comark'
+import type { Node as MarkdownNode, MarkdownDocument, ElementNodeAttributes } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import { ContentFileExtension } from '../../types/content'
 import { doObjectsMatch } from '../object'
@@ -41,8 +41,8 @@ function unwrapLeadingDefaultSlot(children: MarkdownNode[]): MarkdownNode[] {
 /**
  * Strip the `language: 'text'` artifact from a bare ``` fence.
  */
-function stripTextLanguageArtifact(attrs: Record<string, unknown> | undefined, children: MarkdownNode[]): { attrs: Record<string, unknown> | undefined, children: MarkdownNode[] } {
-  if (attrs?.language !== 'text') return { attrs, children }
+function stripTextLanguageArtifact(attrs: ElementNodeAttributes, children: MarkdownNode[]): { attrs: ElementNodeAttributes, children: MarkdownNode[] } {
+  if (attrs.language !== 'text') return { attrs, children }
 
   const nextAttrs = { ...attrs }
   delete nextAttrs.language
@@ -70,7 +70,7 @@ function normalizeNode(node: MarkdownNode): MarkdownNode {
   if (tag === null) return node // comment
 
   if (tag === 'pre') {
-    const stripped = stripTextLanguageArtifact(attrs as Record<string, unknown> | undefined, children as MarkdownNode[])
+    const stripped = stripTextLanguageArtifact(attrs, children as MarkdownNode[])
     attrs = stripped.attrs
     children = stripped.children
   }
