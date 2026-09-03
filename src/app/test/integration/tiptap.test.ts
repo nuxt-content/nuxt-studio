@@ -1600,6 +1600,25 @@ describe('code block', () => {
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('bare fence with no language round-trips without gaining a language', async () => {
+    const inputContent = '```\nassets/\n  icons/\n    my-logo.svg\n```\n'
+
+    const document = await documentFromContent('test.md', inputContent) as DatabasePageItem
+    const comarkTree = document.body
+
+    const tiptapJSON = comarkToTiptap(comarkTree)
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(inputContent)
+  })
+
   test('simple code block highlighting', async () => {
     const inputContent = 'console.log("Hello, world!");'
 
