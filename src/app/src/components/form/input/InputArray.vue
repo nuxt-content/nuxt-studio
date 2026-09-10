@@ -22,6 +22,18 @@ const itemsLabel = computed(() =>
   props.formItem?.title ? formItemInputLabel(props.formItem) : '',
 )
 
+const hasOptions = computed(() => props.formItem?.options && props.formItem.options.length > 0)
+
+const selectItems = computed(() => {
+  if (!props.formItem?.options) return []
+  return props.formItem.options
+    .filter(option => option !== '')
+    .map(option => ({
+      label: option,
+      value: option,
+    }))
+})
+
 const activeIndex = ref<number | null>(null)
 const stringEditingValue = ref('')
 
@@ -60,8 +72,8 @@ function addItem() {
 
   model.value = [...(model.value || []), newItem]
 
-  // Auto-focus new string item
-  if (itemsType.value === 'string') {
+  // Auto-focus new string item (skip for enum arrays — the select is always visible)
+  if (itemsType.value === 'string' && !hasOptions.value) {
     nextTick(() => {
       startStringEditing(model.value.length - 1)
     })
@@ -167,6 +179,53 @@ function moveItem(index: number, offset: number) {
             @update:model-value="updateItem(item.index, $event)"
           />
         </Collapsible>
+      </div>
+    </template>
+
+    <!-- Array of Enum Strings -->
+    <template v-else-if="itemsType === 'string' && hasOptions">
+      <div class="flex flex-col gap-1.5">
+        <div
+          v-for="item in items"
+          :key="item.index"
+          class="flex items-center gap-1 group/item"
+        >
+          <USelect
+            :model-value="(item.value as string)"
+            :items="selectItems"
+            :placeholder="$t('studio.form.text.selectPlaceholder')"
+            size="xs"
+            class="flex-1"
+            @update:model-value="updateItem(item.index, $event)"
+          />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            size="2xs"
+            icon="i-lucide-arrow-up"
+            class="opacity-0 group-hover/item:opacity-100 transition-opacity"
+            :aria-label="$t('studio.form.array.moveItemUp')"
+            @click.stop="moveItem(item.index, -1)"
+          />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            size="2xs"
+            icon="i-lucide-arrow-down"
+            class="opacity-0 group-hover/item:opacity-100 transition-opacity"
+            :aria-label="$t('studio.form.array.moveItemDown')"
+            @click.stop="moveItem(item.index, 1)"
+          />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            size="2xs"
+            icon="i-lucide-trash"
+            class="opacity-0 group-hover/item:opacity-100 transition-opacity"
+            :aria-label="$t('studio.form.array.deleteItem')"
+            @click.stop="deleteItem(item.index)"
+          />
+        </div>
       </div>
     </template>
 
