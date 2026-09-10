@@ -50,7 +50,7 @@ onMounted(() => {
 })
 
 // Wrapped form tree for FormSection
-const formTreeWithValues = computed(() => {
+const formTreeWithValues = computed<FormTree | null>(() => {
   if (!formTree.value || Object.keys(formTree.value).length === 0) {
     return null
   }
