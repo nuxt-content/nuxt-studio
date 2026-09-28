@@ -118,7 +118,7 @@ function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: 
       values.push(`'${JSON.stringify(valueToInsert).replace(/'/g, '\'\'')}'`)
     }
     else if (type === 'string' || ['string', 'enum'].includes(value!.type!)) {
-      values.push(`'${String(valueToInsert).replace(/\n/g, '\\n').replace(/'/g, '\'\'')}'`)
+      values.push(`'${String(valueToInsert).replace(/'/g, '\'\'')}'`)
     }
     else if (type === 'boolean') {
       values.push(!!valueToInsert)
