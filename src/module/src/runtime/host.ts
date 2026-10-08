@@ -13,7 +13,7 @@ import { collections } from '#content/preview'
 import { publicAssetsStorage, externalAssetsStorage } from '#build/studio-assets'
 import { useHostMeta } from './composables/useMeta'
 import { assignComponentsToGroups } from './utils/componentGroups'
-import { generateIdFromFsPath as generateMediaIdFromFsPath, mediaItemFieldsFromKey } from './utils/media'
+import { generateIdFromFsPath as generateMediaIdFromFsPath, mediaItemFieldsFromKey, dataUrlToBlob } from './utils/media'
 import { VIRTUAL_MEDIA_COLLECTION_NAME } from './utils/constants'
 import { getCollectionSourceById } from './utils/source'
 import { kebabCase } from 'scule'
@@ -329,6 +329,12 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         },
         upsert: async (fsPath: string, media: MediaItem) => {
           const id = generateMediaIdFromFsPath(fsPath)
+          // External uploads go as raw bytes: a base64 JSON body is 33% larger and forces the server to hold several copies of the file
+          const blob = host.meta.media?.external && typeof media.raw === 'string' ? dataUrlToBlob(media.raw) : undefined
+          if (blob) {
+            await getStorage().setItemRaw(id, blob, { headers: { 'content-type': blob.type } })
+            return
+          }
           await getStorage().setItem(id, { ...media, id })
         },
         delete: async (fsPath: string) => {
