@@ -9,6 +9,7 @@ describe('custom Studio authentication', () => {
   it('rejects external and protocol-relative URLs', () => {
     expect(isValidCustomAuthURL('https://example.com/login')).toBe(false)
     expect(isValidCustomAuthURL('//example.com/login')).toBe(false)
+    expect(isValidCustomAuthURL('/\\example.com/login')).toBe(false)
   })
 
   it('escapes custom labels and URLs before rendering HTML', () => {

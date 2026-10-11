@@ -4,7 +4,7 @@ export function isValidCustomAuthURL(value: string) {
     return code <= 0x20 || code === 0x7F
   })
 
-  return value.startsWith('/') && !value.startsWith('//') && !hasUnsafeCharacter
+  return value.startsWith('/') && !value.startsWith('//') && !value.includes('\\') && !hasUnsafeCharacter
 }
 
 export function escapeHTML(value: string) {
