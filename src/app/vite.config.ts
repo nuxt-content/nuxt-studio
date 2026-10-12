@@ -60,8 +60,7 @@ export default defineConfig(({ mode }) => ({
     dts({
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.vue'],
-      insertTypesEntry: true,
-      rollupTypes: true,
+      bundleTypes: true,
       entryRoot: 'src',
       tsconfigPath: './tsconfig.app.json',
     }),

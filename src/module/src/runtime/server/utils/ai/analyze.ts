@@ -153,7 +153,7 @@ export function analyzeArchitecture(items: DatabasePageItem[]): CollectionArchit
   const usesNestedFolders = maxDepth > 2
   const folderCount = folders.size
 
-  let structure = ''
+  let structure: string
   if (maxDepth === 1) {
     structure = 'Flat structure (all files in root)'
   }

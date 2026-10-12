@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { createTextStreamResponse, streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, readBody, createError } from 'h3'
 import { useRuntimeConfig } from '#imports'
@@ -31,11 +31,13 @@ export default eventHandler(async (event) => {
 
   const gateway = createGateway({ apiKey })
 
-  return streamText({
+  const result = streamText({
     model: gateway.languageModel('anthropic/claude-haiku-4.5'),
-    system: getCommitSystem(messagePrefix),
+    instructions: getCommitSystem(messagePrefix),
     prompt: changes,
     maxOutputTokens: 60,
     temperature: 0.3,
-  }).toTextStreamResponse()
+  })
+
+  return createTextStreamResponse({ stream: result.textStream })
 })

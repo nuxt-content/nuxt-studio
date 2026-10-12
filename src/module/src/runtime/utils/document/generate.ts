@@ -8,7 +8,7 @@ import type { MarkdownDocument } from 'comark'
 import shiki from 'comark/plugins/shiki'
 import { renderMarkdown } from 'comark/render'
 import destr from 'destr'
-import yaml from 'js-yaml'
+import { CORE_SCHEMA, dump, loadAll, mergeTag, timestampTag } from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
@@ -36,7 +36,8 @@ export async function documentFromContent(id: string, content: string, options: 
 }
 
 export async function documentFromYAMLContent(id: string, content: string): Promise<DatabaseItem> {
-  const data = (yaml.load(content) || {}) as Record<string, unknown>
+  // `loadAll` because `load` throws on empty files since js-yaml v5.
+  const data = (loadAll(content, { schema: CORE_SCHEMA.withTags(timestampTag, mergeTag) })[0] || {}) as Record<string, unknown>
 
   // Keep array contents under `body` key
   let parsed = data
@@ -149,7 +150,7 @@ export async function contentFromDocument(document: DatabaseItem): Promise<strin
 }
 
 export async function contentFromYAMLDocument(document: DatabaseItem): Promise<string | null> {
-  return yaml.dump(cleanDataKeys(document), { lineWidth: -1 })
+  return dump(cleanDataKeys(document), { lineWidth: -1 })
 }
 
 export async function contentFromJSONDocument(document: DatabaseItem): Promise<string | null> {

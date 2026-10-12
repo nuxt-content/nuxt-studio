@@ -2850,8 +2850,8 @@ authorsTwo:
       [
         'authors',
         {
-          authorsOne: [{ name: 'John Doe One', avatar: 'https://placehold.co/150', role: 'contributor' }],
-          authorsTwo: [{ name: 'Jane Doe Two', avatar: 'https://placehold.co/150', role: 'maintainer' }],
+          ':authorsOne': [{ name: 'John Doe One', avatar: 'https://placehold.co/150', role: 'contributor' }],
+          ':authorsTwo': [{ name: 'Jane Doe Two', avatar: 'https://placehold.co/150', role: 'maintainer' }],
         },
       ],
     ]
@@ -2866,7 +2866,7 @@ authorsTwo:
 
     // TipTap attrs.props must still hold actual objects (not "[object Object]")
     const elementNode = tiptapJSON.content?.find(n => n.type === 'element')
-    expect(elementNode?.attrs?.props?.authorsOne).toEqual([
+    expect(elementNode?.attrs?.props?.[':authorsOne']).toEqual([
       { name: 'John Doe One', avatar: 'https://placehold.co/150', role: 'contributor' },
     ])
 
