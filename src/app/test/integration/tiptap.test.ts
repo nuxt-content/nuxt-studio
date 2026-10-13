@@ -1,5 +1,6 @@
 import { test, describe, expect } from 'vitest'
-import { contentFromDocument, documentFromContent } from '../../../module/dist/runtime/utils/document'
+import { parseMarkdown as parseWithMdc } from '@nuxtjs/mdc/runtime'
+import { contentFromDocument, documentFromContent, ensureComarkBody } from '../../../module/dist/runtime/utils/document'
 import type { JSONContent } from '@tiptap/core'
 import type { DatabasePageItem } from '../../src/types'
 import { createMockDocument } from '../mocks/document'
@@ -1241,6 +1242,38 @@ My icon
     const outputContent = await contentFromDocument(generatedDocument)
 
     expect(outputContent).toBe('Hello   \n world\n')
+  })
+
+  test('hard break in a component slot read back by @nuxtjs/mdc keeps one paragraph across saves', async () => {
+    // Trimmed from the Docus hero, where Studio dev mode writes the file when the editor opens.
+    const inputContent = `::u-page-hero
+#description
+out of the box. :br Docus brings the best of the Nuxt ecosystem.
+::`
+
+    // Opens the file as @nuxt/content stores it, then saves it from the editor.
+    async function saveThroughEditor(content: string) {
+      const { body } = await parseWithMdc(content, { highlight: false, toc: false })
+      const document = ensureComarkBody(createMockDocument('docs/index.md', { body: body as never })) as DatabasePageItem
+
+      const editorJSON = roundTripThroughEditor(comarkToTiptap(document.body))
+      const rtComarkTree = await tiptapToComark(editorJSON)
+
+      return contentFromDocument(createMockDocument('docs/index.md', {
+        body: rtComarkTree,
+        ...rtComarkTree.frontmatter,
+      }))
+    }
+
+    // Comark renders :br as a markdown hard break, keeping the spaces around it.
+    const first = await saveThroughEditor(inputContent)
+    expect(first).toBe('::u-page-hero\n#description\nout of the box.   \n Docus brings the best of the Nuxt ecosystem.\n::\n')
+
+    // Comark reads that hard break without the spaces, so the file settles here.
+    const second = await saveThroughEditor(first!)
+    expect(second).toBe('::u-page-hero\n#description\nout of the box.  \nDocus brings the best of the Nuxt ecosystem.\n::\n')
+
+    await expect(saveThroughEditor(second!)).resolves.toBe(second)
   })
 
   test('inline element with slot content', async () => {

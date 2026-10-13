@@ -78,7 +78,7 @@ function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
   if (node.type === 'element') {
     const el = node as MDCElement
     if (el.tag === 'pre') return preMdcToComarkNode(el)
-    const children = normalizeMdcChildren(el.children || [])
+    const children = dropNewlineAfterHardBreaks(normalizeMdcChildren(el.children || []))
     return [
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
@@ -87,6 +87,21 @@ function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
   }
 
   return ''
+}
+
+const isMdcHardBreak = (node?: MDCNode) => node?.type === 'element' && (node as MDCElement).tag === 'br'
+
+/**
+ * mdast-util-to-hast adds a `\n` text after each hard break, which comark's tree doesn't have.
+ * Comark renders a `br` as `'  \n'`, so that extra `\n` makes the next save split the paragraph.
+ */
+function dropNewlineAfterHardBreaks(children: MDCNode[]): MDCNode[] {
+  return children.flatMap((child, i): MDCNode[] => {
+    if (child.type !== 'text' || !isMdcHardBreak(children[i - 1])) return [child]
+    const { value } = child as MDCText
+    if (!value.startsWith('\n')) return [child]
+    return value.length > 1 ? [{ ...child, value: value.slice(1) } as MDCText] : []
+  })
 }
 
 /**

@@ -68,6 +68,31 @@ describe('Document - Markdown roundtrip Integration Tests', () => {
 
       await expect(contentFromMarkdownDocument(second)).resolves.toBe('Line one  \nLine two\n')
     })
+
+    // Trimmed from the Docus hero, where the second save split the description in two.
+    describe('in a component slot read back by @nuxtjs/mdc', () => {
+      const original = `::u-page-hero
+#description
+out of the box. :br Docus brings the best of the Nuxt ecosystem.
+::
+`
+
+      it('keeps one paragraph with a hard break across saves', async () => {
+        const first = await contentFromMarkdownDocument(await storedDocumentOf(original))
+        const second = await contentFromMarkdownDocument(await storedDocumentOf(first!))
+
+        expect(await renderedOutline(second!)).toEqual(await renderedOutline(original))
+      })
+
+      it('saves what comark reads from the file', async () => {
+        for (const content of [original, await contentFromMarkdownDocument(await storedDocumentOf(original))]) {
+          const fromStoredBody = await contentFromMarkdownDocument(await storedDocumentOf(content!))
+          const fromComark = await contentFromMarkdownDocument(await documentFromMarkdownContent('content:index.md', content!))
+
+          expect(fromStoredBody).toBe(fromComark)
+        }
+      })
+    })
   })
 
   describe('code block with component inside named slot', () => {
