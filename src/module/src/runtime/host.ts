@@ -3,7 +3,7 @@ import { ensure } from './utils/ensure'
 import type { CollectionInfo, CollectionItemBase, CollectionSource, DatabaseAdapter } from '@nuxt/content'
 import type { ContentDatabaseAdapter } from '../types/content'
 import { getCollectionByFilePath, generateIdFromFsPath, generateRecordDeletion, generateRecordInsert, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema, isDocumentMatchingContent, documentFromContent, contentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree, markdownRootFromComarkTree, isComarkTree, ensureComarkBody } from './utils/document'
+import { applyCollectionSchema, isDocumentMatchingContent, documentFromContent, contentFromDocument, areDocumentsEqual, pickReservedKeysFromDocument, cleanDataKeys, sanitizeDocumentTree, markdownRootFromComarkTree, isComarkTree, ensureComarkBody, restoreBareCodeFences } from './utils/document'
 import { getHostStyles, getSidebarWidth, adjustFixedElements } from './utils/sidebar'
 import type { StudioHost, StudioUser, DatabaseItem, MediaItem, Repository } from 'nuxt-studio/app'
 import type { RouteLocationNormalized, Router } from 'vue-router'
@@ -280,6 +280,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
         pickReservedKeys: (document: DatabaseItem) => pickReservedKeysFromDocument(document),
         cleanDataKeys: (document: DatabaseItem) => cleanDataKeys(document),
         ensureComarkBody: (document: DatabaseItem) => ensureComarkBody(document),
+        restoreBareCodeFences: (document: DatabaseItem, content: string) => restoreBareCodeFences(document, content),
         detectActives: () => {
           // TODO: introduce a new convention to detect data contents [data-content-id!]
           const wrappers = document.querySelectorAll('[data-content-id]')

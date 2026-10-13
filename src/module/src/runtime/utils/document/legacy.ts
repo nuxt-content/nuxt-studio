@@ -8,11 +8,13 @@
  *   1. Delete this file
  *   2. Fix TypeScript errors at call sites:
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
- *                       remove markdownRootFromComarkTree usage in db.upsert
+ *                       remove markdownRootFromComarkTree usage in db.upsert, remove the restoreBareCodeFences util
  *      - compare.ts   → drop the comarkBody helper and compare ComarkTrees directly
  *      - generate.ts  → remove unbindComarkTree usage in contentFromMarkdownDocument
- *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument and markdownRootFromComarkTree
- *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call
+ *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument, markdownRootFromComarkTree and restoreBareCodeFences
+ *      - host.dev.ts  → remove the restoreBareCodeFences db.get override
+ *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call,
+ *                       remove the host.document.utils.restoreBareCodeFences call in create
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
@@ -20,6 +22,7 @@ import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { MarkdownDocument, Node as MarkdownNode, ElementNode, CommentNode } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
+import { parseMarkdown } from 'comark'
 import { generateFlatToc } from 'comark/plugins/toc'
 import { cleanDataKeys } from './schema'
 import { isComarkTree } from './generate'
@@ -494,6 +497,51 @@ export function ensureComarkBody(document: DatabaseItem): DatabaseItem {
   const comarkTree = comarkTreeFromLegacyDocument(document)
   if (!comarkTree) return document
   return { ...document, body: comarkTree as unknown }
+}
+
+function collectPreNodes(nodes: MarkdownNode[], out: ElementNode[] = []): ElementNode[] {
+  for (const node of nodes) {
+    if (!Array.isArray(node) || node[0] === null) continue
+    if (node[0] === 'pre') out.push(node as ElementNode)
+    else collectPreNodes(node.slice(2) as MarkdownNode[], out)
+  }
+  return out
+}
+
+const codeText = (node: MarkdownNode): string => typeof node === 'string'
+  ? node
+  : Array.isArray(node) ? (node.slice(2) as MarkdownNode[]).map(codeText).join('') : ''
+
+function dropLanguage(node: MarkdownNode, bare: Set<ElementNode>): MarkdownNode {
+  if (!Array.isArray(node) || node[0] === null) return node
+  const [tag, attrs, ...children] = node as ElementNode
+  if (bare.has(node as ElementNode)) {
+    const { language: _, ...rest } = attrs
+    return [tag, rest, ...children] as ElementNode
+  }
+  return [tag, attrs, ...children.map(child => dropLanguage(child, bare))] as ElementNode
+}
+
+/**
+ * Drop the `language: 'text'` that @nuxtjs/mdc stores for bare fences.
+ * Only the raw file can tell a bare fence from an explicit ```text one.
+ */
+export async function restoreBareCodeFences(document: DatabaseItem, content: string): Promise<DatabaseItem> {
+  if (document.extension !== 'md' || !isComarkTree(document.body)) return document
+
+  const tree = document.body as unknown as MarkdownDocument
+  const stored = collectPreNodes(tree.nodes)
+  if (!stored.some(pre => pre[1]?.language === 'text')) return document
+
+  const source = collectPreNodes((await parseMarkdown(content, { autoClose: false, autoUnwrap: true, linkify: false })).nodes)
+  // Fences are paired by position, so bail out when the trees disagree.
+  if (source.length !== stored.length) return document
+
+  const sameCode = (a: ElementNode, b: ElementNode) => codeText(a).replace(/\s+/g, '') === codeText(b).replace(/\s+/g, '')
+  const bare = new Set(stored.filter((pre, i) => pre[1]?.language === 'text' && !source[i]![1]?.language && sameCode(pre, source[i]!)))
+  if (!bare.size) return document
+
+  return { ...document, body: { ...tree, nodes: tree.nodes.map(node => dropLanguage(node, bare)) } as unknown }
 }
 
 /**

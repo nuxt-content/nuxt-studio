@@ -30,6 +30,7 @@ export {
   ensureComarkBody,
   comarkTreeFromLegacyDocument,
   markdownRootFromComarkTree,
+  restoreBareCodeFences,
 } from './legacy'
 
 // Utils

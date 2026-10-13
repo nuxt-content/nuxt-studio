@@ -4,6 +4,8 @@ import { DraftStatus, StudioItemActionId, type TreeItem, type DatabaseItem } fro
 import { normalizeKey, generateUniqueDocumentFsPath, generateUniqueMediaFsPath } from '../utils'
 import { fsPathToId } from '../mocks/host'
 import { createMockFile, createMockMedia, setupMediaMocks } from '../mocks/media'
+import { createMockGithubFile } from '../mocks/git'
+import { createMockDocument } from '../mocks/document'
 import { findItemFromFsPath } from '../../src/utils/tree'
 import { mockStorageDraft, mockHost, mockGit, routeState, cleanAndSetupContext } from '../utils/context'
 
@@ -693,6 +695,24 @@ describe('Document - Action Chains Integration Tests', () => {
     const after = context.activeTree.value.draft.list.value[0]
     expect(after.status).toEqual(DraftStatus.Updated)
     expect(after.formattingApplied).toBe(true)
+  })
+
+  it('Select keeps a bare fence the DB stored as ```text', async () => {
+    const remoteContent = '```\nassets/\n```\n'
+    vi.mocked(mockGit.api.fetchFile).mockResolvedValueOnce(createMockGithubFile({ content: remoteContent }))
+    await mockHost.document.db.upsert(documentFsPath, createMockDocument(documentId, {
+      fsPath: documentFsPath,
+      body: { nodes: [['pre', { language: 'text' }, ['code', { __ignoreMap: '' }, 'assets/']]], frontmatter: {}, meta: {} },
+    }))
+    await context.activeTree.value.draft.load()
+
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    const draft = context.activeTree.value.draft.list.value[0]!
+    expect(draft.status).toEqual(DraftStatus.Pristine)
+    expect(draft.conflict).toBeUndefined()
+    expect((await mockHost.document.generate.contentFromDocument(draft.original as DatabaseItem))?.trim()).toBe(remoteContent.trim())
+    expect((await mockHost.document.generate.contentFromDocument(draft.modified as DatabaseItem))?.trim()).toBe(remoteContent.trim())
   })
 })
 
