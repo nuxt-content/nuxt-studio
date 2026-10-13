@@ -9,7 +9,7 @@
  *   2. Fix TypeScript errors at call sites:
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
  *                       remove markdownRootFromComarkTree usage in db.upsert, remove the restoreBareCodeFences util
- *      - compare.ts   → drop the comarkBody helper and compare ComarkTrees directly
+ *      - compare.ts   → drop the comarkBody helper and normalizeLegacyBodyDifferences calls, compare ComarkTrees directly
  *      - generate.ts  → remove unbindComarkTree and padBlankLinesInComponents usage in contentFromMarkdownDocument
  *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument, markdownRootFromComarkTree and restoreBareCodeFences
  *      - host.dev.ts  → remove the restoreBareCodeFences db.get override
@@ -20,7 +20,7 @@
 import type { MarkdownRoot } from '@nuxt/content'
 import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/mdc'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import type { MarkdownDocument, Node as MarkdownNode, ElementNode, CommentNode } from 'comark'
+import type { MarkdownDocument, Node as MarkdownNode, ElementNode, ElementNodeAttributes, CommentNode } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { parseMarkdown } from 'comark'
 import { generateFlatToc } from 'comark/plugins/toc'
@@ -671,6 +671,93 @@ export async function restoreBareCodeFences(document: DatabaseItem, content: str
   if (!bare.size) return document
 
   return { ...document, body: { ...tree, nodes: tree.nodes.map(node => dropLanguage(node, bare)) } as unknown }
+}
+
+/**
+ * Unwrap a leading `#default` slot marker, which comark keeps but `@nuxtjs/mdc` erases.
+ */
+function unwrapLeadingDefaultSlot(children: MarkdownNode[]): MarkdownNode[] {
+  const [first, ...rest] = children
+  if (!Array.isArray(first) || first[0] !== 'template') return children
+
+  // Leading and attribute-free only: elsewhere the marker is load-bearing, and attributes
+  // are content. `$` is comark-internal, ignored by its template handler too.
+  const attrs = (first[1] || {}) as Record<string, unknown>
+  if (attrs.name !== 'default' || Object.keys(attrs).some(key => key !== 'name' && key !== '$')) {
+    return children
+  }
+
+  return [...(first.slice(2) as MarkdownNode[]), ...rest]
+}
+
+/**
+ * Strip the `language: 'text'` artifact from a bare ``` fence.
+ */
+function stripTextLanguageArtifact(attrs: ElementNodeAttributes, children: MarkdownNode[]): { attrs: ElementNodeAttributes, children: MarkdownNode[] } {
+  if (attrs.language !== 'text') return { attrs, children }
+
+  const nextAttrs = { ...attrs }
+  delete nextAttrs.language
+
+  const nextChildren = children.map((child, index) => {
+    if (index !== 0 || !Array.isArray(child)) return child
+    const [childTag, childAttrs, ...rest] = child as [string, Record<string, unknown>, ...MarkdownNode[]]
+    if (childTag !== 'code' || typeof childAttrs?.class !== 'string') return child
+    const remaining = childAttrs.class.split(/\s+/).filter(cls => cls && cls !== 'language-text')
+    const nextChildAttrs = { ...childAttrs }
+    if (remaining.length) nextChildAttrs.class = remaining.join(' ')
+    else delete nextChildAttrs.class
+    return [childTag, nextChildAttrs, ...rest] as MarkdownNode
+  })
+
+  return { attrs: nextAttrs, children: nextChildren }
+}
+
+/**
+ * @nuxtjs/mdc drops leading spaces from code nested in components, so nested code is compared without indentation.
+ */
+function stripCodeIndentation(attrs: ElementNodeAttributes, children: MarkdownNode[]): { attrs: ElementNodeAttributes, children: MarkdownNode[] } {
+  const { code, ...rest } = attrs
+  const text = typeof code === 'string' ? code : children.map(codeText).join('')
+  return { attrs: rest, children: [['code', {}, text.split('\n').map(line => line.trimStart()).join('\n')] as MarkdownNode] }
+}
+
+/**
+ * Comark keeps YAML numbers and objects as `:key` JSON bindings, while the legacy bridge unbinds them.
+ */
+function unbindJsonAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(attrs).map(([key, value]) => {
+    if (!key.startsWith(':') || typeof value !== 'string') return [key, value]
+    try {
+      const parsed = JSON.parse(value)
+      // Both sides keep booleans bound.
+      return typeof parsed === 'boolean' ? [key, value] : [key.slice(1), parsed]
+    }
+    catch {
+      return [key, value]
+    }
+  }))
+}
+
+function normalizeLegacyNode(node: MarkdownNode, nested = false): MarkdownNode {
+  if (!Array.isArray(node) || node[0] === null) return node
+
+  const [tag] = node
+  let [, attrs, ...children] = node as ElementNode
+  if (tag === 'pre') {
+    ({ attrs, children } = stripTextLanguageArtifact(attrs, children))
+    if (nested) ({ attrs, children } = stripCodeIndentation(attrs, children))
+  }
+
+  return [tag, unbindJsonAttrs(attrs || {}), ...unwrapLeadingDefaultSlot(children).map(child => normalizeLegacyNode(child, true))] as ElementNode
+}
+
+/**
+ * Erase what comark and @nuxtjs/mdc read differently from the same file, so their trees can be compared.
+ * Apply it to both sides of a comparison.
+ */
+export function normalizeLegacyBodyDifferences(tree: MarkdownDocument): MarkdownDocument {
+  return { ...tree, nodes: tree.nodes.map(node => normalizeLegacyNode(node)) }
 }
 
 /**

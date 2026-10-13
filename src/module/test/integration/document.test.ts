@@ -200,6 +200,59 @@ This action cannot be undone.
     })
   })
 
+  // Trimmed from the Docus landing, which Studio reported as conflicted right after deploying it.
+  describe('deployed body compared with the file it was built from', () => {
+    const content = `::u-page-section
+  :::u-page-grid
+    ::::u-page-card
+      :::::u-color-mode-image
+      ---
+      height: 320
+      width: 859
+      alt: Beautiful visual powered by UI
+      ---
+      :::::
+
+    #title
+    Powered by Nuxt UI
+    ::::
+
+    ::::u-page-card
+    \`\`\`ts [app.config.ts]
+    export default defineAppConfig({
+      ui: {
+        colors: {
+          primary: 'green',
+        },
+      },
+    })
+    \`\`\`
+
+    #title
+    Customize with Nuxt App Config
+    ::::
+  :::
+::
+`
+
+    it('matches its own file', async () => {
+      expect(await isDocumentMatchingContent(content, await storedDocumentOf(content))).toBe(true)
+    })
+
+    it('still detects a changed code sample', async () => {
+      const changed = content.replace(`primary: 'green'`, `primary: 'blue'`)
+
+      expect(await isDocumentMatchingContent(changed, await storedDocumentOf(content))).toBe(false)
+    })
+
+    it('still detects re-indented code outside components', async () => {
+      const file = '```ts\nconst a = {\n  b: 1,\n}\n```\n'
+      const reindented = file.replace('  b: 1', '    b: 1')
+
+      expect(await isDocumentMatchingContent(reindented, await storedDocumentOf(file))).toBe(false)
+    })
+  })
+
   describe('non-comark stored bodies (drafts persisted by older Studio builds)', () => {
     const content = `# Hello
 
