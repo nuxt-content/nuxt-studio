@@ -3,6 +3,7 @@ import {
   comarkTreeFromLegacyDocument,
   ensureComarkBody,
   markdownRootFromComarkTree,
+  padBlankLinesInComponents,
   restoreBareCodeFences,
 } from '../../src/runtime/utils/document/legacy'
 import { renderMarkdown } from 'comark/render'
@@ -508,6 +509,127 @@ describe('mdc → comark closing-marker artifact repair', () => {
       ['h3', { id: 'leaked' }, 'Should escape two levels'],
       ['p', {}, 'Body text'],
     ])
+  })
+
+  // Shape @nuxtjs/mdc gives the Docus landing: the card's `::::` ends its slot paragraph.
+  it('closes a container from markers ending a paragraph', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'u-page-grid',
+        props: {},
+        children: [{
+          type: 'element',
+          tag: 'u-page-card',
+          props: {},
+          children: [{
+            type: 'element',
+            tag: 'tabs',
+            props: {},
+            children: [
+              {
+                type: 'element',
+                tag: 'tabs-item',
+                props: { label: 'Code' },
+                children: [{ type: 'element', tag: 'pre', props: { code: 'body\n', language: 'mdc' }, children: [] }],
+              },
+              { type: 'element', tag: 'p', props: {}, children: [{ type: 'text', value: ':::::' }] },
+              {
+                type: 'element',
+                tag: 'p',
+                props: {},
+                children: [
+                  { type: 'text', value: '#title\nEnhanced Markdown syntax by ' },
+                  { type: 'element', tag: 'a', props: { href: 'https://content.nuxt.com' }, children: [{ type: 'text', value: 'Nuxt Content' }] },
+                  { type: 'text', value: '\n::::' },
+                ],
+              },
+              { type: 'element', tag: 'u-page-card', props: {}, children: [{ type: 'text', value: 'Next card' }] },
+              { type: 'element', tag: 'p', props: {}, children: [{ type: 'text', value: ':::' }] },
+            ],
+          }],
+        }],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['u-page-grid', {},
+        ['u-page-card', {},
+          ['tabs', {},
+            ['tabs-item', { label: 'Code' }, ['pre', { language: 'mdc' }, ['code', { __ignoreMap: '' }, 'body']]],
+          ],
+          ['p', {}, '#title\nEnhanced Markdown syntax by ', ['a', { href: 'https://content.nuxt.com' }, 'Nuxt Content']],
+        ],
+        ['u-page-card', {}, 'Next card'],
+      ],
+    ])
+  })
+
+  it('leaves colon-only lines in the middle of a paragraph alone', () => {
+    const tree = comarkTreeFromLegacyDocument(legacyDocument({
+      type: 'root',
+      children: [{
+        type: 'element',
+        tag: 'note',
+        props: {},
+        children: [{ type: 'element', tag: 'p', props: {}, children: [{ type: 'text', value: 'Before\n::\nAfter' }] }],
+      }],
+    }))!
+
+    expect(tree.nodes).toMatchObject([
+      ['note', {}, ['p', {}, 'Before\n::\nAfter']],
+    ])
+  })
+})
+
+describe('padBlankLinesInComponents', () => {
+  it('indents empty lines like their component in a block holding an indented fence', () => {
+    const markdown = [
+      '::tabs',
+      '  :::tabs-item',
+      '    ::::note',
+      '    ::::',
+      '',
+      '    ::::tip',
+      '    ::::',
+      '  :::',
+      '',
+      '  :::tabs-item',
+      '  ```mdc',
+      '  ::note',
+      '',
+      '  ::',
+      '  ```',
+      '  :::',
+      '::',
+    ]
+
+    expect(padBlankLinesInComponents(markdown.join('\n')).split('\n')).toEqual(markdown.map((line, i) => [4, 12].includes(i) ? '  ' : line))
+  })
+
+  it('indents empty lines of a fence opened on a list item like the fence content', () => {
+    const markdown = ['::note', '  :::card', '  - ```mdc', '    ::tip', '', '    ::', '    ```', '  :::', '::'].join('\n')
+
+    expect(padBlankLinesInComponents(markdown)).toBe(markdown.replace('\n\n', '\n    \n'))
+  })
+
+  it('leaves blocks without an indented fence as written', () => {
+    const markdown = ['::note', '```mdc', '::tip', '', '::', '```', '::', '', '::tabs', '  :::tabs-item', '  First', '', '  Second', '  :::', '::'].join('\n')
+
+    expect(padBlankLinesInComponents(markdown)).toBe(markdown)
+  })
+
+  it('leaves component props as written', () => {
+    const markdown = ['::tabs', '  :::tabs-item', '  ---', '  description: |', '    One', '', '    Two', '  ---', '  ```ts', '  const a = 1', '  ```', '  :::', '::'].join('\n')
+
+    expect(padBlankLinesInComponents(markdown)).toBe(markdown)
+  })
+
+  it('does not read fence-like lines inside code as fences', () => {
+    const markdown = ['::note', '  :::card', '  ````md', '  ```mdc', '  ::tip', '', '  ::', '  ```', '  ````', '  :::', '::'].join('\n')
+
+    expect(padBlankLinesInComponents(markdown)).toBe(markdown.replace('\n\n', '\n  \n'))
   })
 })
 

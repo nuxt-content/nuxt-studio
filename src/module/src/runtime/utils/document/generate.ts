@@ -12,7 +12,7 @@ import { CORE_SCHEMA, dump, loadAll, mergeTag, timestampTag } from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
-import { comarkTreeFromLegacyDocument, unbindComarkTree } from './legacy'
+import { comarkTreeFromLegacyDocument, padBlankLinesInComponents, unbindComarkTree } from './legacy'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -164,5 +164,5 @@ export async function contentFromMarkdownDocument(document: DatabaseItem): Promi
   const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
   })
-  return markdown + '\n'
+  return padBlankLinesInComponents(markdown) + '\n'
 }

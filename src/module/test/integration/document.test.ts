@@ -1,4 +1,8 @@
 import { describe, it, expect } from 'vitest'
+import { parseMarkdown as parseWithMdc } from '@nuxtjs/mdc/runtime'
+import type { MDCNode, MDCRoot } from '@nuxtjs/mdc'
+import { decompressTree } from '@nuxt/content/runtime'
+import { parseMarkdown as parseWithComark } from 'comark'
 import { areDocumentsEqual, contentFromMarkdownDocument, documentFromMarkdownContent, ensureComarkBody, isDocumentMatchingContent } from '../../src/runtime/utils/document'
 import { markdownRootFromComarkTree } from '../../src/runtime/utils/document/legacy'
 import type { MarkdownDocument } from 'comark'
@@ -9,6 +13,44 @@ async function legacyBodyOf(id: string, content: string): Promise<{ comark: Data
   const comark = await documentFromMarkdownContent(id, content) as DatabaseItem
   const legacy = { ...comark, body: markdownRootFromComarkTree(comark.body as unknown as MarkdownDocument) as unknown } as DatabaseItem
   return { comark, legacy }
+}
+
+// Without a highlighter mdc keeps a `language-*` class on fences, which @nuxt/content's shiki output doesn't have.
+function dropFenceClass(node: MDCNode): MDCNode {
+  if (node.type !== 'element') return node
+  const props = node.tag === 'pre' ? { ...node.props, className: undefined } : node.props
+  return { ...node, props, children: node.children?.map(dropFenceClass) }
+}
+
+// The body @nuxt/content stores for a page, which is what Studio saves from.
+async function storedDocumentOf(content: string): Promise<DatabaseItem> {
+  const { body } = await parseWithMdc(content, { highlight: false, toc: false })
+  const stored: MDCRoot = { ...body, children: body.children.map(dropFenceClass) }
+  return { id: 'content:index.md', extension: 'md', stem: 'index', meta: {}, body: stored } as unknown as DatabaseItem
+}
+
+const textOf = (node: MDCNode): string => node.type === 'text' ? node.value : node.type === 'element' ? (node.children || []).map(textOf).join('') : ''
+
+// Tags, props and text of a page, ignoring whitespace and fence highlighting.
+function outline(node: MDCNode): unknown {
+  if (node.type === 'text') return node.value.replace(/\s+/g, ' ').trim()
+  if (node.type !== 'element') return ''
+  if (node.tag === 'pre') return ['pre', node.props?.language, textOf(node).trimEnd()]
+  const props = Object.fromEntries(Object.entries(node.props || {}).sort(([a], [b]) => a.localeCompare(b)))
+  return [node.tag, props, ...(node.children || []).map(outline).filter(Boolean)]
+}
+
+// How @nuxt/content reads a file.
+async function renderedOutline(content: string): Promise<unknown[]> {
+  const { body } = await parseWithMdc(content, { highlight: false, toc: false })
+  return body.children.map(outline).filter(Boolean)
+}
+
+// What a file means: comark reads nested fences right, unlike @nuxtjs/mdc.
+async function intendedOutline(content: string): Promise<unknown[]> {
+  const tree = await parseWithComark(content, { autoClose: false, autoUnwrap: false })
+  const body = decompressTree(markdownRootFromComarkTree(tree) as never) as MDCRoot
+  return body.children.map(outline).filter(Boolean)
 }
 
 describe('Document - Markdown roundtrip Integration Tests', () => {
@@ -62,6 +104,74 @@ hello
       const markdown = await contentFromMarkdownDocument(document)
 
       expect(markdown!.trim()).toBe(content.trim())
+    })
+  })
+
+  // Trimmed from the Docus landing, where a Studio save hid every card after the code sample.
+  describe('nested MDC code sample read back by @nuxtjs/mdc', () => {
+    const original = `::u-page-section
+  :::u-page-grid
+    ::::u-page-card
+      :::::tabs
+        ::::::tabs-item{label="Preview"}
+          :::::::div
+            ::::::::note
+            Here's some additional information.
+            ::::::::
+
+            ::::::::caution
+            This action cannot be undone.
+            ::::::::
+          :::::::
+        ::::::
+
+        ::::::tabs-item{label="Code"}
+\`\`\`mdc
+::note
+Here's some additional information.
+::
+
+::caution
+This action cannot be undone.
+::
+\`\`\`
+        ::::::
+      :::::
+
+    #title
+    Enhanced Markdown syntax
+    ::::
+
+    ::::u-page-card
+    #title
+    Built-in search
+    ::::
+  :::
+::
+`
+
+    it('keeps the page structure after a save', async () => {
+      const saved = await contentFromMarkdownDocument(await storedDocumentOf(original))
+
+      expect(await renderedOutline(saved!)).toEqual(await intendedOutline(original))
+    })
+
+    it('writes the same file on a second save', async () => {
+      const first = await contentFromMarkdownDocument(await storedDocumentOf(original))
+      const second = await contentFromMarkdownDocument(await storedDocumentOf(first!))
+
+      expect(second).toBe(first)
+    })
+
+    it('restores the page structure from a file broken by an earlier save', async () => {
+      const saved = await contentFromMarkdownDocument(await storedDocumentOf(original))
+      // Earlier saves wrote the same file, minus the padding of empty lines.
+      const brokenByEarlierSave = saved!.replace(/^ +$/gm, '')
+      expect(await renderedOutline(brokenByEarlierSave)).not.toEqual(await intendedOutline(original))
+
+      const repaired = await contentFromMarkdownDocument(await storedDocumentOf(brokenByEarlierSave))
+
+      expect(await renderedOutline(repaired!)).toEqual(await intendedOutline(original))
     })
   })
 

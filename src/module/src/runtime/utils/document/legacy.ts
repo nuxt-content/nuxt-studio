@@ -10,7 +10,7 @@
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
  *                       remove markdownRootFromComarkTree usage in db.upsert, remove the restoreBareCodeFences util
  *      - compare.ts   → drop the comarkBody helper and compare ComarkTrees directly
- *      - generate.ts  → remove unbindComarkTree usage in contentFromMarkdownDocument
+ *      - generate.ts  → remove unbindComarkTree and padBlankLinesInComponents usage in contentFromMarkdownDocument
  *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument, markdownRootFromComarkTree and restoreBareCodeFences
  *      - host.dev.ts  → remove the restoreBareCodeFences db.get override
  *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call,
@@ -172,17 +172,18 @@ function repairMdcNode(node: MDCNode): RepairResult {
   // to disk), and removing it would silently diverge the render from what's
   // on disk → fake conflict.
   if (isMdcContainer(el)) {
-    const artifactIdx = newChildren.findIndex(isClosingMarkerArtifact)
-    if (artifactIdx !== -1) {
-      const artifact = newChildren[artifactIdx] as MDCElement
-      const before = newChildren.slice(0, artifactIdx).map(c => stripWrappingIndentFromPre(c))
-      const after = newChildren.slice(artifactIdx + 1)
-      const text = (artifact.children?.[0] as MDCText)?.value || ''
-      const closeLines = text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+    const markers = findClosingMarkers(newChildren)
+    if (markers) {
+      const before = newChildren.slice(0, markers.index)
+      const after = newChildren.slice(markers.index + 1)
+      const children = markers.remainder
+        ? [...before, ...markers.remainder]
+        // A standalone artifact means the fence before it kept the container indent.
+        : before.map(c => stripWrappingIndentFromPre(c))
       return {
-        node: { ...el, children: before } as MDCElement,
+        node: { ...el, children } as MDCElement,
         leak: [...after, ...leakUp],
-        promote: Math.max(0, closeLines - 1) + promoteUp,
+        promote: Math.max(0, markers.closeLines - 1) + promoteUp,
       }
     }
   }
@@ -191,6 +192,50 @@ function repairMdcNode(node: MDCNode): RepairResult {
     node: { ...el, children: newChildren } as MDCElement,
     leak: leakUp,
     promote: promoteUp,
+  }
+}
+
+interface ClosingMarkers {
+  index: number
+  closeLines: number
+  // Set when the markers ended a paragraph: what is left of it.
+  remainder?: MDCElement[]
+}
+
+function findClosingMarkers(children: MDCNode[]): ClosingMarkers | undefined {
+  for (const [index, child] of children.entries()) {
+    if (isClosingMarkerArtifact(child)) {
+      const text = ((child as MDCElement).children?.[0] as MDCText)?.value || ''
+      return { index, closeLines: countCloseLines(text) }
+    }
+    const trailing = splitTrailingCloseMarkers(child)
+    if (trailing) return { index, ...trailing }
+  }
+}
+
+function countCloseLines(text: string): number {
+  return text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+}
+
+/**
+ * Missed close markers can also end a paragraph, e.g. `#description\nText\n::::`.
+ * They read as lazy continuation lines, so @nuxtjs/mdc keeps them as text.
+ */
+function splitTrailingCloseMarkers(node: MDCNode): Omit<ClosingMarkers, 'index'> | undefined {
+  if (node.type !== 'element' || (node as MDCElement).tag !== 'p') return
+  const el = node as MDCElement
+  const last = el.children?.at(-1)
+  if (last?.type !== 'text') return
+
+  const value = (last as MDCText).value
+  const markers = value.match(/(?:\n[ \t]*:{2,}[ \t]*)+$/)
+  if (!markers) return
+
+  const kept = value.slice(0, markers.index)
+  const children = [...el.children!.slice(0, -1), ...(kept ? [{ ...last, value: kept } as MDCText] : [])]
+  return {
+    closeLines: countCloseLines(markers[0]),
+    remainder: children.length ? [{ ...el, children }] : [],
   }
 }
 
@@ -448,6 +493,75 @@ function unbindMDCBlockProps(props: Record<string, unknown>): Record<string, unk
     next[rawKey] = value
   }
   return next
+}
+
+// Optional list marker, then a backtick or tilde fence.
+const FENCE_OPENING = /^( *(?:(?:[-*+]|\d{1,9}[.)]) +)?)(`{3,}|~{3,})/
+const COMPONENT_OPENING = /^ *:{2,}[a-z]/i
+const COMPONENT_CLOSING = /^ *:{2,} *$/
+const PROPS_DELIMITER = /^ *--- *$/
+
+/**
+ * After an empty line, @nuxtjs/mdc infers a component's child indent from the next `:` line, even a deeply nested one.
+ * A wrong guess hides the end of an indented fence, so the component swallows every block after it.
+ * Indenting each empty line like its component keeps outer components from seeing it.
+ * Blocks without an indented fence are left as written, so their files don't look reformatted.
+ */
+export function padBlankLinesInComponents(markdown: string): string {
+  const lines = markdown.split('\n')
+  // Indent of each open component, innermost last.
+  const components: string[] = []
+  let blanks: Array<{ index: number, indent: string }> = []
+  let hasIndentedFence = false
+  let fence: { closing: RegExp, indent: string } | undefined
+  let inProps = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!
+
+    if (fence) {
+      if (fence.closing.test(line)) fence = undefined
+      else if (!line.trim() && components.length) blanks.push({ index: i, indent: fence.indent })
+      continue
+    }
+
+    // YAML props stay untouched.
+    if (inProps) {
+      inProps = !PROPS_DELIMITER.test(line)
+      continue
+    }
+
+    const opening = line.match(FENCE_OPENING)
+    if (opening) {
+      const marker = opening[2]!
+      fence = { closing: new RegExp(`^ *\\${marker[0]}{${marker.length},} *$`), indent: ' '.repeat(opening[1]!.length) }
+      hasIndentedFence ||= components.length > 0 && opening[1]!.length > 0
+      continue
+    }
+
+    if (COMPONENT_OPENING.test(line)) {
+      components.push(line.match(/^ */)![0])
+      if (PROPS_DELIMITER.test(lines[i + 1] ?? '')) {
+        inProps = true
+        i++
+      }
+      continue
+    }
+
+    if (COMPONENT_CLOSING.test(line) && components.length) {
+      components.pop()
+      if (components.length) continue
+      if (hasIndentedFence) {
+        for (const { index, indent } of blanks) lines[index] = indent
+      }
+      blanks = []
+      hasIndentedFence = false
+      continue
+    }
+
+    if (!line.trim() && components.length) blanks.push({ index: i, indent: components.at(-1)! })
+  }
+  return lines.join('\n')
 }
 
 /**
