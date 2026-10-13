@@ -1277,6 +1277,32 @@ describe('props', () => {
       })
     })
 
+    test('does not double the binding prefix of a non-string prop not present in meta', () => {
+      const node = {
+        type: {
+          name: 'element',
+        },
+        attrs: {
+          tag: 'Unicorn',
+          props: {
+            ':authors': [{ name: 'John' }],
+          },
+        },
+      } as unknown as ProseMirrorNode
+
+      expect(buildFormTreeFromProps(node, createComponentMeta([]))).toEqual({
+        ':authors': {
+          id: '#unicorn/:authors',
+          key: ':authors',
+          title: 'Authors',
+          value: [{ name: 'John' }],
+          custom: true,
+          disabled: false,
+          type: 'object',
+        },
+      })
+    })
+
     test('binds a camelCase meta prop to its differently-cased stored attr instead of duplicating it (issue #529)', () => {
       const props: PropertyMeta[] = [
         {

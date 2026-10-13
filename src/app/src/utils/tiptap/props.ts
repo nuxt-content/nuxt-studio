@@ -220,11 +220,12 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
       }
     }
 
-    const formattedKey = typeof value !== 'string' ? `:${stripBindingPrefix(key)}` : key
+    // Comark stores non-string YAML props with a `:` prefix already.
+    const formattedKey = typeof value !== 'string' && !key.startsWith(':') ? `:${key}` : key
     formTree[formattedKey] = {
       id: `${componentId}/${formattedKey}`,
       key: formattedKey,
-      title: upperFirst(key),
+      title: upperFirst(stripBindingPrefix(key)),
       value,
       custom,
       disabled,
@@ -299,7 +300,7 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
   }
 
   // Handle array items schema
-  if (type === 'array' && typeof prop.schema === 'object' && prop.schema?.schema) {
+  if (type === 'array' && typeof prop.schema === 'object' && 'schema' in prop.schema && prop.schema.schema) {
     let schema: Record<string, unknown> | undefined
 
     // Case one: schema is directly defined
@@ -347,7 +348,7 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
   }
 
   // Handle object children
-  if (type === 'object' && typeof prop.schema === 'object' && prop.schema.schema) {
+  if (type === 'object' && typeof prop.schema === 'object' && 'schema' in prop.schema && prop.schema.schema) {
     let objectSchema: { kind: string, type: string, schema: Record<string, object> } | undefined
 
     if (prop.schema.kind === 'object') {

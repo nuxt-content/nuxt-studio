@@ -2,6 +2,7 @@ import { joinURL, withLeadingSlash } from 'ufo'
 import { createError, eventHandler, readBody } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../utils/constants'
+import { isSafeStorageKey } from '../../../utils/media'
 import { requireStudioAuth } from '../../utils/auth'
 import { blob } from 'hub:blob'
 
@@ -14,12 +15,14 @@ export default eventHandler(async (event) => {
   // Unstorage HTTP driver uses ':' as key separator — convert URL slashes to colons
   // and strip the virtual collection prefix to get the raw storage key
   const key = path.replace(/\//g, ':').replace(new RegExp(`^${VIRTUAL_MEDIA_COLLECTION_NAME}:`), '')
+  const isBaseKey = key.endsWith('/') || key.endsWith(':')
+
+  if (!key || !isSafeStorageKey(key) || (isBaseKey && event.method !== 'GET')) {
+    throw createError({ statusCode: 400, message: 'Invalid media key' })
+  }
 
   // GET => getItem / getKeys
   if (event.method === 'GET') {
-    // Trailing ':' signals a getKeys (list) request from the unstorage HTTP driver
-    const isBaseKey = key.endsWith('/') || key.endsWith(':')
-
     if (isBaseKey) {
       // Strip the trailing delimiter that signals a list request, then normalise ':' to '/'
       const subPath = key.slice(0, -1).replace(/:/g, '/')

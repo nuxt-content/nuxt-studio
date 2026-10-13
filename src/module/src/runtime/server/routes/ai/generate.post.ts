@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { createTextStreamResponse, streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, readBody, createError } from 'h3'
 import { useRuntimeConfig } from '#imports'
@@ -102,11 +102,13 @@ export default eventHandler(async (event) => {
   // Temperature: continue mode benefits from creativity (0.7), transform modes are more deterministic (0.3)
   const temperature = mode === 'continue' ? 0.7 : 0.3
 
-  return streamText({
+  const result = streamText({
     model: gateway.languageModel(modelName),
-    system,
+    instructions: system,
     prompt: finalPrompt,
     maxOutputTokens,
     temperature,
-  }).toTextStreamResponse()
+  })
+
+  return createTextStreamResponse({ stream: result.textStream })
 })

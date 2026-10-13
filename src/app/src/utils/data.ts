@@ -1,5 +1,5 @@
 import { isEmpty, replaceNullWithEmptyString } from './object'
-import yaml from 'js-yaml'
+import { CORE_SCHEMA, dump, load, mergeTag, timestampTag } from 'js-yaml'
 
 export const jsonToYaml = (data: Record<string, unknown>): string => {
   try {
@@ -7,8 +7,9 @@ export const jsonToYaml = (data: Record<string, unknown>): string => {
       return ''
     }
 
-    return yaml.dump(data, {
-      noCompatMode: true,
+    // Timestamp tag keeps date-like strings quoted, as js-yaml v4 did.
+    return dump(data, {
+      schema: CORE_SCHEMA.withTags(timestampTag, mergeTag),
       lineWidth: -1,
     })
   }
@@ -18,18 +19,9 @@ export const jsonToYaml = (data: Record<string, unknown>): string => {
 }
 
 export const yamlToJson = (data: string) => {
-  const customSchema = yaml.DEFAULT_SCHEMA.extend({
-    implicit: [
-      new yaml.Type('tag:yaml.org,2002:timestamp', {
-        kind: 'scalar',
-        resolve: () => false,
-        construct: data => data,
-      }),
-    ],
-  })
-
   try {
-    const json = yaml.load(data, { schema: customSchema }) as Record<string, unknown>
+    // No timestamp tag so dates stay strings.
+    const json = load(data, { schema: CORE_SCHEMA.withTags(mergeTag) }) as Record<string, unknown>
     // Check if json is an object
     return json && typeof json === 'object' ? replaceNullWithEmptyString(json) : null
   }
