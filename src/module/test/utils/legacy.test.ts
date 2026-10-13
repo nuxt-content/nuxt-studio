@@ -1,15 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import {
   comarkTreeFromLegacyDocument,
-  ensureComarkBody,
   markdownRootFromComarkTree,
   padBlankLinesInComponents,
-  restoreBareCodeFences,
 } from '../../src/runtime/utils/document/legacy'
 import { renderMarkdown } from 'comark/render'
 import type { MarkdownDocument } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import type { MDCElement, MDCRoot } from '@nuxtjs/mdc'
+import type { MDCRoot } from '@nuxtjs/mdc'
 
 function legacyDocument(body: MDCRoot): DatabaseItem {
   return {
@@ -1090,46 +1088,5 @@ describe('mdc → comark code block', () => {
 
     const markdown = await renderMarkdown(tree)
     expect(markdown).toContain('```text\nassets/\n  icons/\n    my-logo.svg\n```')
-  })
-})
-
-describe('restoreBareCodeFences', () => {
-  const pre = (code: string, language: string) => ({ type: 'element', tag: 'pre', props: { code: `${code}\n`, language }, children: [] }) as MDCElement
-  const stored = (...children: MDCElement[]) => ensureComarkBody(legacyDocument({ type: 'root', children }))
-  const render = async (document: DatabaseItem) => renderMarkdown(document.body as unknown as MarkdownDocument)
-
-  it('drops the `language: text` artifact when the raw file has a bare fence', async () => {
-    const restored = await restoreBareCodeFences(stored(pre('assets/', 'text')), '```\nassets/\n```\n')
-    expect(await render(restored)).toBe('```\nassets/\n```')
-  })
-
-  it('keeps an explicit ```text fence', async () => {
-    const restored = await restoreBareCodeFences(stored(pre('assets/', 'text')), '```text\nassets/\n```\n')
-    expect(await render(restored)).toBe('```text\nassets/\n```')
-  })
-
-  it('only restores the bare fences in a mixed document', async () => {
-    const document = stored(pre('a', 'text'), pre('b', 'text'), pre('c', 'ts'))
-    const restored = await restoreBareCodeFences(document, '```\na\n```\n\n```text\nb\n```\n\n```ts\nc\n```\n')
-    expect(await render(restored)).toBe('```\na\n```\n\n```text\nb\n```\n\n```ts\nc\n```')
-  })
-
-  it('restores a bare fence nested in a component', async () => {
-    const document = stored({ type: 'element', tag: 'note', props: {}, children: [pre('a', 'text')] } as MDCElement)
-    const restored = await restoreBareCodeFences(document, '::note\n```\na\n```\n::\n')
-    expect(await render(restored)).toBe('::note\n```\na\n```\n::')
-  })
-
-  it('leaves the document untouched when fences cannot be paired', async () => {
-    const document = stored(pre('a', 'text'))
-    expect(await restoreBareCodeFences(document, '```\na\n```\n\n```\nb\n```\n')).toBe(document)
-    expect(await restoreBareCodeFences(document, '```\nchanged\n```\n')).toBe(document)
-  })
-
-  it('does not mutate the stored document', async () => {
-    const document = stored(pre('a', 'text'))
-    const snapshot = JSON.stringify(document)
-    await restoreBareCodeFences(document, '```\na\n```\n')
-    expect(JSON.stringify(document)).toBe(snapshot)
   })
 })

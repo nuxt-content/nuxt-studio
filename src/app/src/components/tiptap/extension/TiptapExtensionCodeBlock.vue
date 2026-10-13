@@ -9,7 +9,7 @@ const isEditable = computed(() => nodeProps.editor.isEditable)
 const languages = ['diff', 'json', 'js', 'ts', 'css', 'bash', 'html', 'md', 'yaml', 'vue', 'mdc', 'sql', 'text']
 
 const selectedLanguage = computed({
-  get: () => nodeProps.node.attrs.language || 'text',
+  get: () => nodeProps.node.attrs.language,
   set: language => nodeProps.updateAttributes({ language }),
 })
 
@@ -37,6 +37,7 @@ const filename = computed({
           size="xs"
           :disabled="!isEditable"
           :items="languages"
+          placeholder="text"
           class="shrink-0"
         />
         <UInput

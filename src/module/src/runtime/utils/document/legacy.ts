@@ -8,13 +8,12 @@
  *   1. Delete this file
  *   2. Fix TypeScript errors at call sites:
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
- *                       remove markdownRootFromComarkTree usage in db.upsert, remove the restoreBareCodeFences util
+ *                       remove markdownRootFromComarkTree usage in db.upsert
  *      - compare.ts   → drop the comarkBody helper and normalizeLegacyBodyDifferences calls, compare ComarkTrees directly
  *      - generate.ts  → remove unbindComarkTree and padBlankLinesInComponents usage in contentFromMarkdownDocument
- *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument, markdownRootFromComarkTree and restoreBareCodeFences
- *      - host.dev.ts  → remove the restoreBareCodeFences db.get override
- *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call,
- *                       remove the host.document.utils.restoreBareCodeFences call in create
+ *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument and markdownRootFromComarkTree
+ *      - tree.ts      → remove the bare fence handling in sanitizeDocumentTree
+ *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
@@ -22,7 +21,6 @@ import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { MarkdownDocument, Node as MarkdownNode, ElementNode, ElementNodeAttributes, CommentNode } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
-import { parseMarkdown } from 'comark'
 import { generateFlatToc } from 'comark/plugins/toc'
 import { cleanDataKeys } from './schema'
 import { isComarkTree } from './generate'
@@ -628,50 +626,9 @@ export function ensureComarkBody(document: DatabaseItem): DatabaseItem {
   return { ...document, body: comarkTree as unknown }
 }
 
-function collectPreNodes(nodes: MarkdownNode[], out: ElementNode[] = []): ElementNode[] {
-  for (const node of nodes) {
-    if (!Array.isArray(node) || node[0] === null) continue
-    if (node[0] === 'pre') out.push(node as ElementNode)
-    else collectPreNodes(node.slice(2) as MarkdownNode[], out)
-  }
-  return out
-}
-
 const codeText = (node: MarkdownNode): string => typeof node === 'string'
   ? node
   : Array.isArray(node) ? (node.slice(2) as MarkdownNode[]).map(codeText).join('') : ''
-
-function dropLanguage(node: MarkdownNode, bare: Set<ElementNode>): MarkdownNode {
-  if (!Array.isArray(node) || node[0] === null) return node
-  const [tag, attrs, ...children] = node as ElementNode
-  if (bare.has(node as ElementNode)) {
-    const { language: _, ...rest } = attrs
-    return [tag, rest, ...children] as ElementNode
-  }
-  return [tag, attrs, ...children.map(child => dropLanguage(child, bare))] as ElementNode
-}
-
-/**
- * Drop the `language: 'text'` that @nuxtjs/mdc stores for bare fences.
- * Only the raw file can tell a bare fence from an explicit ```text one.
- */
-export async function restoreBareCodeFences(document: DatabaseItem, content: string): Promise<DatabaseItem> {
-  if (document.extension !== 'md' || !isComarkTree(document.body)) return document
-
-  const tree = document.body as unknown as MarkdownDocument
-  const stored = collectPreNodes(tree.nodes)
-  if (!stored.some(pre => pre[1]?.language === 'text')) return document
-
-  const source = collectPreNodes((await parseMarkdown(content, { autoClose: false, autoUnwrap: true, linkify: false })).nodes)
-  // Fences are paired by position, so bail out when the trees disagree.
-  if (source.length !== stored.length) return document
-
-  const sameCode = (a: ElementNode, b: ElementNode) => codeText(a).replace(/\s+/g, '') === codeText(b).replace(/\s+/g, '')
-  const bare = new Set(stored.filter((pre, i) => pre[1]?.language === 'text' && !source[i]![1]?.language && sameCode(pre, source[i]!)))
-  if (!bare.size) return document
-
-  return { ...document, body: { ...tree, nodes: tree.nodes.map(node => dropLanguage(node, bare)) } as unknown }
-}
 
 /**
  * Unwrap a leading `#default` slot marker, which comark keeps but `@nuxtjs/mdc` erases.
@@ -688,29 +645,6 @@ function unwrapLeadingDefaultSlot(children: MarkdownNode[]): MarkdownNode[] {
   }
 
   return [...(first.slice(2) as MarkdownNode[]), ...rest]
-}
-
-/**
- * Strip the `language: 'text'` artifact from a bare ``` fence.
- */
-function stripTextLanguageArtifact(attrs: ElementNodeAttributes, children: MarkdownNode[]): { attrs: ElementNodeAttributes, children: MarkdownNode[] } {
-  if (attrs.language !== 'text') return { attrs, children }
-
-  const nextAttrs = { ...attrs }
-  delete nextAttrs.language
-
-  const nextChildren = children.map((child, index) => {
-    if (index !== 0 || !Array.isArray(child)) return child
-    const [childTag, childAttrs, ...rest] = child as [string, Record<string, unknown>, ...MarkdownNode[]]
-    if (childTag !== 'code' || typeof childAttrs?.class !== 'string') return child
-    const remaining = childAttrs.class.split(/\s+/).filter(cls => cls && cls !== 'language-text')
-    const nextChildAttrs = { ...childAttrs }
-    if (remaining.length) nextChildAttrs.class = remaining.join(' ')
-    else delete nextChildAttrs.class
-    return [childTag, nextChildAttrs, ...rest] as MarkdownNode
-  })
-
-  return { attrs: nextAttrs, children: nextChildren }
 }
 
 /**
@@ -744,10 +678,7 @@ function normalizeLegacyNode(node: MarkdownNode, nested = false): MarkdownNode {
 
   const [tag] = node
   let [, attrs, ...children] = node as ElementNode
-  if (tag === 'pre') {
-    ({ attrs, children } = stripTextLanguageArtifact(attrs, children))
-    if (nested) ({ attrs, children } = stripCodeIndentation(attrs, children))
-  }
+  if (tag === 'pre' && nested) ({ attrs, children } = stripCodeIndentation(attrs, children))
 
   return [tag, unbindJsonAttrs(attrs || {}), ...unwrapLeadingDefaultSlot(children).map(child => normalizeLegacyNode(child, true))] as ElementNode
 }

@@ -88,7 +88,6 @@ export interface StudioHost {
       cleanDataKeys: (document: DatabaseItem) => DatabaseItem
       // Legacy compat — delete when @nuxt/content returns MarkdownDocument natively.
       ensureComarkBody: (document: DatabaseItem) => DatabaseItem
-      restoreBareCodeFences: (document: DatabaseItem, content: string) => Promise<DatabaseItem>
       detectActives: () => Array<{ fsPath: string, title: string }>
     }
     generate: {

@@ -4,7 +4,6 @@ import type { DraftItem, StudioHost, GitFile, DatabaseItem, MediaItem, BaseItem 
 import { ContentFileExtension } from '../types'
 import { DraftStatus } from '../types/draft'
 import { checkConflict, findDescendantsFromFsPath } from '../utils/draft'
-import { fromBase64ToUTF8 } from '../utils/string'
 import type { useGitProvider } from './useGitProvider'
 import { useHooks } from './useHooks'
 import { ref } from 'vue'
@@ -64,23 +63,15 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
     const remoteFile = await gitProvider.api.fetchFile(joinURL(remotePathPrefix, fsPath), { cached: true }) as GitFile
 
-    // Restore bare fences the DB stores as ```text.
-    let restoredOriginal = original
-    if (type === 'document' && original && remoteFile?.content) {
-      const remoteContent = remoteFile.encoding === 'base64' ? fromBase64ToUTF8(remoteFile.content) : remoteFile.content
-      restoredOriginal = await host.document.utils.restoreBareCodeFences(original as DatabaseItem, remoteContent) as T
-    }
-    const modified = item === original ? restoredOriginal! : item
-
     const draftItem: DraftItem<T> = {
       fsPath,
       remoteFile,
-      status: await getStatus(modified, restoredOriginal!),
-      modified,
+      status: await getStatus(item, original!),
+      modified: item,
     }
 
-    if (restoredOriginal) {
-      draftItem.original = restoredOriginal
+    if (original) {
+      draftItem.original = original
     }
 
     const conflict = await checkConflict(host, draftItem)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyCollectionSchema, areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
+import { applyCollectionSchema, areDocumentsEqual, contentFromDocument, ensureComarkBody, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { CollectionInfo } from '@nuxt/content'
@@ -610,86 +610,6 @@ Hello world
     const result = await isDocumentMatchingContent(markdownContent, document)
     expect(result).toBe(true)
   })
-
-  it('should be true when a bare fence is compared against a stored `language: text` artifact', async () => {
-    const markdownContent = '```\nassets/\n  icons/\n    my-logo.svg\n```\n'
-
-    const document = {
-      id: 'content:test.md',
-      extension: ContentFileExtension.Markdown,
-      stem: 'test',
-      meta: {},
-      body: {
-        nodes: [['pre', { language: 'text' }, ['code', { __ignoreMap: '' }, 'assets/\n  icons/\n    my-logo.svg']]],
-        frontmatter: {},
-        meta: {},
-      },
-    } as unknown as DatabaseItem
-
-    const result = await isDocumentMatchingContent(markdownContent, document)
-    expect(result).toBe(true)
-  })
-
-  it('should be true when a bare fence is compared against a legacy MDC document with `language: text`', async () => {
-    const markdownContent = '```\nassets/\n  icons/\n    my-logo.svg\n```\n'
-
-    const document = {
-      id: 'content:test.md',
-      extension: ContentFileExtension.Markdown,
-      stem: 'test',
-      meta: {},
-      body: {
-        type: 'root',
-        children: [{
-          type: 'element',
-          tag: 'pre',
-          props: { code: 'assets/\n  icons/\n    my-logo.svg\n', language: 'text' },
-          children: [],
-        }],
-      },
-    } as unknown as DatabaseItem
-
-    const result = await isDocumentMatchingContent(markdownContent, document)
-    expect(result).toBe(true)
-  })
-
-  it('should be true when an explicit ```text fence is compared against a stored body with no language', async () => {
-    const markdownContent = '```text\nassets/\n```\n'
-
-    const document = {
-      id: 'content:test.md',
-      extension: ContentFileExtension.Markdown,
-      stem: 'test',
-      meta: {},
-      body: {
-        nodes: [['pre', {}, ['code', { __ignoreMap: '' }, 'assets/']]],
-        frontmatter: {},
-        meta: {},
-      },
-    } as unknown as DatabaseItem
-
-    const result = await isDocumentMatchingContent(markdownContent, document)
-    expect(result).toBe(true)
-  })
-
-  it('should be false when the fence language genuinely differs', async () => {
-    const markdownContent = '```ts\nconst a = 1\n```\n'
-
-    const document = {
-      id: 'content:test.md',
-      extension: ContentFileExtension.Markdown,
-      stem: 'test',
-      meta: {},
-      body: {
-        nodes: [['pre', { language: 'js' }, ['code', { __ignoreMap: '' }, 'const a = 1']]],
-        frontmatter: {},
-        meta: {},
-      },
-    } as unknown as DatabaseItem
-
-    const result = await isDocumentMatchingContent(markdownContent, document)
-    expect(result).toBe(false)
-  })
 })
 
 describe('sanitizeDocumentTree', () => {
@@ -732,6 +652,41 @@ describe('sanitizeDocumentTree', () => {
     expect('secret' in result).toBe(false)
     expect(result.public).toBe('should stay')
     expect(result.misc).toBe('also stays')
+  })
+
+  describe('code fences', () => {
+    const collection = { name: 'docs', schema: { definitions: { docs: { properties: {} } } } } as unknown as CollectionInfo
+    // Shapes @nuxt/content stores: @nuxtjs/mdc parse + minimark compress
+    const storedDocument = () => ({
+      id: 'content:index.md',
+      extension: ContentFileExtension.Markdown,
+      stem: 'index',
+      meta: {},
+      body: {
+        type: 'minimark',
+        value: [
+          ['pre', { className: 'language-text shiki shiki-themes github-light', code: 'assets/\n', language: 'text', style: '' }, ['code', { __ignoreMap: '' }, ['span', { class: 'line' }, 'assets/']]],
+          ['pre', { className: 'language-text shiki shiki-themes github-light', code: 'plain\n', language: 'text', meta: '', style: '' }, ['code', { __ignoreMap: '' }, ['span', { class: 'line' }, 'plain']]],
+          ['pre', { className: 'language-ts shiki shiki-themes github-light', code: 'const a = 1\n', filename: 'a.ts', language: 'ts', meta: '', style: '' }, ['code', { __ignoreMap: '' }, ['span', { class: 'line' }, 'const a = 1']]],
+        ],
+      },
+    } as unknown as DatabaseItem)
+    const markdownContent = '```\nassets/\n```\n\n```text\nplain\n```\n\n```ts [a.ts]\nconst a = 1\n```\n'
+
+    it('keeps a bare fence bare and an explicit ```text fence explicit', async () => {
+      const document = ensureComarkBody(sanitizeDocumentTree(storedDocument(), collection))
+      expect(await contentFromDocument(document)).toBe(markdownContent)
+    })
+
+    it('does not report a conflict between the raw file and the stored document', async () => {
+      const document = ensureComarkBody(sanitizeDocumentTree(storedDocument(), collection))
+      expect(await isDocumentMatchingContent(markdownContent, document)).toBe(true)
+    })
+
+    it('reports a conflict when the remote switches a bare fence to ```text', async () => {
+      const document = ensureComarkBody(sanitizeDocumentTree(storedDocument(), collection))
+      expect(await isDocumentMatchingContent(markdownContent.replace('```\nassets/', '```text\nassets/'), document)).toBe(false)
+    })
   })
 })
 

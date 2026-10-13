@@ -1,7 +1,7 @@
 import { useStudioHost as useStudioHostBase } from './host'
 import type { StudioUser, DatabaseItem, Repository } from 'nuxt-studio/app'
 import { getCollectionByFilePath, generateIdFromFsPath, generateFsPathFromId, getCollectionById } from './utils/collection'
-import { applyCollectionSchema, restoreBareCodeFences, sanitizeDocumentTree } from './utils/document'
+import { applyCollectionSchema, sanitizeDocumentTree } from './utils/document'
 import { createStorage } from 'unstorage'
 import httpDriver from 'unstorage/drivers/http'
 import { useRuntimeConfig } from '#imports'
@@ -46,16 +46,6 @@ export function useStudioHost(user: StudioUser, repository: Repository) {
       timeout: 100,
     }).catch(() => { /* do nothing, expected error if request timeout, API errors can be detected in server logs */ })
   }, 100)
-
-  // No remote file in dev mode, so restore bare fences from the local file.
-  const getDocument = host.document.db.get
-  host.document.db.get = async (fsPath: string) => {
-    const document = await getDocument(fsPath)
-    if (document?.extension !== 'md') return document
-
-    const content = await $fetch<string>('/__nuxt_studio/dev/content/' + fsPath, { responseType: 'text' }).catch(() => null)
-    return content ? restoreBareCodeFences(document, content) : document
-  }
 
   host.document.db.delete = async (fsPath: string) => {
     await devStorage.removeItem(fsPath)

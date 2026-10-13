@@ -20,10 +20,13 @@ export function sanitizeDocumentTree(document: DatabaseItem, collection: Collect
       if ((props as Record<string, unknown> || {}).code) {
         // TODO: We need to make sure that there is no custom class
         Reflect.deleteProperty(props, 'className')
+        // @nuxtjs/mdc stores a bare fence as `language: 'text'` and only sets `meta` when the fence has a language
+        const isBareFence = props.language === 'text' && !('meta' in props)
         return [
           tag,
           {
             ...(props || {}),
+            language: isBareFence ? undefined : props.language,
             style: props.style || undefined,
             meta: props.meta || undefined,
           },

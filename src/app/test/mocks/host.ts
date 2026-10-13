@@ -5,7 +5,7 @@ import { createMockDocument } from './document'
 import { createMockMedia } from './media'
 import { joinURL } from 'ufo'
 import type { MediaItem } from '../../src/types/media'
-import { isDocumentMatchingContent, areDocumentsEqual, documentFromContent, contentFromDocument, pickReservedKeysFromDocument, cleanDataKeys, restoreBareCodeFences } from '../../../module/dist/runtime/utils/document'
+import { isDocumentMatchingContent, areDocumentsEqual, documentFromContent, contentFromDocument, pickReservedKeysFromDocument, cleanDataKeys } from '../../../module/dist/runtime/utils/document'
 
 // Helper to convert fsPath to id (simulates module's internal mapping)
 export const fsPathToId = (fsPath: string, type: 'document' | 'media') => {
@@ -66,9 +66,6 @@ export const createMockHost = (): StudioHost => ({
       }),
       cleanDataKeys: vi.fn().mockImplementation((document: DatabaseItem) => {
         return cleanDataKeys(document) as DatabaseItem
-      }),
-      restoreBareCodeFences: vi.fn().mockImplementation(async (document: DatabaseItem, content: string) => {
-        return restoreBareCodeFences(document, content)
       }),
       detectActives: vi.fn().mockReturnValue([]),
     },
