@@ -12,6 +12,7 @@ import InputText from './InputText.vue'
 import InputObject from './InputObject.vue'
 import InputArray from './InputArray.vue'
 import InputTextarea from './InputTextarea.vue'
+import InputRelation from './InputRelation.vue'
 
 const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   array: InputArray,
@@ -24,6 +25,7 @@ const typeComponentMap: Partial<Record<FormInputsTypes, Component>> = {
   string: InputText,
   object: InputObject,
   textarea: InputTextarea,
+  relation: InputRelation,
 }
 
 const props = defineProps({
