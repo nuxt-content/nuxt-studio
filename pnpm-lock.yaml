@@ -277,6 +277,9 @@ importers:
       eslint:
         specifier: ^10.12.0
         version: 10.12.0(jiti@2.7.0)(supports-color@10.2.2)
+      hookable:
+        specifier: ^6.1.2
+        version: 6.1.2
       idb-keyval:
         specifier: ^6.3.0
         version: 6.3.0
