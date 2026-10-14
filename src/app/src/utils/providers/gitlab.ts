@@ -29,8 +29,13 @@ function normalizeGitLabBase64Payload(content: string): string {
   return content.slice(markerIndex + base64Marker.length)
 }
 
+function featureBranchName(): string {
+  return `studio/${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}`
+}
+
 export function createGitLabProvider(options: GitOptions): GitProviderAPI {
   const { owner, repo, token, branch, rootDir, authorName, authorEmail, instanceUrl = 'https://gitlab.com' } = options
+  const useFeatureBranch = options.branchStrategy === 'feature-branch'
   const gitFiles: Record<string, GitFile> = {}
 
   // Remove trailing slash from instanceUrl if present
@@ -102,7 +107,7 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
     }
   }
 
-  function commitFiles(files: RawFile[], message: string): Promise<CommitResult | null> {
+  async function commitFiles(files: RawFile[], message: string): Promise<CommitResult | null> {
     if (!token) {
       return Promise.resolve(null)
     }
@@ -111,18 +116,23 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
       .filter(file => file.status !== DraftStatus.Pristine)
       .map(file => ({ ...file, path: joinURL(rootDir, file.path) }))
 
-    return commitFilesToGitLab({
+    const targetBranch = useFeatureBranch ? featureBranchName() : branch
+
+    const result = await commitFilesToGitLab({
       owner,
       repo,
-      branch,
+      branch: targetBranch,
       files,
       message,
       authorName,
       authorEmail,
+      baseBranch: useFeatureBranch ? branch : undefined,
     })
+
+    return result ? { ...result, branch: useFeatureBranch ? targetBranch : undefined } : null
   }
 
-  async function commitFilesToGitLab({ branch, files, message, authorName, authorEmail }: CommitFilesOptions) {
+  async function commitFilesToGitLab({ branch, files, message, authorName, authorEmail, baseBranch }: CommitFilesOptions & { baseBranch?: string }) {
     // GitLab uses a single commits API with actions
     const actions = files.map((file) => {
       if (file.status === DraftStatus.Deleted) {
@@ -157,6 +167,7 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
       method: 'POST',
       body: {
         branch,
+        ...(baseBranch ? { start_branch: baseBranch } : {}),
         commit_message: message,
         actions,
         author_name: authorName,
