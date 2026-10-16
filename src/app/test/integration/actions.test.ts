@@ -788,29 +788,24 @@ describe('Media - Action Chains Integration Tests', () => {
     const { fileReader } = setupMediaMocks()
     const firstRaw = fileReader.result
 
-    /* STEP 1: UPLOAD */
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
       parentFsPath: parentPath,
       files: [createMockFile(mediaName)],
     })
 
-    /* STEP 2: UPLOAD A DIFFERENT FILE UNDER THE SAME NAME - rejected because a draft already exists */
     fileReader.result = 'data:image/png;base64,c2Vjb25k'
     await context.itemActionHandler[StudioItemActionId.UploadMedia]({
       parentFsPath: parentPath,
       files: [createMockFile(mediaName)],
     })
 
-    // Host storage
     const hostMedia = await mockHost.media.get(mediaFsPath)
     expect(hostMedia).toHaveProperty('raw', firstRaw)
 
-    // Storage
     expect(mockStorageDraft.size).toEqual(1)
     const draftStorage = JSON.parse(mockStorageDraft.get(normalizeKey(mediaFsPath))!)
     expect(draftStorage.modified).toHaveProperty('raw', firstRaw)
 
-    // Memory
     expect(context.activeTree.value.draft.list.value).toHaveLength(1)
     expect(context.activeTree.value.draft.list.value[0].modified).toHaveProperty('raw', firstRaw)
   })
