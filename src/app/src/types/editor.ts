@@ -1,5 +1,20 @@
+import type { EditorOptions } from '@nuxt/content'
 import type { ComponentData } from 'nuxt-component-meta'
 import type { JSType } from 'untyped'
+
+export interface StudioPropMeta extends EditorOptions {
+  fields?: Record<string, StudioPropMeta>
+}
+
+export interface StudioSlotMeta {
+  label?: string
+  description?: string
+}
+
+export interface StudioComponentMeta {
+  props?: Record<string, StudioPropMeta>
+  slots?: Record<string, StudioSlotMeta>
+}
 
 export interface ComponentMeta {
   name: string
@@ -9,6 +24,7 @@ export interface ComponentMeta {
     props: ComponentData['meta']['props']
     slots: ComponentData['meta']['slots']
     events: ComponentData['meta']['events']
+    studio?: StudioComponentMeta
   }
 }
 

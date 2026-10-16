@@ -1577,4 +1577,170 @@ describe('props', () => {
       expect(out.src).toBe('authored.mp4')
     })
   })
+
+  describe('studio annotations (defineStudioMeta)', () => {
+    const stringProp = (name: string, overrides: Partial<PropertyMeta> = {}): PropertyMeta => ({
+      name,
+      global: false,
+      description: '',
+      tags: [],
+      required: false,
+      type: 'string | undefined',
+      schema: {
+        kind: 'enum',
+        type: 'string | undefined',
+        schema: ['undefined', 'string'],
+      },
+      declarations: [],
+      getDeclarations: () => [],
+      getTypeObject: {} as never,
+      ...overrides,
+    })
+
+    const createStudioComponentMeta = (
+      props: PropertyMeta[],
+      studio: NonNullable<ComponentMeta['meta']['studio']>,
+      options: { nuxtUI?: boolean } = {},
+    ): ComponentMeta => ({
+      name: 'AuthorCard',
+      path: '/path/to/AuthorCard.vue',
+      nuxtUI: options.nuxtUI ?? false,
+      meta: {
+        props,
+        slots: [],
+        events: [],
+        studio,
+      },
+    })
+
+    const createNode = (props: Record<string, unknown> = {}): ProseMirrorNode => ({
+      type: { name: 'element' },
+      attrs: { tag: 'AuthorCard', props },
+    } as unknown as ProseMirrorNode)
+
+    test('input override beats heuristics and keeps a plain key for string-like inputs', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('cover'), stringProp('bio')],
+        {
+          props: {
+            cover: { input: 'media' },
+            bio: { input: 'textarea' },
+          },
+        },
+      )
+
+      const tree = buildFormTreeFromProps(createNode({ cover: '/img/cover.png' }), meta)
+
+      expect(tree.cover).toMatchObject({ key: 'cover', type: 'media', value: '/img/cover.png' })
+      expect(tree.bio).toMatchObject({ key: 'bio', type: 'textarea' })
+    })
+
+    test('icon input picks up iconLibraries as options', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('symbol')],
+        { props: { symbol: { input: 'icon', iconLibraries: ['lucide', 'simple-icons'] } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.symbol).toMatchObject({ type: 'icon', options: ['lucide', 'simple-icons'] })
+    })
+
+    test('label, description and tooltip land on the form item', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('cover')],
+        { props: { cover: { label: 'Cover image', description: 'Shown on top', tooltip: 'Use landscape' } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.cover).toMatchObject({ label: 'Cover image', description: 'Shown on top', tooltip: 'Use landscape' })
+    })
+
+    test('hidden: true hides a prop, hidden: false un-hides a HIDDEN_PROPS entry', () => {
+      const meta = createStudioComponentMeta(
+        [stringProp('internal'), stringProp('disabled')],
+        {
+          props: {
+            internal: { hidden: true },
+            disabled: { hidden: false },
+          },
+        },
+        { nuxtUI: true },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.internal!.hidden).toBe(true)
+      expect(tree.disabled!.hidden).toBe(false)
+    })
+
+    const objectProp = (name: string, type: string, fields: PropertyMeta[]): PropertyMeta => stringProp(name, {
+      type,
+      schema: { kind: 'object', type, schema: Object.fromEntries(fields.map(field => [field.name, field])) },
+    })
+
+    test('fields annotate the children of an object prop', () => {
+      const meta = createStudioComponentMeta(
+        [objectProp('seo', 'Seo', [stringProp('title'), stringProp('image'), stringProp('internal')])],
+        {
+          props: {
+            seo: {
+              label: 'SEO',
+              fields: {
+                title: { label: 'Meta title' },
+                image: { input: 'media' },
+                internal: { hidden: true },
+              },
+            },
+          },
+        },
+      )
+
+      const children = buildFormTreeFromProps(createNode(), meta)[':seo']!.children!
+
+      expect(children.title).toMatchObject({ label: 'Meta title', type: 'string' })
+      expect(children.image).toMatchObject({ type: 'media' })
+      expect(children.internal!.hidden).toBe(true)
+    })
+
+    test('fields annotate each item of an array of objects', () => {
+      const linkType = 'Link'
+      const linksProp = stringProp('links', {
+        type: `${linkType}[]`,
+        schema: {
+          kind: 'array',
+          type: `${linkType}[]`,
+          schema: [{ kind: 'object', type: linkType, schema: { to: stringProp('to'), icon: stringProp('icon') } }],
+        },
+      })
+      const meta = createStudioComponentMeta(
+        [linksProp],
+        { props: { links: { fields: { to: { label: 'URL' }, icon: { hidden: true } } } } },
+      )
+
+      const itemChildren = buildFormTreeFromProps(createNode(), meta)[':links']!.arrayItemForm!.children!
+
+      expect(itemChildren.to).toMatchObject({ label: 'URL' })
+      expect(itemChildren.icon!.hidden).toBe(true)
+    })
+
+    test('hidden: false on a field un-hides a HIDDEN_PROPS child', () => {
+      const meta = createStudioComponentMeta(
+        [objectProp('options', 'Options', [stringProp('disabled'), stringProp('ui')])],
+        { props: { options: { fields: { disabled: { hidden: false } } } } },
+        { nuxtUI: true },
+      )
+
+      const children = buildFormTreeFromProps(createNode(), meta)[':options']!.children!
+
+      expect(children.disabled!.hidden).toBe(false)
+      expect(children.ui!.hidden).toBe(true)
+    })
+
+    test('convertStringToValue handles the studio input types', () => {
+      expect(convertStringToValue('/img/a.png', 'media')).toEqual('/img/a.png')
+      expect(convertStringToValue('"quoted"', 'textarea')).toEqual('quoted')
+    })
+  })
 })

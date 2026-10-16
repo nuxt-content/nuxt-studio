@@ -1,9 +1,8 @@
 import { flatCase, kebabCase, pascalCase, titleCase, upperFirst } from 'scule'
 import { hasProtocol, isRelative } from 'ufo'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
-import type { JSType } from 'untyped'
 import type { FormItem, FormTree } from '../../types'
-import type { ComponentMeta } from '../../types/editor'
+import type { ComponentMeta, FormInputsTypes, StudioPropMeta } from '../../types/editor'
 import type { PropertyMeta, PropertyMetaSchema } from 'vue-component-meta'
 import type { ElementNodeAttributes } from 'comark'
 
@@ -170,6 +169,7 @@ const resolveNodePropValue = (nodeProps: Record<string, unknown>, key: string): 
 export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: ComponentMeta): FormTree => {
   const isNuxtUIComponent = componentMeta.nuxtUI ?? false
   const props = componentMeta.meta.props
+  const studioProps = componentMeta.meta.studio?.props
   const nodeProps = node?.attrs?.props || {}
   const formTree: FormTree = {}
   const componentName = pascalCase(node?.attrs?.tag || componentMeta.name)
@@ -184,7 +184,7 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
         continue
       }
 
-      const propItem = buildPropItem(componentId, prop, nodeProps)
+      const propItem = buildPropItem(componentId, prop, nodeProps, 0, undefined, studioProps?.[prop.name])
 
       if (propItem) {
         formTree[propItem.key!] = propItem
@@ -236,19 +236,21 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
   // Add hidden state for some props
   for (const key in formTree) {
     // Hide href for links as it is updated through the link context menu
-    if (node?.type?.name === 'link-element' && key === 'href') {
-      formTree[key].hidden = true
-    }
+    if (formTree[key].hidden === undefined) {
+      if (node?.type?.name === 'link-element' && key === 'href') {
+        formTree[key].hidden = true
+      }
 
-    if (hideProp(formTree[key], isNuxtUIComponent)) {
-      formTree[key].hidden = true
+      if (hideProp(formTree[key], isNuxtUIComponent)) {
+        formTree[key].hidden = true
+      }
     }
 
     if (['object', 'array'].includes(formTree[key].type)) {
       const children = formTree[key].type === 'array' ? formTree[key].arrayItemForm?.children : formTree[key].children
       if (children) {
         for (const childKey in children) {
-          if (hideProp(children[childKey], isNuxtUIComponent)) {
+          if (children[childKey].hidden === undefined && hideProp(children[childKey], isNuxtUIComponent)) {
             children[childKey].hidden = true
           }
         }
@@ -259,17 +261,17 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
   return formTree
 }
 
-const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Record<string, unknown>, level = 0, parent?: FormItem): FormItem => {
+const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Record<string, unknown>, level = 0, parent?: FormItem, studioProp?: StudioPropMeta): FormItem => {
   const key = prop.name
   const title = upperFirst(prop.name)
   const defaultValue: string | boolean | number | object | unknown[] | null = prop.tags?.find(tag => tag.name === 'defaultValue')?.text || ''
 
-  const { type, options } = computeTypeAndOptions(componentId, key, prop, level)
+  const { type, options } = computeTypeAndOptions(componentId, key, prop, level, studioProp)
 
   const isInsideArrayItem = parent?.id?.includes('#array/items')
 
   // Format key based on type
-  const formattedKey = ['string', 'icon'].includes(type) || isInsideArrayItem ? key : `:${key}`
+  const formattedKey = ['string', 'icon', 'media', 'textarea'].includes(type) || isInsideArrayItem ? key : `:${key}`
   const id = parent?.id
     ? `${parent?.id}/${formattedKey}`
     : `${componentId}/${formattedKey}`
@@ -297,6 +299,13 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
     type,
     custom: false,
     default: resolvedDefault,
+  }
+
+  if (studioProp) {
+    if (studioProp.label !== undefined) propItem.label = studioProp.label
+    if (studioProp.description !== undefined) propItem.description = studioProp.description
+    if (studioProp.tooltip !== undefined) propItem.tooltip = studioProp.tooltip
+    if (studioProp.hidden !== undefined) propItem.hidden = studioProp.hidden
   }
 
   // Handle array items schema
@@ -336,8 +345,8 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
 
       propItem.arrayItemForm = {
         ...formItem,
-        children: Object.entries(schema).reduce((acc, [_itemKey, itemValue]) => {
-          const itemProp = buildPropItem(componentId, itemValue as PropertyMeta, nodeProps, level + 1, formItem)
+        children: Object.entries(schema).reduce((acc, [itemKey, itemValue]) => {
+          const itemProp = buildPropItem(componentId, itemValue as PropertyMeta, nodeProps, level + 1, formItem, studioProp?.fields?.[itemKey])
           if (itemProp) {
             acc[itemProp.key!] = itemProp
           }
@@ -359,8 +368,8 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
     }
 
     if (objectSchema) {
-      propItem.children = Object.entries(objectSchema.schema).reduce((acc, [_key, prop]) => {
-        const itemProp = buildPropItem(componentId, prop as PropertyMeta, nodeProps, level + 1, propItem)
+      propItem.children = Object.entries(objectSchema.schema).reduce((acc, [childKey, prop]) => {
+        const itemProp = buildPropItem(componentId, prop as PropertyMeta, nodeProps, level + 1, propItem, studioProp?.fields?.[childKey])
         if (itemProp) {
           acc[itemProp.key!] = itemProp
         }
@@ -392,7 +401,7 @@ export const convertStringToArray = (string: string) => {
 // - `\'vertical\'` to 'vertical'
 // - 'boolean' to true or false
 // - number as string to number
-export const convertStringToValue = (string: string, type: JSType | 'icon') => {
+export const convertStringToValue = (string: string, type: FormInputsTypes) => {
   switch (type) {
     case 'icon':
       return string
@@ -412,6 +421,8 @@ export const convertStringToValue = (string: string, type: JSType | 'icon') => {
       }
       return Number(string)
     case 'string':
+    case 'media':
+    case 'textarea':
       return string.replace(/^['"]|['"]$/g, '')
     case 'object':
       try {
@@ -432,12 +443,15 @@ export const convertStringToValue = (string: string, type: JSType | 'icon') => {
   }
 }
 
-const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyMeta, level: number) => {
-  let type: JSType | 'icon'
+const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyMeta, level: number, studioProp?: StudioPropMeta) => {
+  let type: FormInputsTypes
   const options: string[] = []
   const propType = typeof prop.schema === 'string' ? prop.schema.replace(' | undefined', '') : prop.schema?.type?.replace(' | undefined', '')
 
-  if (propType === 'boolean') {
+  if (studioProp?.input) {
+    type = studioProp.input
+  }
+  else if (propType === 'boolean') {
     type = 'boolean'
   }
   else if (propType === 'number') {
@@ -484,6 +498,10 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
     options.push(...convertStringToArray(prop.type))
   }
 
+  if (type === 'icon' && studioProp?.iconLibraries?.length) {
+    options.push(...studioProp.iconLibraries)
+  }
+
   return { type, options }
 }
 
@@ -502,7 +520,7 @@ const hideProp = (prop: FormItem, isNuxtUIComponent: boolean) => {
   return false
 }
 
-const generateDefault = (type: JSType | 'icon', level = 0): string | boolean | number | [] | object | null => {
+const generateDefault = (type: FormInputsTypes, level = 0): string | boolean | number | [] | object | null => {
   if (type === 'array') {
     return level > 0 ? '' : []
   }
