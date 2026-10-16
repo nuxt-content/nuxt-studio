@@ -37,55 +37,29 @@ export async function documentFromContent(id: string, content: string, options: 
 
 export async function documentFromYAMLContent(id: string, content: string): Promise<DatabaseItem> {
   // `loadAll` because `load` throws on empty files since js-yaml v5.
-  const data = (loadAll(content, { schema: CORE_SCHEMA.withTags(timestampTag, mergeTag) })[0] || {}) as Record<string, unknown>
+  const data = loadAll(content, { schema: CORE_SCHEMA.withTags(timestampTag, mergeTag) })[0] || {}
+  return documentFromData(id, 'YAML', data)
+}
 
-  // Keep array contents under `body` key
-  let parsed = data
+export async function documentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
+  return documentFromData(id, 'JSON', destr(content))
+}
+
+function documentFromData(id: string, format: 'YAML' | 'JSON', data: unknown): DatabaseItem {
+  let parsed = data as Record<string, unknown>
   if (Array.isArray(data)) {
-    logger.warn(`YAML array is not supported in ${id}, moving the array into the \`body\` key`)
+    logger.warn(`${format} array is not supported in ${id}, moving the array into the \`body\` key`)
     parsed = { body: data }
   }
 
-  const document = {
+  // fsPath will be overridden by host
+  return {
     id,
     extension: getFileExtension(id),
     stem: generateStemFromId(id),
     meta: {},
     ...parsed,
   } as DatabaseItem
-
-  if (parsed.body) {
-    document.body = parsed.body
-  }
-
-  return document
-}
-
-export async function documentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
-  let parsed: Record<string, unknown> = destr(content)
-
-  // Keep array contents under `body` key
-  if (Array.isArray(parsed)) {
-    logger.warn(`JSON array is not supported in ${id}, moving the array into the \`body\` key`)
-    parsed = {
-      body: parsed,
-    }
-  }
-
-  // fsPath will be overridden by host
-  const document = {
-    id,
-    extension: ContentFileExtension.JSON,
-    stem: generateStemFromId(id),
-    meta: {},
-    ...parsed,
-  } as DatabaseItem
-
-  if (parsed.body) {
-    document.body = parsed.body
-  }
-
-  return document
 }
 
 export function isComarkTree(body: unknown): body is MarkdownDocument {

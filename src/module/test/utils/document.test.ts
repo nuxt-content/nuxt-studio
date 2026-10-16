@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyCollectionSchema, areDocumentsEqual, contentFromDocument, ensureComarkBody, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
+import { applyCollectionSchema, areDocumentsEqual, contentFromDocument, documentFromJSONContent, documentFromYAMLContent, ensureComarkBody, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { CollectionInfo } from '@nuxt/content'
@@ -726,5 +726,22 @@ describe('applyCollectionSchema', () => {
     expect(sharedSeo).toEqual({ description: 'Welcome to Docus theme documentation.' })
     expect('title' in sharedSeo).toBe(false)
     expect((document.body as { frontmatter: { seo: object } }).frontmatter.seo).toEqual(sharedSeo)
+  })
+})
+
+describe('documentFromYAMLContent / documentFromJSONContent', () => {
+  it('spreads object data onto the document', async () => {
+    const expected = { id: 'data/authors/jane.yml', extension: 'yml', stem: 'authors/jane', meta: {}, name: 'Jane', body: 'bio' }
+    expect(await documentFromYAMLContent('data/authors/jane.yml', 'name: Jane\nbody: bio\n')).toEqual(expected)
+    expect(await documentFromJSONContent('data/authors/jane.json', '{"name":"Jane","body":"bio"}')).toEqual({ ...expected, id: 'data/authors/jane.json', extension: 'json' })
+  })
+
+  it('moves top-level arrays into body', async () => {
+    expect((await documentFromYAMLContent('data/list.yaml', '- a\n- b\n')).body).toEqual(['a', 'b'])
+    expect((await documentFromJSONContent('data/list.json', '["a","b"]')).body).toEqual(['a', 'b'])
+  })
+
+  it('handles an empty YAML file', async () => {
+    expect(await documentFromYAMLContent('data/empty.yml', '')).toEqual({ id: 'data/empty.yml', extension: 'yml', stem: 'empty', meta: {} })
   })
 })
