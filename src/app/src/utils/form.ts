@@ -1,7 +1,17 @@
 import type { Draft07, Draft07DefinitionProperty, Draft07DefinitionPropertyAnyOf, Draft07DefinitionPropertyAllOf, Draft07DefinitionPropertyOneOf, EditorOptions } from '@nuxt/content'
-import type { FormTree, FormItem } from '../types'
+import type { FormTree, FormItem, FormInputsTypes, RelationOptions } from '../types'
 import { upperFirst, titleCase } from 'scule'
 import { omit } from './object'
+
+/**
+ * `EditorOptions` in `@nuxt/content` only lists the inputs it shipped with, while
+ * `.editor()` forwards its whole argument to the generated schema. Studio reads
+ * the inputs it implements plus their own options from there.
+ */
+type StudioEditorOptions = Omit<EditorOptions, 'input'> & {
+  input?: FormInputsTypes
+  relation?: RelationOptions
+}
 
 export function formItemInputLabel(formItem: FormItem): string {
   const custom = formItem.label?.trim()
@@ -18,7 +28,7 @@ export function formItemInputLabel(formItem: FormItem): string {
 function editorDisplayFromContent(
   content: Draft07DefinitionProperty['$content'],
 ): Partial<Pick<FormItem, 'label' | 'description' | 'tooltip'>> {
-  const editor = content?.editor as EditorOptions | undefined
+  const editor = content?.editor as StudioEditorOptions | undefined
   if (!editor) {
     return {}
   }
@@ -48,7 +58,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
     const itemKey = paths.pop()!.replace('#', '')
     const level = paths.length
 
-    const editor = def.$content?.editor
+    const editor = def.$content?.editor as StudioEditorOptions | undefined
     if (editor?.hidden) {
       return null
     }
@@ -154,6 +164,11 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         item.options = editor.iconLibraries
       }
 
+      // Pass relation options from editor options for relation inputs
+      if (editor?.relation?.collection) {
+        item.relation = editor.relation
+      }
+
       return item
     }
 
@@ -178,6 +193,11 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
     // Pass iconLibraries from editor options for icon inputs
     else if (editor?.iconLibraries && Array.isArray(editor.iconLibraries)) {
       item.options = editor.iconLibraries as string[]
+    }
+
+    // Pass relation options from editor options for relation inputs
+    if (editor?.relation?.collection) {
+      item.relation = editor.relation
     }
 
     return item
