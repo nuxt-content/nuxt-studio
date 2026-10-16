@@ -1,17 +1,13 @@
 import type { CollectionInfo, Draft07, ResolvedCollectionSource, Draft07DefinitionProperty } from '@nuxt/content'
 import { hash } from 'ohash'
 import { minimatch } from 'minimatch'
-import { join, dirname, parse } from 'pathe'
+import { join } from 'pathe'
 import { withoutLeadingSlash, withoutTrailingSlash } from 'ufo'
 import { parseSourceBase } from './source'
 
 /**
  * Generation methods
  */
-export function generateStemFromFsPath(path: string) {
-  return withoutLeadingSlash(join(dirname(path), parse(path).name))
-}
-
 export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
   const { fixed } = parseSourceBase(collectionInfo.source[0]!)
 
