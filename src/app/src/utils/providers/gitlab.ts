@@ -1,7 +1,7 @@
 import { ofetch } from 'ofetch'
 import { joinURL, withoutTrailingSlash } from 'ufo'
 import { consola } from 'consola'
-import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions } from '../../types'
+import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions, EnsureReviewRequestOptions, ReviewRequestResult } from '../../types'
 import { DraftStatus } from '../../types/draft'
 import { StudioFeature } from '../../types'
 
@@ -171,6 +171,67 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
     }
   }
 
+  async function ensureReviewRequest({ title, head, base, body, commitUrl }: EnsureReviewRequestOptions): Promise<ReviewRequestResult | null> {
+    if (!token) {
+      return null
+    }
+
+    const existingMergeRequests = await $api<Array<{
+      iid: number
+      web_url: string
+      source_branch: string
+      target_branch: string
+    }>>('/merge_requests', {
+      query: {
+        state: 'opened',
+        source_branch: head,
+        target_branch: base,
+      },
+    })
+
+    const existingMergeRequest = existingMergeRequests[0]
+    if (existingMergeRequest) {
+      return {
+        kind: 'merge-request',
+        state: 'existing',
+        url: existingMergeRequest.web_url,
+        head: existingMergeRequest.source_branch,
+        base: existingMergeRequest.target_branch,
+        iid: existingMergeRequest.iid,
+      }
+    }
+
+    const description = [
+      body,
+      commitUrl ? `Commit: ${commitUrl}` : undefined,
+      'Published via [Nuxt Studio](https://nuxt.studio/)',
+    ].filter(Boolean).join('\n\n')
+
+    const createdMergeRequest = await $api<{
+      iid: number
+      web_url: string
+      source_branch: string
+      target_branch: string
+    }>('/merge_requests', {
+      method: 'POST',
+      body: {
+        title,
+        source_branch: head,
+        target_branch: base,
+        description,
+      },
+    })
+
+    return {
+      kind: 'merge-request',
+      state: 'created',
+      url: createdMergeRequest.web_url,
+      head: createdMergeRequest.source_branch,
+      base: createdMergeRequest.target_branch,
+      iid: createdMergeRequest.iid,
+    }
+  }
+
   function getRepositoryUrl() {
     return `${normalizedInstanceUrl}/${owner}/${repo}`
   }
@@ -201,6 +262,7 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
   return {
     fetchFile,
     commitFiles,
+    ensureReviewRequest,
     getRepositoryUrl,
     getBranchUrl,
     getCommitUrl,
