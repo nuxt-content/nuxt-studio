@@ -117,7 +117,7 @@ export async function documentFromMarkdownContent(id: string, content: string, o
     id,
     meta: {},
     extension: 'md',
-    stem: id.split('/').slice(1).join('/').split('.').slice(0, -1).join('.'),
+    stem: generateStemFromId(id),
     body: tree,
     ...tree.frontmatter,
   }

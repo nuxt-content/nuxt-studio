@@ -2,7 +2,7 @@ import { joinURL, withLeadingSlash } from 'ufo'
 import { createError, eventHandler, readBody } from 'h3'
 import { useRuntimeConfig } from '#imports'
 import { VIRTUAL_MEDIA_COLLECTION_NAME } from '../../../utils/constants'
-import { isSafeStorageKey } from '../../../utils/media'
+import { generateStemFromFsPath, isSafeStorageKey } from '../../../utils/media'
 import { requireStudioAuth } from '../../utils/auth'
 import { blob } from 'hub:blob'
 
@@ -50,7 +50,7 @@ export default eventHandler(async (event) => {
       id: path,
       fsPath,
       extension: fsPath.split('.').pop(),
-      stem: fsPath.split('.').slice(0, -1).join('.'),
+      stem: generateStemFromFsPath(fsPath),
       path: resolvedPath,
     }
   }
