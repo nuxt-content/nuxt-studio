@@ -30,9 +30,9 @@
   ],
   "main": "./dist/module/module.mjs",
   "scripts": {
-    "prepack": "nuxt-module-build build src/module; vite build src/app",
-    "dev": "pnpm run dev:prepare && STUDIO_DEV_SERVER=http://localhost:5151 nuxi dev playground/docus",
-    "dev:minimal": "pnpm run dev:prepare && STUDIO_DEV_SERVER=http://localhost:5151 nuxt dev playground/minimal",
+    "prepack": "nuxt-module-build build src/module & vite build src/app",
+    "dev": "pnpm run dev:prepare && cross-env STUDIO_DEV_SERVER=http://localhost:5151 nuxi dev playground/docus",
+    "dev:minimal": "pnpm run dev:prepare && cross-env STUDIO_DEV_SERVER=http://localhost:5151 nuxt dev playground/minimal",
     "dev:app": "vite src/app --port 5151",
     "dev:docs": "nuxt dev docs",
     "dev:prepare": "nuxt-module-build build --stub src/module && nuxt-module-build prepare src/module && nuxi prepare playground/docus && nuxi prepare docs",
@@ -45,7 +45,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground/docus && vue-tsc --noEmit",
-    "clean": "rm -rf dist .nuxt .output node_modules docs/node_modules docs/.output docs/.data docs/.nuxt playground/docus/node_modules playground/docus/.output playground/docus/.data playground/docus/.nuxt playground/minimal/node_modules playground/minimal/.output playground/minimal/.data playground/minimal/.nuxt pnpm-lock.yaml"
+    "clean": "rimraf dist .nuxt .output node_modules docs/node_modules docs/.output docs/.data docs/.nuxt playground/docus/node_modules playground/docus/.output playground/docus/.data playground/docus/.nuxt playground/minimal/node_modules playground/minimal/.output playground/minimal/.data playground/minimal/.nuxt pnpm-lock.yaml"
   },
   "optionalDependencies": {
     "ipx": "^3.1.1"
@@ -85,6 +85,7 @@
     "@unhead/vue": "^3.4.2",
     "@unpic/vue": "^1.0.0",
     "@vitejs/plugin-vue": "^6.0.10",
+    "cross-env": "^10.1.0",
     "eslint": "^10.12.0",
     "hookable": "^6.1.2",
     "idb-keyval": "^6.3.0",
@@ -93,6 +94,7 @@
     "nuxt-studio": "workspace:*",
     "ofetch": "^1.5.1",
     "release-it": "^21.1.1",
+    "rimraf": "^6.1.3",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.4",
     "vite-plugin-dts": "^5.1.2",
