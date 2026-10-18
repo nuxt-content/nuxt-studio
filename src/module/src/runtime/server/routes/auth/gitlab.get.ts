@@ -196,12 +196,31 @@ export default eventHandler(async (event: H3Event) => {
     })
   }
 
-  const moderators = studioConfig?.auth?.gitlab?.moderators?.split(',').filter(Boolean) || []
-  if (moderators.length > 0 && !moderators.includes(String(user.email))) {
+  const moderators =
+    studioConfig?.auth?.gitlab?.moderators
+      ?.split(',')
+      .map((moderator) => moderator.trim())
+      .filter(Boolean) || [];
+  
+  const isAuthorized = moderators.some((moderator) => {
+    const [type, ...valueParts] = moderator.split(':');
+    const value = valueParts.join(':').trim();
+  
+    switch (type) {
+      case 'name':
+        return user.username === value;
+      case 'mail':
+        return user.email === value;
+      default:
+        return false;
+    }
+  });
+  
+  if (moderators.length > 0 && !isAuthorized) {
     throw createError({
       statusCode: 403,
       message: 'You are not authorized to access the studio',
-    })
+    });
   }
 
   await setInternalStudioUserSession(event, {
