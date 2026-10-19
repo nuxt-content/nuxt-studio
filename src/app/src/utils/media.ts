@@ -1,3 +1,5 @@
+import type { GitFile, MediaItem } from '../types'
+
 export function generateStemFromFsPath(fsPath: string) {
   return fsPath.split('.').slice(0, -1).join('.')
 }
@@ -44,4 +46,44 @@ export function getMediaFullUrl(path: string): string {
 export function getMediaFetchUrl(path: string, isImage: boolean): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
   return isImage ? getMediaFullUrl(normalized) : normalized
+}
+
+/**
+ * File name of a media item: the Git provider's name when the file is in the
+ * repository, otherwise the last segment of its stem plus its extension.
+ */
+export function getMediaFileName(mediaItem: MediaItem, remoteFile?: GitFile | null): string {
+  if (remoteFile?.name) {
+    return remoteFile.name
+  }
+  const name = mediaItem.stem.split('/').pop()!
+  return mediaItem.extension ? `${name}.${mediaItem.extension}` : name
+}
+
+/**
+ * Markdown link to a media file. Brackets in the name are escaped, and a path
+ * with spaces or parentheses is wrapped in angle brackets to keep the link valid.
+ */
+export function getMediaMarkdownLink(name: string, path: string): string {
+  const text = name.replace(/[[\]\\]/g, '\\$&')
+  const destination = /[\s()]/.test(path) ? `<${path}>` : path
+  return `[${text}](${destination})`
+}
+
+/**
+ * Size in bytes of a media file as served by the website (HEAD request), for
+ * files the Git provider doesn't know (generated or not published yet).
+ *
+ * @param path - Public path or full URL of the media
+ * @returns The size, or null when the server doesn't send it
+ */
+export async function fetchMediaFileSize(path: string): Promise<number | null> {
+  try {
+    const response = await fetch(path, { method: 'HEAD' })
+    const size = Number(response.headers.get('content-length'))
+    return response.ok && size > 0 ? size : null
+  }
+  catch {
+    return null
+  }
 }
