@@ -20,7 +20,7 @@ export default defineEventHandler((event) => {
     github.clientSecret = github.clientSecret || process.env.STUDIO_GITHUB_CLIENT_SECRET || ''
     github.instanceUrl = github.instanceUrl || process.env.STUDIO_GITHUB_INSTANCE_URL || 'https://github.com'
     github.moderators = github.moderators || process.env.STUDIO_GITHUB_MODERATORS || ''
-    github.redirectUrl = github.redirectUrl || process.env.STUDIO_GITHUB_REDIRECT_URL || ''
+    github.redirectURL = github.redirectURL || process.env.STUDIO_GITHUB_REDIRECT_URL || ''
   }
 
   const gitlab = config.studio.auth.gitlab
@@ -29,7 +29,7 @@ export default defineEventHandler((event) => {
     gitlab.applicationSecret = gitlab.applicationSecret || process.env.STUDIO_GITLAB_APPLICATION_SECRET || ''
     gitlab.instanceUrl = gitlab.instanceUrl || process.env.STUDIO_GITLAB_INSTANCE_URL || 'https://gitlab.com'
     gitlab.moderators = gitlab.moderators || process.env.STUDIO_GITLAB_MODERATORS || ''
-    gitlab.redirectUrl = gitlab.redirectUrl || process.env.STUDIO_GITLAB_REDIRECT_URL || ''
+    gitlab.redirectURL = gitlab.redirectURL || process.env.STUDIO_GITLAB_REDIRECT_URL || ''
   }
 
   const google = config.studio.auth.google
@@ -37,7 +37,7 @@ export default defineEventHandler((event) => {
     google.clientId = google.clientId || process.env.STUDIO_GOOGLE_CLIENT_ID || ''
     google.clientSecret = google.clientSecret || process.env.STUDIO_GOOGLE_CLIENT_SECRET || ''
     google.moderators = google.moderators || process.env.STUDIO_GOOGLE_MODERATORS || ''
-    google.redirectUrl = google.redirectUrl || process.env.STUDIO_GOOGLE_REDIRECT_URL || ''
+    google.redirectURL = google.redirectURL || process.env.STUDIO_GOOGLE_REDIRECT_URL || ''
   }
 
   const sso = config.studio.auth.sso
@@ -45,7 +45,7 @@ export default defineEventHandler((event) => {
     sso.serverUrl = sso.serverUrl || process.env.STUDIO_SSO_URL || ''
     sso.clientId = sso.clientId || process.env.STUDIO_SSO_CLIENT_ID || ''
     sso.clientSecret = sso.clientSecret || process.env.STUDIO_SSO_CLIENT_SECRET || ''
-    sso.redirectUrl = sso.redirectUrl || process.env.STUDIO_SSO_REDIRECT_URL || ''
+    sso.redirectURL = sso.redirectURL || process.env.STUDIO_SSO_REDIRECT_URL || ''
   }
 
   if (config.studio.git) {
