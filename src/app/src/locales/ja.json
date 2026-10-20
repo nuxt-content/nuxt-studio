@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "コミットメッセージは必須です",
+      "fieldRequired": "この項目は必須です",
       "nameEmpty": "名前を入力してください",
       "nameEndsWithDot": "名前を '.' で終えることはできません",
       "nameStartsWithSlash": "名前を '/' で始めることはできません",

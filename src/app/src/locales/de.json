@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Commit-Nachricht ist erforderlich",
+      "fieldRequired": "Dieses Feld ist erforderlich",
       "nameEmpty": "Name darf nicht leer sein",
       "nameEndsWithDot": "Name darf nicht mit '.' enden",
       "nameStartsWithSlash": "Name darf nicht mit '/' beginnen",

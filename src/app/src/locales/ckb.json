@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "پەیامی کۆمیت پێویستە",
+      "fieldRequired": "ئەم خانەیە پێویستە",
       "nameEmpty": "ناو نابێت بەتاڵ بێت",
       "nameEndsWithDot": "ناو نابێت بە '.' کۆتایی بێت",
       "nameStartsWithSlash": "ناو نابێت بە '/' دەست پێ بکات",

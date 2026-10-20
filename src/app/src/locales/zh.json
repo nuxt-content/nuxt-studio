@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "必须填写提交信息",
+      "fieldRequired": "此字段为必填项",
       "nameEmpty": "名称不能为空",
       "nameEndsWithDot": "名称不能以 '.' 结尾",
       "nameStartsWithSlash": "名称不能以 '/' 开头",

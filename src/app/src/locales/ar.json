@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "رسالة الكوميت مطلوبة",
+      "fieldRequired": "هذا الحقل مطلوب",
       "nameEmpty": "لا يمكن أن يكون الاسم فارغاً",
       "nameEndsWithDot": "لا يمكن أن ينتهي الاسم بـ '.'",
       "nameStartsWithSlash": "لا يمكن أن يبدأ الاسم بـ '/'",
