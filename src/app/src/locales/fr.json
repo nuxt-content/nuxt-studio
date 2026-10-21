@@ -42,7 +42,9 @@
       "failedTitle": "Échec de la publication",
       "summary": "sur la branche {branch} du dépôt {repo}",
       "errorTitle": "Erreur lors de la publication sur {providerName}",
-      "failedGeneric": "Échec de la publication des changements"
+      "failedGeneric": "Échec de la publication des changements",
+      "gitlabTokenExpiredTitle": "Votre session GitLab a expiré",
+      "gitlabTokenExpiredDescription": "Vous êtes connecté depuis un certain temps et votre connexion à GitLab n'est plus valide. Déconnectez-vous, puis reconnectez-vous pour publier vos changements."
     },
     "review": {
       "title": "Changements à valider",
