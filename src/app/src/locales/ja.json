@@ -137,6 +137,7 @@
         "createDocumentFolder": "新しいフォルダ",
         "createMediaFolder": "新しいメディアフォルダ",
         "renameItem": "名前を変更",
+        "moveItem": "移動…",
         "deleteItem": "削除",
         "uploadMedia": "メディアをアップロード",
         "duplicateItem": "複製",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "新しいフォルダを作成",
         "createMediaFolder": "新しいフォルダを作成",
         "renameItem": "ファイルの名前を変更",
+        "moveItem": "別のフォルダに移動",
         "deleteItem": "ファイルを削除",
         "uploadMedia": "メディアをアップロード",
         "duplicateItem": "複製",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} ファイル"
+    },
+    "destination": {
+      "name": "名前",
+      "folder": "フォルダ",
+      "currentFolder": "現在",
+      "move": {
+        "title": "「{name}」を移動",
+        "description": "移動先のフォルダを選択してください。",
+        "submit": "ここに移動",
+        "sameFolder": "すでにこのフォルダにあります"
+      },
+      "duplicate": {
+        "title": "「{name}」を複製",
+        "description": "コピーの名前と作成先を選択してください。",
+        "submit": "複製"
+      },
+      "errors": {
+        "fileExists": "{folder} に同じ名前のファイルが既に存在します。",
+        "folderExists": "{folder} に同じ名前のフォルダが既に存在します。",
+        "notAllowed": "このコンテンツは {folder} に保存できません。"
+      }
     }
   }
 }

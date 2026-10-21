@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nowy folder",
         "createMediaFolder": "Nowy folder mediów",
         "renameItem": "Zmień nazwę",
+        "moveItem": "Przenieś do…",
         "deleteItem": "Usuń",
         "uploadMedia": "Prześlij media",
         "duplicateItem": "Duplikuj",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Utwórz nowy folder",
         "createMediaFolder": "Utwórz nowy folder",
         "renameItem": "Zmień nazwę pliku",
+        "moveItem": "Przenieś do innego folderu",
         "deleteItem": "Usuń plik",
         "uploadMedia": "Prześlij media",
         "duplicateItem": "Zduplikuj plik",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Plik {title}"
+    },
+    "destination": {
+      "name": "Nazwa",
+      "folder": "Folder",
+      "currentFolder": "Bieżący",
+      "move": {
+        "title": "Przenieś „{name}”",
+        "description": "Wybierz folder docelowy.",
+        "submit": "Przenieś tutaj",
+        "sameFolder": "Już znajduje się w tym folderze"
+      },
+      "duplicate": {
+        "title": "Duplikuj „{name}”",
+        "description": "Nazwij kopię i wybierz, gdzie ją utworzyć.",
+        "submit": "Duplikuj"
+      },
+      "errors": {
+        "fileExists": "Plik o tej nazwie już istnieje w {folder}.",
+        "folderExists": "Folder o tej nazwie już istnieje w {folder}.",
+        "notAllowed": "Tej treści nie można zapisać w {folder}."
+      }
     }
   }
 }

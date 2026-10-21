@@ -137,6 +137,7 @@
         "createDocumentFolder": "بوخچەی نوێ",
         "createMediaFolder": "بوخچەی میدیای نوێ",
         "renameItem": "گۆڕینی ناو",
+        "moveItem": "گواستنەوە بۆ…",
         "deleteItem": "سڕینەوە",
         "uploadMedia": "بارکردنی میدیا",
         "duplicateItem": "دووبارەکردنەوە",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "دروستکردنی بوخچەی نوێ",
         "createMediaFolder": "دروستکردنی بوخچەی نوێ",
         "renameItem": "گۆڕینی ناوی پەڕگە",
+        "moveItem": "گواستنەوە بۆ بوخچەیەکی تر",
         "deleteItem": "سڕینەوەی پەڕگە",
         "uploadMedia": "بارکردنی میدیا",
         "duplicateItem": "دووبارەکردنەوەی پەڕگە",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# پەڕگەی {title}"
+    },
+    "destination": {
+      "name": "ناو",
+      "folder": "بوخچە",
+      "currentFolder": "ئێستا",
+      "move": {
+        "title": "گواستنەوەی «{name}»",
+        "description": "ئەو بوخچەیە هەڵبژێرە کە دەتەوێت بۆی بگوازیتەوە.",
+        "submit": "گواستنەوە بۆ ئێرە",
+        "sameFolder": "پێشتر لەم بوخچەیەدایە"
+      },
+      "duplicate": {
+        "title": "دووبارەکردنەوەی «{name}»",
+        "description": "ناوێک بۆ کۆپییەکە دابنێ و شوێنی دروستکردنی هەڵبژێرە.",
+        "submit": "دووبارەکردنەوە"
+      },
+      "errors": {
+        "fileExists": "پەڕگەیەک بەم ناوە پێشتر لە {folder} هەیە.",
+        "folderExists": "بوخچەیەک بەم ناوە پێشتر لە {folder} هەیە.",
+        "notAllowed": "ئەم ناوەڕۆکە ناتوانرێت لە {folder} هەڵبگیرێت."
+      }
     }
   }
 }

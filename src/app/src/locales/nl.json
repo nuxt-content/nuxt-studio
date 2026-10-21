@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nieuwe map",
         "createMediaFolder": "Nieuwe mediamap",
         "renameItem": "Hernoemen",
+        "moveItem": "Verplaatsen naar…",
         "deleteItem": "Verwijderen",
         "uploadMedia": "Media uploaden",
         "duplicateItem": "Dupliceren",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Nieuwe map maken",
         "createMediaFolder": "Nieuwe map maken",
         "renameItem": "Bestand hernoemen",
+        "moveItem": "Naar een andere map verplaatsen",
         "deleteItem": "Bestand verwijderen",
         "uploadMedia": "Media uploaden",
         "duplicateItem": "Bestand dupliceren",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Bestand {title}"
+    },
+    "destination": {
+      "name": "Naam",
+      "folder": "Map",
+      "currentFolder": "Huidig",
+      "move": {
+        "title": "“{name}” verplaatsen",
+        "description": "Kies de map waarnaar je wilt verplaatsen.",
+        "submit": "Hierheen verplaatsen",
+        "sameFolder": "Staat al in deze map"
+      },
+      "duplicate": {
+        "title": "“{name}” dupliceren",
+        "description": "Geef de kopie een naam en kies waar je die wilt maken.",
+        "submit": "Dupliceren"
+      },
+      "errors": {
+        "fileExists": "Er bestaat al een bestand met deze naam in {folder}.",
+        "folderExists": "Er bestaat al een map met deze naam in {folder}.",
+        "notAllowed": "Deze inhoud kan niet in {folder} worden opgeslagen."
+      }
     }
   }
 }

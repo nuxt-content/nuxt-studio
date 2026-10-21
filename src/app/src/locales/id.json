@@ -137,6 +137,7 @@
         "createDocumentFolder": "Folder baru",
         "createMediaFolder": "Folder media baru",
         "renameItem": "Ganti nama",
+        "moveItem": "Pindahkan ke…",
         "deleteItem": "Hapus",
         "uploadMedia": "Unggah media",
         "duplicateItem": "Duplikasi",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Buat folder baru",
         "createMediaFolder": "Buat folder baru",
         "renameItem": "Ganti nama berkas",
+        "moveItem": "Pindahkan ke folder lain",
         "deleteItem": "Hapus berkas",
         "uploadMedia": "Unggah media",
         "duplicateItem": "Duplikasi berkas",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Berkas {title}"
+    },
+    "destination": {
+      "name": "Nama",
+      "folder": "Folder",
+      "currentFolder": "Saat ini",
+      "move": {
+        "title": "Pindahkan “{name}”",
+        "description": "Pilih folder tujuan.",
+        "submit": "Pindahkan ke sini",
+        "sameFolder": "Sudah ada di folder ini"
+      },
+      "duplicate": {
+        "title": "Duplikasi “{name}”",
+        "description": "Beri nama salinan dan pilih tempat membuatnya.",
+        "submit": "Duplikasi"
+      },
+      "errors": {
+        "fileExists": "Berkas dengan nama ini sudah ada di {folder}.",
+        "folderExists": "Folder dengan nama ini sudah ada di {folder}.",
+        "notAllowed": "Konten ini tidak dapat disimpan di {folder}."
+      }
     }
   }
 }

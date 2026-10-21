@@ -114,3 +114,22 @@ export function slugifyFileName(fileName: string): string {
 
   return `${slugifiedName}.${extension}`
 }
+
+/**
+ * Returns `fileName` when it's free, otherwise the first free `-copy`, `-copy-2`, … variant.
+ * The copy suffix goes before the extension: `guide.md` becomes `guide-copy.md`.
+ */
+export function getAvailableFileName(fileName: string, takenFileNames: string[]): string {
+  const extensionIndex = fileName.lastIndexOf('.')
+  const hasExtension = extensionIndex > 0
+  const baseName = hasExtension ? fileName.slice(0, extensionIndex) : fileName
+  const extension = hasExtension ? fileName.slice(extensionIndex) : ''
+
+  let availableFileName = fileName
+  for (let copyIndex = 1; takenFileNames.includes(availableFileName); copyIndex++) {
+    const copySuffix = copyIndex === 1 ? '-copy' : `-copy-${copyIndex}`
+    availableFileName = `${baseName}${copySuffix}${extension}`
+  }
+
+  return availableFileName
+}

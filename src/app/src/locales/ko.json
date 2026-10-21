@@ -137,6 +137,7 @@
         "createDocumentFolder": "새 폴더",
         "createMediaFolder": "새 미디어 폴더",
         "renameItem": "이름 변경",
+        "moveItem": "이동…",
         "deleteItem": "삭제",
         "uploadMedia": "미디어 업로드",
         "duplicateItem": "복제",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "새 폴더 생성",
         "createMediaFolder": "새 폴더 생성",
         "renameItem": "파일 이름 변경",
+        "moveItem": "다른 폴더로 이동",
         "deleteItem": "파일 삭제",
         "uploadMedia": "미디어 업로드",
         "duplicateItem": "파일 복제",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} 파일"
+    },
+    "destination": {
+      "name": "이름",
+      "folder": "폴더",
+      "currentFolder": "현재",
+      "move": {
+        "title": "“{name}” 이동",
+        "description": "이동할 폴더를 선택하세요.",
+        "submit": "여기로 이동",
+        "sameFolder": "이미 이 폴더에 있습니다"
+      },
+      "duplicate": {
+        "title": "“{name}” 복제",
+        "description": "사본의 이름을 지정하고 생성할 위치를 선택하세요.",
+        "submit": "복제"
+      },
+      "errors": {
+        "fileExists": "{folder}에 같은 이름의 파일이 이미 있습니다.",
+        "folderExists": "{folder}에 같은 이름의 폴더가 이미 있습니다.",
+        "notAllowed": "이 콘텐츠는 {folder}에 저장할 수 없습니다."
+      }
     }
   }
 }

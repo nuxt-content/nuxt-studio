@@ -137,6 +137,7 @@
         "createDocumentFolder": "مجلد جديد",
         "createMediaFolder": "مجلد وسائط جديد",
         "renameItem": "إعادة تسمية",
+        "moveItem": "نقل إلى…",
         "deleteItem": "حذف",
         "uploadMedia": "رفع وسائط",
         "duplicateItem": "تكرار",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "إنشاء مجلد جديد",
         "createMediaFolder": "إنشاء مجلد وسائط جديد",
         "renameItem": "إعادة تسمية الملف",
+        "moveItem": "نقل إلى مجلد آخر",
         "deleteItem": "حذف الملف",
         "uploadMedia": "رفع وسائط",
         "duplicateItem": "تكرار الملف",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# ملف {title}"
+    },
+    "destination": {
+      "name": "الاسم",
+      "folder": "المجلد",
+      "currentFolder": "الحالي",
+      "move": {
+        "title": "نقل «{name}»",
+        "description": "اختر المجلد الذي تريد النقل إليه.",
+        "submit": "نقل هنا",
+        "sameFolder": "موجود بالفعل في هذا المجلد"
+      },
+      "duplicate": {
+        "title": "تكرار «{name}»",
+        "description": "سمِّ النسخة واختر مكان إنشائها.",
+        "submit": "تكرار"
+      },
+      "errors": {
+        "fileExists": "يوجد ملف بهذا الاسم بالفعل في {folder}.",
+        "folderExists": "يوجد مجلد بهذا الاسم بالفعل في {folder}.",
+        "notAllowed": "لا يمكن حفظ هذا المحتوى في {folder}."
+      }
     }
   }
 }

@@ -137,6 +137,7 @@
         "createDocumentFolder": "Thư mục mới",
         "createMediaFolder": "Thư mục phương tiện mới",
         "renameItem": "Đổi tên",
+        "moveItem": "Di chuyển đến…",
         "deleteItem": "Xóa",
         "uploadMedia": "Tải lên phương tiện",
         "duplicateItem": "Nhân bản",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Tạo thư mục mới",
         "createMediaFolder": "Tạo thư mục phương tiện mới",
         "renameItem": "Đổi tên tập tin",
+        "moveItem": "Di chuyển đến thư mục khác",
         "deleteItem": "Xóa tập tin",
         "uploadMedia": "Tải lên phương tiện",
         "duplicateItem": "Nhân bản tập tin",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Tập tin {title}"
+    },
+    "destination": {
+      "name": "Tên",
+      "folder": "Thư mục",
+      "currentFolder": "Hiện tại",
+      "move": {
+        "title": "Di chuyển “{name}”",
+        "description": "Chọn thư mục để di chuyển đến.",
+        "submit": "Di chuyển đến đây",
+        "sameFolder": "Đã ở trong thư mục này"
+      },
+      "duplicate": {
+        "title": "Nhân bản “{name}”",
+        "description": "Đặt tên cho bản sao và chọn nơi tạo.",
+        "submit": "Nhân bản"
+      },
+      "errors": {
+        "fileExists": "Đã có tập tin cùng tên trong {folder}.",
+        "folderExists": "Đã có thư mục cùng tên trong {folder}.",
+        "notAllowed": "Không thể lưu nội dung này vào {folder}."
+      }
     }
   }
 }

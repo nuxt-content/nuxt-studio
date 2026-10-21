@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugifyFileName } from '../../../src/utils/file'
+import { getAvailableFileName, slugifyFileName } from '../../../src/utils/file'
 
 describe('slugifyFileName', () => {
   it('should slugify filename with spaces', () => {
@@ -40,5 +40,23 @@ describe('slugifyFileName', () => {
   it('should handle filenames with unicode characters', () => {
     const result = slugifyFileName('日本語ファイル名.txt')
     expect(result).toBe('日本語ファイル名.txt')
+  })
+})
+
+describe('getAvailableFileName', () => {
+  it('should keep the file name when it is free', () => {
+    expect(getAvailableFileName('guide.md', ['intro.md'])).toBe('guide.md')
+  })
+
+  it('should add a copy suffix before the extension when the name is taken', () => {
+    expect(getAvailableFileName('guide.md', ['guide.md'])).toBe('guide-copy.md')
+  })
+
+  it('should number the copy suffix until a free name is found', () => {
+    expect(getAvailableFileName('guide.md', ['guide.md', 'guide-copy.md', 'guide-copy-2.md'])).toBe('guide-copy-3.md')
+  })
+
+  it('should handle names without extension', () => {
+    expect(getAvailableFileName('guide', ['guide'])).toBe('guide-copy')
   })
 })

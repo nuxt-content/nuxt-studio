@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildTree, findParentFromFsPath, findItemFromRoute, findItemFromFsPath, findDescendantsFileItemsFromFsPath, getTreeStatus } from '../../../src/utils/tree'
+import { buildTree, findParentFromFsPath, findItemFromRoute, findItemFromFsPath, findDescendantsFileItemsFromFsPath, getTreeStatus, filterDirectories } from '../../../src/utils/tree'
 import { tree } from '../../../test/mocks/tree'
 import type { TreeItem } from '../../../src/types/tree'
 import { dbItemsList, languagePrefixedDbItemsList, nestedDbItemsList } from '../../../test/mocks/database'
@@ -1015,5 +1015,23 @@ describe('findDescendantsFileItemsFromFsPath', () => {
 
     expect(descendants).toHaveLength(1)
     expect(descendants[0].fsPath).toBe('1.getting-started/1.advanced/1.studio.md')
+  })
+})
+
+describe('filterDirectories', () => {
+  const rootItem: TreeItem = { name: 'content', fsPath: '/', type: 'root', prefix: null, children: tree }
+
+  it('keeps directories only', () => {
+    const filteredRoot = filterDirectories(rootItem)
+
+    expect(filteredRoot.children!.map(item => item.fsPath)).toEqual(['1.getting-started'])
+    expect(filteredRoot.children![0].children!.map(item => item.fsPath)).toEqual(['1.getting-started/1.advanced'])
+  })
+
+  it('leaves out rejected directories along with their subtree', () => {
+    const filteredRoot = filterDirectories(rootItem, directory => directory.fsPath !== '1.getting-started/1.advanced')
+
+    expect(filteredRoot.children!.map(item => item.fsPath)).toEqual(['1.getting-started'])
+    expect(filteredRoot.children![0].children).toEqual([])
   })
 })

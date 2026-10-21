@@ -137,6 +137,7 @@
         "createDocumentFolder": "Új mappa",
         "createMediaFolder": "Új média mappa",
         "renameItem": "Átnevezés",
+        "moveItem": "Áthelyezés…",
         "deleteItem": "Törlés",
         "uploadMedia": "Média feltöltése",
         "duplicateItem": "Másolat készítése",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Új mappa létrehozása",
         "createMediaFolder": "Új média mappa létrehozása",
         "renameItem": "Fájl átnevezése",
+        "moveItem": "Áthelyezés másik mappába",
         "deleteItem": "Fájl törlése",
         "uploadMedia": "Média feltöltése",
         "duplicateItem": "Fájl másolatának létrehozása",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} fájl"
+    },
+    "destination": {
+      "name": "Név",
+      "folder": "Mappa",
+      "currentFolder": "Jelenlegi",
+      "move": {
+        "title": "„{name}” áthelyezése",
+        "description": "Válassza ki a célmappát.",
+        "submit": "Áthelyezés ide",
+        "sameFolder": "Már ebben a mappában van"
+      },
+      "duplicate": {
+        "title": "Másolat készítése: „{name}”",
+        "description": "Adjon nevet a másolatnak, és válassza ki, hová kerüljön.",
+        "submit": "Másolat készítése"
+      },
+      "errors": {
+        "fileExists": "Már létezik ilyen nevű fájl itt: {folder}.",
+        "folderExists": "Már létezik ilyen nevű mappa itt: {folder}.",
+        "notAllowed": "Ez a tartalom nem menthető ide: {folder}."
+      }
     }
   }
 }
