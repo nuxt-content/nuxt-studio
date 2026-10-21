@@ -225,6 +225,16 @@ export interface ModuleOptions {
    */
   auth?: {
     /**
+     * A host-provided login page using Studio's session utilities.
+     * The host is responsible for authentication and authorization.
+     */
+    custom?: {
+      /** Same-origin absolute path. Setting this enables the custom login. */
+      loginURL: string
+      /** Label shown alongside other providers. @default 'Continue with your account' */
+      label?: string
+    }
+    /**
      * The GitHub OAuth credentials.
      */
     github?: {
@@ -413,6 +423,10 @@ export default defineNuxtModule<ModuleOptions>({
       instanceUrl: undefined,
     },
     auth: {
+      custom: {
+        loginURL: '',
+        label: 'Continue with your account',
+      },
       github: {
         clientId: undefined,
         clientSecret: undefined,
@@ -585,6 +599,10 @@ export default defineNuxtModule<ModuleOptions>({
       },
       auth: {
         sessionSecret: '',
+        custom: {
+          loginURL: options.auth?.custom?.loginURL || '',
+          label: options.auth?.custom?.label || 'Continue with your account',
+        },
         github: {
           clientId: options.auth?.github?.clientId || '',
           clientSecret: options.auth?.github?.clientSecret || '',
