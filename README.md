@@ -220,7 +220,7 @@ pnpm lint
 ### 🔮 Future
 
 - [ ] Advanced conflict resolution
-- [ ] Pull request generation (from a branch to the main one)
+- [x] Pull request generation (from a branch to the main one)
 - [x] AI-powered content suggestions
 - [ ] Media optimization
 

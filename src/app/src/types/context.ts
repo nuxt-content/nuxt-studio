@@ -1,3 +1,4 @@
+import type { CommitResult, ReviewRequestResult } from './git'
 import type { TreeItem } from './tree'
 
 export enum StudioFeature {
@@ -56,6 +57,12 @@ export interface UploadMediaParams {
 
 export interface PublishBranchParams {
   commitMessage: string
+}
+
+export interface PublishBranchResult {
+  commit: CommitResult
+  reviewRequest: ReviewRequestResult | null
+  reviewRequestError?: string
 }
 
 export type ActionHandlerParams = {
