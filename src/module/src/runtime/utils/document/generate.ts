@@ -12,7 +12,7 @@ import { CORE_SCHEMA, dump, loadAll, mergeTag, timestampTag } from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
-import { comarkTreeFromLegacyDocument, padBlankLinesInComponents, unbindComarkTree } from './legacy'
+import { comarkTreeFromLegacyDocument, kebabCaseInlineAttributes, padBlankLinesInComponents, unbindComarkTree } from './legacy'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -137,6 +137,7 @@ export async function contentFromMarkdownDocument(document: DatabaseItem): Promi
   const body = unbindComarkTree(tree)
   const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
+    components: { kebabCaseInlineAttributes },
   })
   return padBlankLinesInComponents(markdown) + '\n'
 }

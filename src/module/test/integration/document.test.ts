@@ -253,6 +253,90 @@ This action cannot be undone.
     })
   })
 
+  // @nuxtjs/mdc kebab-cases the names of inline attributes, but keeps the keys of a YAML props block as written.
+  describe('camelCase props read back by @nuxtjs/mdc', () => {
+    const documentOf = (nodes: MarkdownDocument['nodes']) => ({
+      id: 'content:index.md',
+      extension: 'md',
+      stem: 'index',
+      meta: {},
+      body: { nodes, frontmatter: {}, meta: {} },
+    }) as unknown as DatabaseItem
+
+    // The props form writes the camelCase names the component declares.
+    const edited = documentOf([['my-card', { 'imageUrl': '/card.png', ':isOpen': 'true' }, 'Hello']])
+
+    it('writes inline props in kebab-case', async () => {
+      await expect(contentFromMarkdownDocument(edited)).resolves.toBe('::my-card{image-url="/card.png" is-open}\nHello\n::\n')
+    })
+
+    it('matches its own file once deployed', async () => {
+      const saved = await contentFromMarkdownDocument(edited)
+
+      expect(await isDocumentMatchingContent(saved!, await storedDocumentOf(saved!))).toBe(true)
+    })
+
+    it('writes the same file on a second save', async () => {
+      const original = '::my-card\n---\nimageUrl: /card.png\n---\nHello\n::\n'
+
+      const first = await contentFromMarkdownDocument(await storedDocumentOf(original))
+      const second = await contentFromMarkdownDocument(await storedDocumentOf(first!))
+
+      expect(second).toBe(first)
+    })
+
+    // Written by hand, or saved by earlier Studio versions.
+    describe('file with camelCase inline props', () => {
+      const content = '::my-card{imageUrl="/card.png"}\nHello\n::\n'
+
+      it('matches its own deployed body', async () => {
+        expect(await isDocumentMatchingContent(content, await storedDocumentOf(content))).toBe(true)
+      })
+
+      it('still detects a changed prop value', async () => {
+        const changed = content.replace('/card.png', '/other.png')
+
+        expect(await isDocumentMatchingContent(changed, await storedDocumentOf(content))).toBe(false)
+      })
+    })
+
+    it('keeps the names of props written in a YAML block', async () => {
+      const content = `::u-button
+---
+label: Get Started
+size: lg
+to: /introduction
+trailingIcon: i-lucide-arrow-right
+---
+::
+`
+
+      await expect(contentFromMarkdownDocument(await storedDocumentOf(content))).resolves.toBe(content)
+    })
+
+    it('writes the props of inline components, spans and links in kebab-case', async () => {
+      const document = documentOf([['p', {}, 'Hello ', ['my-badge', { badgeColor: 'red', size: 'sm', tone: 'warm', iconName: 'star' }], ' and ', ['span', { dataTone: 'warm' }, 'world'], ' ', ['a', { href: '/about', ariaLabel: 'About' }, 'about']]])
+
+      await expect(contentFromMarkdownDocument(document)).resolves.toBe('Hello :my-badge{badge-color="red" size="sm" tone="warm" icon-name="star"} and [world]{data-tone="warm"} [about](/about){aria-label="About"}\n')
+    })
+
+    it('writes the children of a YAML block component in kebab-case', async () => {
+      const document = documentOf([['my-list', { listItems: ['a', 'b'] }, ['my-item', { itemTitle: 'A' }, 'Item']]])
+
+      await expect(contentFromMarkdownDocument(document)).resolves.toBe(`::my-list
+---
+listItems:
+  - a
+  - b
+---
+  :::my-item{item-title="A"}
+  Item
+  :::
+::
+`)
+    })
+  })
+
   describe('non-comark stored bodies (drafts persisted by older Studio builds)', () => {
     const content = `# Hello
 

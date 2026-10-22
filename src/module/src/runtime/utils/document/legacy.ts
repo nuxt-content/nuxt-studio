@@ -10,7 +10,7 @@
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
  *                       remove markdownRootFromComarkTree usage in db.upsert
  *      - compare.ts   → drop the comarkBody helper and normalizeLegacyBodyDifferences calls, compare ComarkTrees directly
- *      - generate.ts  → remove unbindComarkTree and padBlankLinesInComponents usage in contentFromMarkdownDocument
+ *      - generate.ts  → remove unbindComarkTree, padBlankLinesInComponents and kebabCaseInlineAttributes usage in contentFromMarkdownDocument
  *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument and markdownRootFromComarkTree
  *      - tree.ts      → remove the bare fence handling in sanitizeDocumentTree
  *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call
@@ -19,9 +19,10 @@
 import type { MarkdownRoot } from '@nuxt/content'
 import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/mdc'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import type { MarkdownDocument, Node as MarkdownNode, ElementNode, ElementNodeAttributes, CommentNode } from 'comark'
+import type { MarkdownDocument, Node as MarkdownNode, ElementNode, ElementNodeAttributes, CommentNode, ConditionalNodeHandler, State } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { generateFlatToc } from 'comark/plugins/toc'
+import { kebabCase } from 'scule'
 import { cleanDataKeys } from './schema'
 import { isComarkTree } from './generate'
 
@@ -577,6 +578,52 @@ export function padBlankLinesInComponents(markdown: string): string {
   return lines.join('\n')
 }
 
+// Comark writes the children of these inline, see its `mdc` handler.
+const INLINE_PARENT_TAGS = new Set(['a', 'strong', 'em', 'span'])
+
+// `$` (comark) and `__` (like `__ignoreMap`) keys are internal markers, not attributes of the file.
+const isInternalAttribute = (key: string) => key.startsWith('$') || key.startsWith('__')
+
+/**
+ * @nuxtjs/mdc kebab-cases the names of inline attributes (`::card{imageUrl="…"}` is stored as `image-url`),
+ * but keeps the keys of a YAML props block as written. Inline names written in kebab-case are stored as
+ * Studio saved them, so the next save writes the same file. YAML props keep their names.
+ */
+export const kebabCaseInlineAttributes: ConditionalNodeHandler = {
+  match: ([, attrs]) => attrs.$?.html !== 1 && Object.keys(attrs).some(key => !isInternalAttribute(key) && kebabCase(key) !== key),
+  handler: (node, state, parent) => {
+    const builtInHandler = Object.hasOwn(state.handlers, node[0]) ? state.handlers[node[0]] : undefined
+    // Components go through comark's `mdc` handler, the only one writing YAML props.
+    const hasYamlProps = !builtInHandler && isWrittenWithYamlProps(node, state, parent)
+
+    return (builtInHandler ?? state.handlers.mdc!)(hasYamlProps ? node : withKebabCaseAttributes(node), state, parent)
+  },
+}
+
+/**
+ * Mirrors comark's `mdc` handler: object props always go in a YAML block, others once they outnumber
+ * `maxInlineAttributes`, unless the component sits inline. Spans always write their props inline.
+ */
+function isWrittenWithYamlProps([tag, { $: _meta, ...attrs }]: ElementNode, state: State, parent?: ElementNode): boolean {
+  if (tag === 'span') return false
+
+  const values = Object.values(attrs)
+  if (values.some(value => typeof value === 'object')) return true
+
+  const hasTextSiblings = parent?.slice(2).some(child => typeof child === 'string') ?? false
+  const isInline = hasTextSiblings || INLINE_PARENT_TAGS.has(parent?.[0] ?? '') || state.context.inline === true
+
+  return !isInline && values.length > (state.context.maxInlineAttributes ?? 3)
+}
+
+function withKebabCaseAttributes([tag, attrs, ...children]: ElementNode): ElementNode {
+  return [tag, kebabCaseAttributeNames(attrs), ...children]
+}
+
+function kebabCaseAttributeNames(attrs: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(attrs).map(([key, value]) => [isInternalAttribute(key) ? key : kebabCase(key), value]))
+}
+
 /**
  * Reverse of `propsMDCToComark`. Used when writing a Comark body back to the
  * legacy MarkdownRoot format consumed by @nuxt/content.
@@ -680,7 +727,10 @@ function normalizeLegacyNode(node: MarkdownNode, nested = false): MarkdownNode {
   let [, attrs, ...children] = node as ElementNode
   if (tag === 'pre' && nested) ({ attrs, children } = stripCodeIndentation(attrs, children))
 
-  return [tag, unbindJsonAttrs(attrs || {}), ...unwrapLeadingDefaultSlot(children).map(child => normalizeLegacyNode(child, true))] as ElementNode
+  // @nuxtjs/mdc kebab-cases inline attribute names, comark keeps them as written.
+  const normalizedAttrs = kebabCaseAttributeNames(unbindJsonAttrs(attrs || {}))
+
+  return [tag, normalizedAttrs, ...unwrapLeadingDefaultSlot(children).map(child => normalizeLegacyNode(child, true))] as ElementNode
 }
 
 /**
