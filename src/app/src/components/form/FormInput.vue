@@ -2,7 +2,7 @@
 import type { FormItem, FormTree } from '../../types'
 import type { PropType } from 'vue'
 import { computed, ref, watch } from 'vue'
-import { formItemInputLabel, applyValueById } from '../../utils/form'
+import { formItemInputLabel, applyValueById, isMissingRequiredValue } from '../../utils/form'
 
 const props = defineProps({
   formItem: {
@@ -14,6 +14,7 @@ const props = defineProps({
 const form = defineModel({ type: Object as PropType<FormTree>, default: () => ({}) })
 
 const displayLabel = computed(() => formItemInputLabel(props.formItem))
+const missingValue = computed(() => isMissingRequiredValue(props.formItem, props.formItem.value))
 
 // Initialize model value
 const model = ref(computeValue(props.formItem))
@@ -47,7 +48,7 @@ function computeValue(formItem: FormItem): unknown {
     case 'boolean':
       return typeof value === 'boolean' ? value : false
     case 'number':
-      return typeof value === 'number' ? value : 0
+      return typeof value === 'number' ? value : null
     case 'array':
       return Array.isArray(value) ? value : []
     case 'object':
@@ -63,6 +64,8 @@ function computeValue(formItem: FormItem): unknown {
     :name="formItem.id"
     :label="formItem.tooltip ? undefined : displayLabel"
     :description="formItem.description"
+    :required="formItem.required"
+    :error="missingValue ? $t('studio.validation.fieldRequired') : undefined"
     :ui="{
       root: 'w-full mt-2',
       label: 'text-xs font-semibold tracking-tight',

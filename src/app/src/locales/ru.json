@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Сообщение коммита обязательно",
+      "fieldRequired": "Это поле обязательно",
       "nameEmpty": "Имя не может быть пустым",
       "nameEndsWithDot": "Имя не может заканчиваться на '.'",
       "nameStartsWithSlash": "Имя не может начинаться с '/'",

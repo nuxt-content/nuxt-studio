@@ -51,6 +51,7 @@ export type FormItem = {
   children?: FormTree
   disabled?: boolean
   hidden?: boolean
+  required?: boolean
   toggleable?: boolean
   custom?: boolean
   arrayItemForm?: FormItem

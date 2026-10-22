@@ -1061,6 +1061,7 @@ describe('props', () => {
           type: 'array',
           custom: false,
           default: [],
+          required: true,
           arrayItemForm: {
             id: '#array/items',
             type: 'object',
@@ -1074,6 +1075,7 @@ describe('props', () => {
                 value: '',
                 default: '',
                 custom: false,
+                required: true,
               },
               content: {
                 id: '#array/items/content',
@@ -1083,6 +1085,7 @@ describe('props', () => {
                 value: '',
                 default: '',
                 custom: false,
+                required: true,
               },
               ui: {
                 id: '#array/items/ui',
@@ -1240,6 +1243,7 @@ describe('props', () => {
           type: 'array',
           custom: false,
           default: [],
+          required: true,
           arrayItemForm: {
             id: '#array/items',
             type: 'string',
@@ -1481,6 +1485,73 @@ describe('props', () => {
     //     },
     //   })
     // })
+
+    test('mark required props unless they have a default value', () => {
+      const prop = (name: string, overrides: Partial<PropertyMeta>): PropertyMeta => ({
+        name,
+        global: false,
+        description: '',
+        tags: [],
+        required: false,
+        type: 'string',
+        schema: 'string',
+        declarations: [],
+        getDeclarations: () => [],
+        getTypeObject: {} as never,
+        ...overrides,
+      })
+
+      const node = {
+        type: { name: 'element' },
+        attrs: { tag: 'TestComponent', props: {} },
+      } as unknown as ProseMirrorNode
+
+      const tree = buildFormTreeFromProps(node, createComponentMeta([
+        prop('title', { required: true }),
+        prop('subtitle', { required: false }),
+        prop('variant', { required: true, default: '"solid"' }),
+        prop('size', { required: true, tags: [{ name: 'defaultValue', text: 'md' }] }),
+      ]))
+
+      expect(tree.title.required).toBe(true)
+      expect(tree.subtitle.required).toBeUndefined()
+      expect(tree.variant.required).toBeUndefined()
+      expect(tree.size.required).toBeUndefined()
+    })
+
+    test('do not mark props of optional objects inside array items as required', () => {
+      const node = {
+        type: { name: 'element' },
+        attrs: { tag: 'TestComponent', props: {} },
+      } as unknown as ProseMirrorNode
+
+      const stringProp = (name: string, required: boolean) => ({ name, global: false, description: '', tags: [], required, type: 'string', schema: 'string' })
+      const objectSchema = (schema: Record<string, unknown>) => ({ kind: 'object', type: 'object', schema })
+
+      const tree = buildFormTreeFromProps(node, createComponentMeta([{
+        name: 'items',
+        global: false,
+        description: '',
+        tags: [],
+        required: false,
+        type: 'Item[]',
+        schema: {
+          kind: 'array',
+          type: 'Item[]',
+          schema: [objectSchema({
+            label: stringProp('label', true),
+            link: { name: 'link', global: false, description: '', tags: [], required: false, type: '{ to: string }', schema: objectSchema({ to: stringProp('to', true) }) },
+          })],
+        },
+        declarations: [],
+        getDeclarations: () => [],
+        getTypeObject: {} as never,
+      } as unknown as PropertyMeta]))
+
+      const item = tree[':items'].arrayItemForm!.children!
+      expect(item.label.required).toBe(true)
+      expect(item.link.children!.to.required).toBeUndefined()
+    })
   })
 
   describe('normalizeProps', () => {

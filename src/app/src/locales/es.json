@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "El mensaje del commit es obligatorio",
+      "fieldRequired": "Este campo es obligatorio",
       "nameEmpty": "El nombre no puede estar vacío",
       "nameEndsWithDot": "El nombre no puede terminar en '.'",
       "nameStartsWithSlash": "El nombre no puede empezar con '/'",

@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "ต้องใส่ข้อความคอมมิต",
+      "fieldRequired": "จำเป็นต้องกรอกช่องนี้",
       "nameEmpty": "ห้ามเว้นว่างชื่อ",
       "nameEndsWithDot": "ชื่อต้องไม่ลงท้ายด้วย '.'",
       "nameStartsWithSlash": "ชื่อต้องไม่ขึ้นต้นด้วย '/'",

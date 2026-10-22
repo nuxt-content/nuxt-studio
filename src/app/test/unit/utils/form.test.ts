@@ -1,7 +1,7 @@
 import type { FormItem, FormTree } from '../../../src/types/form'
 import type { Draft07 } from '@nuxt/content'
 import { expect, test, describe } from 'vitest'
-import { buildFormTreeFromSchema, applyValueById, applyValuesToFormTree, getUpdatedTreeItem } from '../../../src/utils/form'
+import { buildFormTreeFromSchema, applyValueById, applyValuesToFormTree, getUpdatedTreeItem, isMissingRequiredValue } from '../../../src/utils/form'
 import { farnabazFormTree, larbishFormTree } from '../../mocks/form'
 import { postsSchema } from '../../mocks/schema'
 
@@ -807,17 +807,20 @@ describe('applyValuesToFormTree', () => {
           },
           image: {
             id: '#posts/image',
+            required: true,
             type: 'object',
             title: 'Image',
             children: {
               src: {
                 id: '#posts/image/src',
+                required: true,
                 type: 'string',
                 title: 'Src',
                 value: 'https://picsum.photos/id/490/640/360',
               },
               alt: {
                 id: '#posts/image/alt',
+                required: true,
                 type: 'string',
                 title: 'Alt',
                 value: '',
@@ -826,6 +829,7 @@ describe('applyValuesToFormTree', () => {
           },
           authors: {
             id: '#posts/authors',
+            required: true,
             type: 'array',
             title: 'Authors',
             value: ['alexia-wong'],
@@ -838,31 +842,37 @@ describe('applyValuesToFormTree', () => {
                   children: {
                     alt: {
                       id: '#authors/items/avatar/alt',
+                      required: true,
                       title: 'Alt',
                       type: 'string',
                     },
                     src: {
                       id: '#authors/items/avatar/src',
+                      required: true,
                       title: 'Src',
                       type: 'string',
                     },
                   },
                   id: '#authors/items/avatar',
+                  required: true,
                   title: 'Avatar',
                   type: 'object',
                 },
                 name: {
                   id: '#authors/items/name',
+                  required: true,
                   title: 'Name',
                   type: 'string',
                 },
                 slug: {
                   id: '#authors/items/slug',
+                  required: true,
                   title: 'Slug',
                   type: 'string',
                 },
                 to: {
                   id: '#authors/items/to',
+                  required: true,
                   title: 'To',
                   type: 'string',
                 },
@@ -871,23 +881,27 @@ describe('applyValuesToFormTree', () => {
           },
           date: {
             id: '#posts/date',
+            required: true,
             type: 'date',
             title: 'Date',
             value: '',
           },
           badge: {
             id: '#posts/badge',
+            required: true,
             title: 'Badge',
             type: 'object',
             children: {
               label: {
                 id: '#posts/badge/label',
+                required: true,
                 title: 'Label',
                 type: 'string',
                 value: 'Cooking',
               },
               color: {
                 id: '#posts/badge/color',
+                required: true,
                 title: 'Color',
                 type: 'string',
                 value: '',
@@ -1091,5 +1105,137 @@ describe('getUpdatedTreeItem', () => {
 
   test('returns null when no changes are found', () => {
     expect(getUpdatedTreeItem(farnabazFormTree, farnabazFormTree)).toBeNull()
+  })
+})
+
+describe('required fields', () => {
+  const schemaWith = (properties: Record<string, unknown>, required: string[]): Draft07 => ({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    $ref: '#/definitions/authors',
+    definitions: {
+      authors: {
+        type: 'object',
+        properties,
+        required,
+        additionalProperties: false,
+      },
+    } as Draft07['definitions'],
+  })
+
+  test('mark keys listed in the parent `required` array', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      name: { type: 'string' },
+      bio: { type: 'string' },
+      avatar: {
+        type: 'object',
+        properties: { src: { type: 'string' }, alt: { type: 'string' } },
+        required: ['src'],
+      },
+    }, ['name', 'avatar']))
+
+    const children = tree.authors.children!
+    expect(children.name.required).toBe(true)
+    expect(children.bio.required).toBeUndefined()
+    expect(children.avatar.required).toBe(true)
+    expect(children.avatar.children!.src.required).toBe(true)
+    expect(children.avatar.children!.alt.required).toBeUndefined()
+  })
+
+  test('do not mark children of optional objects as required', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      image: {
+        type: 'object',
+        properties: { src: { type: 'string' } },
+        required: ['src'],
+      },
+      navigation: {
+        anyOf: [
+          { type: 'boolean' },
+          { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] },
+        ],
+        default: true,
+      },
+      links: {
+        type: 'array',
+        items: { type: 'object', properties: { to: { type: 'string' } }, required: ['to'] },
+      },
+    }, []))
+
+    const children = tree.authors.children!
+    expect(children.image.children!.src.required).toBeUndefined()
+    expect(children.navigation.children!.title.required).toBeUndefined()
+    expect(children.links.arrayItemForm!.children!.to.required).toBe(true)
+  })
+
+  test('do not mark nullable keys as required', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      nick: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      handle: { type: ['string', 'null'] },
+    }, ['nick', 'handle']))
+
+    expect(tree.authors.children!.nick.required).toBeUndefined()
+    expect(tree.authors.children!.handle.required).toBeUndefined()
+  })
+
+  test('do not mark keys with a default value as required', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      role: { type: 'string', enum: ['creator', 'contributor'], default: 'contributor' },
+    }, ['role']))
+
+    expect(tree.authors.children!.role.required).toBeUndefined()
+  })
+
+  test('pass `required` through `anyOf` properties', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      website: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+    }, ['website']))
+
+    expect(tree.authors.children!.website.required).toBe(true)
+  })
+
+  test('do not mark title and description of page collections as required', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      title: { type: 'string' },
+      description: { type: 'string' },
+      body: { type: 'object', properties: {} },
+      layout: { type: 'string' },
+    }, ['title', 'description', 'body', 'layout']))
+
+    expect(tree.authors.children!.title.required).toBeUndefined()
+    expect(tree.authors.children!.description.required).toBeUndefined()
+    expect(tree.authors.children!.layout.required).toBe(true)
+  })
+
+  test('keep title and description required for data collections', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      title: { type: 'string' },
+    }, ['title']))
+
+    expect(tree.authors.children!.title.required).toBe(true)
+  })
+
+  test('keep falsy values when applying values to the tree', () => {
+    const tree = buildFormTreeFromSchema('authors', schemaWith({
+      order: { type: 'number' },
+      active: { type: 'boolean' },
+    }, ['order']))
+
+    const children = applyValuesToFormTree(tree, { authors: { order: 0, active: false } }).authors.children!
+    expect(children.order.value).toBe(0)
+    expect(children.active.value).toBe(false)
+  })
+
+  test('detect missing required values', () => {
+    const item = (type: FormItem['type'], required = true): FormItem => ({ id: '#a', title: 'A', type, required })
+
+    expect(isMissingRequiredValue(item('string'), '')).toBe(true)
+    expect(isMissingRequiredValue(item('string'), '  ')).toBe(false)
+    expect(isMissingRequiredValue(item('string'), undefined)).toBe(true)
+    expect(isMissingRequiredValue(item('string'), 'Jane')).toBe(false)
+    expect(isMissingRequiredValue(item('number'), 0)).toBe(false)
+    expect(isMissingRequiredValue(item('number'), '')).toBe(true)
+    expect(isMissingRequiredValue(item('boolean'), undefined)).toBe(false)
+    expect(isMissingRequiredValue(item('object'), undefined)).toBe(false)
+    expect(isMissingRequiredValue(item('string', false), '')).toBe(false)
   })
 })

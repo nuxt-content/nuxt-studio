@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Pesan commit wajib diisi",
+      "fieldRequired": "Kolom ini wajib diisi",
       "nameEmpty": "Nama tidak boleh kosong",
       "nameEndsWithDot": "Nama tidak boleh diakhiri dengan '.'",
       "nameStartsWithSlash": "Nama tidak boleh diawali dengan '/'",
