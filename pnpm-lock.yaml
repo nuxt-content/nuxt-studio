@@ -173,6 +173,9 @@ overrides:
   vite-plugin-vue-tracer: 1.4.0
   nuxtseo-shared: 5.3.16
 
+patchedDependencies:
+  minimark@0.2.0: a621876e0aaf5ddfe5562d391fff9e4bec7302691052912f7462e9872eda747d
+
 importers:
 
   .:
@@ -285,7 +288,7 @@ importers:
         version: 6.3.0
       minimark:
         specifier: ^0.2.0
-        version: 0.2.0
+        version: 0.2.0(patch_hash=a621876e0aaf5ddfe5562d391fff9e4bec7302691052912f7462e9872eda747d)
       modern-monaco:
         specifier: ^0.4.2
         version: 0.4.2(typescript@5.9.3)
@@ -11076,7 +11079,7 @@ snapshots:
       micromark-util-resolve-all: 2.0.1
       micromark-util-sanitize-uri: 2.0.1
       micromatch: 4.0.8
-      minimark: 0.2.0
+      minimark: 0.2.0(patch_hash=a621876e0aaf5ddfe5562d391fff9e4bec7302691052912f7462e9872eda747d)
       minimatch: 10.2.6
       nuxt-component-meta: 0.18.0(@nuxt/schema@4.5.2)(@oxc-project/types@0.153.0)(confbox@0.2.4)(dotenv@17.4.0)(giget@3.3.1)(rolldown@1.2.13)
       nypm: 0.6.9
@@ -11152,7 +11155,7 @@ snapshots:
       micromark-util-resolve-all: 2.0.1
       micromark-util-sanitize-uri: 2.0.1
       micromatch: 4.0.8
-      minimark: 0.2.0
+      minimark: 0.2.0(patch_hash=a621876e0aaf5ddfe5562d391fff9e4bec7302691052912f7462e9872eda747d)
       minimatch: 10.2.6
       nuxt-component-meta: 0.18.0(@nuxt/schema@4.5.2)(@oxc-project/types@0.153.0)(confbox@0.3.1)(dotenv@17.4.0)(giget@3.3.1)(rolldown@1.2.13)
       nypm: 0.6.9
@@ -18562,7 +18565,7 @@ snapshots:
 
   mimic-response@3.1.0: {}
 
-  minimark@0.2.0: {}
+  minimark@0.2.0(patch_hash=a621876e0aaf5ddfe5562d391fff9e4bec7302691052912f7462e9872eda747d): {}
 
   minimatch@10.2.3:
     dependencies:
