@@ -37,6 +37,7 @@ const filename = computed({
           size="xs"
           :disabled="!isEditable"
           :items="languages"
+          placeholder="text"
           class="shrink-0"
         />
         <UInput

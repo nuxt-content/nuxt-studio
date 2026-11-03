@@ -8,11 +8,11 @@ import type { MarkdownDocument } from 'comark'
 import shiki from 'comark/plugins/shiki'
 import { renderMarkdown } from 'comark/render'
 import destr from 'destr'
-import yaml from 'js-yaml'
+import { CORE_SCHEMA, dump, loadAll, mergeTag, timestampTag } from 'js-yaml'
 import { useHostMeta } from '../../composables/useMeta'
 import { addPageTypeFields, generateStemFromId, getFileExtension } from './utils'
 import { cleanDataKeys } from './schema'
-import { comarkTreeFromLegacyDocument, unbindComarkTree } from './legacy'
+import { comarkTreeFromLegacyDocument, padBlankLinesInComponents, unbindComarkTree } from './legacy'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -36,55 +36,30 @@ export async function documentFromContent(id: string, content: string, options: 
 }
 
 export async function documentFromYAMLContent(id: string, content: string): Promise<DatabaseItem> {
-  const data = (yaml.load(content) || {}) as Record<string, unknown>
+  // `loadAll` because `load` throws on empty files since js-yaml v5.
+  const data = loadAll(content, { schema: CORE_SCHEMA.withTags(timestampTag, mergeTag) })[0] || {}
+  return documentFromData(id, 'YAML', data)
+}
 
-  // Keep array contents under `body` key
-  let parsed = data
+export async function documentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
+  return documentFromData(id, 'JSON', destr(content))
+}
+
+function documentFromData(id: string, format: 'YAML' | 'JSON', data: unknown): DatabaseItem {
+  let parsed = data as Record<string, unknown>
   if (Array.isArray(data)) {
-    logger.warn(`YAML array is not supported in ${id}, moving the array into the \`body\` key`)
+    logger.warn(`${format} array is not supported in ${id}, moving the array into the \`body\` key`)
     parsed = { body: data }
   }
 
-  const document = {
+  // fsPath will be overridden by host
+  return {
     id,
     extension: getFileExtension(id),
     stem: generateStemFromId(id),
     meta: {},
     ...parsed,
   } as DatabaseItem
-
-  if (parsed.body) {
-    document.body = parsed.body
-  }
-
-  return document
-}
-
-export async function documentFromJSONContent(id: string, content: string): Promise<DatabaseItem> {
-  let parsed: Record<string, unknown> = destr(content)
-
-  // Keep array contents under `body` key
-  if (Array.isArray(parsed)) {
-    logger.warn(`JSON array is not supported in ${id}, moving the array into the \`body\` key`)
-    parsed = {
-      body: parsed,
-    }
-  }
-
-  // fsPath will be overridden by host
-  const document = {
-    id,
-    extension: ContentFileExtension.JSON,
-    stem: generateStemFromId(id),
-    meta: {},
-    ...parsed,
-  } as DatabaseItem
-
-  if (parsed.body) {
-    document.body = parsed.body
-  }
-
-  return document
 }
 
 export function isComarkTree(body: unknown): body is MarkdownDocument {
@@ -116,7 +91,7 @@ export async function documentFromMarkdownContent(id: string, content: string, o
     id,
     meta: {},
     extension: 'md',
-    stem: id.split('/').slice(1).join('/').split('.').slice(0, -1).join('.'),
+    stem: generateStemFromId(id),
     body: tree,
     ...tree.frontmatter,
   }
@@ -149,7 +124,7 @@ export async function contentFromDocument(document: DatabaseItem): Promise<strin
 }
 
 export async function contentFromYAMLDocument(document: DatabaseItem): Promise<string | null> {
-  return yaml.dump(cleanDataKeys(document), { lineWidth: -1 })
+  return dump(cleanDataKeys(document), { lineWidth: -1 })
 }
 
 export async function contentFromJSONDocument(document: DatabaseItem): Promise<string | null> {
@@ -163,5 +138,5 @@ export async function contentFromMarkdownDocument(document: DatabaseItem): Promi
   const markdown = await renderMarkdown(body, {
     blockAttributesStyle: 'frontmatter',
   })
-  return markdown + '\n'
+  return padBlankLinesInComponents(markdown) + '\n'
 }

@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { createTextStreamResponse, streamText } from 'ai'
 import { createGateway } from '@ai-sdk/gateway'
 import { eventHandler, createError, readBody } from 'h3'
 import { consola } from 'consola'
@@ -163,10 +163,12 @@ export default eventHandler(async (event) => {
   // Generate system prompt
   const system = getAnalyzeSystem()
 
-  return streamText({
+  const result = streamText({
     model: gateway.languageModel('anthropic/claude-sonnet-4.5'),
-    system,
+    instructions: system,
     prompt,
     maxOutputTokens: 2000,
-  }).toTextStreamResponse()
+  })
+
+  return createTextStreamResponse({ stream: result.textStream })
 })

@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addPlugin, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addPlugin, addTypeTemplate, extendViteConfig, addServerHandler, addServerImports, useLogger, hasNuxtModule } from '@nuxt/kit'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
@@ -7,7 +7,7 @@ import { setupDevMode } from './dev'
 import { validateAuthConfig } from './auth'
 import { setExternalMediaStorage, setDefaultMediaStorage } from './medias'
 import { setAIFeature } from './ai'
-import type { CommandConfig } from '../../app/src/types/editor'
+import type { CommandConfig, SuggestionConfig } from '../../app/src/types/editor'
 
 const logger = useLogger('nuxt-studio')
 
@@ -60,6 +60,10 @@ interface EditorOptions {
    * @example ['material-symbols', 'lucide']
    */
   iconLibraries?: string[]
+  /**
+   * TipTap slash menu suggestion settings.
+   */
+  suggestion?: SuggestionConfig
 }
 
 interface MediaUploadOptions {
@@ -447,6 +451,9 @@ export default defineNuxtModule<ModuleOptions>({
         groups: undefined,
         ungrouped: 'include',
       },
+      suggestion: {
+        limit: 200,
+      },
     },
     media: {
       external: false,
@@ -460,6 +467,26 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     const runtime = (...args: string[]) => resolver.resolve('./runtime', ...args)
     const editorOptions = options.editor ?? options.meta
+
+    const nuxtOptions = nuxt.options as typeof nuxt.options & {
+      componentMeta?: { extendMetaFunctions?: Array<{ name: string, transform?: (extracted: Record<string, unknown>) => Record<string, unknown> }> }
+    }
+    nuxtOptions.componentMeta ||= {}
+    nuxtOptions.componentMeta.extendMetaFunctions = [
+      ...(nuxtOptions.componentMeta.extendMetaFunctions ?? []),
+      { name: 'defineStudioMeta', transform: extracted => ({ studio: extracted }) },
+    ]
+
+    addTypeTemplate({
+      filename: 'types/studio-macros.d.ts',
+      getContents: () => [
+        'declare global {',
+        '  function defineStudioMeta<Props = unknown>(meta: import(\'nuxt-studio/app\').StudioComponentMeta<NoInfer<Props>>): void',
+        '}',
+        'export {}',
+        '',
+      ].join('\n'),
+    })
 
     addServerImports([
       {
@@ -546,6 +573,7 @@ export default defineNuxtModule<ModuleOptions>({
       git: { commit: { messagePrefix: options.git?.commit?.messagePrefix ?? '' } },
       iconLibraries: editorOptions?.iconLibraries,
       commands: { exclude: [], ...editorOptions?.commands },
+      suggestion: { limit: 200, ...editorOptions?.suggestion },
     }
 
     // Studio runtime config
@@ -561,27 +589,27 @@ export default defineNuxtModule<ModuleOptions>({
           clientId: options.auth?.github?.clientId || '',
           clientSecret: options.auth?.github?.clientSecret || '',
           instanceUrl: options.auth!.github!.instanceUrl!,
-          redirectUrl: '',
+          redirectURL: '',
           moderators: '',
         },
         gitlab: {
           applicationId: options.auth?.gitlab?.applicationId || '',
           applicationSecret: options.auth?.gitlab?.applicationSecret || '',
           instanceUrl: options.auth!.gitlab!.instanceUrl!,
-          redirectUrl: '',
+          redirectURL: '',
           moderators: '',
         },
         google: {
           clientId: options.auth?.google?.clientId || '',
           clientSecret: options.auth?.google?.clientSecret || '',
-          redirectUrl: '',
+          redirectURL: '',
           moderators: '',
         },
         sso: {
           serverUrl: options.auth?.sso?.serverUrl || '',
           clientId: options.auth?.sso?.clientId || '',
           clientSecret: options.auth?.sso?.clientSecret || '',
-          redirectUrl: '',
+          redirectURL: '',
         },
       },
       git: {

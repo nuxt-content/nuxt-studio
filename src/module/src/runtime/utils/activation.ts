@@ -21,17 +21,12 @@ export async function defineStudioActivationPlugin(onStudioActivation: (user: St
     ? await $fetch<{ user: StudioUser }>('/__nuxt_studio/auth/session').then(session => session?.user ?? null)
     : null
 
-  let mounted = false
   if (user.value?.email) {
     // Disable prerendering for Studio
     const manifest = await getAppManifest()
     manifest.prerendered = []
 
     await onStudioActivation(user.value!)
-    mounted = true
-  }
-  else if (mounted) {
-    window.location.reload()
   }
   else {
     // Listen to CMD + . to toggle the studio or redirect to the login page

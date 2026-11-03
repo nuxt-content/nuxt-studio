@@ -5,7 +5,7 @@ import { doObjectsMatch } from '../object'
 import { renderMarkdown } from 'comark/render'
 import { documentFromContent } from './generate'
 import { cleanDataKeys } from './schema'
-import { comarkTreeFromLegacyDocument } from './legacy'
+import { comarkTreeFromLegacyDocument, normalizeLegacyBodyDifferences } from './legacy'
 
 const EMPTY_TREE: MarkdownDocument = { nodes: [], frontmatter: {}, meta: {} }
 
@@ -21,23 +21,6 @@ function normalizeAttrsDeep(tree: MarkdownDocument): MarkdownDocument {
   return { ...tree, nodes: tree.nodes.map(normalizeNode) }
 }
 
-/**
- * Unwrap a leading `#default` slot marker, which comark keeps but `@nuxtjs/mdc` erases.
- */
-function unwrapLeadingDefaultSlot(children: MarkdownNode[]): MarkdownNode[] {
-  const [first, ...rest] = children
-  if (!Array.isArray(first) || first[0] !== 'template') return children
-
-  // Leading and attribute-free only: elsewhere the marker is load-bearing, and attributes
-  // are content. `$` is comark-internal, ignored by its template handler too.
-  const attrs = (first[1] || {}) as Record<string, unknown>
-  if (attrs.name !== 'default' || Object.keys(attrs).some(key => key !== 'name' && key !== '$')) {
-    return children
-  }
-
-  return [...(first.slice(2) as MarkdownNode[]), ...rest]
-}
-
 function normalizeNode(node: MarkdownNode): MarkdownNode {
   if (typeof node === 'string') return node
   if (!Array.isArray(node)) return node
@@ -49,9 +32,7 @@ function normalizeNode(node: MarkdownNode): MarkdownNode {
     ? Object.fromEntries(Object.entries(attrs as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
     : attrs
 
-  const normalizedChildren = unwrapLeadingDefaultSlot(children as MarkdownNode[]).map(normalizeNode)
-
-  return [tag, sortedAttrs, ...normalizedChildren] as MarkdownNode
+  return [tag, sortedAttrs, ...(children as MarkdownNode[]).map(normalizeNode)] as MarkdownNode
 }
 
 export async function isDocumentMatchingContent(content: string, document: DatabaseItem): Promise<boolean> {
@@ -59,8 +40,8 @@ export async function isDocumentMatchingContent(content: string, document: Datab
 
   if (generatedDocument.extension === ContentFileExtension.Markdown) {
     // Compare body nodes only (not frontmatter — that's compared separately via doObjectsMatch below).
-    const generatedNormalized = normalizeAttrsDeep({ ...(generatedDocument.body as MarkdownDocument), frontmatter: {} })
-    const documentNormalized = normalizeAttrsDeep({ ...comarkBody(document), frontmatter: {} })
+    const generatedNormalized = normalizeAttrsDeep(normalizeLegacyBodyDifferences({ ...(generatedDocument.body as MarkdownDocument), frontmatter: {} }))
+    const documentNormalized = normalizeAttrsDeep(normalizeLegacyBodyDifferences({ ...comarkBody(document), frontmatter: {} }))
     const generatedBodyStringified = (await renderMarkdown(generatedNormalized)).replace(/\n/g, '')
     const documentBodyStringified = (await renderMarkdown(documentNormalized)).replace(/\n/g, '')
     if (generatedBodyStringified !== documentBodyStringified) {

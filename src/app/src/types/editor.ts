@@ -1,5 +1,28 @@
+import type { EditorOptions } from '@nuxt/content'
 import type { ComponentData } from 'nuxt-component-meta'
 import type { JSType } from 'untyped'
+
+export interface StudioPropMeta<Value = unknown> extends EditorOptions {
+  fields?: StudioFieldsMeta<Value>
+}
+
+export type StudioFieldsMeta<Value = unknown> = unknown extends Value
+  ? Record<string, StudioPropMeta>
+  : Value extends readonly (infer Item)[]
+    ? StudioFieldsMeta<Item>
+    : Value extends object
+      ? { [Key in keyof Value]?: StudioPropMeta<NonNullable<Value[Key]>> }
+      : never
+
+export interface StudioSlotMeta {
+  label?: string
+  description?: string
+}
+
+export interface StudioComponentMeta<Props = unknown> {
+  props?: StudioFieldsMeta<Props>
+  slots?: Record<string, StudioSlotMeta>
+}
 
 export interface ComponentMeta {
   name: string
@@ -9,6 +32,7 @@ export interface ComponentMeta {
     props: ComponentData['meta']['props']
     slots: ComponentData['meta']['slots']
     events: ComponentData['meta']['events']
+    studio?: StudioComponentMeta
   }
 }
 
@@ -61,4 +85,12 @@ export type CommandKey = typeof COMMAND_KEYS[number]
 
 export interface CommandConfig {
   exclude?: CommandKey[]
+}
+
+export interface SuggestionConfig {
+  /**
+   * Maximum number of items shown in the TipTap slash menu without a search query.
+   * @default 200
+   */
+  limit?: number
 }

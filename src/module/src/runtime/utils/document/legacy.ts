@@ -9,16 +9,17 @@
  *   2. Fix TypeScript errors at call sites:
  *      - host.ts      → remove the ensureComarkBody import + all db.get/list/create calls to it,
  *                       remove markdownRootFromComarkTree usage in db.upsert
- *      - compare.ts   → drop the comarkBody helper and compare ComarkTrees directly
- *      - generate.ts  → remove unbindComarkTree usage in contentFromMarkdownDocument
+ *      - compare.ts   → drop the comarkBody helper and normalizeLegacyBodyDifferences calls, compare ComarkTrees directly
+ *      - generate.ts  → remove unbindComarkTree and padBlankLinesInComponents usage in contentFromMarkdownDocument
  *      - index.ts     → remove re-exports of ensureComarkBody, comarkTreeFromLegacyDocument and markdownRootFromComarkTree
+ *      - tree.ts      → remove the bare fence handling in sanitizeDocumentTree
  *      - useDraftBase.ts → remove upgradeLegacyBodies + its host.document.utils.ensureComarkBody call
  */
 
 import type { MarkdownRoot } from '@nuxt/content'
 import type { MDCRoot, MDCElement, MDCNode, MDCText, MDCComment } from '@nuxtjs/mdc'
 import type { DatabaseItem } from 'nuxt-studio/app'
-import type { MarkdownDocument, Node as MarkdownNode, ElementNode, CommentNode } from 'comark'
+import type { MarkdownDocument, Node as MarkdownNode, ElementNode, ElementNodeAttributes, CommentNode } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { generateFlatToc } from 'comark/plugins/toc'
 import { cleanDataKeys } from './schema'
@@ -75,7 +76,7 @@ function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
   if (node.type === 'element') {
     const el = node as MDCElement
     if (el.tag === 'pre') return preMdcToComarkNode(el)
-    const children = normalizeMdcChildren(el.children || [])
+    const children = dropNewlineAfterHardBreaks(normalizeMdcChildren(el.children || []))
     return [
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
@@ -84,6 +85,21 @@ function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
   }
 
   return ''
+}
+
+const isMdcHardBreak = (node?: MDCNode) => node?.type === 'element' && (node as MDCElement).tag === 'br'
+
+/**
+ * mdast-util-to-hast adds a `\n` text after each hard break, which comark's tree doesn't have.
+ * Comark renders a `br` as `'  \n'`, so that extra `\n` makes the next save split the paragraph.
+ */
+function dropNewlineAfterHardBreaks(children: MDCNode[]): MDCNode[] {
+  return children.flatMap((child, i): MDCNode[] => {
+    if (child.type !== 'text' || !isMdcHardBreak(children[i - 1])) return [child]
+    const { value } = child as MDCText
+    if (!value.startsWith('\n')) return [child]
+    return value.length > 1 ? [{ ...child, value: value.slice(1) } as MDCText] : []
+  })
 }
 
 /**
@@ -169,17 +185,18 @@ function repairMdcNode(node: MDCNode): RepairResult {
   // to disk), and removing it would silently diverge the render from what's
   // on disk → fake conflict.
   if (isMdcContainer(el)) {
-    const artifactIdx = newChildren.findIndex(isClosingMarkerArtifact)
-    if (artifactIdx !== -1) {
-      const artifact = newChildren[artifactIdx] as MDCElement
-      const before = newChildren.slice(0, artifactIdx).map(c => stripWrappingIndentFromPre(c))
-      const after = newChildren.slice(artifactIdx + 1)
-      const text = (artifact.children?.[0] as MDCText)?.value || ''
-      const closeLines = text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+    const markers = findClosingMarkers(newChildren)
+    if (markers) {
+      const before = newChildren.slice(0, markers.index)
+      const after = newChildren.slice(markers.index + 1)
+      const children = markers.remainder
+        ? [...before, ...markers.remainder]
+        // A standalone artifact means the fence before it kept the container indent.
+        : before.map(c => stripWrappingIndentFromPre(c))
       return {
-        node: { ...el, children: before } as MDCElement,
+        node: { ...el, children } as MDCElement,
         leak: [...after, ...leakUp],
-        promote: Math.max(0, closeLines - 1) + promoteUp,
+        promote: Math.max(0, markers.closeLines - 1) + promoteUp,
       }
     }
   }
@@ -188,6 +205,50 @@ function repairMdcNode(node: MDCNode): RepairResult {
     node: { ...el, children: newChildren } as MDCElement,
     leak: leakUp,
     promote: promoteUp,
+  }
+}
+
+interface ClosingMarkers {
+  index: number
+  closeLines: number
+  // Set when the markers ended a paragraph: what is left of it.
+  remainder?: MDCElement[]
+}
+
+function findClosingMarkers(children: MDCNode[]): ClosingMarkers | undefined {
+  for (const [index, child] of children.entries()) {
+    if (isClosingMarkerArtifact(child)) {
+      const text = ((child as MDCElement).children?.[0] as MDCText)?.value || ''
+      return { index, closeLines: countCloseLines(text) }
+    }
+    const trailing = splitTrailingCloseMarkers(child)
+    if (trailing) return { index, ...trailing }
+  }
+}
+
+function countCloseLines(text: string): number {
+  return text.split('\n').filter(l => /^:{2,}$/.test(l.trim())).length
+}
+
+/**
+ * Missed close markers can also end a paragraph, e.g. `#description\nText\n::::`.
+ * They read as lazy continuation lines, so @nuxtjs/mdc keeps them as text.
+ */
+function splitTrailingCloseMarkers(node: MDCNode): Omit<ClosingMarkers, 'index'> | undefined {
+  if (node.type !== 'element' || (node as MDCElement).tag !== 'p') return
+  const el = node as MDCElement
+  const last = el.children?.at(-1)
+  if (last?.type !== 'text') return
+
+  const value = (last as MDCText).value
+  const markers = value.match(/(?:\n[ \t]*:{2,}[ \t]*)+$/)
+  if (!markers) return
+
+  const kept = value.slice(0, markers.index)
+  const children = [...el.children!.slice(0, -1), ...(kept ? [{ ...last, value: kept } as MDCText] : [])]
+  return {
+    closeLines: countCloseLines(markers[0]),
+    remainder: children.length ? [{ ...el, children }] : [],
   }
 }
 
@@ -447,6 +508,75 @@ function unbindMDCBlockProps(props: Record<string, unknown>): Record<string, unk
   return next
 }
 
+// Optional list marker, then a backtick or tilde fence.
+const FENCE_OPENING = /^( *(?:(?:[-*+]|\d{1,9}[.)]) +)?)(`{3,}|~{3,})/
+const COMPONENT_OPENING = /^ *:{2,}[a-z]/i
+const COMPONENT_CLOSING = /^ *:{2,} *$/
+const PROPS_DELIMITER = /^ *--- *$/
+
+/**
+ * After an empty line, @nuxtjs/mdc infers a component's child indent from the next `:` line, even a deeply nested one.
+ * A wrong guess hides the end of an indented fence, so the component swallows every block after it.
+ * Indenting each empty line like its component keeps outer components from seeing it.
+ * Blocks without an indented fence are left as written, so their files don't look reformatted.
+ */
+export function padBlankLinesInComponents(markdown: string): string {
+  const lines = markdown.split('\n')
+  // Indent of each open component, innermost last.
+  const components: string[] = []
+  let blanks: Array<{ index: number, indent: string }> = []
+  let hasIndentedFence = false
+  let fence: { closing: RegExp, indent: string } | undefined
+  let inProps = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!
+
+    if (fence) {
+      if (fence.closing.test(line)) fence = undefined
+      else if (!line.trim() && components.length) blanks.push({ index: i, indent: fence.indent })
+      continue
+    }
+
+    // YAML props stay untouched.
+    if (inProps) {
+      inProps = !PROPS_DELIMITER.test(line)
+      continue
+    }
+
+    const opening = line.match(FENCE_OPENING)
+    if (opening) {
+      const marker = opening[2]!
+      fence = { closing: new RegExp(`^ *\\${marker[0]}{${marker.length},} *$`), indent: ' '.repeat(opening[1]!.length) }
+      hasIndentedFence ||= components.length > 0 && opening[1]!.length > 0
+      continue
+    }
+
+    if (COMPONENT_OPENING.test(line)) {
+      components.push(line.match(/^ */)![0])
+      if (PROPS_DELIMITER.test(lines[i + 1] ?? '')) {
+        inProps = true
+        i++
+      }
+      continue
+    }
+
+    if (COMPONENT_CLOSING.test(line) && components.length) {
+      components.pop()
+      if (components.length) continue
+      if (hasIndentedFence) {
+        for (const { index, indent } of blanks) lines[index] = indent
+      }
+      blanks = []
+      hasIndentedFence = false
+      continue
+    }
+
+    if (!line.trim() && components.length) blanks.push({ index: i, indent: components.at(-1)! })
+  }
+  return lines.join('\n')
+}
+
 /**
  * Reverse of `propsMDCToComark`. Used when writing a Comark body back to the
  * legacy MarkdownRoot format consumed by @nuxt/content.
@@ -494,6 +624,71 @@ export function ensureComarkBody(document: DatabaseItem): DatabaseItem {
   const comarkTree = comarkTreeFromLegacyDocument(document)
   if (!comarkTree) return document
   return { ...document, body: comarkTree as unknown }
+}
+
+const codeText = (node: MarkdownNode): string => typeof node === 'string'
+  ? node
+  : Array.isArray(node) ? (node.slice(2) as MarkdownNode[]).map(codeText).join('') : ''
+
+/**
+ * Unwrap a leading `#default` slot marker, which comark keeps but `@nuxtjs/mdc` erases.
+ */
+function unwrapLeadingDefaultSlot(children: MarkdownNode[]): MarkdownNode[] {
+  const [first, ...rest] = children
+  if (!Array.isArray(first) || first[0] !== 'template') return children
+
+  // Leading and attribute-free only: elsewhere the marker is load-bearing, and attributes
+  // are content. `$` is comark-internal, ignored by its template handler too.
+  const attrs = (first[1] || {}) as Record<string, unknown>
+  if (attrs.name !== 'default' || Object.keys(attrs).some(key => key !== 'name' && key !== '$')) {
+    return children
+  }
+
+  return [...(first.slice(2) as MarkdownNode[]), ...rest]
+}
+
+/**
+ * @nuxtjs/mdc drops leading spaces from code nested in components, so nested code is compared without indentation.
+ */
+function stripCodeIndentation(attrs: ElementNodeAttributes, children: MarkdownNode[]): { attrs: ElementNodeAttributes, children: MarkdownNode[] } {
+  const { code, ...rest } = attrs
+  const text = typeof code === 'string' ? code : children.map(codeText).join('')
+  return { attrs: rest, children: [['code', {}, text.split('\n').map(line => line.trimStart()).join('\n')] as MarkdownNode] }
+}
+
+/**
+ * Comark keeps YAML numbers and objects as `:key` JSON bindings, while the legacy bridge unbinds them.
+ */
+function unbindJsonAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(attrs).map(([key, value]) => {
+    if (!key.startsWith(':') || typeof value !== 'string') return [key, value]
+    try {
+      const parsed = JSON.parse(value)
+      // Both sides keep booleans bound.
+      return typeof parsed === 'boolean' ? [key, value] : [key.slice(1), parsed]
+    }
+    catch {
+      return [key, value]
+    }
+  }))
+}
+
+function normalizeLegacyNode(node: MarkdownNode, nested = false): MarkdownNode {
+  if (!Array.isArray(node) || node[0] === null) return node
+
+  const [tag] = node
+  let [, attrs, ...children] = node as ElementNode
+  if (tag === 'pre' && nested) ({ attrs, children } = stripCodeIndentation(attrs, children))
+
+  return [tag, unbindJsonAttrs(attrs || {}), ...unwrapLeadingDefaultSlot(children).map(child => normalizeLegacyNode(child, true))] as ElementNode
+}
+
+/**
+ * Erase what comark and @nuxtjs/mdc read differently from the same file, so their trees can be compared.
+ * Apply it to both sides of a comparison.
+ */
+export function normalizeLegacyBodyDifferences(tree: MarkdownDocument): MarkdownDocument {
+  return { ...tree, nodes: tree.nodes.map(node => normalizeLegacyNode(node)) }
 }
 
 /**

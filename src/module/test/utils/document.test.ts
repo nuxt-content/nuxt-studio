@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyCollectionSchema, areDocumentsEqual, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
+import { applyCollectionSchema, areDocumentsEqual, contentFromDocument, documentFromJSONContent, documentFromYAMLContent, ensureComarkBody, isDocumentMatchingContent, sanitizeDocumentTree } from '../../src/runtime/utils/document'
 import { ContentFileExtension } from '../../src/types/content'
 import type { DatabaseItem } from 'nuxt-studio/app'
 import type { CollectionInfo } from '@nuxt/content'
@@ -653,6 +653,41 @@ describe('sanitizeDocumentTree', () => {
     expect(result.public).toBe('should stay')
     expect(result.misc).toBe('also stays')
   })
+
+  describe('code fences', () => {
+    const collection = { name: 'docs', schema: { definitions: { docs: { properties: {} } } } } as unknown as CollectionInfo
+    // Shapes @nuxt/content stores: @nuxtjs/mdc parse + minimark compress
+    const storedDocument = () => ({
+      id: 'content:index.md',
+      extension: ContentFileExtension.Markdown,
+      stem: 'index',
+      meta: {},
+      body: {
+        type: 'minimark',
+        value: [
+          ['pre', { className: 'language-text shiki shiki-themes github-light', code: 'assets/\n', language: 'text', style: '' }, ['code', { __ignoreMap: '' }, ['span', { class: 'line' }, 'assets/']]],
+          ['pre', { className: 'language-text shiki shiki-themes github-light', code: 'plain\n', language: 'text', meta: '', style: '' }, ['code', { __ignoreMap: '' }, ['span', { class: 'line' }, 'plain']]],
+          ['pre', { className: 'language-ts shiki shiki-themes github-light', code: 'const a = 1\n', filename: 'a.ts', language: 'ts', meta: '', style: '' }, ['code', { __ignoreMap: '' }, ['span', { class: 'line' }, 'const a = 1']]],
+        ],
+      },
+    } as unknown as DatabaseItem)
+    const markdownContent = '```\nassets/\n```\n\n```text\nplain\n```\n\n```ts [a.ts]\nconst a = 1\n```\n'
+
+    it('keeps a bare fence bare and an explicit ```text fence explicit', async () => {
+      const document = ensureComarkBody(sanitizeDocumentTree(storedDocument(), collection))
+      expect(await contentFromDocument(document)).toBe(markdownContent)
+    })
+
+    it('does not report a conflict between the raw file and the stored document', async () => {
+      const document = ensureComarkBody(sanitizeDocumentTree(storedDocument(), collection))
+      expect(await isDocumentMatchingContent(markdownContent, document)).toBe(true)
+    })
+
+    it('reports a conflict when the remote switches a bare fence to ```text', async () => {
+      const document = ensureComarkBody(sanitizeDocumentTree(storedDocument(), collection))
+      expect(await isDocumentMatchingContent(markdownContent.replace('```\nassets/', '```text\nassets/'), document)).toBe(false)
+    })
+  })
 })
 
 describe('applyCollectionSchema', () => {
@@ -691,5 +726,22 @@ describe('applyCollectionSchema', () => {
     expect(sharedSeo).toEqual({ description: 'Welcome to Docus theme documentation.' })
     expect('title' in sharedSeo).toBe(false)
     expect((document.body as { frontmatter: { seo: object } }).frontmatter.seo).toEqual(sharedSeo)
+  })
+})
+
+describe('documentFromYAMLContent / documentFromJSONContent', () => {
+  it('spreads object data onto the document', async () => {
+    const expected = { id: 'data/authors/jane.yml', extension: 'yml', stem: 'authors/jane', meta: {}, name: 'Jane', body: 'bio' }
+    expect(await documentFromYAMLContent('data/authors/jane.yml', 'name: Jane\nbody: bio\n')).toEqual(expected)
+    expect(await documentFromJSONContent('data/authors/jane.json', '{"name":"Jane","body":"bio"}')).toEqual({ ...expected, id: 'data/authors/jane.json', extension: 'json' })
+  })
+
+  it('moves top-level arrays into body', async () => {
+    expect((await documentFromYAMLContent('data/list.yaml', '- a\n- b\n')).body).toEqual(['a', 'b'])
+    expect((await documentFromJSONContent('data/list.json', '["a","b"]')).body).toEqual(['a', 'b'])
+  })
+
+  it('handles an empty YAML file', async () => {
+    expect(await documentFromYAMLContent('data/empty.yml', '')).toEqual({ id: 'data/empty.yml', extension: 'yml', stem: 'empty', meta: {} })
   })
 })

@@ -1,17 +1,13 @@
 import type { CollectionInfo, Draft07, ResolvedCollectionSource, Draft07DefinitionProperty } from '@nuxt/content'
 import { hash } from 'ohash'
 import { minimatch } from 'minimatch'
-import { join, dirname, parse } from 'pathe'
+import { join } from 'pathe'
 import { withoutLeadingSlash, withoutTrailingSlash } from 'ufo'
 import { parseSourceBase } from './source'
 
 /**
  * Generation methods
  */
-export function generateStemFromFsPath(path: string) {
-  return withoutLeadingSlash(join(dirname(path), parse(path).name))
-}
-
 export function generateIdFromFsPath(path: string, collectionInfo: CollectionInfo) {
   const { fixed } = parseSourceBase(collectionInfo.source[0]!)
 
@@ -118,7 +114,7 @@ function computeValuesBasedOnCollectionSchema(collection: CollectionInfo, data: 
       values.push(`'${JSON.stringify(valueToInsert).replace(/'/g, '\'\'')}'`)
     }
     else if (type === 'string' || ['string', 'enum'].includes(value!.type!)) {
-      values.push(`'${String(valueToInsert).replace(/\n/g, '\\n').replace(/'/g, '\'\'')}'`)
+      values.push(`'${String(valueToInsert).replace(/'/g, '\'\'')}'`)
     }
     else if (type === 'boolean') {
       values.push(!!valueToInsert)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getCollectionByFilePath, generateIdFromFsPath, generateFsPathFromId } from '../../src/runtime/utils/collection'
+import { getCollectionByFilePath, generateIdFromFsPath, generateFsPathFromId, generateRecordInsert } from '../../src/runtime/utils/collection'
 import type { CollectionInfo, ResolvedCollectionSource } from '@nuxt/content'
 import { collections } from '../mocks/collection'
 
@@ -207,5 +207,38 @@ describe('generateIdFromFsPath', () => {
     const path = 'fs-prefix/hello.md'
     const result = generateIdFromFsPath(path, customCollection)
     expect(result).toBe('prefixed/route-prefix/hello.md')
+  })
+})
+
+describe('generateRecordInsert', () => {
+  const collection = {
+    name: 'data',
+    tableName: '_content_data',
+    fields: { id: 'string', title: 'string', text: 'string', meta: 'json' },
+    schema: {
+      definitions: {
+        data: {
+          properties: {
+            id: { type: 'string' },
+            title: { type: 'string' },
+            text: { type: 'string' },
+            meta: { type: 'object' },
+          },
+        },
+      },
+    },
+  } as unknown as CollectionInfo
+
+  it('keeps line breaks of string values as real newlines', () => {
+    const sql = generateRecordInsert(collection, { id: 'data/a.yml', title: 'A', text: 'Line 1\nLine 2', meta: {} })
+
+    expect(sql).toContain('\'Line 1\nLine 2\'')
+    expect(sql).not.toContain('Line 1\\nLine 2')
+  })
+
+  it('escapes single quotes in string values', () => {
+    const sql = generateRecordInsert(collection, { id: 'data/a.yml', title: 'It\'s', text: 'x', meta: {} })
+
+    expect(sql).toContain('\'It\'\'s\'')
   })
 })

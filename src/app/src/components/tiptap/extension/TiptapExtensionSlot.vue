@@ -4,6 +4,8 @@ import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 import { kebabCase } from 'scule'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { useStudio } from '../../../composables/useStudio'
+import { keepComboboxFocus } from '../../../utils/combobox'
+import { getSlotDisplay } from '../../../utils/tiptap/slots'
 
 const nodeProps = defineProps(nodeViewProps)
 
@@ -35,7 +37,10 @@ const usedSlots = computed(() =>
     .map(slot => slot.attrs.name as string),
 )
 // All declared slots minus those already used by siblings (including this slot itself)
-const availableSlots = computed(() => slots.value.map(slot => slot.name).filter(name => !usedSlots.value.includes(name)))
+const availableSlots = computed(() => slots.value
+  .filter(slot => !usedSlots.value.includes(slot.name))
+  .map(slot => ({ value: slot.name, ...getSlotDisplay(componentMeta.value, slot.name) })))
+const currentSlotDisplay = computed(() => getSlotDisplay(componentMeta.value, slotName.value))
 const isLastRemainingSlot = computed(() => parent.value?.childCount === 1)
 
 function deleteSlot() {
@@ -55,12 +60,14 @@ function deleteSlot() {
       <div
         v-if="showSlotSelection"
         class="flex items-center gap-2 mb-2"
+        @mousedown="keepComboboxFocus"
       >
         <USelectMenu
           v-model="slotName"
           :items="availableSlots"
           :disabled="!isEditable"
           :content="{ align: 'start' }"
+          :portal="false"
           :placeholder="$t('studio.tiptap.slot.searchPlaceholder')"
           size="xs"
           :ui="{
@@ -72,12 +79,26 @@ function deleteSlot() {
             <span class="text-muted">#</span>
           </template>
 
+          <template #default>
+            {{ currentSlotDisplay.label }}
+          </template>
+
           <template #empty>
             <div class="text-xs text-muted py-2">
               {{ $t('studio.tiptap.slot.noSlotsAvailable') }}
             </div>
           </template>
         </USelectMenu>
+
+        <UTooltip
+          v-if="currentSlotDisplay.description"
+          :text="currentSlotDisplay.description"
+        >
+          <UIcon
+            name="i-lucide-circle-help"
+            class="size-3.5 text-muted shrink-0"
+          />
+        </UTooltip>
 
         <UTooltip :text="$t('studio.tiptap.slot.deleteSlot')">
           <UButton
