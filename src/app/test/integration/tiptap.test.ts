@@ -1060,6 +1060,47 @@ My icon
     expect(outputContent).toBe(`${inputContent}\n`)
   })
 
+  test('block element with default slot after a named slot', async () => {
+    const tiptapJSON: JSONContent = {
+      type: 'doc',
+      content: [
+        {
+          type: 'element',
+          attrs: { tag: 'note', props: {} },
+          content: [
+            {
+              type: 'slot',
+              attrs: { name: 'title' },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: 'My title' }] }],
+            },
+            {
+              type: 'slot',
+              attrs: { name: 'default' },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Some text' }] }],
+            },
+          ],
+        },
+      ],
+    }
+
+    const editorJSON = roundTripThroughEditor(tiptapJSON)
+    const rtComarkTree = await tiptapToComark(editorJSON)
+
+    const generatedDocument = createMockDocument('docs/test.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    })
+
+    const outputContent = await contentFromDocument(generatedDocument)
+    expect(outputContent).toBe(`::note
+Some text
+
+#title
+My title
+::
+`)
+  })
+
   test('block element with inline code as default and multiple sloted content', async () => {
     const inputContent = [
       '::code-preview',
