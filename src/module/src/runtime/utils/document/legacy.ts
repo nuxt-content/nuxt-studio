@@ -22,6 +22,7 @@ import type { DatabaseItem } from 'nuxt-studio/app'
 import type { MarkdownDocument, Node as MarkdownNode, ElementNode, ElementNodeAttributes, CommentNode } from 'comark'
 import { compressTree, decompressTree } from '@nuxt/content/runtime'
 import { generateFlatToc } from 'comark/plugins/toc'
+import { kebabCase } from 'comark/utils'
 import { cleanDataKeys } from './schema'
 import { isComarkTree } from './generate'
 
@@ -673,12 +674,20 @@ function unbindJsonAttrs(attrs: Record<string, unknown>): Record<string, unknown
   }))
 }
 
+/**
+ * Comark kebab-cases slot names (`#legalMentions` becomes `legal-mentions`), while @nuxtjs/mdc keeps them as written.
+ */
+function kebabCaseSlotName(attrs: ElementNodeAttributes): ElementNodeAttributes {
+  return typeof attrs.name === 'string' ? { ...attrs, name: kebabCase(attrs.name) } : attrs
+}
+
 function normalizeLegacyNode(node: MarkdownNode, nested = false): MarkdownNode {
   if (!Array.isArray(node) || node[0] === null) return node
 
   const [tag] = node
   let [, attrs, ...children] = node as ElementNode
   if (tag === 'pre' && nested) ({ attrs, children } = stripCodeIndentation(attrs, children))
+  if (tag === 'template') attrs = kebabCaseSlotName(attrs || {})
 
   return [tag, unbindJsonAttrs(attrs || {}), ...unwrapLeadingDefaultSlot(children).map(child => normalizeLegacyNode(child, true))] as ElementNode
 }

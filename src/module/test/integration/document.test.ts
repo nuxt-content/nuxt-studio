@@ -253,6 +253,27 @@ This action cannot be undone.
     })
   })
 
+  describe('camelCase slot name compared with the deployed body', () => {
+    const content = `::newsletter-banner
+#title
+Stay in touch
+
+#legalMentions
+We only use your email to send you our newsletter.
+::
+`
+
+    it('matches its own file', async () => {
+      expect(await isDocumentMatchingContent(content, await storedDocumentOf(content))).toBe(true)
+    })
+
+    it('still detects a renamed slot', async () => {
+      const renamed = content.replace('#legalMentions', '#privacyNotice')
+
+      expect(await isDocumentMatchingContent(renamed, await storedDocumentOf(content))).toBe(false)
+    })
+  })
+
   describe('non-comark stored bodies (drafts persisted by older Studio builds)', () => {
     const content = `# Hello
 
