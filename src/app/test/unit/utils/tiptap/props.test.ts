@@ -797,6 +797,52 @@ describe('props', () => {
       })
     })
 
+    test('generate array forms for array props of inline objects, optional or not', () => {
+    // `logos?: { src?: string, alt?: string }[]`: the array's type text contains its fields' `string | undefined`
+      const logoType = '{ src?: string | undefined; alt?: string | undefined; }'
+      const logo = {
+        kind: 'object',
+        type: logoType,
+        schema: {
+          src: { name: 'src', global: false, description: '', tags: [], required: false, type: 'string | undefined', schema: 'string | undefined' },
+          alt: { name: 'alt', global: false, description: '', tags: [], required: false, type: 'string | undefined', schema: 'string | undefined' },
+        },
+      }
+      const logosProp = (name: string, schema: object) => ({ name, global: false, description: '', tags: [], required: false, type: (schema as { type: string }).type, schema })
+
+      const props = [
+        logosProp('logos', { kind: 'enum', type: `${logoType}[] | undefined`, schema: { 0: 'undefined', 1: { kind: 'array', type: `${logoType}[]`, schema: [logo] } } }),
+        logosProp('flags', { kind: 'array', type: `${logoType}[]`, schema: [logo] }),
+      ] as unknown as PropertyMeta[]
+
+      const logos = [{ src: '/logo.svg', alt: 'Logo' }]
+      const node = {
+        type: {
+          name: 'element',
+        },
+        attrs: {
+          tag: 'LogoCarousel',
+          props: {
+            ':logos': logos,
+          },
+        },
+      } as unknown as ProseMirrorNode
+
+      const tree = buildFormTreeFromProps(node, createComponentMeta(props))
+
+      expect(tree.logos).toBeUndefined()
+      expect(tree[':logos']).toMatchObject({ key: ':logos', type: 'array', value: logos })
+      expect(tree[':logos'].arrayItemForm?.children).toMatchObject({
+        src: { key: 'src', type: 'string' },
+        alt: { key: 'alt', type: 'string' },
+      })
+      expect(tree[':flags']).toMatchObject({ key: ':flags', type: 'array', value: [] })
+      expect(tree[':flags'].arrayItemForm?.children).toMatchObject({
+        src: { key: 'src', type: 'string' },
+        alt: { key: 'alt', type: 'string' },
+      })
+    })
+
     test('generate multiple level deep object/array props', () => {
       const props: PropertyMeta[] = [{
         name: 'links',

@@ -448,6 +448,14 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
   const options: string[] = []
   const propType = typeof prop.schema === 'string' ? prop.schema.replace(' | undefined', '') : prop.schema?.type?.replace(' | undefined', '')
 
+  // An array of inline objects (`logos?: { src?: string }[]`) also prints its fields' types
+  // (`{ src?: string | undefined; }[]`), which the string checks below would match
+  const enumMembers = typeof prop.schema === 'object' && prop.schema?.kind === 'enum' && prop.schema.schema
+    ? Object.values(prop.schema.schema).filter(member => member !== 'undefined')
+    : []
+  const isArray = typeof prop.schema === 'object' && (prop.schema?.kind === 'array'
+    || (enumMembers.length === 1 && typeof enumMembers[0] === 'object' && enumMembers[0].kind === 'array'))
+
   if (studioProp?.input) {
     type = studioProp.input
   }
@@ -459,6 +467,9 @@ const computeTypeAndOptions = (componentId: string, key: string, prop: PropertyM
   }
   else if (level > 1) {
     type = 'string'
+  }
+  else if (isArray) {
+    type = level > 0 ? 'string' : 'array'
   }
   else if (propType === 'string' || propType.includes('string | ') || propType.includes(' | string')) {
     type = 'string'
