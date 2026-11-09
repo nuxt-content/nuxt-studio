@@ -590,20 +590,20 @@ export default defineNuxtModule<ModuleOptions>({
           clientSecret: options.auth?.github?.clientSecret || '',
           instanceUrl: options.auth!.github!.instanceUrl!,
           redirectURL: '',
-          moderators: '',
+          moderators: options.auth?.github?.moderators || '',
         },
         gitlab: {
           applicationId: options.auth?.gitlab?.applicationId || '',
           applicationSecret: options.auth?.gitlab?.applicationSecret || '',
           instanceUrl: options.auth!.gitlab!.instanceUrl!,
           redirectURL: '',
-          moderators: '',
+          moderators: options.auth?.gitlab?.moderators || '',
         },
         google: {
           clientId: options.auth?.google?.clientId || '',
           clientSecret: options.auth?.google?.clientSecret || '',
           redirectURL: '',
-          moderators: '',
+          moderators: options.auth?.google?.moderators || '',
         },
         sso: {
           serverUrl: options.auth?.sso?.serverUrl || '',
