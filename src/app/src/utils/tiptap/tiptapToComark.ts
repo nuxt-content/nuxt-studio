@@ -513,7 +513,7 @@ function unwrapDefaultSlot(content: JSONContent[]): JSONContent[] {
   )
   if (idx === -1) return content
   const slotChildren = content[idx].content || []
-  return [...content.slice(0, idx), ...slotChildren, ...content.slice(idx + 1)]
+  return [...slotChildren, ...content.slice(0, idx), ...content.slice(idx + 1)]
 }
 
 /**
