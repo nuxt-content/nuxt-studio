@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
-    "docus": "^5.14.0",
-    "nuxt": "^4.5.2",
+    "docus": "^5.15.0",
+    "nuxt": "^4.6.4",
     "nuxt-studio": "workspace:*"
   }
 }
