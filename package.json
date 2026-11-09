@@ -61,7 +61,7 @@
     "destr": "^2.0.5",
     "js-yaml": "^5.5.0",
     "minimatch": "^10.2.6",
-    "nuxt-component-meta": "^0.18.0",
+    "nuxt-component-meta": "^0.19.0",
     "shiki": "^4.6.0",
     "unstorage": "1.17.6",
     "zod": "^4.6.7",
