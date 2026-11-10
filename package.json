@@ -56,7 +56,7 @@
     "@iconify-json/lucide": "^1.2.152",
     "@vueuse/core": "^15.0.0",
     "ai": "^7.0.166",
-    "comark": "^0.7.0",
+    "comark": "^0.9.1",
     "defu": "^6.1.7",
     "destr": "^2.0.5",
     "js-yaml": "^5.5.0",

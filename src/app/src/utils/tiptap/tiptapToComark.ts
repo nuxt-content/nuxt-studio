@@ -478,7 +478,8 @@ async function applyShikiSyntaxHighlighting(tree: MarkdownDocument, theme: Synta
     light: theme.light || theme.default || 'github-light',
   }
 
-  const highlighted = await highlightCodeBlocks(tree, { themes })
+  // Inline highlighting throws on theme names comark can't load (code blocks fall back silently).
+  const highlighted = await highlightCodeBlocks(tree, { themes, inlineCode: false })
   tree.nodes = highlighted.nodes
 }
 
