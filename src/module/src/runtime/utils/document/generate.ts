@@ -2,7 +2,13 @@ import type { DatabaseItem, DatabasePageItem, MarkdownParsingOptions } from 'nux
 import { consola } from 'consola'
 import { ContentFileExtension } from '../../types/content'
 import { parseMarkdown } from 'comark'
+import alert from 'comark/plugins/alert'
+import attributes from 'comark/plugins/attributes'
+import components from 'comark/plugins/components'
 import comarkEmoji from 'comark/plugins/emoji'
+import frontmatter from 'comark/plugins/frontmatter'
+import html from 'comark/plugins/html'
+import taskList from 'comark/plugins/task-list'
 import tocPlugin from 'comark/plugins/toc'
 import type { MarkdownDocument } from 'comark'
 import shiki from 'comark/plugins/shiki'
@@ -79,10 +85,18 @@ export async function documentFromMarkdownContent(id: string, content: string, o
   const tree = await parseMarkdown(content, {
     autoClose: false,
     autoUnwrap: true,
-    linkify: false,
+    // Comark defaults minus linkify, so bare URLs keep their source form.
+    registerDefaultPlugins: false,
     plugins: [
+      frontmatter(),
+      html(),
+      alert(),
+      taskList(),
+      components(),
+      attributes(),
       comarkEmoji(),
-      shiki({ themes }),
+      // Inline highlighting throws on theme names comark can't load (code blocks fall back silently).
+      shiki({ themes, inlineCode: false }),
       tocPlugin({ depth: 2, searchDepth: 2, title: '', links: [] }),
     ],
   })

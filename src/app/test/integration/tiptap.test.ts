@@ -1282,7 +1282,7 @@ My title
 
     const outputContent = await contentFromDocument(generatedDocument)
 
-    expect(outputContent).toBe('Hello   \n world\n')
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('hard break in a component slot read back by @nuxtjs/mdc keeps one paragraph across saves', async () => {
@@ -1306,15 +1306,32 @@ out of the box. :br Docus brings the best of the Nuxt ecosystem.
       }))
     }
 
-    // Comark renders :br as a markdown hard break, keeping the spaces around it.
+    // Comark keeps `:br` inline since a trailing-space break would not round-trip here.
     const first = await saveThroughEditor(inputContent)
-    expect(first).toBe('::u-page-hero\n#description\nout of the box.   \n Docus brings the best of the Nuxt ecosystem.\n::\n')
+    expect(first).toBe(`${inputContent}\n`)
 
-    // Comark reads that hard break without the spaces, so the file settles here.
-    const second = await saveThroughEditor(first!)
-    expect(second).toBe('::u-page-hero\n#description\nout of the box.  \nDocus brings the best of the Nuxt ecosystem.\n::\n')
+    await expect(saveThroughEditor(first!)).resolves.toBe(first)
+  })
 
-    await expect(saveThroughEditor(second!)).resolves.toBe(second)
+  test('heading repeated inside a component read back by @nuxtjs/mdc keeps no explicit id', async () => {
+    // @nuxtjs/mdc dedupes the second id to `titles-1`, which comark must not write back as `{#titles-1}`.
+    const inputContent = `## Titles
+
+::code-preview
+## Titles
+::`
+
+    const { body } = await parseWithMdc(inputContent, { highlight: false })
+    const document = ensureComarkBody(createMockDocument('docs/index.md', { body: body as never })) as DatabasePageItem
+
+    const editorJSON = roundTripThroughEditor(comarkToTiptap(document.body))
+    const rtComarkTree = await tiptapToComark(editorJSON)
+
+    const outputContent = await contentFromDocument(createMockDocument('docs/index.md', {
+      body: rtComarkTree,
+      ...rtComarkTree.frontmatter,
+    }))
+    expect(outputContent).toBe(`${inputContent}\n`)
   })
 
   test('inline element with slot content', async () => {
@@ -1830,7 +1847,7 @@ describe('inline code', () => {
     const { parseMarkdown } = await import('comark')
     const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
     const tree = await parseMarkdown(inputContent, {
-      plugins: [shiki({ themes })],
+      plugins: [shiki({ themes, inlineCode: false })],
     })
 
     // After Shiki, the `language` prop must still be present so comarkToTiptap can preserve it.
@@ -1891,7 +1908,7 @@ describe('inline code', () => {
     const { parseMarkdown } = await import('comark')
     const themes: Record<string, string> = { default: 'github-light', dark: 'github-dark' }
     const tree = await parseMarkdown(inputContent, {
-      plugins: [shiki({ themes })],
+      plugins: [shiki({ themes, inlineCode: false })],
     })
 
     const tiptapJSON = comarkToTiptap(tree)

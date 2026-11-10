@@ -4,6 +4,12 @@ import type { AIHintOptions } from '../../types/ai'
 import { tiptapSliceToComark } from '../tiptap/tiptapToComark'
 import { comarkToTiptap } from '../tiptap/comarkToTiptap'
 import { parseMarkdown } from 'comark'
+import alert from 'comark/plugins/alert'
+import attributes from 'comark/plugins/attributes'
+import components from 'comark/plugins/components'
+import frontmatter from 'comark/plugins/frontmatter'
+import html from 'comark/plugins/html'
+import taskList from 'comark/plugins/task-list'
 import { renderMarkdown } from 'comark/render'
 import type { MarkdownDocument, ElementNode, Node as MarkdownNode } from 'comark'
 
@@ -236,7 +242,11 @@ export async function tiptapSliceToMarkdown(
  */
 export async function markdownSliceToTiptap(markdown: string): Promise<JSONContent[]> {
   // Parse markdown to MarkdownDocument
-  const tree = await parseMarkdown(markdown, { linkify: false })
+  // Comark defaults minus linkify, so bare URLs keep their source form.
+  const tree = await parseMarkdown(markdown, {
+    registerDefaultPlugins: false,
+    plugins: [frontmatter(), html(), alert(), taskList(), components(), attributes()],
+  })
 
   // Convert MarkdownDocument directly to TipTap JSON
   const tiptapDoc = comarkToTiptap(tree)
