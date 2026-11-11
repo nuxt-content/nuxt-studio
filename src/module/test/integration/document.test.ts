@@ -253,6 +253,31 @@ This action cannot be undone.
     })
   })
 
+  describe('object props compared with the deployed body', () => {
+    const content = `::u-page-hero
+---
+links:
+  - label: Get started
+    to: /docs
+ui:
+  title: text-5xl
+description: Hello
+orientation: horizontal
+---
+::
+`
+
+    it('matches its own file whatever the prop order', async () => {
+      expect(await isDocumentMatchingContent(content, await storedDocumentOf(content))).toBe(true)
+    })
+
+    it('still detects a changed object prop', async () => {
+      const changed = content.replace('title: text-5xl', 'title: text-6xl')
+
+      expect(await isDocumentMatchingContent(changed, await storedDocumentOf(content))).toBe(false)
+    })
+  })
+
   describe('camelCase slot name compared with the deployed body', () => {
     const content = `::newsletter-banner
 #title
