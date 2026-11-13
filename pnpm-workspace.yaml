@@ -55,3 +55,5 @@ allowBuilds:
   sharp: true
   unrs-resolver: false
   vue-demi: false
+patchedDependencies:
+  minimark@0.2.0: patches/minimark@0.2.0.patch
