@@ -696,7 +696,7 @@ export default defineNuxtModule<ModuleOptions>({
       await setExternalMediaStorage(nuxt, runtime)
     }
     else {
-      publicAssetsStorage = setDefaultMediaStorage(nuxt, options)
+      publicAssetsStorage = setDefaultMediaStorage(nuxt, options, runtime)
     }
 
     if (options.dev) {
