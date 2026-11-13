@@ -25,6 +25,7 @@ export * from './ai'
 export interface StudioHost {
   meta: {
     dev: boolean
+    shortcut?: string | false
     media?: MediaConfig
     git?: {
       commit?: {

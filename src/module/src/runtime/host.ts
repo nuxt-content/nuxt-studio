@@ -77,6 +77,7 @@ export function useStudioHost(user: StudioUser, repository: Repository): StudioH
   const host: StudioHost = {
     meta: {
       dev: false,
+      shortcut: studioConfig.shortcut,
       media: mediaConfig,
       git: studioConfig.git,
       ai: {
