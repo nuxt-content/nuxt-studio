@@ -1,5 +1,5 @@
 import type { FormItem, FormTree } from '../../../src/types/form'
-import type { Draft07 } from '@nuxt/content'
+import type { Draft07, Draft07DefinitionProperty } from '@nuxt/content'
 import { expect, test, describe } from 'vitest'
 import { buildFormTreeFromSchema, applyValueById, applyValuesToFormTree, getUpdatedTreeItem } from '../../../src/utils/form'
 import { farnabazFormTree, larbishFormTree } from '../../mocks/form'
@@ -347,6 +347,231 @@ describe('buildFormTreeFromSchema', () => {
             type: 'string',
             title: 'Select',
             options: ['value1', 'value2'],
+          },
+        },
+      },
+    })
+  })
+
+  test('handle select type creation from a literal', () => {
+    // `z.literal('article')`: `const` is missing from Nuxt Content `Draft07` types
+    const literal = { type: 'string', const: 'article' }
+    const numberLiteral = { type: 'number', const: 3 }
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          type: 'object',
+          properties: {
+            kind: literal,
+            version: numberLiteral,
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    }
+
+    expect(buildFormTreeFromSchema('posts', schema)).toStrictEqual({
+      posts: {
+        id: '#posts',
+        type: 'object',
+        title: 'Posts',
+        children: {
+          kind: {
+            id: '#posts/kind',
+            type: 'string',
+            title: 'Kind',
+            options: ['article'],
+          },
+          version: {
+            id: '#posts/version',
+            type: 'number',
+            title: 'Version',
+          },
+        },
+      },
+    })
+  })
+
+  test('handle select type creation from a union of literals', () => {
+    // `z.union([z.literal('article'), z.literal('tutorial')])`
+    const article = { type: 'string', const: 'article' }
+    const tutorial = { type: 'string', const: 'tutorial' }
+    const guide = { type: 'string', const: 'guide' }
+    // zod 4 nests the union in another `anyOf` when it is made `.nullable()`, which `Draft07` types don't model
+    const nestedUnion = { anyOf: [article, tutorial] } as Draft07DefinitionProperty
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          type: 'object',
+          properties: {
+            kind: {
+              anyOf: [article, tutorial],
+            },
+            nullableKind: {
+              anyOf: [article, tutorial, { type: 'null' }],
+            },
+            nestedNullableKind: {
+              anyOf: [nestedUnion, { type: 'null' }],
+            },
+            toggleableKind: {
+              anyOf: [article, tutorial, { type: 'boolean' }],
+            },
+            mixedKind: {
+              anyOf: [{ type: 'string', enum: ['article', 'tutorial'] }, guide],
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    }
+
+    expect(buildFormTreeFromSchema('posts', schema)).toStrictEqual({
+      posts: {
+        id: '#posts',
+        type: 'object',
+        title: 'Posts',
+        children: {
+          kind: {
+            id: '#posts/kind',
+            type: 'string',
+            title: 'Kind',
+            options: ['article', 'tutorial'],
+          },
+          nullableKind: {
+            id: '#posts/nullableKind',
+            type: 'string',
+            title: 'NullableKind',
+            options: ['article', 'tutorial'],
+          },
+          nestedNullableKind: {
+            id: '#posts/nestedNullableKind',
+            type: 'string',
+            title: 'NestedNullableKind',
+            options: ['article', 'tutorial'],
+          },
+          toggleableKind: {
+            id: '#posts/toggleableKind',
+            type: 'string',
+            title: 'ToggleableKind',
+            toggleable: true,
+            options: ['article', 'tutorial'],
+          },
+          mixedKind: {
+            id: '#posts/mixedKind',
+            type: 'string',
+            title: 'MixedKind',
+            options: ['article', 'tutorial', 'guide'],
+          },
+        },
+      },
+    })
+  })
+
+  test('handle select type creation for array of literals', () => {
+    // `z.array(z.literal('article'))` and `z.array(z.union([z.literal('article'), z.literal('tutorial')]))`
+    const article = { type: 'string', const: 'article' }
+    const tutorial = { type: 'string', const: 'tutorial' }
+    const union = { anyOf: [article, tutorial] } as Draft07DefinitionProperty
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          type: 'object',
+          properties: {
+            kinds: {
+              type: 'array',
+              items: article,
+            },
+            tags: {
+              type: 'array',
+              items: union,
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    }
+
+    expect(buildFormTreeFromSchema('posts', schema)).toStrictEqual({
+      posts: {
+        id: '#posts',
+        type: 'object',
+        title: 'Posts',
+        children: {
+          kinds: {
+            id: '#posts/kinds',
+            type: 'array',
+            title: 'Kinds',
+            arrayItemForm: {
+              id: '#kinds/items',
+              type: 'string',
+              title: 'Items',
+              options: ['article'],
+            },
+          },
+          tags: {
+            id: '#posts/tags',
+            type: 'array',
+            title: 'Tags',
+            arrayItemForm: {
+              id: '#tags/items',
+              type: 'string',
+              title: 'Items',
+              options: ['article', 'tutorial'],
+            },
+          },
+        },
+      },
+    })
+  })
+
+  test('keep a text input for a union of a literal and a free string', () => {
+    // `z.union([z.literal('auto'), z.string()])`
+    const auto = { type: 'string', const: 'auto' }
+    const empty = { type: 'string', const: '' }
+    const schema: Draft07 = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/posts',
+      definitions: {
+        posts: {
+          type: 'object',
+          properties: {
+            width: {
+              anyOf: [auto, { type: 'string' }],
+            },
+            publishedAt: {
+              anyOf: [empty, { type: 'string', format: 'date' }],
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    }
+
+    expect(buildFormTreeFromSchema('posts', schema)).toStrictEqual({
+      posts: {
+        id: '#posts',
+        type: 'object',
+        title: 'Posts',
+        children: {
+          width: {
+            id: '#posts/width',
+            type: 'string',
+            title: 'Width',
+          },
+          publishedAt: {
+            id: '#posts/publishedAt',
+            type: 'date',
+            title: 'PublishedAt',
           },
         },
       },

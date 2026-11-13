@@ -38,6 +38,30 @@ function editorDisplayFromContent(
   return result
 }
 
+/**
+ * Values a string field is restricted to: `z.enum()` is emitted as `enum`, `z.literal()` as `const`.
+ */
+function getStringOptions(def: Draft07DefinitionProperty): string[] | undefined {
+  if (Array.isArray(def.enum) && def.enum.length > 0) {
+    return def.enum
+  }
+
+  return 'const' in def && typeof def.const === 'string' ? [def.const] : undefined
+}
+
+/**
+ * A union of string literals is emitted as one `const` per member (`anyOf`): merge them into a single select.
+ * A member accepting any string keeps the field a text input, so no valid value is hidden behind a select.
+ */
+function mergeStringDefs(defs: Draft07DefinitionProperty[]): Draft07DefinitionProperty {
+  const freeTextDef = defs.find(def => !getStringOptions(def))
+  if (freeTextDef) {
+    return freeTextDef
+  }
+
+  return { ...defs[0], enum: [...new Set(defs.flatMap(def => getStringOptions(def) ?? []))] }
+}
+
 export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormTree => {
   if (!schema || !schema.definitions || !schema.definitions[treeKey]) {
     return {}
@@ -67,7 +91,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
           || (def as Draft07DefinitionPropertyOneOf).oneOf
 
         const objectDef = defs.find(item => item.type === 'object')
-        const stringDef = defs.find(item => item.type === 'string')
+        const stringDefs = defs.filter(item => item.type === 'string')
         const booleanDef = defs.find(item => item.type === 'boolean')
 
         // Choose object type in priority
@@ -76,8 +100,8 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         }
 
         // Then string type
-        else if (stringDef) {
-          item = buildFormTreeItem(stringDef, id)
+        else if (stringDefs.length > 0) {
+          item = buildFormTreeItem(mergeStringDefs(stringDefs), id)
         }
 
         // Else select first one
@@ -147,8 +171,9 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         ...editorDisplayFromContent(def.$content),
       }
 
-      if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
-        item.options = def.enum as string[]
+      const options = getStringOptions(def)
+      if (options) {
+        item.options = options
       }
       else if (editor?.iconLibraries && Array.isArray(editor.iconLibraries)) {
         item.options = editor.iconLibraries
@@ -172,8 +197,9 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
       item.arrayItemForm = buildFormTreeItem(def.items, `#${itemKey}/items`)!
     }
 
-    if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
-      item.options = def.enum as string[]
+    const options = getStringOptions(def)
+    if (options) {
+      item.options = options
     }
     // Pass iconLibraries from editor options for icon inputs
     else if (editor?.iconLibraries && Array.isArray(editor.iconLibraries)) {
