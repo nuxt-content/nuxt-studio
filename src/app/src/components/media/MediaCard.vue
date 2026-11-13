@@ -3,7 +3,7 @@ import type { TreeItem } from '../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { Image } from '@unpic/vue'
-import { isImageFile } from '../../utils/file'
+import { isImageFile, isVideoFile, isAudioFile, getFileIcon } from '../../utils/file'
 import { getMediaThumbnailUrl } from '../../utils/media'
 import { useStudio } from '../../composables/useStudio'
 import { StudioItemActionId } from '../../types'
@@ -24,6 +24,10 @@ const props = defineProps({
 
 const imageSrc = computed(() => {
   return isImageFile(props.item.fsPath) ? getMediaThumbnailUrl(props.item.routePath!) : null
+})
+
+const thumbnailIcon = computed(() => {
+  return isVideoFile(props.item.fsPath) || isAudioFile(props.item.fsPath) ? 'i-lucide-play' : getFileIcon(props.item.fsPath)
 })
 </script>
 
@@ -58,7 +62,7 @@ const imageSrc = computed(() => {
         class="flex items-center justify-center h-full"
       >
         <UIcon
-          name="i-lucide-play"
+          :name="thumbnailIcon"
           class="w-6 h-6 text-muted"
         />
       </div>

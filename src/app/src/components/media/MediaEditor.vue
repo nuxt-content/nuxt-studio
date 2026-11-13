@@ -39,11 +39,10 @@ const isAudio = computed(() => isAudioFile(props.mediaItem?.path || ''))
       v-else-if="isAudio"
       :src="mediaItem.path!"
     />
-    <div v-else>
-      <UIcon
-        name="i-lucide-file"
-        class="w-10 h-10"
-      />
-    </div>
+    <MediaEditorDetails
+      v-else
+      :media-item="mediaItem"
+      :remote-file="remoteFile"
+    />
   </div>
 </template>

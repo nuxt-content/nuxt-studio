@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { formatBytes, getFileExtension } from '../../utils/file'
 import type { MediaItem, GitFile } from '../../types'
 import type { PropType } from 'vue'
-import { useStudio } from '../../composables/useStudio'
-import { joinURL } from 'ufo'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -18,7 +15,6 @@ const props = defineProps({
   },
 })
 
-const { gitProvider } = useStudio()
 const { t } = useI18n()
 
 const imageRef = ref<HTMLImageElement | null>(null)
@@ -35,23 +31,10 @@ onMounted(() => {
   }
 })
 
-const fileExtension = computed(() => {
-  return getFileExtension(props.mediaItem.path || '').toUpperCase()
-})
-
-const imageInfo = computed(() => {
-  const info = [
-    { label: t('studio.media.metaWidth'), value: `${imageDimensions.value.width}px` },
-    { label: t('studio.media.metaHeight'), value: `${imageDimensions.value.height}px` },
-    { label: t('studio.media.metaType'), value: fileExtension.value },
-  ]
-
-  if (props.remoteFile) {
-    info.push({ label: t('studio.media.metaSize'), value: formatBytes(props.remoteFile.size) })
-  }
-
-  return info
-})
+const imageInfo = computed(() => [
+  { label: t('studio.media.metaWidth'), value: `${imageDimensions.value.width}px` },
+  { label: t('studio.media.metaHeight'), value: `${imageDimensions.value.height}px` },
+])
 
 const previewBackground = computed(() => {
   return {
@@ -66,106 +49,27 @@ const markdownCode = computed(() => {
   const name = props.remoteFile?.name || 'image'
   return `![${name}](${props.mediaItem.path})`
 })
-
-const remotePath = computed(() => {
-  return joinURL(gitProvider.api.getBranchUrl(), props.remoteFile.path!)
-})
 </script>
 
 <template>
-  <div class="flex flex-col h-full gap-4 p-4">
-    <div
-      class="flex items-center justify-center rounded-lg border border-default overflow-hidden max-h-[350px]"
-      :style="previewBackground"
-    >
-      <img
-        ref="imageRef"
-        :src="mediaItem.path"
-        :alt="$t('studio.media.altImagePreview')"
-        class="max-w-full max-h-full object-contain"
-      >
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
+  <MediaEditorDetails
+    :media-item="mediaItem"
+    :remote-file="remoteFile"
+    :metadata="imageInfo"
+    :markdown="markdownCode"
+  >
+    <template #preview>
       <div
-        v-for="info in imageInfo"
-        :key="info.label"
-        class="p-3 rounded-lg bg-default border border-muted"
+        class="flex items-center justify-center rounded-lg border border-default overflow-hidden max-h-[350px]"
+        :style="previewBackground"
       >
-        <p class="text-xs text-muted mb-1">
-          {{ info.label }}
-        </p>
-        <p class="text-sm font-semibold text-highlighted">
-          {{ info.value }}
-        </p>
+        <img
+          ref="imageRef"
+          :src="mediaItem.path"
+          :alt="$t('studio.media.altImagePreview')"
+          class="max-w-full max-h-full object-contain"
+        >
       </div>
-    </div>
-
-    <div
-      v-if="remoteFile?.name"
-      class="p-3 rounded-lg bg-default border border-muted"
-    >
-      <div class="flex items-center gap-1 text-xs text-muted mb-2">
-        <UIcon
-          name="i-lucide-file"
-          class="w-3.5 h-3.5"
-        />
-        <span>{{ $t('studio.media.fileName') }}</span>
-      </div>
-      <p class="text-xs font-mono text-highlighted truncate">
-        {{ remoteFile.name }}
-      </p>
-    </div>
-
-    <div class="p-3 rounded-lg bg-default border border-muted relative">
-      <div class="absolute top-3 right-3">
-        <CopyButton :content="mediaItem.path!" />
-      </div>
-      <div class="flex items-center gap-1 text-xs text-muted mb-2">
-        <UIcon
-          name="i-lucide-globe"
-          class="w-3.5 h-3.5"
-        />
-        <span>{{ $t('studio.media.publicPath') }}</span>
-      </div>
-      <p class="text-xs font-mono text-highlighted truncate">
-        {{ mediaItem.path }}
-      </p>
-    </div>
-
-    <div
-      v-if="remoteFile?.path"
-      class="p-3 rounded-lg bg-default border border-muted relative"
-    >
-      <div class="absolute top-3 right-3">
-        <CopyButton :content="remotePath" />
-      </div>
-      <div class="flex items-center gap-1 text-xs text-muted mb-2">
-        <UIcon
-          :name="gitProvider.icon"
-          class="w-3.5 h-3.5"
-        />
-        <span>{{ $t('studio.media.providerPath', { providerName: gitProvider.name }) }}</span>
-      </div>
-      <p class="text-xs font-mono text-highlighted truncate">
-        {{ remoteFile.path }}
-      </p>
-    </div>
-
-    <div class="p-3 rounded-lg bg-default border border-muted relative">
-      <div class="absolute top-3 right-3">
-        <CopyButton :content="markdownCode" />
-      </div>
-      <div class="flex items-center gap-1 text-xs text-muted mb-2">
-        <UIcon
-          name="i-simple-icons:markdown"
-          class="w-3.5 h-3.5"
-        />
-        <span>{{ $t('studio.media.markdown') }}</span>
-      </div>
-      <p class="text-xs font-mono text-highlighted truncate">
-        {{ markdownCode }}
-      </p>
-    </div>
-  </div>
+    </template>
+  </MediaEditorDetails>
 </template>
