@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.8.2](https://github.com/nuxt-content/nuxt-studio/compare/v1.8.0...v1.8.2) (2026-11-13)
+
+### Features
+
+* defineStudioMeta prop and slot annotations ([#525](https://github.com/nuxt-content/nuxt-studio/issues/525)) ([70e73b9](https://github.com/nuxt-content/nuxt-studio/commit/70e73b96f3c24a00d1b075c9ee3c5ea75be8b5ba)), closes [#129](https://github.com/nuxt-content/nuxt-studio/issues/129) [#436](https://github.com/nuxt-content/nuxt-studio/issues/436)
+* type defineStudioMeta annotations from the component props ([#593](https://github.com/nuxt-content/nuxt-studio/issues/593)) ([81db8e2](https://github.com/nuxt-content/nuxt-studio/commit/81db8e21c1c85d3712caa6e34acfd666b16d9b78))
+
+### Bug Fixes
+
+* **auth:** apply moderators from nuxt.config to runtime config ([#609](https://github.com/nuxt-content/nuxt-studio/issues/609)) ([4229bde](https://github.com/nuxt-content/nuxt-studio/commit/4229bdecfd77076085591401e73a24f09667b222))
+* **auth:** apply redirect URL override in OAuth handlers ([#588](https://github.com/nuxt-content/nuxt-studio/issues/588)) ([20340ab](https://github.com/nuxt-content/nuxt-studio/commit/20340ab2ac32c14b7c35e2db9867bc055e30a7c5))
+* **compare:** stop flagging camelCase slot as conflicted ([#598](https://github.com/nuxt-content/nuxt-studio/issues/598)) ([30dd67c](https://github.com/nuxt-content/nuxt-studio/commit/30dd67caa1642a3a9937cbe4e6716d32a2df6c15))
+* **props:** edit array props of inline objects as lists ([#601](https://github.com/nuxt-content/nuxt-studio/issues/601)) ([f9d893e](https://github.com/nuxt-content/nuxt-studio/commit/f9d893e22ef537a98b45778e850fe643f110c135))
+* **tiptap:** write the default slot before named slots ([#608](https://github.com/nuxt-content/nuxt-studio/issues/608)) ([27cecc0](https://github.com/nuxt-content/nuxt-studio/commit/27cecc090f47f03a2fad49e671a53d4c1ac8331a))
+
 ## [1.8.0](https://github.com/nuxt-content/nuxt-studio/compare/v1.7.0...v1.8.0) (2026-10-16)
 
 ### Features
