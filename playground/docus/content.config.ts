@@ -1,9 +1,16 @@
-import type { DefinedCollection } from '@nuxt/content'
+import type { DefinedCollection, EditorOptions } from '@nuxt/content'
 import { defineContentConfig, defineCollection, property } from '@nuxt/content'
 import z from 'zod/v3'
 
 const createDocsSchema = () => z.object({
   layout: z.string().optional(),
+  // Cast until `relation` lands in `EditorOptions` upstream in @nuxt/content
+  author: property(z.string()).editor({
+    input: 'relation',
+    relation: { collection: 'authors', labelField: 'name' },
+    label: 'Author',
+    description: 'Author of the page, picked from the authors collection',
+  } as EditorOptions),
   links: z.array(z.object({
     label: z.string(),
     icon: z.string(),
