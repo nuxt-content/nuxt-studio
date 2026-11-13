@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "커밋 메시지는 필수입니다",
+      "fieldRequired": "필수 항목입니다",
       "nameEmpty": "이름을 입력해주세요",
       "nameEndsWithDot": "이름은 '.'으로 끝날 수 없습니다",
       "nameStartsWithSlash": "이름은 '/'으로 시작할 수 없습니다",

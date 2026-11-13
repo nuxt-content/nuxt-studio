@@ -9,7 +9,7 @@ defineProps({
   },
 })
 
-const model = defineModel<number>({ default: 0 })
+const model = defineModel<number | null>({ default: null })
 </script>
 
 <template>

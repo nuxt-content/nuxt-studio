@@ -2,7 +2,7 @@
 import type { FormTree, FormItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
-import { formItemInputLabel } from '../../../utils/form'
+import { formItemInputLabel, isMissingRequiredValue } from '../../../utils/form'
 
 const props = defineProps({
   formItem: {
@@ -40,6 +40,7 @@ const entries = computed(() => {
         label: formItemInputLabel(child),
         value,
         formItem: child,
+        missingValue: isMissingRequiredValue(child, model.value?.[key]),
       }
     })
 })
@@ -57,7 +58,7 @@ function getDefault(type: string) {
     case 'boolean':
       return false
     case 'number':
-      return 0
+      return null
     default:
       return ''
   }
@@ -73,6 +74,8 @@ function getDefault(type: string) {
         :name="entry.key"
         :label="entry.formItem.tooltip ? undefined : entry.label"
         :description="entry.formItem.description"
+        :required="entry.formItem.required"
+        :error="entry.missingValue ? $t('studio.validation.fieldRequired') : undefined"
         :ui="{
           label: 'text-xs font-medium tracking-tight',
           description: 'text-[10px] text-muted',

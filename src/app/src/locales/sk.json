@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Správa commitu je povinná",
+      "fieldRequired": "Toto pole je povinné",
       "nameEmpty": "Názov nemôže byť prázdny",
       "nameEndsWithDot": "Názov nemôže končiť znakom '.'",
       "nameStartsWithSlash": "Názov nemôže začínať znakom '/'",

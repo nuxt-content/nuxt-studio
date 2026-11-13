@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Commit-melding er påkrevd",
+      "fieldRequired": "Dette feltet er påkrevd",
       "nameEmpty": "Navn kan ikke være tomt",
       "nameEndsWithDot": "Navn kan ikke avsluttes med \".\"",
       "nameStartsWithSlash": "Navn kan ikke starte med \"/\"",

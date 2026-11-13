@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Vahvistusviesti vaaditaan",
+      "fieldRequired": "Tämä kenttä on pakollinen",
       "nameEmpty": "Nimi ei voi olla tyhjä",
       "nameEndsWithDot": "Nimi ei voi loppua '.'-merkkiin",
       "nameStartsWithSlash": "Nimi ei voi alkaa '/'-merkillä",

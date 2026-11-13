@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "কমিট মেসেজ আবশ্যক",
+      "fieldRequired": "এই ঘরটি আবশ্যক",
       "nameEmpty": "নাম খালি রাখা যাবে না",
       "nameEndsWithDot": "নাম '.' দিয়ে শেষ হতে পারবে না",
       "nameStartsWithSlash": "নাম '/' দিয়ে শুরু হতে পারবে না",

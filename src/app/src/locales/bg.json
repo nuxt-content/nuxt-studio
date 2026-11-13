@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Съобщението за публикуване е задължително",
+      "fieldRequired": "Това поле е задължително",
       "nameEmpty": "Името не може да бъде празно",
       "nameEndsWithDot": "Името не може да завършва с '.'",
       "nameStartsWithSlash": "Името не може да започва с '/'",
