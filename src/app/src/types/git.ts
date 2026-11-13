@@ -14,6 +14,13 @@ export interface Repository {
    * @default 'https://gitlab.com'
    */
   instanceUrl?: string
+  /**
+   * Controls where Studio commits content changes.
+   * - `'direct'`: commit directly to the configured branch (default)
+   * - `'feature-branch'`: create a new `studio/YYYY-MM-DD-HH-MM-SS` branch for every publish
+   * @default 'direct'
+   */
+  branchStrategy?: 'direct' | 'feature-branch'
 }
 
 export interface GitBaseOptions {
@@ -29,6 +36,7 @@ export interface GitOptions extends GitBaseOptions {
   rootDir: string
   token: string
   instanceUrl?: string
+  branchStrategy?: 'direct' | 'feature-branch'
 }
 
 export interface CommitFilesOptions extends GitBaseOptions {
@@ -57,6 +65,7 @@ export interface CommitResult {
   success: boolean
   commitSha: string
   url: string
+  branch?: string
 }
 
 export interface GitFile {
