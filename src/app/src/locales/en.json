@@ -58,7 +58,21 @@
       "alertTitleWaiting": "Waiting for deployment...",
       "alertTitleComplete": "Deployment complete",
       "alertDescWaiting": "The website needs to be deployed for changes to be visible in Studio.",
-      "alertDescComplete": "A new version of your website has been deployed. Please refresh your app to see changes in Studio."
+      "alertDescComplete": "A new version of your website has been deployed. Please refresh your app to see changes in Studio.",
+      "reviewRequest": {
+        "openPullRequest": "Open pull request",
+        "openMergeRequest": "Open merge request",
+        "openCommit": "View published commit",
+        "failedTitle": "Review request could not be created",
+        "pullRequest": {
+          "created": "Pull request created",
+          "existing": "Existing pull request updated"
+        },
+        "mergeRequest": {
+          "created": "Merge request created",
+          "existing": "Existing merge request updated"
+        }
+      }
     },
     "newVersionBanner": {
       "title": "New website version detected",

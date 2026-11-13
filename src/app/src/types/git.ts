@@ -3,12 +3,26 @@ import type { StudioFeature } from '../types'
 
 export type GitProviderType = 'github' | 'gitlab'
 
+export interface RepositoryPullRequestOptions {
+  /**
+   * Target branch for pull/merge requests created after publishing.
+   * When set, Studio commits to `branch` then opens or reuses a review request into this base branch.
+   */
+  base?: string
+  /**
+   * Title for pull/merge requests created after publishing.
+   * When omitted, the commit message is used.
+   */
+  name?: string
+}
+
 export interface Repository {
   provider: GitProviderType | null
   owner: string
   repo: string
   branch: string
   rootDir: string
+  pullRequest?: RepositoryPullRequestOptions
   /**
    * Can be used to specify the instance URL for self-hosted GitLab instances.
    * @default 'https://gitlab.com'
@@ -29,6 +43,7 @@ export interface GitOptions extends GitBaseOptions {
   rootDir: string
   token: string
   instanceUrl?: string
+  pullRequest?: RepositoryPullRequestOptions
 }
 
 export interface CommitFilesOptions extends GitBaseOptions {
@@ -43,9 +58,32 @@ export interface RawFile {
   encoding?: 'utf-8' | 'base64'
 }
 
+export type ReviewRequestKind = 'pull-request' | 'merge-request'
+
+export type ReviewRequestState = 'created' | 'existing'
+
+export interface EnsureReviewRequestOptions {
+  title: string
+  head: string
+  base: string
+  body?: string
+  commitUrl?: string
+}
+
+export interface ReviewRequestResult {
+  kind: ReviewRequestKind
+  state: ReviewRequestState
+  url: string
+  head: string
+  base: string
+  number?: number
+  iid?: number
+}
+
 export interface GitProviderAPI {
   fetchFile(path: string, options?: { cached?: boolean }): Promise<GitFile | null>
   commitFiles(files: RawFile[], message: string): Promise<CommitResult | null>
+  ensureReviewRequest(options: EnsureReviewRequestOptions): Promise<ReviewRequestResult | null>
   getRepositoryUrl(): string
   getBranchUrl(): string
   getCommitUrl(sha: string): string

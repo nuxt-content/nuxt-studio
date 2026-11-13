@@ -74,10 +74,26 @@ async function publishChanges() {
   isPublishing.value = true
   try {
     const changeCount = context.draftCount.value
-    await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: state.commitMessage })
+    const publishResult = await context.branchActionHandler[StudioBranchActionId.PublishBranch]({ commitMessage: state.commitMessage })
 
     state.commitMessage = ''
-    await router.push({ path: '/success', query: { changeCount: changeCount.toString() } })
+    await router.push({
+      path: '/success',
+      query: {
+        changeCount: changeCount.toString(),
+        commitUrl: publishResult.commit.url,
+        ...(publishResult.reviewRequest
+          ? {
+              reviewRequestUrl: publishResult.reviewRequest.url,
+              reviewRequestKind: publishResult.reviewRequest.kind,
+              reviewRequestState: publishResult.reviewRequest.state,
+            }
+          : {}),
+        ...(publishResult.reviewRequestError
+          ? { reviewRequestError: publishResult.reviewRequestError }
+          : {}),
+      },
+    })
   }
   catch (error) {
     const err = error as Error

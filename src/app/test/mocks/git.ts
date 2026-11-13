@@ -8,6 +8,7 @@ export const createMockGit = (remoteFile?: GithubFile): ReturnType<typeof useGit
   api: {
     fetchFile: vi.fn().mockResolvedValue(remoteFile || createMockGithubFile()),
     commitFiles: vi.fn().mockResolvedValue({ success: true, commitSha: 'abc123', url: 'https://example.com/commit/abc123' }),
+    ensureReviewRequest: vi.fn().mockResolvedValue(null),
     getRepositoryUrl: vi.fn().mockReturnValue('https://github.com/owner/repo'),
     getBranchUrl: vi.fn().mockReturnValue('https://github.com/owner/repo/tree/main'),
     getCommitUrl: vi.fn().mockReturnValue('https://github.com/owner/repo/commit/abc123'),
