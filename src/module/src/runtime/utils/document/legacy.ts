@@ -659,10 +659,14 @@ function stripCodeIndentation(attrs: ElementNodeAttributes, children: MarkdownNo
 
 /**
  * Comark keeps YAML numbers and objects as `:key` JSON bindings, while the legacy bridge unbinds them.
+ * A compressed comark tree holds the binding already parsed (`:ui: { … }`), so unbind that form too.
  */
 function unbindJsonAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(attrs).map(([key, value]) => {
-    if (!key.startsWith(':') || typeof value !== 'string') return [key, value]
+    if (!key.startsWith(':')) return [key, value]
+    if (typeof value === 'object' && value !== null) return [key.slice(1), value]
+    if (typeof value === 'number') return [key.slice(1), value]
+    if (typeof value !== 'string') return [key, value]
     try {
       const parsed = JSON.parse(value)
       // Both sides keep booleans bound.
