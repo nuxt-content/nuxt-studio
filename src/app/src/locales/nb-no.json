@@ -137,6 +137,7 @@
         "createDocumentFolder": "Ny mappe",
         "createMediaFolder": "Ny mediamappe",
         "renameItem": "Endre navn",
+        "moveItem": "Flytt til…",
         "deleteItem": "Slett",
         "uploadMedia": "Last opp media",
         "duplicateItem": "Dupliser",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Opprett en ny mappe",
         "createMediaFolder": "Opprett en ny mappe",
         "renameItem": "Endre navn på fil",
+        "moveItem": "Flytt til en annen mappe",
         "deleteItem": "Slett fil",
         "uploadMedia": "Last opp media",
         "duplicateItem": "Dupliser fil",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title}-fil"
+    },
+    "destination": {
+      "name": "Navn",
+      "folder": "Mappe",
+      "currentFolder": "Gjeldende",
+      "move": {
+        "title": "Flytt «{name}»",
+        "description": "Velg mappen du vil flytte til.",
+        "submit": "Flytt hit",
+        "sameFolder": "Allerede i denne mappen"
+      },
+      "duplicate": {
+        "title": "Dupliser «{name}»",
+        "description": "Gi kopien et navn og velg hvor den skal opprettes.",
+        "submit": "Dupliser"
+      },
+      "errors": {
+        "fileExists": "Det finnes allerede en fil med dette navnet i {folder}.",
+        "folderExists": "Det finnes allerede en mappe med dette navnet i {folder}.",
+        "notAllowed": "Dette innholdet kan ikke lagres i {folder}."
+      }
     }
   }
 }

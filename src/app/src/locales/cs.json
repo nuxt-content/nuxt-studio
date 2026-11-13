@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nová složka",
         "createMediaFolder": "Nová složka médií",
         "renameItem": "Přejmenovat",
+        "moveItem": "Přesunout do…",
         "deleteItem": "Smazat",
         "uploadMedia": "Nahrát média",
         "duplicateItem": "Duplikovat",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Vytvořit novou složku",
         "createMediaFolder": "Vytvořit novou složku",
         "renameItem": "Přejmenovat soubor",
+        "moveItem": "Přesunout do jiné složky",
         "deleteItem": "Smazat soubor",
         "uploadMedia": "Nahrát média",
         "duplicateItem": "Duplikovat soubor",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Soubor {title}"
+    },
+    "destination": {
+      "name": "Název",
+      "folder": "Složka",
+      "currentFolder": "Aktuální",
+      "move": {
+        "title": "Přesunout „{name}“",
+        "description": "Vyberte složku, do které se má přesunout.",
+        "submit": "Přesunout sem",
+        "sameFolder": "Již je v této složce"
+      },
+      "duplicate": {
+        "title": "Duplikovat „{name}“",
+        "description": "Pojmenujte kopii a vyberte, kde ji vytvořit.",
+        "submit": "Duplikovat"
+      },
+      "errors": {
+        "fileExists": "Soubor s tímto názvem už ve složce {folder} existuje.",
+        "folderExists": "Složka s tímto názvem už ve složce {folder} existuje.",
+        "notAllowed": "Tento obsah nelze uložit do složky {folder}."
+      }
     }
   }
 }

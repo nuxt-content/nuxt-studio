@@ -137,6 +137,7 @@
         "createDocumentFolder": "নতুন ফোল্ডার",
         "createMediaFolder": "নতুন মিডিয়া ফোল্ডার",
         "renameItem": "নাম পরিবর্তন করুন",
+        "moveItem": "এতে সরান…",
         "deleteItem": "মুছুন",
         "uploadMedia": "মিডিয়া আপলোড করুন",
         "duplicateItem": "ডুপ্লিকেট করুন",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "নতুন ফোল্ডার তৈরি করুন",
         "createMediaFolder": "নতুন ফোল্ডার তৈরি করুন",
         "renameItem": "ফাইলের নাম পরিবর্তন করুন",
+        "moveItem": "অন্য ফোল্ডারে সরান",
         "deleteItem": "ফাইল মুছুন",
         "uploadMedia": "মিডিয়া আপলোড করুন",
         "duplicateItem": "ফাইল ডুপ্লিকেট করুন",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} ফাইল"
+    },
+    "destination": {
+      "name": "নাম",
+      "folder": "ফোল্ডার",
+      "currentFolder": "বর্তমান",
+      "move": {
+        "title": "“{name}” সরান",
+        "description": "যে ফোল্ডারে সরাতে চান সেটি বেছে নিন।",
+        "submit": "এখানে সরান",
+        "sameFolder": "ইতিমধ্যেই এই ফোল্ডারে আছে"
+      },
+      "duplicate": {
+        "title": "“{name}” ডুপ্লিকেট করুন",
+        "description": "কপির নাম দিন এবং কোথায় তৈরি করবেন তা বেছে নিন।",
+        "submit": "ডুপ্লিকেট করুন"
+      },
+      "errors": {
+        "fileExists": "{folder}-এ এই নামের একটি ফাইল ইতিমধ্যেই আছে।",
+        "folderExists": "{folder}-এ এই নামের একটি ফোল্ডার ইতিমধ্যেই আছে।",
+        "notAllowed": "এই কনটেন্ট {folder}-এ সংরক্ষণ করা যাবে না।"
+      }
     }
   }
 }

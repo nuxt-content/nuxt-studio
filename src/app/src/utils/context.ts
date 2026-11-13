@@ -1,7 +1,7 @@
 import { type StudioAction, type TreeItem, TreeStatus, StudioItemActionId, StudioBranchActionId, StudioFeature } from '../types'
 
-export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem]
-export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder, StudioItemActionId.RenameItem]
+export const oneStepActions: StudioItemActionId[] = [StudioItemActionId.RevertItem, StudioItemActionId.DeleteItem]
+export const twoStepActions: StudioItemActionId[] = [StudioItemActionId.CreateDocument, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder, StudioItemActionId.RenameItem, StudioItemActionId.MoveItem, StudioItemActionId.DuplicateItem]
 
 export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction<StudioItemActionId>[] = [
   {
@@ -41,6 +41,12 @@ export const STUDIO_ITEM_ACTION_DEFINITIONS: StudioAction<StudioItemActionId>[] 
     tooltip: 'studio.actions.tooltips.renameItem',
   },
   {
+    id: StudioItemActionId.MoveItem,
+    label: 'studio.actions.labels.moveItem',
+    icon: 'i-lucide-folder-input',
+    tooltip: 'studio.actions.tooltips.moveItem',
+  },
+  {
     id: StudioItemActionId.DuplicateItem,
     label: 'studio.actions.labels.duplicateItem',
     icon: 'i-lucide-copy',
@@ -69,7 +75,7 @@ export function computeItemActions(itemActions: StudioAction<StudioItemActionId>
   const forbiddenActions: StudioItemActionId[] = []
 
   if (feature === StudioFeature.Media) {
-    forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateDocument)
+    forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.MoveItem, StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateDocument)
   }
   else {
     forbiddenActions.push(StudioItemActionId.UploadMedia, StudioItemActionId.CreateMediaFolder)
@@ -78,7 +84,7 @@ export function computeItemActions(itemActions: StudioAction<StudioItemActionId>
   // Item type filtering
   switch (item.type) {
     case 'root':
-      forbiddenActions.push(StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem)
+      forbiddenActions.push(StudioItemActionId.RenameItem, StudioItemActionId.MoveItem, StudioItemActionId.DeleteItem, StudioItemActionId.DuplicateItem)
       break
     case 'file':
       forbiddenActions.push(StudioItemActionId.CreateDocumentFolder, StudioItemActionId.CreateMediaFolder, StudioItemActionId.CreateDocument, StudioItemActionId.UploadMedia)
@@ -94,7 +100,7 @@ export function computeItemActions(itemActions: StudioAction<StudioItemActionId>
     case TreeStatus.Created:
       break
     case TreeStatus.Deleted:
-      forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.RenameItem, StudioItemActionId.DeleteItem)
+      forbiddenActions.push(StudioItemActionId.DuplicateItem, StudioItemActionId.RenameItem, StudioItemActionId.MoveItem, StudioItemActionId.DeleteItem)
       break
     case TreeStatus.Renamed:
       break

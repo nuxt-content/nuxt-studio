@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nouveau dossier",
         "createMediaFolder": "Nouveau dossier média",
         "renameItem": "Renommer",
+        "moveItem": "Déplacer vers…",
         "deleteItem": "Supprimer",
         "uploadMedia": "Téléverser un média",
         "duplicateItem": "Dupliquer",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Créer un nouveau dossier",
         "createMediaFolder": "Créer un nouveau dossier média",
         "renameItem": "Renommer le fichier",
+        "moveItem": "Déplacer vers un autre dossier",
         "deleteItem": "Supprimer le fichier",
         "uploadMedia": "Téléverser un média",
         "duplicateItem": "Dupliquer le fichier",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Fichier {title}"
+    },
+    "destination": {
+      "name": "Nom",
+      "folder": "Dossier",
+      "currentFolder": "Actuel",
+      "move": {
+        "title": "Déplacer « {name} »",
+        "description": "Choisissez le dossier de destination.",
+        "submit": "Déplacer ici",
+        "sameFolder": "Déjà dans ce dossier"
+      },
+      "duplicate": {
+        "title": "Dupliquer « {name} »",
+        "description": "Nommez la copie et choisissez où la créer.",
+        "submit": "Dupliquer"
+      },
+      "errors": {
+        "fileExists": "Un fichier portant ce nom existe déjà dans {folder}.",
+        "folderExists": "Un dossier portant ce nom existe déjà dans {folder}.",
+        "notAllowed": "Ce contenu ne peut pas être enregistré dans {folder}."
+      }
     }
   }
 }

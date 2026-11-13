@@ -32,6 +32,15 @@ watch(context.actionInProgress, (action) => {
 
 const item = computed(() => context.activeTree.value.currentItem.value)
 
+const destinationAction = computed(() => {
+  const action = context.actionInProgress.value
+  if (!action?.item || (action.id !== StudioItemActionId.MoveItem && action.id !== StudioItemActionId.DuplicateItem)) {
+    return null
+  }
+
+  return { id: action.id, item: action.item }
+})
+
 const extraActions = computed<DropdownMenuItem[]>(() => {
   const actions: DropdownMenuItem[] = []
 
@@ -118,5 +127,12 @@ onUnmounted(() => {
       @change="handleFileSelection"
       @cancel="context.unsetActionInProgress()"
     >
+
+    <ItemDestinationModal
+      v-if="destinationAction"
+      :action-id="destinationAction.id"
+      :item="destinationAction.item"
+      @close="context.unsetActionInProgress()"
+    />
   </div>
 </template>

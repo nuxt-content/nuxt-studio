@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nueva carpeta",
         "createMediaFolder": "Nueva carpeta multimedia",
         "renameItem": "Renombrar",
+        "moveItem": "Mover a…",
         "deleteItem": "Eliminar",
         "uploadMedia": "Subir multimedia",
         "duplicateItem": "Duplicar",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Crear una nueva carpeta",
         "createMediaFolder": "Crear una nueva carpeta",
         "renameItem": "Renombrar archivo",
+        "moveItem": "Mover a otra carpeta",
         "deleteItem": "Eliminar archivo",
         "uploadMedia": "Subir multimedia",
         "duplicateItem": "Duplicar archivo",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Archivo {title}"
+    },
+    "destination": {
+      "name": "Nombre",
+      "folder": "Carpeta",
+      "currentFolder": "Actual",
+      "move": {
+        "title": "Mover «{name}»",
+        "description": "Elige la carpeta de destino.",
+        "submit": "Mover aquí",
+        "sameFolder": "Ya está en esta carpeta"
+      },
+      "duplicate": {
+        "title": "Duplicar «{name}»",
+        "description": "Ponle nombre a la copia y elige dónde crearla.",
+        "submit": "Duplicar"
+      },
+      "errors": {
+        "fileExists": "Ya existe un archivo con este nombre en {folder}.",
+        "folderExists": "Ya existe una carpeta con este nombre en {folder}.",
+        "notAllowed": "Este contenido no se puede guardar en {folder}."
+      }
     }
   }
 }

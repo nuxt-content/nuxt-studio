@@ -137,6 +137,7 @@
         "createDocumentFolder": "ថតថ្មី",
         "createMediaFolder": "ថតមេឌៀថ្មី",
         "renameItem": "ផ្លាស់ប្តូរឈ្មោះ",
+        "moveItem": "ផ្លាស់ទីទៅ…",
         "deleteItem": "លុប",
         "uploadMedia": "ផ្ទុកមេឌៀឡើង",
         "duplicateItem": "ចម្លង",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "បង្កើតថតថ្មី",
         "createMediaFolder": "បង្កើតថតមេឌៀថ្មី",
         "renameItem": "ផ្លាស់ប្តូរឈ្មោះឯកសារ",
+        "moveItem": "ផ្លាស់ទីទៅថតផ្សេង",
         "deleteItem": "លុបឯកសារ",
         "uploadMedia": "ផ្ទុកមេឌៀឡើង",
         "duplicateItem": "ចម្លងឯកសារ",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# ឯកសារ {title}"
+    },
+    "destination": {
+      "name": "ឈ្មោះ",
+      "folder": "ថត",
+      "currentFolder": "បច្ចុប្បន្ន",
+      "move": {
+        "title": "ផ្លាស់ទី “{name}”",
+        "description": "ជ្រើសរើសថតដែលត្រូវផ្លាស់ទីទៅ។",
+        "submit": "ផ្លាស់ទីមកទីនេះ",
+        "sameFolder": "មាននៅក្នុងថតនេះរួចហើយ"
+      },
+      "duplicate": {
+        "title": "ចម្លង “{name}”",
+        "description": "ដាក់ឈ្មោះច្បាប់ចម្លង ហើយជ្រើសរើសកន្លែងបង្កើត។",
+        "submit": "ចម្លង"
+      },
+      "errors": {
+        "fileExists": "មានឯកសារដែលមានឈ្មោះនេះរួចហើយនៅក្នុង {folder}។",
+        "folderExists": "មានថតដែលមានឈ្មោះនេះរួចហើយនៅក្នុង {folder}។",
+        "notAllowed": "មិនអាចរក្សាទុកមាតិកានេះនៅក្នុង {folder} បានទេ។"
+      }
     }
   }
 }

@@ -1,11 +1,12 @@
 import { createSharedComposable } from './createSharedComposable'
 import { computed, ref } from 'vue'
 import {
-  StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature,
+  StudioItemActionId, DraftStatus, StudioBranchActionId, StudioFeature, TreeStatus,
 } from '../types'
 import type {
   PublishBranchParams,
   RenameFileParams,
+  DuplicateFileParams,
   TreeItem,
   UploadMediaParams,
   CreateFileParams,
@@ -97,7 +98,7 @@ export const useContext = createSharedComposable((
 
         actionInProgress.value = { id: action.id }
 
-        if (action.id === StudioItemActionId.RenameItem) {
+        if ([StudioItemActionId.RenameItem, StudioItemActionId.MoveItem, StudioItemActionId.DuplicateItem].includes(action.id)) {
           actionInProgress.value.item = args as TreeItem
         }
 
@@ -176,6 +177,8 @@ export const useContext = createSharedComposable((
 
       // Revert folder
       const descendants = findDescendantsFileItemsFromFsPath(activeTree.value.root.value, item.fsPath)
+        // Deleted files stay deleted where they were
+        .filter(descendant => descendant.status !== TreeStatus.Deleted)
       if (descendants.length > 0) {
         const itemsToRename = descendants.map((descendant) => {
           return {
@@ -185,6 +188,17 @@ export const useContext = createSharedComposable((
         })
 
         await activeTree.value.draft.rename(itemsToRename)
+      }
+    },
+    [StudioItemActionId.MoveItem]: async (params: TreeItem | RenameFileParams) => {
+      const { item, newFsPath } = params as RenameFileParams
+      const isMovingCurrentItem = activeTree.value.currentItem.value.fsPath === item.fsPath
+
+      await itemActionHandler[StudioItemActionId.RenameItem]({ item, newFsPath })
+
+      // Keep the moved item open at its new location
+      if (isMovingCurrentItem) {
+        await activeTree.value.selectItemByFsPath(newFsPath)
       }
     },
     [StudioItemActionId.DeleteItem]: async (item: TreeItem) => {
@@ -201,10 +215,12 @@ export const useContext = createSharedComposable((
         await activeTree.value.draft.remove(fsPaths)
       }
     },
-    [StudioItemActionId.DuplicateItem]: async (item: TreeItem) => {
+    [StudioItemActionId.DuplicateItem]: async (params: TreeItem | DuplicateFileParams) => {
+      const { item, newFsPath } = params as DuplicateFileParams
+
       // Duplicate file
       if (item.type === 'file') {
-        const draftItem = await activeTree.value.draft.duplicate(item.fsPath)
+        const draftItem = await activeTree.value.draft.duplicate(item.fsPath, newFsPath)
         await activeTree.value.selectItemByFsPath(draftItem!.fsPath)
         return
       }

@@ -137,6 +137,7 @@
         "createDocumentFolder": "پوشه جدید",
         "createMediaFolder": "پوشه رسانه جدید",
         "renameItem": "تغییر نام",
+        "moveItem": "انتقال به…",
         "deleteItem": "حذف",
         "uploadMedia": "آپلود رسانه",
         "duplicateItem": "تکرار",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "ایجاد پوشه جدید",
         "createMediaFolder": "ایجاد پوشه رسانه جدید",
         "renameItem": "تغییر نام فایل",
+        "moveItem": "انتقال به پوشه‌ای دیگر",
         "deleteItem": "حذف فایل",
         "uploadMedia": "آپلود رسانه",
         "duplicateItem": "تکرار فایل",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# فایل {title}"
+    },
+    "destination": {
+      "name": "نام",
+      "folder": "پوشه",
+      "currentFolder": "فعلی",
+      "move": {
+        "title": "انتقال «{name}»",
+        "description": "پوشهٔ مقصد را انتخاب کنید.",
+        "submit": "انتقال به اینجا",
+        "sameFolder": "از قبل در این پوشه است"
+      },
+      "duplicate": {
+        "title": "تکرار «{name}»",
+        "description": "برای نسخهٔ کپی نام بگذارید و محل ایجاد آن را انتخاب کنید.",
+        "submit": "تکرار"
+      },
+      "errors": {
+        "fileExists": "فایلی با این نام از قبل در {folder} وجود دارد.",
+        "folderExists": "پوشه‌ای با این نام از قبل در {folder} وجود دارد.",
+        "notAllowed": "این محتوا را نمی‌توان در {folder} ذخیره کرد."
+      }
     }
   }
 }

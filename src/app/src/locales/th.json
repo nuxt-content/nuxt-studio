@@ -137,6 +137,7 @@
         "createDocumentFolder": "โฟลเดอร์ใหม่",
         "createMediaFolder": "โฟลเดอร์มีเดียใหม่",
         "renameItem": "เปลี่ยนชื่อ",
+        "moveItem": "ย้ายไปที่…",
         "deleteItem": "ลบ",
         "uploadMedia": "อัปโหลดมีเดีย",
         "duplicateItem": "ทำสำเนา",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "สร้างโฟลเดอร์ใหม่",
         "createMediaFolder": "สร้างโฟลเดอร์มีเดียใหม่",
         "renameItem": "เปลี่ยนชื่อไฟล์",
+        "moveItem": "ย้ายไปยังโฟลเดอร์อื่น",
         "deleteItem": "ลบไฟล์",
         "uploadMedia": "อัปโหลดมีเดีย",
         "duplicateItem": "ทำสำเนาไฟล์",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# ไฟล์ {title}"
+    },
+    "destination": {
+      "name": "ชื่อ",
+      "folder": "โฟลเดอร์",
+      "currentFolder": "ปัจจุบัน",
+      "move": {
+        "title": "ย้าย “{name}”",
+        "description": "เลือกโฟลเดอร์ปลายทาง",
+        "submit": "ย้ายมาที่นี่",
+        "sameFolder": "อยู่ในโฟลเดอร์นี้แล้ว"
+      },
+      "duplicate": {
+        "title": "ทำสำเนา “{name}”",
+        "description": "ตั้งชื่อสำเนาและเลือกตำแหน่งที่จะสร้าง",
+        "submit": "ทำสำเนา"
+      },
+      "errors": {
+        "fileExists": "มีไฟล์ชื่อนี้อยู่แล้วใน {folder}",
+        "folderExists": "มีโฟลเดอร์ชื่อนี้อยู่แล้วใน {folder}",
+        "notAllowed": "ไม่สามารถบันทึกเนื้อหานี้ใน {folder} ได้"
+      }
     }
   }
 }

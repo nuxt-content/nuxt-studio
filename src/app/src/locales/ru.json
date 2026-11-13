@@ -137,6 +137,7 @@
         "createDocumentFolder": "Новая папка",
         "createMediaFolder": "Новая папка медиафайлов",
         "renameItem": "Переименовать",
+        "moveItem": "Переместить в…",
         "deleteItem": "Удалить",
         "uploadMedia": "Загрузить медиа",
         "duplicateItem": "Дублировать",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Создать новую папку",
         "createMediaFolder": "Создать новую папку медиафайлов",
         "renameItem": "Переименовать файл",
+        "moveItem": "Переместить в другую папку",
         "deleteItem": "Удалить файл",
         "uploadMedia": "Загрузить медиа",
         "duplicateItem": "Дублировать файл",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Файл {title}"
+    },
+    "destination": {
+      "name": "Имя",
+      "folder": "Папка",
+      "currentFolder": "Текущая",
+      "move": {
+        "title": "Переместить «{name}»",
+        "description": "Выберите папку назначения.",
+        "submit": "Переместить сюда",
+        "sameFolder": "Уже в этой папке"
+      },
+      "duplicate": {
+        "title": "Дублировать «{name}»",
+        "description": "Укажите имя копии и выберите, где её создать.",
+        "submit": "Дублировать"
+      },
+      "errors": {
+        "fileExists": "Файл с таким именем уже существует в {folder}.",
+        "folderExists": "Папка с таким именем уже существует в {folder}.",
+        "notAllowed": "Этот контент нельзя сохранить в {folder}."
+      }
     }
   }
 }
