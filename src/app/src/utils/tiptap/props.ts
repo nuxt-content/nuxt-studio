@@ -306,6 +306,7 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
     if (studioProp.description !== undefined) propItem.description = studioProp.description
     if (studioProp.tooltip !== undefined) propItem.tooltip = studioProp.tooltip
     if (studioProp.hidden !== undefined) propItem.hidden = studioProp.hidden
+    if (studioProp.optionLabels !== undefined) propItem.optionLabels = studioProp.optionLabels
   }
 
   // Handle array items schema

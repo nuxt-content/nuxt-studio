@@ -4,6 +4,7 @@ interface AuthorCardProps {
   badge?: string
   note?: string
   internal?: string
+  align?: 'left' | 'center' | 'right'
   social?: { github?: string, avatar?: string }
 }
 
@@ -13,6 +14,7 @@ defineStudioMeta<AuthorCardProps>({
     badge: { label: 'Badge icon', input: 'icon', iconLibraries: ['lucide'] },
     note: { label: 'Note', description: 'Shown in small print under the card', input: 'textarea' },
     internal: { hidden: true },
+    align: { label: 'Text alignment', optionLabels: { left: 'Left-aligned', center: 'Centered' } },
     social: {
       label: 'Social',
       fields: {
@@ -31,7 +33,10 @@ defineProps<AuthorCardProps>()
 </script>
 
 <template>
-  <div class="author-card">
+  <div
+    class="author-card"
+    :style="{ textAlign: align }"
+  >
     <img
       v-if="cover"
       :src="cover"

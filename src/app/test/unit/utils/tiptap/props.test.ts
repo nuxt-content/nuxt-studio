@@ -1703,6 +1703,21 @@ describe('props', () => {
       expect(tree.cover).toMatchObject({ label: 'Cover image', description: 'Shown on top', tooltip: 'Use landscape' })
     })
 
+    test('optionLabels label the options of a select prop, keeping their values', () => {
+      const alignType = '"left" | "center" | "right" | undefined'
+      const meta = createStudioComponentMeta(
+        [stringProp('align', { type: alignType, schema: { kind: 'enum', type: alignType, schema: ['undefined', '"left"', '"center"', '"right"'] } })],
+        { props: { align: { optionLabels: { left: 'Left-aligned', center: 'Centered' } } } },
+      )
+
+      const tree = buildFormTreeFromProps(createNode(), meta)
+
+      expect(tree.align).toMatchObject({
+        options: ['left', 'center', 'right'],
+        optionLabels: { left: 'Left-aligned', center: 'Centered' },
+      })
+    })
+
     test('hidden: true hides a prop, hidden: false un-hides a HIDDEN_PROPS entry', () => {
       const meta = createStudioComponentMeta(
         [stringProp('internal'), stringProp('disabled')],
