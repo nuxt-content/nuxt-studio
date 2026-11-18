@@ -3,7 +3,7 @@ import { parseMarkdown as parseWithMdc } from '@nuxtjs/mdc/runtime'
 import type { MDCNode, MDCRoot } from '@nuxtjs/mdc'
 import { decompressTree } from '@nuxt/content/runtime'
 import { parseMarkdown as parseWithComark } from 'comark'
-import { areDocumentsEqual, contentFromMarkdownDocument, documentFromMarkdownContent, ensureComarkBody, isDocumentMatchingContent } from '../../src/runtime/utils/document'
+import { areDocumentsEqual, contentFromDocument, contentFromMarkdownDocument, documentFromMarkdownContent, ensureComarkBody, isDocumentMatchingContent } from '../../src/runtime/utils/document'
 import { markdownRootFromComarkTree } from '../../src/runtime/utils/document/legacy'
 import type { MarkdownDocument } from 'comark'
 import type { DatabaseItem } from 'nuxt-studio/app'
@@ -271,6 +271,44 @@ We only use your email to send you our newsletter.
       const renamed = content.replace('#legalMentions', '#privacyNotice')
 
       expect(await isDocumentMatchingContent(renamed, await storedDocumentOf(content))).toBe(false)
+    })
+  })
+
+  // comark drops a heading without text when parsing, @nuxtjs/mdc keeps it as an empty heading.
+  describe('empty heading compared with the deployed body', () => {
+    it('matches its own file, at the top level and inside a component', async () => {
+      const content = `Intro
+
+##
+
+::note
+Text
+
+###
+::
+`
+
+      expect(await isDocumentMatchingContent(content, await storedDocumentOf(content))).toBe(true)
+    })
+
+    it('is dropped when Studio writes the file, as comark drops it when parsing', async () => {
+      const content = `Intro
+
+###
+
+Outro
+`
+
+      expect(await contentFromDocument(await storedDocumentOf(content))).toBe('Intro\n\nOutro\n')
+    })
+
+    it('still detects a heading that got text', async () => {
+      const content = `Intro
+
+###
+`
+
+      expect(await isDocumentMatchingContent(content.replace('###', '### Title'), await storedDocumentOf(content))).toBe(false)
     })
   })
 
