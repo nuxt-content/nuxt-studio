@@ -7,6 +7,7 @@ import { setupDevMode } from './dev'
 import { validateAuthConfig } from './auth'
 import { setExternalMediaStorage, setDefaultMediaStorage } from './medias'
 import { setAIFeature } from './ai'
+import { refreshStudioMetaOnChange } from './component-meta'
 import type { CommandConfig, SuggestionConfig } from '../../app/src/types/editor'
 
 const logger = useLogger('nuxt-studio')
@@ -476,6 +477,7 @@ export default defineNuxtModule<ModuleOptions>({
       ...(nuxtOptions.componentMeta.extendMetaFunctions ?? []),
       { name: 'defineStudioMeta', transform: extracted => ({ studio: extracted }) },
     ]
+    refreshStudioMetaOnChange(nuxt)
 
     addTypeTemplate({
       filename: 'types/studio-macros.d.ts',
