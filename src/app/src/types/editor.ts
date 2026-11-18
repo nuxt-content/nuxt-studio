@@ -4,7 +4,18 @@ import type { JSType } from 'untyped'
 
 export interface StudioPropMeta<Value = unknown> extends EditorOptions {
   fields?: StudioFieldsMeta<Value>
+  /** Labels of the values a select offers, keyed by value. A value without a label shows as is. */
+  optionLabels?: StudioOptionLabels<Value>
 }
+
+/**
+ * Option labels keyed by value: typed from `Value` when it is a string literal union, any value otherwise.
+ */
+export type StudioOptionLabels<Value = unknown> = unknown extends Value
+  ? Record<string, string>
+  : [Value] extends [string]
+      ? { [Option in Value]?: string }
+      : never
 
 export type StudioFieldsMeta<Value = unknown> = unknown extends Value
   ? Record<string, StudioPropMeta>
@@ -57,6 +68,7 @@ export type FormItem = {
   label?: string
   description?: string
   tooltip?: string
+  optionLabels?: Record<string, string>
 }
 
 export const COMMAND_KEYS = [

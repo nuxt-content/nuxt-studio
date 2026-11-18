@@ -21,7 +21,7 @@ const selectItems = computed(() => {
   return props.formItem.options
     .filter(option => option !== '')
     .map(option => ({
-      label: option,
+      label: props.formItem.optionLabels?.[option] ?? option,
       value: option,
     }))
 })
