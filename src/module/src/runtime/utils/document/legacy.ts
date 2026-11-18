@@ -59,7 +59,7 @@ function comarkNodeToMDCNode(node: MarkdownNode): MDCNode {
 function mdcToComark(root: MDCRoot, data: Record<string, unknown> = {}): MarkdownDocument {
   const repaired = repairMdcRoot(root)
   return {
-    nodes: normalizeMdcChildren(repaired.children || []).map(mdcNodeToComarkNode),
+    nodes: normalizeMdcChildren(repaired.children || []).filter(node => !isEmptyMdcHeading(node)).map(mdcNodeToComarkNode),
     frontmatter: data,
     meta: {},
   }
@@ -77,7 +77,7 @@ function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
   if (node.type === 'element') {
     const el = node as MDCElement
     if (el.tag === 'pre') return preMdcToComarkNode(el)
-    const children = dropNewlineAfterHardBreaks(normalizeMdcChildren(el.children || []))
+    const children = dropNewlineAfterHardBreaks(normalizeMdcChildren(el.children || []).filter(child => !isEmptyMdcHeading(child)))
     return [
       el.tag!,
       propsMDCToComark(el.tag!, (el.props as Record<string, unknown>) || {}),
@@ -87,6 +87,14 @@ function mdcNodeToComarkNode(node: MDCNode): MarkdownNode {
 
   return ''
 }
+
+/**
+ * comark drops a heading without text (`###` alone) when parsing, while @nuxtjs/mdc keeps it
+ * as an empty heading. Dropping it here too keeps the stored body comparable with the file.
+ */
+const isEmptyMdcHeading = (node: MDCNode) => node.type === 'element'
+  && /^h[1-6]$/.test((node as MDCElement).tag || '')
+  && ((node as MDCElement).children || []).every(child => child.type === 'text' && !(child as MDCText).value.trim())
 
 const isMdcHardBreak = (node?: MDCNode) => node?.type === 'element' && (node as MDCElement).tag === 'br'
 
