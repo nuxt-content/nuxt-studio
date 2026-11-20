@@ -356,6 +356,22 @@ export function computeStandardDragActions(editor: Editor, selectedNode: JSONCon
   ]) as DropdownMenuItem[][]
 }
 
+/**
+ * TipTap's trailing node only appends this paragraph on the first transaction, which then counts as a
+ * document change. Loading the document with it already in place keeps that transaction from changing anything.
+ */
+export function addLastEmptyParagraph(jsonContent: JSONContent) {
+  const content = jsonContent.content || []
+  if (content[content.length - 1]?.type === 'paragraph') {
+    return jsonContent
+  }
+
+  return {
+    ...jsonContent,
+    content: [...content, { type: 'paragraph' }],
+  }
+}
+
 export function removeLastEmptyParagraph(jsonContent: JSONContent) {
   const lastChild = jsonContent!.content![jsonContent!.content!.length - 1]
   if (lastChild.type === 'paragraph' && isEmpty(lastChild.content)) {
