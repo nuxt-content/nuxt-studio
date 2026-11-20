@@ -398,6 +398,15 @@
         "libraries": "Libraries:",
         "allLibraries": "All"
       },
+      "relation": {
+        "placeholder": "Enter a slug...",
+        "searchPlaceholder": "Search documents...",
+        "noResultsFound": "No documents found",
+        "noDocumentsAvailable": "No documents in {collection}",
+        "unresolved": "No document matches this value",
+        "collectionHint": "References {collection}",
+        "optionCount": "{count} of {total} document | {count} of {total} documents"
+      },
       "text": {
         "placeholder": "Enter text...",
         "selectPlaceholder": "Select an option..."

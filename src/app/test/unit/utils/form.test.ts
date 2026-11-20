@@ -275,6 +275,95 @@ describe('buildFormTreeFromSchema', () => {
     })
   })
 
+  test('handle relation options from editor options for relation input', () => {
+    // `relation` is not part of `EditorOptions` in @nuxt/content yet, but
+    // `.editor()` forwards its whole argument to the generated schema.
+    const schema = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/events',
+      definitions: {
+        events: {
+          type: 'object',
+          properties: {
+            meetupLocation: {
+              type: 'string',
+              $content: {
+                editor: {
+                  input: 'relation',
+                  relation: {
+                    collection: 'meetupLocations',
+                    labelField: 'name',
+                  },
+                },
+              },
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    } as unknown as Draft07
+
+    expect(buildFormTreeFromSchema('events', schema)).toStrictEqual({
+      events: {
+        id: '#events',
+        type: 'object',
+        title: 'Events',
+        children: {
+          meetupLocation: {
+            id: '#events/meetupLocation',
+            type: 'relation',
+            title: 'MeetupLocation',
+            relation: {
+              collection: 'meetupLocations',
+              labelField: 'name',
+            },
+          },
+        },
+      },
+    })
+  })
+
+  test('ignore relation options without a target collection', () => {
+    const schema = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      $ref: '#/definitions/events',
+      definitions: {
+        events: {
+          type: 'object',
+          properties: {
+            meetupLocation: {
+              type: 'string',
+              $content: {
+                editor: {
+                  input: 'relation',
+                  relation: { labelField: 'name' },
+                },
+              },
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      },
+    } as unknown as Draft07
+
+    expect(buildFormTreeFromSchema('events', schema)).toStrictEqual({
+      events: {
+        id: '#events',
+        type: 'object',
+        title: 'Events',
+        children: {
+          meetupLocation: {
+            id: '#events/meetupLocation',
+            type: 'relation',
+            title: 'MeetupLocation',
+          },
+        },
+      },
+    })
+  })
+
   test('hide field if set in editor metas', () => {
     const schema: Draft07 = {
       $schema: 'http://json-schema.org/draft-07/schema#',
