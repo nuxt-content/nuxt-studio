@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "A módosítás leírása kötelező",
+      "fieldRequired": "Ez a mező kötelező",
       "nameEmpty": "A név nem lehet üres",
       "nameEndsWithDot": "A név nem végződhet ponttal",
       "nameStartsWithSlash": "A név nem kezdődhet perjellel",

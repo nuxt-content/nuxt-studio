@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "សារការប្តេធ្វើបច្ចុប្បន្នភាពត្រូវបានទាមទារ",
+      "fieldRequired": "ត្រូវតែបំពេញវាលនេះ",
       "nameEmpty": "ឈ្មោះមិនអាចទទេបាន",
       "nameEndsWithDot": "ឈ្មោះមិនអាចបញ្ចប់ដោយ '.'",
       "nameStartsWithSlash": "ឈ្មោះមិនអាចចាប់ផ្តើមដោយ '/'",

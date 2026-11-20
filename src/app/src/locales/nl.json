@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Commitbericht is vereist",
+      "fieldRequired": "Dit veld is verplicht",
       "nameEmpty": "Naam mag niet leeg zijn",
       "nameEndsWithDot": "Naam mag niet eindigen op '.'",
       "nameStartsWithSlash": "Naam mag niet beginnen met '/'",

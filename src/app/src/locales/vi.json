@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Bắt buộc nhập nội dung commit",
+      "fieldRequired": "Trường này là bắt buộc",
       "nameEmpty": "Tên không được để trống",
       "nameEndsWithDot": "Tên không được kết thúc bằng dấu '.'",
       "nameStartsWithSlash": "Tên không được bắt đầu bằng dấu '/'",

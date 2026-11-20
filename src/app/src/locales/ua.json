@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Повідомлення коміту обов'язкове",
+      "fieldRequired": "Це поле обовʼязкове",
       "nameEmpty": "Назва не може бути порожньою",
       "nameEndsWithDot": "Назва не може закінчуватися на '.'",
       "nameStartsWithSlash": "Назва не може починатися з '/'",

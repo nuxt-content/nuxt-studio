@@ -264,7 +264,9 @@ export const buildFormTreeFromProps = (node: ProseMirrorNode, componentMeta: Com
 const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Record<string, unknown>, level = 0, parent?: FormItem, studioProp?: StudioPropMeta): FormItem => {
   const key = prop.name
   const title = upperFirst(prop.name)
-  const defaultValue: string | boolean | number | object | unknown[] | null = prop.tags?.find(tag => tag.name === 'defaultValue')?.text || ''
+  const defaultTag = prop.tags?.find(tag => tag.name === 'defaultValue')
+  const hasDefault = defaultTag !== undefined || prop.default !== undefined
+  const defaultValue: string | boolean | number | object | unknown[] | null = defaultTag?.text || ''
 
   const { type, options } = computeTypeAndOptions(componentId, key, prop, level, studioProp)
 
@@ -299,6 +301,11 @@ const buildPropItem = (componentId: string, prop: PropertyMeta, nodeProps: Recor
     type,
     custom: false,
     default: resolvedDefault,
+  }
+
+  const parentPresent = !parent || parent.required || parent.id === '#array/items'
+  if (prop.required && !hasDefault && parentPresent) {
+    propItem.required = true
   }
 
   if (studioProp) {

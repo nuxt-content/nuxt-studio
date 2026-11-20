@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "Opis zmian jest wymagany",
+      "fieldRequired": "To pole jest wymagane",
       "nameEmpty": "Nazwa nie może być pusta",
       "nameEndsWithDot": "Nazwa nie może kończyć się kropką '.'",
       "nameStartsWithSlash": "Nazwa nie może zaczynać się od '/'",

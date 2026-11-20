@@ -94,6 +94,7 @@
     },
     "validation": {
       "commitRequired": "必須填寫提交訊息",
+      "fieldRequired": "此欄位為必填",
       "nameEmpty": "名稱不可為空",
       "nameEndsWithDot": "名稱不能使用「.」結尾",
       "nameStartsWithSlash": "名稱不能使用「/」開頭",

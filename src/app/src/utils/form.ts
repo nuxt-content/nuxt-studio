@@ -38,12 +38,42 @@ function editorDisplayFromContent(
   return result
 }
 
+export function isMissingRequiredValue(formItem: FormItem, value: unknown): boolean {
+  if (!formItem.required || formItem.type === 'boolean' || formItem.type === 'object') {
+    return false
+  }
+
+  return value === undefined || value === null || value === ''
+}
+
+// Zod 4 lists defaulted keys in `required` (output schema), but they can be omitted from content
+function isRequiredProperty(def: Draft07DefinitionProperty, key: string, optionalKeys: string[]): boolean {
+  if (!def.required?.includes(key) || optionalKeys.includes(key)) {
+    return false
+  }
+
+  const property = def.properties?.[key] as Draft07DefinitionProperty | undefined
+  return property?.default === undefined && !isNullable(property)
+}
+
+function isNullable(def?: Draft07DefinitionProperty): boolean {
+  const type = def?.type as string | string[] | undefined
+  const variants = (def as Draft07DefinitionPropertyAnyOf | undefined)?.anyOf || (def as Draft07DefinitionPropertyOneOf | undefined)?.oneOf || []
+
+  return (Array.isArray(type) && type.includes('null')) || variants.some(variant => variant.type === 'null')
+}
+
 export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormTree => {
   if (!schema || !schema.definitions || !schema.definitions[treeKey]) {
     return {}
   }
 
-  const buildFormTreeItem = (def: Draft07DefinitionProperty, id: string = `#${treeKey}`): FormItem | null => {
+  const rootDef = schema.definitions[treeKey] as Draft07DefinitionProperty
+  // Page collections derive these from the body when they are missing
+  const optionalRootKeys = rootDef.properties?.body ? ['title', 'description'] : []
+
+  // Children of an optional object can only be required once the object itself exists
+  const buildFormTreeItem = (def: Draft07DefinitionProperty, id: string = `#${treeKey}`, required = false, present = required): FormItem | null => {
     const paths = id.split('/')
     const itemKey = paths.pop()!.replace('#', '')
     const level = paths.length
@@ -72,17 +102,17 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
 
         // Choose object type in priority
         if (objectDef) {
-          item = buildFormTreeItem(objectDef, id)
+          item = buildFormTreeItem(objectDef, id, required, present)
         }
 
         // Then string type
         else if (stringDef) {
-          item = buildFormTreeItem(stringDef, id)
+          item = buildFormTreeItem(stringDef, id, required, present)
         }
 
         // Else select first one
         else {
-          item = buildFormTreeItem(defs[0], id)
+          item = buildFormTreeItem(defs[0], id, required, present)
         }
 
         // Handle multiple types with boolean
@@ -104,7 +134,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
 
           const item = {
             ...acc,
-            [key]: buildFormTreeItem(def.properties![key], `${id}/${key}`),
+            [key]: buildFormTreeItem(def.properties![key], `${id}/${key}`, present && isRequiredProperty(def, key, level === 0 ? optionalRootKeys : [])),
           } as FormItem
 
           return item
@@ -116,6 +146,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
           type: editor?.input ?? def.type,
           children,
           ...editorDisplayFromContent(def.$content),
+          ...(required && { required }),
         }
 
         if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
@@ -131,8 +162,9 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
           id,
           title: upperFirst(itemKey),
           type: 'array',
-          arrayItemForm: buildFormTreeItem(def.items, `#${itemKey}/items`)!,
+          arrayItemForm: buildFormTreeItem(def.items, `#${itemKey}/items`, false, true)!,
           ...editorDisplayFromContent(def.$content),
+          ...(required && { required }),
         }
       }
 
@@ -145,6 +177,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
         title: upperFirst(itemKey),
         type: editorType ?? type,
         ...editorDisplayFromContent(def.$content),
+        ...(required && { required }),
       }
 
       if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
@@ -166,10 +199,11 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
       title: upperFirst(itemKey),
       type: editorType ?? type as never,
       ...editorDisplayFromContent(def.$content),
+      ...(required && { required }),
     }
 
     if (type === 'array' && def.items) {
-      item.arrayItemForm = buildFormTreeItem(def.items, `#${itemKey}/items`)!
+      item.arrayItemForm = buildFormTreeItem(def.items, `#${itemKey}/items`, false, true)!
     }
 
     if (def.enum && Array.isArray(def.enum) && def.enum.length > 0) {
@@ -184,7 +218,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
   }
 
   return {
-    [treeKey]: buildFormTreeItem(schema.definitions[treeKey] as Draft07DefinitionProperty) as FormItem,
+    [treeKey]: buildFormTreeItem(rootDef, undefined, false, true) as FormItem,
   }
 }
 
@@ -193,7 +227,7 @@ export const buildFormTreeFromSchema = (treeKey: string, schema: Draft07): FormT
 export const applyValuesToFormTree = (tree: FormTree, override: Record<string, unknown>): FormTree => {
   return Object.keys(tree).reduce((acc, key) => {
     // Recursively override if found
-    if (override[key]) {
+    if (override[key] !== undefined && override[key] !== null) {
       if (tree[key].children) {
         return {
           ...acc,
