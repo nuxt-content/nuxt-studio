@@ -12,7 +12,7 @@ export function validateAuthConfig(options: ModuleOptions): void {
   const hasGoogleAuth = options.auth?.google?.clientId && options.auth?.google?.clientSecret
   const hasSSOServer = options.auth?.sso?.serverUrl && options.auth?.sso?.clientId && options.auth?.sso?.clientSecret
 
-  if (hasSSOServer) {
+  if (hasSSOServer || options.auth?.custom?.loginURL) {
     return
   }
 
