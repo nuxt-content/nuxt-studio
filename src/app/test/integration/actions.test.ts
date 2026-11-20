@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { joinURL } from 'ufo'
-import { DraftStatus, StudioItemActionId, type TreeItem, type DatabaseItem } from '../../src/types'
+import { DraftStatus, StudioItemActionId, TreeStatus, type TreeItem, type DatabaseItem } from '../../src/types'
 import { normalizeKey, generateUniqueDocumentFsPath, generateUniqueMediaFsPath } from '../utils'
 import { fsPathToId } from '../mocks/host'
 import { createMockFile, createMockMedia, setupMediaMocks } from '../mocks/media'
@@ -693,6 +693,200 @@ describe('Document - Action Chains Integration Tests', () => {
     const after = context.activeTree.value.draft.list.value[0]
     expect(after.status).toEqual(DraftStatus.Updated)
     expect(after.formattingApplied).toBe(true)
+  })
+
+  it('Move starts on an item and runs once the destination is submitted', async () => {
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    const moveAction = context.itemActions.value.find(action => action.id === StudioItemActionId.MoveItem)!
+    const treeItem = findItemFromFsPath(context.activeTree.value.root.value, documentFsPath)!
+
+    /* STEP 1: START MOVE */
+    await moveAction.handler!(treeItem)
+
+    expect(context.actionInProgress.value).toEqual({ id: StudioItemActionId.MoveItem, item: treeItem })
+    expect(context.activeTree.value.draft.list.value).toHaveLength(0)
+
+    /* STEP 2: SUBMIT DESTINATION */
+    const newFsPath = generateUniqueDocumentFsPath('document', 'folder')
+    await moveAction.handler!({ item: treeItem, newFsPath })
+
+    expect(context.actionInProgress.value).toBeNull()
+    expect(context.activeTree.value.draft.list.value.map(draft => draft.fsPath)).toEqual([documentFsPath, newFsPath])
+  })
+
+  it('Select > Move', async () => {
+    const consoleInfoSpy = vi.spyOn(console, 'info')
+
+    // Create document in db and load tree
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    /* STEP 1: SELECT */
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    /* STEP 2: MOVE */
+    const newFsPath = generateUniqueDocumentFsPath('document', 'folder')
+    await context.itemActionHandler[StudioItemActionId.MoveItem]({
+      item: context.activeTree.value.currentItem.value,
+      newFsPath,
+    })
+
+    // Memory: the original is deleted and the moved file is created with the original as reference
+    const list = context.activeTree.value.draft.list.value
+    expect(list).toHaveLength(2)
+    expect(list[0]).toHaveProperty('status', DraftStatus.Deleted)
+    expect(list[0]).toHaveProperty('fsPath', documentFsPath)
+    expect(list[1]).toHaveProperty('status', DraftStatus.Created)
+    expect(list[1]).toHaveProperty('fsPath', newFsPath)
+    expect(list[1].original).toHaveProperty('id', documentId)
+    expect(list[1].modified).toHaveProperty('id', fsPathToId(newFsPath, 'document'))
+
+    // Tree: the file is shown as renamed in its new folder
+    const folderItem = findItemFromFsPath(context.activeTree.value.root.value, 'folder')!
+    expect(folderItem.children).toHaveLength(1)
+    expect(folderItem.children![0]).toHaveProperty('fsPath', newFsPath)
+    expect(folderItem.children![0]).toHaveProperty('status', TreeStatus.Renamed)
+
+    // The moved file stays opened
+    expect(context.activeTree.value.currentItem.value).toHaveProperty('fsPath', newFsPath)
+    expect(context.activeTree.value.draft.current.value).toHaveProperty('fsPath', newFsPath)
+
+    // Hooks
+    expect(consoleInfoSpy).toHaveBeenCalledWith('studio:draft:document:updated have been called by', 'useDraftDocuments.rename')
+  })
+
+  it('Select > Move > Move back', async () => {
+    // Create document in db and load tree
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    /* STEP 1: SELECT */
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    /* STEP 2: MOVE */
+    const newFsPath = generateUniqueDocumentFsPath('document', 'folder')
+    await context.itemActionHandler[StudioItemActionId.MoveItem]({
+      item: context.activeTree.value.currentItem.value,
+      newFsPath,
+    })
+
+    /* STEP 3: MOVE BACK */
+    await context.itemActionHandler[StudioItemActionId.MoveItem]({
+      item: context.activeTree.value.currentItem.value,
+      newFsPath: documentFsPath,
+    })
+
+    // Storage: the deleted draft is replaced by the original file
+    expect(mockStorageDraft.size).toEqual(1)
+    const storedDraft = JSON.parse(mockStorageDraft.get(normalizeKey(documentFsPath))!)
+    expect(storedDraft).toHaveProperty('status', DraftStatus.Pristine)
+    expect(storedDraft.original).toHaveProperty('id', documentId)
+
+    // Memory: nothing left to publish
+    const list = context.activeTree.value.draft.list.value
+    expect(list).toHaveLength(1)
+    expect(list[0]).toHaveProperty('fsPath', documentFsPath)
+    expect(list[0]).toHaveProperty('status', DraftStatus.Pristine)
+    expect(list[0].original).toHaveProperty('id', documentId)
+    expect(list[0].modified).toHaveProperty('id', documentId)
+
+    // Tree
+    expect(context.activeTree.value.root.value).toHaveLength(1)
+    expect(context.activeTree.value.root.value[0]).toHaveProperty('fsPath', documentFsPath)
+    expect(context.activeTree.value.currentItem.value).toHaveProperty('fsPath', documentFsPath)
+  })
+
+  it('Select > Move > Move back in development mode', async () => {
+    const { useStudioState } = await import('../../src/composables/useStudioState')
+    useStudioState().enableDevMode()
+
+    // Create document in db and load tree
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    /* STEP 1: SELECT */
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    /* STEP 2: MOVE */
+    const newFsPath = generateUniqueDocumentFsPath('document', 'folder')
+    await context.itemActionHandler[StudioItemActionId.MoveItem]({
+      item: context.activeTree.value.currentItem.value,
+      newFsPath,
+    })
+
+    // Memory: the file left its old path, there is no deleted draft to publish
+    expect(context.activeTree.value.draft.list.value.map(draft => draft.fsPath)).toEqual([newFsPath])
+
+    /* STEP 3: MOVE BACK */
+    await context.itemActionHandler[StudioItemActionId.MoveItem]({
+      item: findItemFromFsPath(context.activeTree.value.root.value, newFsPath)!,
+      newFsPath: documentFsPath,
+    })
+
+    // Memory
+    const list = context.activeTree.value.draft.list.value
+    expect(list).toHaveLength(1)
+    expect(list[0]).toHaveProperty('fsPath', documentFsPath)
+    expect(list[0]).toHaveProperty('status', DraftStatus.Pristine)
+  })
+
+  it('Delete > Move folder leaves the deleted file in place', async () => {
+    const keptFsPath = generateUniqueDocumentFsPath('kept', 'folder')
+    const deletedFsPath = generateUniqueDocumentFsPath('deleted', 'folder')
+    await mockHost.document.db.create(keptFsPath, 'Kept content')
+    await mockHost.document.db.create(deletedFsPath, 'Deleted content')
+    await context.activeTree.value.draft.load()
+
+    /* STEP 1: DELETE */
+    await context.itemActionHandler[StudioItemActionId.DeleteItem](findItemFromFsPath(context.activeTree.value.root.value, deletedFsPath)!)
+
+    /* STEP 2: MOVE FOLDER */
+    await context.itemActionHandler[StudioItemActionId.MoveItem]({
+      item: findItemFromFsPath(context.activeTree.value.root.value, 'folder')!,
+      newFsPath: 'parent/folder',
+    })
+
+    // Memory: only the kept file is moved, the deleted one stays deleted where it was
+    expect(context.activeTree.value.draft.list.value.map(draft => [draft.fsPath, draft.status])).toEqual([
+      [deletedFsPath, DraftStatus.Deleted],
+      [keptFsPath, DraftStatus.Deleted],
+      [joinURL('parent', keptFsPath), DraftStatus.Created],
+    ])
+  })
+
+  it('Select > Duplicate into another folder', async () => {
+    // Create document in db and load tree
+    await mockHost.document.db.create(documentFsPath, 'Test content')
+    await context.activeTree.value.draft.load()
+
+    /* STEP 1: SELECT */
+    await context.activeTree.value.selectItemByFsPath(documentFsPath)
+
+    /* STEP 2: DUPLICATE */
+    const newFsPath = generateUniqueDocumentFsPath('document', 'folder')
+    await context.itemActionHandler[StudioItemActionId.DuplicateItem]({
+      item: context.activeTree.value.currentItem.value,
+      newFsPath,
+    })
+
+    // Memory: the original is left untouched and the copy is created
+    const list = context.activeTree.value.draft.list.value
+    expect(list).toHaveLength(2)
+    expect(list[0]).toHaveProperty('status', DraftStatus.Pristine)
+    expect(list[0]).toHaveProperty('fsPath', documentFsPath)
+    expect(list[1]).toHaveProperty('status', DraftStatus.Created)
+    expect(list[1]).toHaveProperty('fsPath', newFsPath)
+    expect(list[1].original).toBeUndefined()
+    expect(JSON.stringify(list[1].modified!.body)).toContain('Test content')
+
+    // Tree
+    expect(findItemFromFsPath(context.activeTree.value.root.value, documentFsPath)).not.toBeNull()
+    expect(findItemFromFsPath(context.activeTree.value.root.value, newFsPath)).toHaveProperty('status', TreeStatus.Created)
+
+    // The copy is opened
+    expect(context.activeTree.value.currentItem.value).toHaveProperty('fsPath', newFsPath)
   })
 })
 

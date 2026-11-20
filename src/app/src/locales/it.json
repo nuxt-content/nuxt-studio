@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nuova cartella",
         "createMediaFolder": "Nuova cartella media",
         "renameItem": "Rinomina",
+        "moveItem": "Sposta in…",
         "deleteItem": "Elimina",
         "uploadMedia": "Carica media",
         "duplicateItem": "Duplica",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Crea una nuova cartella",
         "createMediaFolder": "Crea una nuova cartella",
         "renameItem": "Rinomina file",
+        "moveItem": "Sposta in un'altra cartella",
         "deleteItem": "Elimina file",
         "uploadMedia": "Carica media",
         "duplicateItem": "Duplica file",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# File {title}"
+    },
+    "destination": {
+      "name": "Nome",
+      "folder": "Cartella",
+      "currentFolder": "Attuale",
+      "move": {
+        "title": "Sposta «{name}»",
+        "description": "Scegli la cartella di destinazione.",
+        "submit": "Sposta qui",
+        "sameFolder": "Già in questa cartella"
+      },
+      "duplicate": {
+        "title": "Duplica «{name}»",
+        "description": "Dai un nome alla copia e scegli dove crearla.",
+        "submit": "Duplica"
+      },
+      "errors": {
+        "fileExists": "Esiste già un file con questo nome in {folder}.",
+        "folderExists": "Esiste già una cartella con questo nome in {folder}.",
+        "notAllowed": "Questo contenuto non può essere salvato in {folder}."
+      }
     }
   }
 }

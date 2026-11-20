@@ -137,6 +137,7 @@
         "createDocumentFolder": "新增資料夾",
         "createMediaFolder": "新增媒體資料夾",
         "renameItem": "重新命名",
+        "moveItem": "移動到…",
         "deleteItem": "刪除",
         "uploadMedia": "上傳媒體",
         "duplicateItem": "複製",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "建立新資料夾",
         "createMediaFolder": "建立新資料夾",
         "renameItem": "重新命名檔案",
+        "moveItem": "移動到其他資料夾",
         "deleteItem": "刪除檔案",
         "uploadMedia": "上傳媒體",
         "duplicateItem": "複製檔案",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} 檔案"
+    },
+    "destination": {
+      "name": "名稱",
+      "folder": "資料夾",
+      "currentFolder": "目前",
+      "move": {
+        "title": "移動「{name}」",
+        "description": "選擇要移動到的資料夾。",
+        "submit": "移動到此處",
+        "sameFolder": "已在此資料夾中"
+      },
+      "duplicate": {
+        "title": "複製「{name}」",
+        "description": "為副本命名並選擇建立位置。",
+        "submit": "複製"
+      },
+      "errors": {
+        "fileExists": "{folder} 中已存在同名檔案。",
+        "folderExists": "{folder} 中已存在同名資料夾。",
+        "notAllowed": "此內容無法儲存到 {folder}。"
+      }
     }
   }
 }

@@ -346,11 +346,12 @@ function calculateDirectoryStatuses(items: TreeItem[], isDev = false) {
 
 /**
  * Returns a copy of the item with children filtered to directories only (recursive).
+ * Directories rejected by `isIncluded` are left out along with their subtree.
  */
-export function filterDirectories(item: TreeItem): TreeItem {
+export function filterDirectories(item: TreeItem, isIncluded: (directory: TreeItem) => boolean = () => true): TreeItem {
   const dirChildren = (item.children || [])
-    .filter(c => c.type === 'directory')
-    .map(filterDirectories)
+    .filter(c => c.type === 'directory' && isIncluded(c))
+    .map(c => filterDirectories(c, isIncluded))
   return { ...item, children: dirChildren }
 }
 

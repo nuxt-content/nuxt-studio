@@ -138,6 +138,7 @@
         "createDocumentFolder": "New folder",
         "createMediaFolder": "New media folder",
         "renameItem": "Rename",
+        "moveItem": "Move to…",
         "deleteItem": "Delete",
         "uploadMedia": "Upload media",
         "duplicateItem": "Duplicate",
@@ -152,6 +153,7 @@
         "createDocumentFolder": "Create a new folder",
         "createMediaFolder": "Create a new folder",
         "renameItem": "Rename file",
+        "moveItem": "Move to another folder",
         "deleteItem": "Delete file",
         "uploadMedia": "Upload media",
         "duplicateItem": "Duplicate file",
@@ -431,6 +433,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} file"
+    },
+    "destination": {
+      "name": "Name",
+      "folder": "Folder",
+      "currentFolder": "Current",
+      "move": {
+        "title": "Move “{name}”",
+        "description": "Choose the folder to move it to.",
+        "submit": "Move here",
+        "sameFolder": "Already in this folder"
+      },
+      "duplicate": {
+        "title": "Duplicate “{name}”",
+        "description": "Name the copy and choose where to create it.",
+        "submit": "Duplicate"
+      },
+      "errors": {
+        "fileExists": "A file with this name already exists in {folder}.",
+        "folderExists": "A folder with this name already exists in {folder}.",
+        "notAllowed": "This content can't be stored in {folder}."
+      }
     }
   }
 }

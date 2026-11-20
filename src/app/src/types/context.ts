@@ -13,6 +13,7 @@ export enum StudioItemActionId {
   UploadMedia = 'upload-media',
   RevertItem = 'revert-item',
   RenameItem = 'rename-item',
+  MoveItem = 'move-item',
   DeleteItem = 'delete-item',
   DuplicateItem = 'duplicate-item',
   RevertAllItems = 'revert-all-items',
@@ -49,6 +50,11 @@ export interface RenameFileParams {
   newFsPath: string
 }
 
+export interface DuplicateFileParams {
+  item: TreeItem
+  newFsPath: string
+}
+
 export interface UploadMediaParams {
   parentFsPath: string
   files: File[]
@@ -66,8 +72,9 @@ export type ActionHandlerParams = {
   [StudioItemActionId.UploadMedia]: UploadMediaParams
   [StudioItemActionId.RevertItem]: TreeItem
   [StudioItemActionId.RenameItem]: TreeItem | RenameFileParams
+  [StudioItemActionId.MoveItem]: TreeItem | RenameFileParams
   [StudioItemActionId.DeleteItem]: TreeItem
-  [StudioItemActionId.DuplicateItem]: TreeItem
+  [StudioItemActionId.DuplicateItem]: TreeItem | DuplicateFileParams
   [StudioItemActionId.RevertAllItems]: never
 
   // Branches

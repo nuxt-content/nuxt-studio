@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nova pasta",
         "createMediaFolder": "Nova pasta de mídia",
         "renameItem": "Renomear",
+        "moveItem": "Mover para…",
         "deleteItem": "Excluir",
         "uploadMedia": "Enviar mídia",
         "duplicateItem": "Duplicar",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Criar uma nova pasta",
         "createMediaFolder": "Criar uma nova pasta de mídia",
         "renameItem": "Renomear arquivo",
+        "moveItem": "Mover para outra pasta",
         "deleteItem": "Excluir arquivo",
         "uploadMedia": "Enviar mídia",
         "duplicateItem": "Duplicar arquivo",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Arquivo {title}"
+    },
+    "destination": {
+      "name": "Nome",
+      "folder": "Pasta",
+      "currentFolder": "Atual",
+      "move": {
+        "title": "Mover “{name}”",
+        "description": "Escolha a pasta de destino.",
+        "submit": "Mover para cá",
+        "sameFolder": "Já está nesta pasta"
+      },
+      "duplicate": {
+        "title": "Duplicar “{name}”",
+        "description": "Dê um nome à cópia e escolha onde criá-la.",
+        "submit": "Duplicar"
+      },
+      "errors": {
+        "fileExists": "Já existe um arquivo com este nome em {folder}.",
+        "folderExists": "Já existe uma pasta com este nome em {folder}.",
+        "notAllowed": "Este conteúdo não pode ser salvo em {folder}."
+      }
     }
   }
 }

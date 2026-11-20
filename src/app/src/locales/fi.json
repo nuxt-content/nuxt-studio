@@ -137,6 +137,7 @@
         "createDocumentFolder": "Uusi kansio",
         "createMediaFolder": "Uusi mediakansio",
         "renameItem": "Nimeä uudelleen",
+        "moveItem": "Siirrä kohteeseen…",
         "deleteItem": "Poista",
         "uploadMedia": "Lataa mediaa",
         "duplicateItem": "Monista",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Luo uusi kansio",
         "createMediaFolder": "Luo uusi mediakansio",
         "renameItem": "Nimeä uudelleen",
+        "moveItem": "Siirrä toiseen kansioon",
         "deleteItem": "Poista",
         "uploadMedia": "Lataa mediaa",
         "duplicateItem": "Monista",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} tiedosto"
+    },
+    "destination": {
+      "name": "Nimi",
+      "folder": "Kansio",
+      "currentFolder": "Nykyinen",
+      "move": {
+        "title": "Siirrä ”{name}”",
+        "description": "Valitse kohdekansio.",
+        "submit": "Siirrä tähän",
+        "sameFolder": "On jo tässä kansiossa"
+      },
+      "duplicate": {
+        "title": "Monista ”{name}”",
+        "description": "Nimeä kopio ja valitse, minne se luodaan.",
+        "submit": "Monista"
+      },
+      "errors": {
+        "fileExists": "Samanniminen tiedosto on jo kansiossa {folder}.",
+        "folderExists": "Samanniminen kansio on jo kansiossa {folder}.",
+        "notAllowed": "Tätä sisältöä ei voi tallentaa kansioon {folder}."
+      }
     }
   }
 }

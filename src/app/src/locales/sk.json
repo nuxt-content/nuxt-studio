@@ -137,6 +137,7 @@
         "createDocumentFolder": "Nový priečinok",
         "createMediaFolder": "Nový mediálny priečinok",
         "renameItem": "Premenovať",
+        "moveItem": "Presunúť do…",
         "deleteItem": "Odstrániť",
         "uploadMedia": "Nahrať médiá",
         "duplicateItem": "Duplikovať",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Vytvoriť nový priečinok",
         "createMediaFolder": "Vytvoriť nový mediálny priečinok",
         "renameItem": "Premenovať súbor",
+        "moveItem": "Presunúť do iného priečinka",
         "deleteItem": "Odstrániť súbor",
         "uploadMedia": "Nahrať médiá",
         "duplicateItem": "Duplikovať súbor",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# Súbor {title}"
+    },
+    "destination": {
+      "name": "Názov",
+      "folder": "Priečinok",
+      "currentFolder": "Aktuálny",
+      "move": {
+        "title": "Presunúť „{name}“",
+        "description": "Vyberte cieľový priečinok.",
+        "submit": "Presunúť sem",
+        "sameFolder": "Už je v tomto priečinku"
+      },
+      "duplicate": {
+        "title": "Duplikovať „{name}“",
+        "description": "Pomenujte kópiu a vyberte, kde ju vytvoriť.",
+        "submit": "Duplikovať"
+      },
+      "errors": {
+        "fileExists": "Súbor s týmto názvom už v priečinku {folder} existuje.",
+        "folderExists": "Priečinok s týmto názvom už v priečinku {folder} existuje.",
+        "notAllowed": "Tento obsah nie je možné uložiť do priečinka {folder}."
+      }
     }
   }
 }

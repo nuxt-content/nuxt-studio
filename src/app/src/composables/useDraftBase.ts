@@ -57,8 +57,14 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
 
   async function create(fsPath: string, item: T, original?: T, { rerender = true }: { rerender?: boolean } = {}): Promise<DraftItem<T>> {
     const existingItem = list.value?.find(draft => draft.fsPath === fsPath)
-    if (existingItem) {
+    if (existingItem && existingItem.status !== DraftStatus.Deleted) {
       throw new Error(`Draft file already exists for document at ${fsPath}`)
+    }
+
+    // A file deleted in this session is created again (e.g. moved back to its folder): compare it to the deleted file
+    if (existingItem) {
+      original = existingItem.original as T
+      list.value = list.value.filter(draft => draft.fsPath !== fsPath)
     }
 
     const remoteFile = await gitProvider.api.fetchFile(joinURL(remotePathPrefix, fsPath), { cached: true }) as GitFile
@@ -138,6 +144,10 @@ export function useDraftBase<T extends DatabaseItem | MediaItem>(
         if (deleteDraftItem) {
           await storage.setItem(fsPath, deleteDraftItem)
         }
+      }
+      else {
+        // Without drafts there is nothing to publish: forget the file so another one can take its path (e.g. moved back)
+        list.value = list.value.filter(item => item.fsPath !== fsPath)
       }
 
       if (rerender) {

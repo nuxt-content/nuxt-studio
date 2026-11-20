@@ -137,6 +137,7 @@
         "createDocumentFolder": "Нова папка",
         "createMediaFolder": "Нова медийна папка",
         "renameItem": "Преименуване",
+        "moveItem": "Преместване в…",
         "deleteItem": "Изтриване",
         "uploadMedia": "Качване на медия",
         "duplicateItem": "Дублиране",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "Създаване на нова папка",
         "createMediaFolder": "Създаване на нова медийна папка",
         "renameItem": "Преименуване на файл",
+        "moveItem": "Преместване в друга папка",
         "deleteItem": "Изтриване на файл",
         "uploadMedia": "Качване на медия",
         "duplicateItem": "Дублиране на файл",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# {title} файл"
+    },
+    "destination": {
+      "name": "Име",
+      "folder": "Папка",
+      "currentFolder": "Текуща",
+      "move": {
+        "title": "Преместване на „{name}“",
+        "description": "Изберете папката, в която да бъде преместено.",
+        "submit": "Премести тук",
+        "sameFolder": "Вече е в тази папка"
+      },
+      "duplicate": {
+        "title": "Дублиране на „{name}“",
+        "description": "Дайте име на копието и изберете къде да бъде създадено.",
+        "submit": "Дублиране"
+      },
+      "errors": {
+        "fileExists": "Вече съществува файл с това име в {folder}.",
+        "folderExists": "Вече съществува папка с това име в {folder}.",
+        "notAllowed": "Това съдържание не може да бъде съхранено в {folder}."
+      }
     }
   }
 }

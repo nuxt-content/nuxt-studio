@@ -137,6 +137,7 @@
         "createDocumentFolder": "新建文件夹",
         "createMediaFolder": "新建媒体文件夹",
         "renameItem": "重命名",
+        "moveItem": "移动到…",
         "deleteItem": "删除",
         "uploadMedia": "上传媒体",
         "duplicateItem": "复制",
@@ -151,6 +152,7 @@
         "createDocumentFolder": "创建新文件夹",
         "createMediaFolder": "创建新媒体文件夹",
         "renameItem": "重命名文件",
+        "moveItem": "移动到其他文件夹",
         "deleteItem": "删除文件",
         "uploadMedia": "上传媒体",
         "duplicateItem": "复制文件",
@@ -428,6 +430,27 @@
     },
     "content": {
       "initialMarkdownContent": "# 文件 {title}"
+    },
+    "destination": {
+      "name": "名称",
+      "folder": "文件夹",
+      "currentFolder": "当前",
+      "move": {
+        "title": "移动“{name}”",
+        "description": "选择要移动到的文件夹。",
+        "submit": "移动到此处",
+        "sameFolder": "已在此文件夹中"
+      },
+      "duplicate": {
+        "title": "复制“{name}”",
+        "description": "为副本命名并选择创建位置。",
+        "submit": "复制"
+      },
+      "errors": {
+        "fileExists": "{folder} 中已存在同名文件。",
+        "folderExists": "{folder} 中已存在同名文件夹。",
+        "notAllowed": "此内容无法保存到 {folder}。"
+      }
     }
   }
 }

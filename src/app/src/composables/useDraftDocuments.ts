@@ -5,7 +5,6 @@ import { createSharedComposable } from './createSharedComposable'
 import { useHooks } from './useHooks'
 import { joinURL } from 'ufo'
 import { documentStorage as storage } from '../utils/storage'
-import { getFileExtension } from '../utils/file'
 import { useDraftBase } from './useDraftBase'
 import { useAI } from './useAI'
 
@@ -90,7 +89,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
     await hooks.callHook('studio:draft:document:updated', { caller: 'useDraftDocuments.rename' })
   }
 
-  async function duplicate(fsPath: string): Promise<DraftItem<DatabaseItem>> {
+  async function duplicate(fsPath: string, newFsPath: string): Promise<DraftItem<DatabaseItem>> {
     let currentDbItem = await hostDb.get(fsPath)
     if (!currentDbItem) {
       throw new Error(`Database item not found for document fsPath: ${fsPath}`)
@@ -101,13 +100,7 @@ export const useDraftDocuments = createSharedComposable((host: StudioHost, gitPr
       currentDbItem = currentDraftItem.modified as DatabaseItem
     }
 
-    const currentFsPath = currentDraftItem?.fsPath || fsPath
     const currentContent = await generateContentFromDocument(currentDbItem) || ''
-    const currentName = currentFsPath.split('/').pop()!
-    const currentExtension = getFileExtension(currentName)
-    const currentNameWithoutExtension = currentName.split('.').slice(0, -1).join('.')
-
-    const newFsPath = `${currentFsPath.split('/').slice(0, -1).join('/')}/${currentNameWithoutExtension}-copy.${currentExtension}`
 
     const newDbItem = await hostDb.create(newFsPath, currentContent)
 
