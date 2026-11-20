@@ -2,6 +2,7 @@
 import type { FormItem, TreeItem } from '../../../types'
 import type { PropType } from 'vue'
 import { computed, ref } from 'vue'
+import { restoreSelectFocus } from '../../../utils/select'
 
 const props = defineProps({
   formItem: {
@@ -13,6 +14,7 @@ const props = defineProps({
 const model = defineModel<string | number>({ default: '' })
 
 const isMediaPickerOpen = ref(false)
+const select = ref()
 
 const hasOptions = computed(() => props.formItem?.options && props.formItem.options.length > 0)
 
@@ -83,8 +85,10 @@ function handleMediaCancel() {
   <!-- Select for options -->
   <USelect
     v-if="hasOptions"
+    ref="select"
     v-model="(model as string)"
     :items="selectItems"
+    :content="{ onCloseAutoFocus: event => restoreSelectFocus(event, select?.triggerRef) }"
     :placeholder="$t('studio.form.text.selectPlaceholder')"
     size="xs"
     class="w-full"
