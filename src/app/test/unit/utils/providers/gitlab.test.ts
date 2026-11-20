@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DraftStatus } from '../../../../src/types/draft'
 import { createGitLabProvider } from '../../../../src/utils/providers/gitlab'
+import { GitLabTokenExpiredError } from '../../../../src/utils/providers/gitlab-errors'
 
 function createCommitsApiHandler() {
   return (
@@ -16,11 +17,16 @@ function createCommitsApiHandler() {
 
 const mock$api = vi.fn(createCommitsApiHandler())
 
-vi.mock('ofetch', () => ({
-  ofetch: {
-    create: vi.fn(() => mock$api),
-  },
-}))
+vi.mock('ofetch', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('ofetch')>()
+
+  return {
+    ...actual,
+    ofetch: {
+      create: vi.fn(() => mock$api),
+    },
+  }
+})
 
 const baseGitOptions = {
   provider: 'gitlab' as const,
@@ -170,6 +176,23 @@ describe('createGitLabProvider / commitFiles', () => {
         encoding: 'base64',
       },
     ])
+  })
+
+  it('throws GitLabTokenExpiredError when GitLab returns invalid_token', async () => {
+    mock$api.mockRejectedValueOnce({
+      status: 401,
+      data: {
+        error: 'invalid_token',
+        error_description: 'Token is expired. You can either do re-authorization or token refresh.',
+      },
+    })
+
+    const provider = createGitLabProvider({ ...baseGitOptions })
+
+    await expect(provider.commitFiles(
+      [{ path: 'content/index.md', status: DraftStatus.Created, content: '# Hello', encoding: 'utf-8' }],
+      'docs: welcome',
+    )).rejects.toBeInstanceOf(GitLabTokenExpiredError)
   })
 
   it('does not call the API when token is missing', async () => {

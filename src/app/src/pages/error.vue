@@ -3,20 +3,42 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStudio } from '../composables/useStudio'
 import { useI18n } from 'vue-i18n'
+import { GITLAB_TOKEN_EXPIRED_ERROR_CODE } from '../utils/providers/gitlab-errors'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { gitProvider } = useStudio()
+const { gitProvider, host } = useStudio()
+
+const isGitLabTokenExpired = computed(() => route.query.code === GITLAB_TOKEN_EXPIRED_ERROR_CODE)
 
 const errorMessage = computed(() => {
+  if (isGitLabTokenExpired.value) {
+    return t('studio.publish.gitlabTokenExpiredDescription')
+  }
+
   return (route.query.error as string) || t('studio.notifications.error.unknown')
+})
+
+const alertTitle = computed(() => {
+  if (isGitLabTokenExpired.value) {
+    return t('studio.publish.gitlabTokenExpiredTitle')
+  }
+
+  return t('studio.publish.errorTitle', { providerName: gitProvider.name })
 })
 
 const repositoryInfo = computed(() => gitProvider.api.getRepositoryInfo())
 
 async function retry() {
   await router.push('/review')
+}
+
+function signOut() {
+  fetch('/__nuxt_studio/auth/session', { method: 'delete' }).then(() => {
+    host.app.unregisterServiceWorker()
+    window.location.reload()
+  })
 }
 </script>
 
@@ -66,14 +88,23 @@ async function retry() {
 
       <UAlert
         icon="i-lucide-alert-triangle"
-        :title="$t('studio.publish.errorTitle', { providerName: gitProvider.name })"
+        :title="alertTitle"
         :description="errorMessage"
         color="error"
         variant="soft"
       />
 
-      <div class="flex justify-center h-7">
+      <div class="flex justify-center gap-2 h-7">
         <UButton
+          v-if="isGitLabTokenExpired"
+          icon="i-lucide-log-out"
+          color="primary"
+          @click="signOut"
+        >
+          {{ $t('studio.buttons.signOut') }}
+        </UButton>
+        <UButton
+          v-else
           icon="i-lucide-rotate-ccw"
           @click="retry"
         >

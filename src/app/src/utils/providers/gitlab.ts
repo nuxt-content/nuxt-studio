@@ -4,6 +4,7 @@ import { consola } from 'consola'
 import type { GitOptions, GitProviderAPI, GitFile, RawFile, CommitResult, CommitFilesOptions } from '../../types'
 import { DraftStatus } from '../../types/draft'
 import { StudioFeature } from '../../types'
+import { GitLabTokenExpiredError, isGitLabTokenExpiredFetchError } from './gitlab-errors'
 
 const logger = consola.withTag('Nuxt Studio')
 
@@ -153,21 +154,30 @@ export function createGitLabProvider(options: GitOptions): GitProviderAPI {
       }
     })
 
-    const commitData = await $api(`/repository/commits`, {
-      method: 'POST',
-      body: {
-        branch,
-        commit_message: message,
-        actions,
-        author_name: authorName,
-        author_email: authorEmail,
-      },
-    })
+    try {
+      const commitData = await $api(`/repository/commits`, {
+        method: 'POST',
+        body: {
+          branch,
+          commit_message: message,
+          actions,
+          author_name: authorName,
+          author_email: authorEmail,
+        },
+      })
 
-    return {
-      success: true,
-      commitSha: commitData.id,
-      url: `${normalizedInstanceUrl}/${owner}/${repo}/-/commit/${commitData.id}`,
+      return {
+        success: true,
+        commitSha: commitData.id,
+        url: `${normalizedInstanceUrl}/${owner}/${repo}/-/commit/${commitData.id}`,
+      }
+    }
+    catch (error) {
+      if (isGitLabTokenExpiredFetchError(error)) {
+        throw new GitLabTokenExpiredError()
+      }
+
+      throw error
     }
   }
 
