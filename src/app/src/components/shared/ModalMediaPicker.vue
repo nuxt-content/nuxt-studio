@@ -275,7 +275,7 @@ function isValidFileType(item: TreeItem) {
               v-else
               class="flex min-h-0 flex-1 flex-col gap-6"
             >
-              <div class="grid flex-1 content-start grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-5">
+              <div class="-m-1 grid flex-1 content-start grid-cols-3 gap-3 overflow-y-auto p-1 sm:grid-cols-4 xl:grid-cols-5">
                 <UTooltip
                   v-for="media in paginatedMediaFiles"
                   :key="media.fsPath"
