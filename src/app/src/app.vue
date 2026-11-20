@@ -16,13 +16,15 @@ const uiLocale = computed(() => {
   return locales.en
 })
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore defineShortcuts is auto-imported
-defineShortcuts({
-  'meta_.': () => {
-    ui.toggle()
-  },
-})
+if (host.meta.shortcut) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore defineShortcuts is auto-imported
+  defineShortcuts({
+    [host.meta.shortcut]: () => {
+      ui.toggle()
+    },
+  })
+}
 
 watch(ui.sidebar.sidebarWidth, () => {
   if (ui.isOpen.value) {
