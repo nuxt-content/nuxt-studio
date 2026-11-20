@@ -1,3 +1,4 @@
+import type {} from 'nuxt/app'
 import { defineNuxtPlugin, useRuntimeConfig } from '#imports'
 import { consola } from 'consola'
 import { defineStudioActivationPlugin } from '../utils/activation'

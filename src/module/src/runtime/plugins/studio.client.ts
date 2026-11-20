@@ -1,3 +1,4 @@
+import type {} from 'nuxt/app'
 import { defineNuxtPlugin, useRuntimeConfig } from '#imports'
 import type { Repository, UseStudioHost } from 'nuxt-studio/app'
 import { defineStudioActivationPlugin } from '../utils/activation'

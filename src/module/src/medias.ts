@@ -20,7 +20,7 @@ export async function setExternalMediaStorage(nuxt: Nuxt, runtime: (...args: str
   })
 }
 
-export function setDefaultMediaStorage(nuxt: Nuxt, options: ModuleOptions): Storage {
+export function setDefaultMediaStorage(nuxt: Nuxt, options: ModuleOptions, runtime: (...args: string[]) => string): Storage {
   const publicAssetsStorage = createStorage({
     driver: fsDriver({
       base: resolve(nuxt.options.rootDir, 'public'),
@@ -31,7 +31,7 @@ export function setDefaultMediaStorage(nuxt: Nuxt, options: ModuleOptions): Stor
     filename: ASSETS_TEMPLATE,
     getContents: () => options.dev
       ? getAssetsDefaultStorageDevTemplate()
-      : getAssetsDefaultStorageTemplate(publicAssetsStorage),
+      : getAssetsDefaultStorageTemplate(publicAssetsStorage, runtime('./utils/media')),
   })
 
   return publicAssetsStorage

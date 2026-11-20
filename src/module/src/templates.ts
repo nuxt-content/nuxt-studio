@@ -1,5 +1,4 @@
 import type { Storage } from 'unstorage'
-import { mediaItemFieldsFromKey } from './runtime/utils/media'
 
 export async function getAssetsDefaultStorageDevTemplate() {
   return [
@@ -11,17 +10,18 @@ export async function getAssetsDefaultStorageDevTemplate() {
   ].join('\n')
 }
 
-export async function getAssetsDefaultStorageTemplate(assetsStorage: Storage) {
+export async function getAssetsDefaultStorageTemplate(assetsStorage: Storage, mediaUtilsPath: string) {
   const keys = await assetsStorage.getKeys()
 
   return [
     'import { createStorage } from \'unstorage\'',
+    `import { mediaItemFieldsFromKey } from ${JSON.stringify(mediaUtilsPath)}`,
     'const storage = createStorage({})',
     '',
-    ...keys.map((key) => {
-      const value = mediaItemFieldsFromKey(key)
-      return `storage.setItem('${value.id}', ${JSON.stringify(value)})`
-    }),
+    `for (const key of ${JSON.stringify(keys)}) {`,
+    '  const value = mediaItemFieldsFromKey(key)',
+    '  storage.setItem(value.id, value)',
+    '}',
     '',
     'export const publicAssetsStorage = storage',
     'export const externalAssetsStorage = null',
