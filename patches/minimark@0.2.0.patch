@@ -1,0 +1,18 @@
+diff --git a/dist/index.d.mts b/dist/index.d.mts
+index bbdda3dd8677b6a2ab29251f466647bae246db55..f8f3d17bdd8a15ab15d0f5b9f02d94373260b79e 100644
+--- a/dist/index.d.mts
++++ b/dist/index.d.mts
+@@ -1,5 +1,3 @@
+-import { MinimarkNode as MinimarkNode$1, MinimarkTree as MinimarkTree$1 } from "./types";
+-
+ //#region src/types/tree.d.ts
+ type MinimarkText = string;
+ type MinimarkElement = [string, Record<string, unknown>, ...MinimarkNode[]];
+@@ -60,6 +58,6 @@ type State = {
+ declare function textContent(node: MinimarkNode): string;
+ //#endregion
+ //#region src/utils/visit.d.ts
+-declare function visit(tree: MinimarkTree$1, checker: (node: MinimarkNode$1) => boolean, visitor: (node: MinimarkNode$1) => MinimarkNode$1 | undefined): void;
++declare function visit(tree: MinimarkTree, checker: (node: MinimarkNode) => boolean, visitor: (node: MinimarkNode) => MinimarkNode | undefined): void;
+ //#endregion
+ export { Context, MinimalTree, MinimarkElement, MinimarkNode, MinimarkText, MinimarkTree, NodeHandler, State, StringifyOptions, textContent, visit };
