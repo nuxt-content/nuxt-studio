@@ -1,8 +1,28 @@
+import type { JSONContent } from '@tiptap/core'
 import { describe, expect, it } from 'vitest'
 
-import { getStandardSuggestionItems } from '../../../../src/utils/tiptap/editor'
+import { addLastEmptyParagraph, getStandardSuggestionItems, removeLastEmptyParagraph } from '../../../../src/utils/tiptap/editor'
+import { createEditor } from '../../../utils/editor'
 
 const t = (key: string) => key
+
+const paragraph: JSONContent = { type: 'paragraph', content: [{ type: 'text', text: 'Hello' }] }
+const component: JSONContent = {
+  type: 'element',
+  attrs: { tag: 'card', props: {} },
+  content: [{ type: 'slot', attrs: { name: 'default', props: {} }, content: [paragraph] }],
+}
+
+function documentChangesOnFirstTransaction(json: JSONContent) {
+  const editor = createEditor(json)
+  // TipTap only registers its plugins when the editor is mounted, there is no DOM here so do it by hand.
+  const mounted = editor.state.reconfigure({ plugins: editor.extensionManager.plugins })
+  // The same kind of transaction a click on the drag handle dispatches, it changes nothing by itself.
+  const { state } = mounted.applyTransaction(mounted.tr.setMeta('lockDragHandle', true))
+  editor.destroy()
+
+  return !state.doc.eq(mounted.doc)
+}
 
 function serializeSuggestionSections(exclude?: Parameters<typeof getStandardSuggestionItems>[1]) {
   return getStandardSuggestionItems(t, exclude).map(section =>
@@ -25,6 +45,42 @@ function serializeSuggestionSections(exclude?: Parameters<typeof getStandardSugg
 }
 
 describe('editor', () => {
+  describe('addLastEmptyParagraph', () => {
+    it('appends an empty paragraph after a last node that is not a paragraph', () => {
+      const json = { type: 'doc', content: [paragraph, component] }
+
+      expect(addLastEmptyParagraph(json)).toEqual({ type: 'doc', content: [paragraph, component, { type: 'paragraph' }] })
+    })
+
+    it('returns the document untouched when it already ends with a paragraph', () => {
+      const json = { type: 'doc', content: [component, paragraph] }
+
+      expect(addLastEmptyParagraph(json)).toBe(json)
+    })
+
+    it('does not mutate the document it is given', () => {
+      const json = { type: 'doc', content: [component] }
+
+      addLastEmptyParagraph(json)
+
+      expect(json.content).toEqual([component])
+    })
+
+    it('is undone by removeLastEmptyParagraph', () => {
+      const json = { type: 'doc', content: [paragraph, component] }
+
+      expect(removeLastEmptyParagraph(addLastEmptyParagraph(json))).toEqual(json)
+    })
+
+    it('keeps the first transaction from changing a document that ends with a component', () => {
+      const json = { type: 'doc', content: [paragraph, component] }
+
+      // Loaded as is, TipTap appends its trailing paragraph on the first transaction.
+      expect(documentChangesOnFirstTransaction(json)).toBe(true)
+      expect(documentChangesOnFirstTransaction(addLastEmptyParagraph(json))).toBe(false)
+    })
+  })
+
   describe('getStandardSuggestionItems', () => {
     it('returns both built-in sections by default', () => {
       expect(serializeSuggestionSections()).toEqual([

@@ -8,7 +8,7 @@ import { useStudio } from '../../../composables/useStudio'
 import { useStudioState } from '../../../composables/useStudioState'
 import { comarkToTiptap } from '../../../utils/tiptap/comarkToTiptap'
 import { tiptapToComark } from '../../../utils/tiptap/tiptapToComark'
-import { removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
+import { addLastEmptyParagraph, removeLastEmptyParagraph } from '../../../utils/tiptap/editor'
 import { pickInitialSlot } from '../../../utils/tiptap/handlers'
 import { studioStarterKitOptions, createStudioExtensions } from '../../../utils/tiptap/studio-extensions'
 import TiptapSpanStylePopover from '../../tiptap/TiptapSpanStylePopover.vue'
@@ -126,13 +126,13 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
   const newTiptapJSON = comarkToTiptap(comarkTree, { hasNuxtUI: hasNuxtUI.value })
 
   if (!tiptapJSON.value || JSON.stringify(newTiptapJSON) !== JSON.stringify(removeLastEmptyParagraph(tiptapJSON.value))) {
-    tiptapJSON.value = newTiptapJSON
+    tiptapJSON.value = addLastEmptyParagraph(newTiptapJSON)
 
     if (debug.value && !currentComark.value) {
       const generatedContent = await host.document.generate.contentFromDocument(document.value!) || ''
       currentComark.value = comarkTree
       currentContent.value = generatedContent
-      currentTiptap.value = JSON.parse(JSON.stringify(tiptapJSON.value))
+      currentTiptap.value = JSON.parse(JSON.stringify(newTiptapJSON))
     }
   }
 }, { immediate: true })
@@ -201,7 +201,6 @@ watch(() => `${document.value?.id}-${props.draftItem.version}-${props.draftItem.
         v-slot="{ ui }"
         :editor="editor"
         :nested="nestedDragHandle"
-        :options="{ strategy: 'fixed' }"
         @node-change="setSelectedNode"
       >
         <UDropdownMenu
