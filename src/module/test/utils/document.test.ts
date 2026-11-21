@@ -298,6 +298,119 @@ describe('areDocumentsEqual', () => {
 
     expect(await areDocumentsEqual(document1, document2)).toBe(true)
   })
+
+  it('should return false if the modified document adds an array field missing from the original', async () => {
+    const document1: DatabaseItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      description: 'A test document',
+      stem: 'index.yml',
+      extension: 'yml',
+      seo: {},
+      body: {
+        type: 'minimark',
+        value: ['Same content'],
+      },
+      meta: {
+        title: 'Test Document',
+      },
+    }
+    const document2: DatabaseItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      description: 'A test document',
+      actas: [{ title: 'Speaker', identifier: 'speaker' }],
+      stem: 'index.yml',
+      extension: 'yml',
+      seo: {},
+      body: {
+        type: 'minimark',
+        value: ['Same content'],
+      },
+      meta: {
+        title: 'Test Document',
+      },
+    }
+
+    expect(await areDocumentsEqual(document1, document2)).toBe(false)
+  })
+
+  it('should return false if the modified document adds a string field that was null in the original', async () => {
+    const document1: DatabaseItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      description: null as never,
+      stem: 'index.yml',
+      extension: 'yml',
+      seo: {},
+      body: {
+        type: 'minimark',
+        value: ['Same content'],
+      },
+      meta: {
+        title: 'Test Document',
+      },
+    }
+    const document2: DatabaseItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      description: 'A new description',
+      stem: 'index.yml',
+      extension: 'yml',
+      seo: {},
+      body: {
+        type: 'minimark',
+        value: ['Same content'],
+      },
+      meta: {
+        title: 'Test Document',
+      },
+    }
+
+    expect(await areDocumentsEqual(document1, document2)).toBe(false)
+  })
+
+  it('should return true if the modified document adds an empty string field', async () => {
+    const document1: DatabaseItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      description: 'A test document',
+      stem: 'index.yml',
+      extension: 'yml',
+      seo: {},
+      body: {
+        type: 'minimark',
+        value: ['Same content'],
+      },
+      meta: {
+        title: 'Test Document',
+      },
+    }
+    const document2: DatabaseItem = {
+      id: 'content:index.yml',
+      path: '/index',
+      title: 'Test Document',
+      description: 'A test document',
+      subtitle: '',
+      stem: 'index.yml',
+      extension: 'yml',
+      seo: {},
+      body: {
+        type: 'minimark',
+        value: ['Same content'],
+      },
+      meta: {
+        title: 'Test Document',
+      },
+    }
+
+    expect(await areDocumentsEqual(document1, document2)).toBe(true)
+  })
 })
 
 describe('isDocumentMatchingContent', () => {
