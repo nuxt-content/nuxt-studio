@@ -346,7 +346,8 @@ export interface ModuleOptions {
   i18n?: {
     /**
      * The default locale to use.
-     * @default 'en'
+     * When unset, Studio follows the host `@nuxtjs/i18n` locale if present, otherwise `en`.
+     * @default undefined
      */
     defaultLocale?: string
   }
@@ -434,7 +435,7 @@ export default defineNuxtModule<ModuleOptions>({
       },
     },
     i18n: {
-      defaultLocale: 'en',
+      defaultLocale: undefined,
     },
     git: {
       commit: {
