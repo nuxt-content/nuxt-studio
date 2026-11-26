@@ -104,7 +104,9 @@ export async function areDocumentsEqual(document1: Record<string, unknown>, docu
       if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) {
         // Check if it looks like a date string (YYYY-MM-DD or ISO format)
         if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
-          doc[key] = new Date(value).toISOString().split('T')[0]
+          // Keep the time, so a change of time is a change; only an exact midnight collapses to the date, which is
+          // how a date-only value and its ISO form compare equal.
+          doc[key] = new Date(value).toISOString().replace(/T00:00:00\.000Z$/, '')
         }
       }
     }
@@ -138,7 +140,9 @@ export async function areDocumentsEqual(document1: Record<string, unknown>, docu
 
   const data1 = refineDocumentData({ ...documentData1, ...(meta1 || {}) })
   const data2 = refineDocumentData({ ...documentData2, ...(meta2 || {}) })
-  if (!doObjectsMatch(data1, data2)) {
+  // Both ways: doObjectsMatch walks the keys of its first argument only, so a field the original lacks and the
+  // modified document adds would otherwise go unseen.
+  if (!doObjectsMatch(data1, data2) || !doObjectsMatch(data2, data1)) {
     return false
   }
 

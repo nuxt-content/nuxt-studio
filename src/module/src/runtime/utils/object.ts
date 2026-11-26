@@ -8,7 +8,25 @@ export const pick = (obj: Record<string, unknown>, keys: string | string[]) => {
     .filter(([key]) => keys.includes(key)))
 }
 
+/**
+ * A value that counts as no value: missing, null, an empty string, an empty array or an empty object.
+ */
+function isEmptyValue(value: unknown) {
+  if (value === undefined || value === null || value === '') {
+    return true
+  }
+  if (Array.isArray(value)) {
+    return value.length === 0
+  }
+  return typeof value === 'object' && !(value instanceof Date) && Object.keys(value).length === 0
+}
+
 export function doObjectsMatch(base: Record<string, unknown>, target: Record<string, unknown>) {
+  // A missing or null value only matches another empty value. Without this, `null` (typeof 'object') matched any
+  // object, and an empty array or object differed from a missing key while an empty string did not.
+  if (base === undefined || base === null || target === undefined || target === null) {
+    return isEmptyValue(base) && isEmptyValue(target)
+  }
   if (typeof base !== 'object' || typeof target !== 'object') {
     const _base = (base as unknown as string) === '' ? undefined : base
     const _target = (target as unknown as string) === '' ? undefined : target

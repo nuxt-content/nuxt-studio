@@ -745,3 +745,49 @@ describe('documentFromYAMLContent / documentFromJSONContent', () => {
     expect(await documentFromYAMLContent('data/empty.yml', '')).toEqual({ id: 'data/empty.yml', extension: 'yml', stem: 'empty', meta: {} })
   })
 })
+
+describe('areDocumentsEqual - fields and times a draft adds or changes', () => {
+  const yamlDocument = (fields: Record<string, unknown> = {}): DatabaseItem => ({
+    id: 'congresos:example.yml',
+    path: '/example',
+    title: 'Example',
+    description: '',
+    stem: 'congresos/example',
+    extension: 'yml',
+    seo: {},
+    body: { type: 'minimark', value: [] },
+    meta: {},
+    ...fields,
+  })
+
+  it('should return false when an optional field missing from the original is added (#622)', async () => {
+    const original = yamlDocument()
+    const modified = yamlDocument({ actas: [{ title: 'Volumen 2', identifier: 'abc' }] })
+
+    expect(await areDocumentsEqual(original, modified)).toBe(false)
+  })
+
+  it('should return false when a missing scalar field is added (#622)', async () => {
+    expect(await areDocumentsEqual(yamlDocument(), yamlDocument({ rating: 5 }))).toBe(false)
+  })
+
+  it('should return true when the fields a draft adds are all empty', async () => {
+    const modified = yamlDocument({ cover: null, subtitle: '', tags: [], image: {} })
+
+    expect(await areDocumentsEqual(yamlDocument(), modified)).toBe(true)
+  })
+
+  it('should return false when only the time of a datetime changes', async () => {
+    const original = yamlDocument({ datetime: '2025-01-15 18:00:00' })
+    const modified = yamlDocument({ datetime: '2025-01-15 19:00:00' })
+
+    expect(await areDocumentsEqual(original, modified)).toBe(false)
+  })
+
+  it('should return false when only the time of an ISO datetime changes', async () => {
+    const original = yamlDocument({ datetime: '2025-01-15T18:00:00.000Z' })
+    const modified = yamlDocument({ datetime: '2025-01-15T19:00:00.000Z' })
+
+    expect(await areDocumentsEqual(original, modified)).toBe(false)
+  })
+})
