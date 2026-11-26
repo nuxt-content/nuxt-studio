@@ -138,7 +138,9 @@ export async function areDocumentsEqual(document1: Record<string, unknown>, docu
 
   const data1 = refineDocumentData({ ...documentData1, ...(meta1 || {}) })
   const data2 = refineDocumentData({ ...documentData2, ...(meta2 || {}) })
-  if (!doObjectsMatch(data1, data2)) {
+  // Both ways: doObjectsMatch walks the keys of its first argument only, so a field the original lacks and the
+  // modified document adds would otherwise go unseen.
+  if (!doObjectsMatch(data1, data2) || !doObjectsMatch(data2, data1)) {
     return false
   }
 
