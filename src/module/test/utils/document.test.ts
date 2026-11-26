@@ -777,4 +777,17 @@ describe('areDocumentsEqual - fields and times a draft adds or changes', () => {
     expect(await areDocumentsEqual(yamlDocument(), modified)).toBe(true)
   })
 
+  it('should return false when only the time of a datetime changes', async () => {
+    const original = yamlDocument({ datetime: '2025-01-15 18:00:00' })
+    const modified = yamlDocument({ datetime: '2025-01-15 19:00:00' })
+
+    expect(await areDocumentsEqual(original, modified)).toBe(false)
+  })
+
+  it('should return false when only the time of an ISO datetime changes', async () => {
+    const original = yamlDocument({ datetime: '2025-01-15T18:00:00.000Z' })
+    const modified = yamlDocument({ datetime: '2025-01-15T19:00:00.000Z' })
+
+    expect(await areDocumentsEqual(original, modified)).toBe(false)
+  })
 })
